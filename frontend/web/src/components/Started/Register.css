@@ -1,0 +1,301 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("../../assets/bgLogin.jpg");
+  background-size: cover;
+  background-position: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  background-color: rgb(255, 255, 255);
+  width: 500px;
+  height: 600px;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.tab-switch {
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.tab-switch a {
+  color: #fffefe;
+}
+.active-tab {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+.tab1 {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 0px;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  background: #ddd;
+
+  font-weight: bold;
+  cursor: pointer;
+  border-left: 10px;
+}
+.tab1:hover {
+  background-color: #000;
+  color: #fff;
+  transition: all 0.4s ease-out;
+}
+.tab2 {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 0px;
+  border-bottom-right-radius: 10px;
+  border-top-right-radius: 10px;
+  background: #ddd;
+  font-weight: bold;
+  cursor: pointer;
+  border-left: 10px;
+}
+.tab2:hover {
+  transition: all 0.4s ease-out;
+  background-color: #000;
+  color: #fff;
+}
+
+.title {
+  margin: 20px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1.5px solid #ccc;
+  padding: 10px;
+  border-radius: 999px;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.social-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 40px 0;
+  gap: 10px;
+}
+
+.divider hr {
+  flex: 1;
+  border: none;
+  height: 1px;
+  background: #ccc;
+}
+
+.divider span {
+  color: #999;
+  font-size: 14px;
+}
+
+.signup-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.name-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signup-form input {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+  height: 50px;
+}
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px 10px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.3s;
+  color: #000;
+  background-color: #fff !important;
+}
+
+.input-field:focus {
+  border-color: #333;
+}
+
+.floating-label {
+  position: absolute;
+  top: 13px;
+  left: 10px;
+  font-size: 16px;
+  color: #999;
+  pointer-events: none;
+  transition: all 0.2s ease-out;
+  background: white;
+  padding: 0 5px;
+}
+
+.password-row {
+  display: flex;
+  gap: 10px;
+}
+
+.password-row .input-group {
+  flex: 1;
+}
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #000000;
+  font-size: 18px;
+  z-index: 2;
+  background-color: white;
+  padding: 2px;
+  border-radius: 50%;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #000;
+}
+
+.signup-btn {
+  margin-top: 10px;
+  background: #ccc;
+  border: none;
+  padding: 12px;
+  border-radius: 999px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.signup-btn:hover {
+  background-color: #000;
+  color: #fff;
+  transition: all 0.4s ease-out;
+}
+.toggle-password {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 320px;
+    height: 500px;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 0 auto;
+  }
+
+  .tab-switch {
+    gap: 10px;
+  }
+
+  .tab1,
+  .tab2 {
+    border-radius: 10px !important;
+  }
+
+  .title {
+    font-size: 18px;
+    margin: 15px 0;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .social-btn {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .divider {
+    margin: 30px 0;
+    gap: 6px;
+  }
+
+  .divider span {
+    font-size: 12px;
+  }
+
+  .signup-form {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .signup-form input,
+  .login-form input {
+    font-size: 14px;
+    height: 45px;
+  }
+  .input-group {
+    width: 100%;
+  }
+  .input-field {
+    font-size: 14px;
+    height: 45px;
+    padding: 12px 10px;
+  }
+
+  .floating-label {
+    font-size: 14px;
+    top: 10px;
+  }
+
+  .toggle-password {
+    font-size: 16px;
+    right: 10px;
+  }
+
+  .signup-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
