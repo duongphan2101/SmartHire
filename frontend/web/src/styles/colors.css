@@ -1,0 +1,20 @@
+/* src/styles/colors.css */
+:root {
+  --color-primary: #0078d4;
+  --color-primary-light: #4aa8f0;
+  --color-primary-dark: #005fa3;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e0e0e0;
+  --color-gray-500: #757575;
+
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-info: #17a2b8;
+
+  --color-main: #0F828C;
+}
