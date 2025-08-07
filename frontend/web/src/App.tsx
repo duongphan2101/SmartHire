@@ -2,18 +2,23 @@ import './App.css'
 import './styles/colors.css'
 
 import Home from './pages/HomePage/Home'
-import ChatWithAI from './components/Chat-With-AI/ChatWithAI'
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Started/Login";
+import Register from "./components/Started/Register";
 
 function App() {
-
   return (
-    <>
-      <div className='App'>
-        <Home />
-        <ChatWithAI />
-      </div>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </Router>
+  );
+
 }
 
-export default App
+export default App;
