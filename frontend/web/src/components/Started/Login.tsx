@@ -37,7 +37,7 @@ const [email, setEmail] = useState("");
       );
       return;
     }
-    toast.success("Đăng ký thành công!");
+    toast.success("Đăng nhập thành công!");
   };
   return (
     <div className="login-container">
