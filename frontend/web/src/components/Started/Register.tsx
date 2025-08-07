@@ -9,10 +9,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
   const location = useLocation();
+
   const [isShown, setIsShown] = useState(false);
+  const [isShownRe, setIsShownRe] = useState(false);
+
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
+
   const [password, setPassword] = useState("");
+  const [repassword, setRePassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -100,17 +105,18 @@ function Login() {
             />
           </div>
 
+          <div className="input-group">
+            <input
+              type="text"
+              id="hoten"
+              placeholder="Họ và tên"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="input-field"
+            />
+          </div>
+
           <div className="password-row">
-            <div className="input-group">
-              <input
-                type="text"
-                id="hoten"
-                placeholder="Họ và tên"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="input-field"
-              />
-            </div>
 
             <div className="input-group">
               <input
@@ -126,6 +132,23 @@ function Login() {
                 onClick={() => setIsShown(!isShown)}
               >
                 {isShown ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+
+            <div className="input-group">
+              <input
+                type={isShownRe ? "text" : "password"}
+                id="repassword"
+                placeholder="Xác nhận mật khẩu"
+                value={repassword}
+                onChange={(e) => setRePassword(e.target.value)}
+                className="input-field"
+              />
+              <span
+                className="toggle-password"
+                onClick={() => setIsShownRe(!isShownRe)}
+              >
+                {isShownRe ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
           </div>
