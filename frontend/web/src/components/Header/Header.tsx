@@ -26,15 +26,15 @@ const Header: React.FC = () => {
 
                 <div className="header-user header-item">
                     <div>
-                        <button className="header-user_btn"
+                        <a className="header-user_btn" href="/register"
                             style={{ backgroundColor: 'transparent', borderColor: '#fff', color: '#fff' }}
                         >
                             Đăng ký
-                        </button>
+                        </a>
 
-                        <button className="header-user_btn">
+                        <a className="header-user_btn" href="/login">
                             Đăng nhập
-                        </button>
+                        </a>
                     </div>
                 </div>
 
