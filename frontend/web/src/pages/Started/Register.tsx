@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../components/Started/Register.css";
+import "./Register.css";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";

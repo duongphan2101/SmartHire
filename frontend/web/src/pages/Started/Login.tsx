@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../components/Started/Login.css";
+import "./Login.css";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";

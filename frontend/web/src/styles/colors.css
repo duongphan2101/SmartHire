@@ -12,9 +12,20 @@
   --color-gray-500: #757575;
 
   --color-success: #28a745;
+  --color-buggest: green;
   --color-warning: #ffc107;
   --color-error: #dc3545;
   --color-info: #17a2b8;
 
   --color-main: #0F828C;
+  --color-secondary: #005a9e;
+  --color-accent: #ff4081;
+  --color-background: #f0f0f0;
+  --color-text: #333333;
+  --color-border: #cccccc;
+  --color-link: #007bff;
+  --color-link-hover: #0056b3;
+  --color-header-bg: #000000C4;
+  --color-header-bg-trans: rgba(34, 34, 34, 0.4);
+  --color-tomato: rgb(255, 89, 65);
 }

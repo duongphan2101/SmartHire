@@ -2,8 +2,8 @@ import './App.css'
 import './styles/colors.css'
 
 import Home from './pages/HomePage/Home'
-import Login from './components/Started/Login'
-import Register from './components/Started/Register'
+import Login from './pages/Started/Login'
+import Register from './pages/Started/Register'
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 

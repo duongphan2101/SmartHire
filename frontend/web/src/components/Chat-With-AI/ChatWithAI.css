@@ -53,9 +53,17 @@
 
 /* Floating Animation */
 @keyframes float {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0); }
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
 }
 
 /* Chat Box */
@@ -76,7 +84,7 @@
 
 /* Header */
 .chat-box-header {
-    background: var(--color-info);
+    background: var(--color-emerald-600);
     color: white;
     padding: 6px 8px;
     font-weight: bold;
@@ -85,22 +93,84 @@
     align-items: center;
 }
 
-/* Body */
 .chat-box-body {
     flex: 1;
-    padding: 16px;
+    padding: 15px;
     background-color: #f9f9f9;
     font-size: 14px;
     color: #333;
     overflow-y: auto;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Close button */
+.chat-box-body::-webkit-scrollbar {
+    display: none;
+}
+
+.message {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 18px;
+    margin-bottom: 8px;
+    word-break: break-word;
+    width: fit-content;
+    max-width: 75%;
+    line-height: 1.4;
+}
+
+.message-ai {
+    background-color: #e5e7eb;
+    color: #111827;
+    align-self: flex-start;
+}
+
+.message-user {
+    background-color: #10b981;
+    color: white;
+    align-self: flex-end;
+}
+
+.message-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.message-wrapper.user {
+    justify-content: flex-end;
+}
+
+.message-wrapper.ai {
+    justify-content: flex-start;
+}
+
 .close-btn {
     background: none;
     border: none;
     font-size: 20px;
     color: white;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.chat-box-bottom {
+    padding: 10px 20px;
+    gap: 10px;
+    background-color: #f9f9f9;
+}
+
+.chat-box-bottom input {
+    flex: 1;
+    padding: 5px;
+    outline: none;
+    border-radius: 10px;
+    color: gray;
+}
+
+.btn-send:hover {
     cursor: pointer;
 }
 
@@ -110,6 +180,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
