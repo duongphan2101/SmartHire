@@ -80,8 +80,7 @@
             rgba(5, 150, 105, 1) 80%,
             rgba(4, 120, 87, 1) 80%,
             rgba(6, 95, 70, 1) 80%,
-            rgba(167, 243, 208, 0.4) 80%
-        );
+            rgba(167, 243, 208, 0.4) 80%);
     border-radius: 50%;
     z-index: 1;
     animation: floatShape 6s ease-in-out infinite;
@@ -156,17 +155,21 @@
         display: none;
     }
 
+    .box-box-slogan {
+        flex-wrap: wrap;
+    }
+
     .span-slogan-par {
-        font-size: 14px;
+        font-size: 24px;
     }
 
     .slogan-text {
-        font-size: 10px;
+        font-size: 18px;
         margin-top: 5px;
     }
 
     .slogan-content {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     .box-box-slogan {
