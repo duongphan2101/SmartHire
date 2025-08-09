@@ -8,14 +8,19 @@
   justify-content: center;
 }
 
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 /* Chrome, Edge, Safari, Opera */
 ::selection {
-    background: var(--color-emerald-600);
-    color: #fff;
+  background: var(--color-emerald-600);
+  color: #fff;
 }
 
 /* Firefox */
 ::-moz-selection {
-    background: var(--color-emerald-600);
-    color: #fff;
+  background: var(--color-emerald-600);
+  color: #fff;
 }
