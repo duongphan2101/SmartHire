@@ -2,22 +2,36 @@
     text-align: center;
     height: 100vh;
     width: 100vw;
-    flex: 1;
 }
 
 .containerStyle {
     position: relative;
 }
 
-.container-banner {
-    background-image: url('../../assets/images/banner-2.jpg');
+.container-fluid {
     background-repeat: no-repeat;
     background-size: cover;
-    height: 700px;
+
+    width: 100%;
+}
+
+.container-fluid_banner {
+    background-image: url('../../assets/images/banner-2.jpg');
+}
+
+.container-fluid_categories {
+    background-image: url('../../assets/images/origin1.webp');
+    /* background-color: #f1f7f4; */
+}
+
+.container-banner {
+    height: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    max-width: 1400px;
+    margin: auto;
     padding: 0 20px;
 }
 
@@ -183,3 +197,86 @@
         text-align: left;
     }
 }
+
+.container-categories {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: auto;
+    padding-bottom: 80px;
+}
+
+.categories-item {
+    position: relative;
+    background-size: contain;
+}
+
+.categories-item .item-bg,
+.categories-item .item-bottom {
+    transition: transform .5s ease;
+}
+
+.categories-film {
+    position: absolute;
+    display: none;
+    opacity: .2;
+    top: 0;
+    left: 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(90deg, #FCAA04 0%, #00B04D 100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.categories-item:hover .item-bg {
+    transform: translateX(-10px);
+}
+
+.categories-item:hover .item-bottom {
+    transform: translateX(10px);
+}
+
+.item-bottom {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: flex-start;
+    background-color: white;
+    flex-direction: column;
+
+    box-shadow: 0 13px 29px #0000001a;
+}
+
+.item-title {
+    font-weight: 550;
+    font-size: 16px;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+.item-posted {
+    text-align: left;
+    color: var(--color-gray-500);
+}
+
+.item-bg {
+    height: 15rem;
+    position: relative;
+}
+
+.item-bg:hover .categories-film{
+    display: flex;
+}
+
+.item-bg:hover .categories-film_icon{
+    opacity: 1;
+}
+
+
+
+
