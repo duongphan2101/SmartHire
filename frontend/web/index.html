@@ -1,13 +1,84 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logoo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>S m a r t H i r e</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logoo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S m a r t H i r e</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+<!-- <script>
+  (function () {
+
+    // function showBlockMessage() {
+    //   document.body.innerHTML = `
+    //   <div style="
+    //     display:flex;
+    //     justify-content:center;
+    //     align-items:center;
+    //     height:100vh;
+    //     background-color:#111;
+    //     color:#fff;
+    //     font-family:sans-serif;
+    //     flex-direction:column;
+    //     text-align:center;
+    //   ">
+    //     <h1 style="color:#f87171;font-size:3rem;">🚫 Không được phép truy cập</h1>
+    //     <p style="font-size:1.2rem;margin-top:1rem;">Hệ thống đã phát hiện bạn đang cố mở công cụ dành cho nhà phát triển.</p>
+    //   </div>
+    // `;
+    // }
+
+    function showBlockMessage() {
+      alert("🚫 Không được phép truy cập!\nHệ thống đã phát hiện bạn đang cố mở công cụ dành cho nhà phát triển.");
+    }
+
+
+    // Chặn phím tắt phổ biến
+    document.addEventListener('keydown', function (event) {
+      if (
+        event.key === "F12" ||
+        (event.ctrlKey && event.shiftKey && ['I', 'J', 'C'].includes(event.key.toUpperCase())) ||
+        (event.ctrlKey && event.key.toUpperCase() === 'U')
+      ) {
+        event.preventDefault();
+        showBlockMessage();
+      }
+    });
+
+    // Chặn chuột phải
+    document.addEventListener('contextmenu', function (event) {
+      event.preventDefault();
+      showBlockMessage();
+    });
+
+    // Detect DevTools qua thời gian thực thi
+    function detectDevTools() {
+      const start = performance.now();
+      debugger;
+      if (performance.now() - start > 100) {
+        showBlockMessage();
+      }
+    }
+
+    // Check định kỳ
+    setInterval(detectDevTools, 1000);
+
+    // Detect khi resize bất thường (DevTools docked)
+    const threshold = 160; // px
+    window.addEventListener('resize', function () {
+      if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+        showBlockMessage();
+      }
+    });
+  })();
+</script> -->
+
+
 </html>
