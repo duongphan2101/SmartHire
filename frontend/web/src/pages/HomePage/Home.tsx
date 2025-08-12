@@ -16,7 +16,17 @@ import Education from "../../assets/images/education.jpg";
 import HealCare from "../../assets/images/healcare.jpg";
 import Travel from "../../assets/images/travel.jpg";
 
-// import { FaArrowRight } from 'react-icons/fa';
+import apple from "../../assets/images/apple.png";
+import google from "../../assets/images/google.png";
+import nike from "../../assets/images/nike.png";
+import stabuck from "../../assets/images/starbuck.png";
+import volkswagen from "../../assets/images/volkswagen.png";
+import meta from "../../assets/images/meta.png";
+
+import { IoLocationOutline } from 'react-icons/io5';
+import { FaRegMoneyBillAlt } from 'react-icons/fa';
+import { AiOutlineClockCircle } from 'react-icons/ai';
+import { RiContrastDrop2Line } from 'react-icons/ri';
 
 const Home: React.FC = () => {
 
@@ -103,6 +113,82 @@ const Home: React.FC = () => {
             url: "/du-lich-dich-vu"
         }
     ];
+
+    const lastest = [
+        {
+            id: 1,
+            nameJob: "IOS Developer",
+            deparment: "Apple",
+            image: apple,
+            tech: ["Object C", "Swift", "XCode"],
+            url: "/",
+            location: "Hà Nội",
+            salary: "$1,200 - $1,800",
+            level: "Fresher",
+            type: "Fulltime"
+        },
+        {
+            id: 2,
+            nameJob: "Frontend Developer",
+            deparment: "Google",
+            image: google,
+            tech: ["HTML", "CSS", "JavaScript"],
+            url: "/",
+            location: "TP. Hồ Chí Minh",
+            salary: "$1,000 - $1,500",
+            level: "Junior",
+            type: "Hybrid"
+        },
+        {
+            id: 3,
+            nameJob: "Backend Developer",
+            deparment: "Starbucks",
+            image: stabuck,
+            tech: ["Node.js", "Express", "MongoDB"],
+            url: "/",
+            location: "Đà Nẵng",
+            salary: "$1,500 - $2,000",
+            level: "Senior",
+            type: "Onsite"
+        },
+        {
+            id: 4,
+            nameJob: "Mobile App Developer",
+            deparment: "Volkswagen",
+            image: volkswagen,
+            tech: ["Java", "Kotlin", "Android Studio"],
+            url: "/",
+            location: "Hà Nội",
+            salary: "$1,000 - $1,700",
+            level: "Fresher",
+            type: "Remote"
+        },
+        {
+            id: 5,
+            nameJob: "UI/UX Designer",
+            deparment: "Nike",
+            image: nike,
+            tech: ["Figma", "Adobe XD", "Sketch"],
+            url: "/",
+            location: "TP. Hồ Chí Minh",
+            salary: "$900 - $1,400",
+            level: "Intern",
+            type: "Parttime"
+        },
+        {
+            id: 6,
+            nameJob: "Fullstack Developer",
+            deparment: "Meta",
+            image: meta,
+            tech: ["React", "Node.js", "GraphQL"],
+            url: "/",
+            location: "Đà Nẵng",
+            salary: "$1,800 - $2,500",
+            level: "Senior",
+            type: "Fulltime"
+        }
+    ];
+
 
     return (
         <>
@@ -194,7 +280,7 @@ const Home: React.FC = () => {
                             </div>
 
                             <div className="w-full">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-4 gap-8 w-full">
                                     {categories.map((item, idx) => (
                                         <div className='categories-item bg-transparent'>
                                             <a href={item.url}>
@@ -208,7 +294,7 @@ const Home: React.FC = () => {
                                                     }}
                                                 >
                                                     <div className='categories-film'>
-                                                        {/* <FaArrowRight color='#fff' size={34} /> */}
+
                                                     </div>
                                                 </div>
                                             </a>
@@ -226,6 +312,69 @@ const Home: React.FC = () => {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div className='container-fluid container-fluid_latest'>
+
+                        <div className="container-lastest flex flex-wrap xl:flex-nowrap">
+                            <div className='flex w-full align-middle justify-center flex-col'
+                                style={{ paddingTop: 50, paddingBottom: 30 }}
+                            >
+                                <p className='text-gray-800' style={{ fontSize: 34, padding: 30, fontWeight: "bold" }}>Cơ Hội Không Thể Bỏ Lỡ</p>
+                                <p className='text-gray-600'>Chúng tôi vừa thêm những cơ hội nghề nghiệp chất lượng dành cho bạn.</p>
+                            </div>
+                            <div className="w-full">
+
+                                <div className="fillter-type flex items-center justify-center">
+                                    <ul className='fillter-type_ul flex'>
+                                        <li className='type-ul_li active'><a href="/">All</a></li>
+                                        <li className='type-ul_li'><a href="/">Full Time</a></li>
+                                        <li className='type-ul_li'><a href="/">Part Time</a></li>
+                                        <li className='type-ul_li'><a href="/">Remote</a></li>
+                                    </ul>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                                    {lastest.map((item) => (
+                                        <div className='lasted-item flex flex-col'>
+                                            <div className='lasted-item_top flex justify-between'>
+
+                                                <div className='item-top_left flex justify-around'>
+                                                    <img src={item.image} className='lasted-item_image' />
+                                                </div>
+
+                                                <div className='item-top_center flex flex-col flex-1 text-left'>
+                                                    <p className='lasted-item-nameJob' style={{ fontSize: 16, fontWeight: 'bold' }}>{item.nameJob}</p>
+                                                    <p style={{fontSize: 16, paddingTop: 5, paddingBottom: 10}} className='text-gray-600'>{item.deparment}</p>
+                                                    <div className='flex gap-3 lasted-techs'>{item.tech.map((i) =>(
+                                                        <div className='lasted-tech-item'>
+                                                            {i}
+                                                        </div>
+                                                    ))}</div>
+                                                </div>
+
+                                                <div className='item-top_right'>
+                                                    <a href={item.url} className='btn-apply'>
+                                                        Apply
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div className='lasted-item_bottom'>
+                                                <ul className='flex gap-6'>
+                                                    <li className='bottom-li flex gap-3 items-center'><IoLocationOutline /> {item.location}</li>
+                                                    <li className='bottom-li flex gap-3 items-center'><FaRegMoneyBillAlt /> {item.salary}</li>
+                                                    <li className='bottom-li flex gap-3 items-center'><AiOutlineClockCircle />{item.type}</li>
+                                                    <li className='bottom-li flex gap-3 items-center'><RiContrastDrop2Line />{item.level}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
                             </div>
 
                         </div>
