@@ -19,7 +19,8 @@ const Header: React.FC = () => {
 
         <div className="header-logo header-item">
           <span className="span-logo">
-            <span style={{color: '#059669'}}>Smart</span>Hire
+            <span style={{color: '#059669'}}>
+              <span className="bounce-text">S</span>mart</span>Hire
           </span>
         </div>
 
