@@ -18,10 +18,11 @@ const Header: React.FC = () => {
       <header className="header">
 
         <div className="header-logo header-item">
-          <span className="span-logo">
-            <span style={{color: '#059669'}}>
-              <span className="bounce-text">S</span>mart</span>Hire
-          </span>
+          <a href="/">
+            <span className="span-logo">
+              <span style={{ color: '#059669' }}>Smart</span>Hire
+            </span>
+          </a>
         </div>
 
         <div className="header-nav header-item desktop-only">
