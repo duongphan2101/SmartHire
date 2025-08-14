@@ -3,6 +3,11 @@ footer {
     padding: 150px 120px;
 }
 
+.footer-fluid {
+    max-width: 1400px;
+    width: 1400px;
+}
+
 .footer-top-content {
     width: 50%;
 }
