@@ -225,6 +225,11 @@
         align-items: center;
     }
 
+    .lasted-item-department {
+        justify-content: center;
+        align-items: center;
+    }
+
 }
 
 .container-categories,
@@ -242,6 +247,10 @@
 .categories-item {
     position: relative;
     background-size: contain;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0 13px 29px #0000001a;
+    border-radius: 10px;
 }
 
 .categories-item .item-bg,
@@ -263,24 +272,34 @@
     /* background-image: linear-gradient(90deg, #FCAA04 0%, #00B04D 100%); */
     background-image: linear-gradient(90deg, #000 0%, #000 100%);
     transition: opacity 1s ease, transform 1s ease;
+    border-radius: 10px;
 }
 
-.categories-item:hover .item-bg {
+.categories-icon {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* .categories-item:hover .item-bg {
     transform: translateX(-10px);
 }
 
 .categories-item:hover .item-bottom {
     transform: translateX(10px);
+} */
+
+.categories-item:hover .item-bg {
+    transform: scale(1.02);
 }
 
 .item-bottom {
-    padding: 40px 20px;
+    padding: 40px 0px;
     display: flex;
     justify-content: flex-start;
     background-color: white;
     flex-direction: column;
 
-    box-shadow: 0 13px 29px #0000001a;
+    /* box-shadow: 0 13px 29px #0000001a; */
 }
 
 .item-title {
@@ -298,6 +317,10 @@
 .item-bg {
     height: 15rem;
     position: relative;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .item-bg:hover .categories-film {
@@ -305,10 +328,19 @@
     visibility: visible;
 }
 
+.item-bg:hover .categories-icon {
+    opacity: 1;
+    visibility: visible;
+}
+
 .lasted-item {
-    border: .1px solid lightgray;
+    /* border: .1px solid lightgray; */
     padding: 20px;
     border-radius: 2px;
+    background-color: #fff;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .item-top_center {
@@ -319,6 +351,7 @@
     width: 80px;
     padding: 10px;
     border: .5px solid lightgray;
+    border-radius: 50%;
 }
 
 .item-top_right {
@@ -364,6 +397,11 @@
 .lasted-item_bottom {
     text-align: center;
     padding-top: 20px;
+    padding-right: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .bottom-li {
