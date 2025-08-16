@@ -28,7 +28,7 @@ const Header: React.FC = () => {
         <div className="header-nav header-item desktop-only">
           <nav>
             <a className="nav-item" href="/" style={{ color: '#fff', margin: '0 1rem' }}>Trang chủ</a>
-            <a className="nav-item" href="/about" style={{ color: '#fff', margin: '0 1rem' }}>Về chúng tôi</a>
+            <a className="nav-item" href="/intro" style={{ color: '#fff', margin: '0 1rem' }}>Về chúng tôi</a>
             <a className="nav-item" href="/create-cv" style={{ color: '#fff', margin: '0 1rem' }}>Tạo CV</a>
           </nav>
         </div>
