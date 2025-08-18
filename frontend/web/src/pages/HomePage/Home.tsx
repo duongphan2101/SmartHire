@@ -45,6 +45,7 @@ const Home: React.FC = () => {
     };
 
     useEffect(() => {
+        document.title = "S m a r t H i r e - Trang chủ";
         let index = 0;
         const interval = setInterval(() => {
             setAnimate(false);

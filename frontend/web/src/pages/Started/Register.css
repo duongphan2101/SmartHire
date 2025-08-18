@@ -17,13 +17,13 @@
 }
 
 .login-container {
-  background-color: rgb(255, 255, 255);
+  background-color: white;
   width: 500px;
-  height: 600px;
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   text-align: center;
+  height: auto;
 }
 
 .tab-switch {
@@ -128,6 +128,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
+  height: auto;
 }
 
 .name-fields {
@@ -226,7 +227,6 @@
 @media (max-width: 768px) {
   .login-container {
     width: 320px;
-    height: 500px;
     padding: 20px;
     border-radius: 15px;
     margin: 0 auto;

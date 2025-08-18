@@ -7,12 +7,11 @@ const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
   return (
     <header className="header-container">
 
       <div className="header-script">
-        SmartHire - Your AI-Powered Recruitment Assistant
+        S m a r t H i r e - Nền tảng tuyển dụng thông minh
       </div>
 
       <header className="header">
