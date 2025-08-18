@@ -28,6 +28,10 @@
     background-color: #fff;
 }
 
+.container-fluid_cvbuilder {
+    background-image: url('../../assets/images/origin.webp');
+}
+
 .container-banner {
     height: 800px;
     display: flex;
@@ -37,6 +41,16 @@
     max-width: 1400px;
     margin: auto;
     padding: 0 20px;
+}
+
+.container-cvbuilder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: auto;
+    padding: 80px 20px;
 }
 
 .buttonStyle {
@@ -250,7 +264,7 @@
     padding: 15px;
     background-color: #fff;
     box-shadow: 0 13px 29px #0000001a;
-    border-radius: 10px;
+    /* border-radius: 10px; */
 }
 
 .categories-item .item-bg,
@@ -280,11 +294,11 @@
     transition: opacity 1s ease;
 }
 
-/* .categories-item:hover .item-bg {
-    transform: translateX(-10px);
+.categories-item:hover .item-bg {
+    transform: translateX(10px);
 }
 
-.categories-item:hover .item-bottom {
+/* .categories-item:hover .item-bottom {
     transform: translateX(10px);
 } */
 
@@ -455,4 +469,156 @@
 
 .type-ul_li:hover a {
     color: var(--color-emerald-600);
+}
+
+.container-cvbuilder_banner {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cvBuilder-banner {
+    width: 400px;
+    position: relative;
+    z-index: 1;
+}
+
+.container-cvbuilder_shape {
+    position: absolute;
+    z-index: 0;
+    height: 500px;
+    width: 500px;
+    border-radius: 50%;
+    background-color: var(--color-emerald-600);
+    left: 0px;
+    top: 0px;
+    opacity: 0.9;
+}
+
+.container-cvbuilder_content {
+    z-index: 5;
+}
+
+/* .button {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0.6em 2em;
+    border: var(--color-emerald-600) solid 0.15em;
+    border-radius: 0.5em;
+    color: var(--color-emerald-600);
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 300ms ease;
+    user-select: none;
+    width: 200px;
+    box-shadow: 0 4px 8px rgba(5, 150, 105, 0.25);
+}
+
+.button p {
+    z-index: 1;
+    position: relative;
+}
+
+.button:hover {
+    color: white;
+    border-color: var(--color-emerald-600);
+}
+
+.button:active {
+    transform: scale(0.96);
+}
+
+.button::after,
+.button::before {
+    content: "";
+    position: absolute;
+    width: 9em;
+    aspect-ratio: 1;
+    background: var(--color-emerald-600);
+    opacity: 0.6;
+    border-radius: 50%;
+    transition: transform 500ms ease, opacity 300ms ease;
+}
+
+.button::before {
+    left: 0;
+    transform: translateX(-8em);
+}
+
+.button::after {
+    right: 0;
+    transform: translateX(8em);
+}
+
+.button:hover::before {
+    transform: translateX(-1em);
+    opacity: 1;
+}
+
+.button:hover::after {
+    transform: translateX(1em);
+    opacity: 1;
+} */
+
+/* From Uiverse.io by adamgiebl */ 
+.cssbuttons-io-button {
+  background: var(--color-emerald-600);
+  color: white;
+  font-family: inherit;
+  padding: 0.35em;
+  padding-left: 1.2em;
+  font-size: 17px;
+  font-weight: 500;
+  border-radius: 0.9em;
+  border: none;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 0 1.6em -0.6em var(--color-emerald-600);
+  overflow: hidden;
+  position: relative;
+  height: 2.8em;
+  padding-right: 3.3em;
+  cursor: pointer;
+}
+
+.cssbuttons-io-button .icon {
+  background: white;
+  margin-left: 1em;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2em;
+  width: 2.2em;
+  border-radius: 0.7em;
+  box-shadow: 0.1em 0.1em 0.6em 0.2em var(--color-emerald-600);
+  right: 0.3em;
+  transition: all 0.5s;
+}
+
+.cssbuttons-io-button:hover .icon {
+  width: calc(100% - 0.6em);
+  background-color: var(--color-emerald-600);
+}
+
+.cssbuttons-io-button .icon svg {
+  width: 1.1em;
+  transition: transform 0.5s;
+  color: var(--color-emerald-600);
+}
+
+.cssbuttons-io-button:hover .icon svg {
+  transform: translateX(0.1em);
+  color: white;
+}
+
+.cssbuttons-io-button:active .icon {
+  transform: scale(0.95);
 }
