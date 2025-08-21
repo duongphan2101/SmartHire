@@ -1,8 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
 
+type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
-export default function RegisterScreen() {
+type Props = {
+  navigation: RegisterScreenNavigationProp;
+};
+
+export default function RegisterScreen({ navigation }: Props) {
 
 
   return (
@@ -48,15 +56,18 @@ export default function RegisterScreen() {
         </View>
 
         <TouchableOpacity style={styles.socialButton}>
+          <Icon name='facebook-square' size={20} color="#3b5998" />
           <Text style={styles.socialButtonText}>Đăng ký với Facebook</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.socialButton}>
+          <Icon name='google-plus' size={20} />
           <Text style={styles.socialButtonText}>Đăng ký với Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.loginButton}
+          onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.loginButtonText}>Đăng nhập</Text>
         </TouchableOpacity>
@@ -143,6 +154,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    flexDirection: 'row',
+    gap: 10
   },
   socialButtonText: {
     fontSize: 16,

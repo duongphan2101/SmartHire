@@ -1,8 +1,24 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../types/navigation';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
-export default function LoginScreen() {  
+type Props = {
+  navigation: LoginScreenNavigationProp;
+};
+
+export default function LoginScreen({ navigation }: Props) {
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const LoginFunc = () => {
+    Alert.alert(`Login with ${email} and ${password}`);
+    navigation.navigate("Home");
+  };
 
   return (
     <View style={styles.container}>
@@ -20,16 +36,26 @@ export default function LoginScreen() {
           placeholderTextColor="#888"
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="emailAddress"
+          value={email}
+          onChangeText={setEmail}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Mật khẩu"
           placeholderTextColor="#888"
-          secureTextEntry={true} 
+          secureTextEntry={true}
+          textContentType="password"
+          value={password}
+          onChangeText={setPassword}
         />
 
-        <TouchableOpacity style={styles.loginButton}>
+
+        <TouchableOpacity style={styles.loginButton}
+          onPress={LoginFunc}
+        >
           <Text style={styles.loginButtonText}>Đăng nhập</Text>
         </TouchableOpacity>
 
@@ -40,15 +66,18 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity style={styles.socialButton}>
+          <Icon name='facebook-square' size={20} color="#3b5998" />
           <Text style={styles.socialButtonText}>Đăng nhập với Facebook</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.socialButton}>
+          <Icon name='google-plus' size={20} />
           <Text style={styles.socialButtonText}>Đăng nhập với Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.signupButton}
+          onPress={() => navigation.navigate("Register")}
         >
           <Text style={styles.signupButtonText}>Đăng ký</Text>
         </TouchableOpacity>
@@ -135,6 +164,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    flexDirection: 'row',
+    gap: 10
   },
   socialButtonText: {
     fontSize: 16,

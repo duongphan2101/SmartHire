@@ -492,7 +492,7 @@ const Home: React.FC = () => {
                                         <p>Bắt đầu ngay</p>
                                     </button> */}
 
-                                    <button className="cssbuttons-io-button">
+                                    <button className="cssbuttons-io-button" onClick={() => {alert('Ehehe')}}>
                                         Bắt đầu ngay
                                         <div className="icon">
                                             <svg
