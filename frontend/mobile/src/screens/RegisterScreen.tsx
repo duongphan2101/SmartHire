@@ -1,18 +1,26 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 
-type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
+type RegisterScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Register'
+>;
 
 type Props = {
   navigation: RegisterScreenNavigationProp;
 };
 
 export default function RegisterScreen({ navigation }: Props) {
-
-
   return (
     <View style={styles.container}>
       <Image
@@ -35,14 +43,14 @@ export default function RegisterScreen({ navigation }: Props) {
           style={styles.input}
           placeholder="Mật khẩu"
           placeholderTextColor="#888"
-          secureTextEntry={true} 
+          secureTextEntry={true}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Xác nhận mật khẩu"
           placeholderTextColor="#888"
-          secureTextEntry={true} 
+          secureTextEntry={true}
         />
 
         <TouchableOpacity style={styles.registerButton}>
@@ -56,21 +64,23 @@ export default function RegisterScreen({ navigation }: Props) {
         </View>
 
         <TouchableOpacity style={styles.socialButton}>
-          <Icon name='facebook-square' size={20} color="#3b5998" />
+          <Icon name="facebook-square" size={20} color="#3b5998" />
           <Text style={styles.socialButtonText}>Đăng ký với Facebook</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.socialButton}>
-          <Icon name='google-plus' size={20} />
+          <Icon name="google-plus" size={20} color={'#db4437'} />
           <Text style={styles.socialButtonText}>Đăng ký với Google</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => navigation.navigate("Login")}
-        >
-          <Text style={styles.loginButtonText}>Đăng nhập</Text>
-        </TouchableOpacity>
+        <View style={styles.registerContainer}>
+          <Text style={styles.registerText}>Chưa có tài khoản?</Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.loginButtonText}>Đăng nhập</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -105,6 +115,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    fontFamily: 'sans-serif-medium',
   },
   input: {
     width: '100%',
@@ -117,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   registerButton: {
-    backgroundColor: '#000000ff',
+    backgroundColor: '#313335ff',
     width: '100%',
     height: 50,
     borderRadius: 10,
@@ -148,21 +159,33 @@ const styles = StyleSheet.create({
   socialButton: {
     width: '100%',
     height: 50,
-    borderRadius: 10,
+    borderRadius: 30,
     borderWidth: 1,
     borderColor: '#ccc',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
     flexDirection: 'row',
-    gap: 10
+    gap: 10,
   },
   socialButtonText: {
     fontSize: 16,
     color: '#333',
   },
+
   loginButton: {
-    marginTop: 10,
+    // marginTop: 10,
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 15,
+    gap: 5,
+  },
+  registerText: {
+    fontSize: 16,
+    color: '#000000ff',
   },
   loginButtonText: {
     fontSize: 16,

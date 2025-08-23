@@ -1,25 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  TouchableNativeFeedback,
+  Platform,
+} from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Login'
+>;
 
 type Props = {
   navigation: LoginScreenNavigationProp;
 };
 
 export default function LoginScreen({ navigation }: Props) {
-
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const LoginFunc = () => {
     Alert.alert(`Login with ${email} and ${password}`);
-    navigation.navigate("Home");
+    navigation.navigate('Home');
   };
-
+  const ButtonWrapper: React.FC<{
+    onPress: () => void;
+    children: React.ReactNode;
+  }> = ({ onPress, children }) => {
+    if (Platform.OS === 'android') {
+      return (
+        <TouchableNativeFeedback
+          onPress={onPress}
+          background={TouchableNativeFeedback.Ripple('#ffffff', false)} // màu trắng ripple
+        >
+          <View style={styles.loginButton}>{children}</View>
+        </TouchableNativeFeedback>
+      );
+    }
+  };
   return (
     <View style={styles.container}>
       <Image
@@ -52,10 +78,7 @@ export default function LoginScreen({ navigation }: Props) {
           onChangeText={setPassword}
         />
 
-
-        <TouchableOpacity style={styles.loginButton}
-          onPress={LoginFunc}
-        >
+        <TouchableOpacity style={styles.loginButton} onPress={LoginFunc}>
           <Text style={styles.loginButtonText}>Đăng nhập</Text>
         </TouchableOpacity>
 
@@ -66,21 +89,24 @@ export default function LoginScreen({ navigation }: Props) {
         </View>
 
         <TouchableOpacity style={styles.socialButton}>
-          <Icon name='facebook-square' size={20} color="#3b5998" />
+          <Icon name="facebook-square" size={20} color="#3b5998" />
           <Text style={styles.socialButtonText}>Đăng nhập với Facebook</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.socialButton}>
-          <Icon name='google-plus' size={20} />
+          <Icon name="google-plus" size={20} color={'#db4437'} />
           <Text style={styles.socialButtonText}>Đăng nhập với Google</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.signupButton}
-          onPress={() => navigation.navigate("Register")}
-        >
-          <Text style={styles.signupButtonText}>Đăng ký</Text>
-        </TouchableOpacity>
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Chưa có tài khoản?</Text>
+          <TouchableOpacity
+            style={styles.signupButton}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.signupButtonText}>Đăng ký</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -100,11 +126,11 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 15,
+    borderRadius: 25,
     padding: 20,
     width: '80%',
     alignItems: 'center',
-    elevation: 5,
+    elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -115,6 +141,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    fontFamily: 'sans-serif-medium',
   },
   input: {
     width: '100%',
@@ -127,13 +154,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: '#000000ff',
+    backgroundColor: '#313335ff',
     width: '100%',
     height: 50,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 15,
+    overflow: 'hidden',
   },
   loginButtonText: {
     color: '#fff',
@@ -158,22 +186,34 @@ const styles = StyleSheet.create({
   socialButton: {
     width: '100%',
     height: 50,
-    borderRadius: 10,
+    borderRadius: 30,
     borderWidth: 1,
     borderColor: '#ccc',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
     flexDirection: 'row',
-    gap: 10
+    gap: 10,
   },
   socialButtonText: {
     fontSize: 16,
     color: '#333',
   },
-  signupButton: {
-    marginTop: 10,
-  },
+signupContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 15,
+  
+},
+signupButton: {
+  paddingHorizontal: 5, 
+},
+
+signupText: {
+  fontSize: 16,
+  color: '#000000ff',
+},
   signupButtonText: {
     fontSize: 16,
     color: '#007AFF',
