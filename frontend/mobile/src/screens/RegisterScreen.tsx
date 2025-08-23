@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255)',
     borderRadius: 15,
     padding: 20,
     width: '80%',
