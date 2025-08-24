@@ -3,15 +3,11 @@ import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import LoginScreen from '../mobile/src/screens/LoginScreen';
-import RegisterScreen from '../mobile/src/screens/RegisterScreen';
 import HomeScreen from '../mobile/src/screens/HomeScreen';
 import { RootStackParamList } from './src/types/navigation';
-import { Header } from '@react-navigation/stack';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -21,9 +17,8 @@ function App() {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false, animation: "slide_from_left"}}/>
-          <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false, animation: "slide_from_right"}}/>
-          <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false, animation: "slide_from_left" }} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'slide_from_right' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
