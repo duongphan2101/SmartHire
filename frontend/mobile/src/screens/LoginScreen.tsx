@@ -1,4 +1,4 @@
-import React, { useState, useCallback} from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,25 +9,23 @@ import {
   Alert,
   TouchableNativeFeedback,
   Platform,
+  Animated,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
 
 export default function LoginScreen({ navigation }: Props) {
-
-  
   // State cho đăng nhập
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
   const [loginShowPassword, setLoginShowPassword] = useState<boolean>(false);
 
-   // State cho đăng ký
+  // State cho đăng ký
   const [registerEmail, setRegisterEmail] = useState<string>('');
   const [registerUsername, setRegisterUsername] = useState<string>('');
   const [registerPassword, setRegisterPassword] = useState<string>('');
@@ -35,11 +33,21 @@ export default function LoginScreen({ navigation }: Props) {
   const [registerShowPassword, setRegisterShowPassword] = useState<boolean>(false);
   const [registerShowConfirmPassword, setRegisterShowConfirmPassword] = useState<boolean>(false);
 
-
   const [currentScreen, setCurrentScreen] = useState<'login' | 'register'>('login');
 
- const LoginFunc = useCallback(() => {
-    Alert.alert(`Login with ${loginEmail} and ${loginPassword}`);
+  // Animation setup
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  // Ref cho các TextInput để kiểm soát focus
+  const loginEmailRef = useRef<TextInput>(null);
+  const loginPasswordRef = useRef<TextInput>(null);
+  const registerEmailRef = useRef<TextInput>(null);
+  const registerUsernameRef = useRef<TextInput>(null);
+  const registerPasswordRef = useRef<TextInput>(null);
+  const registerConfirmPasswordRef = useRef<TextInput>(null);
+
+  const LoginFunc = useCallback(() => {
+    Alert.alert(`Đăng nhập với ${loginEmail} và ${loginPassword}`);
     navigation.navigate('Home');
   }, [loginEmail, loginPassword]);
 
@@ -64,13 +72,54 @@ export default function LoginScreen({ navigation }: Props) {
     );
   };
 
-  
+  const switchToRegister = useCallback(() => {
+    Animated.timing(slideAnim, {
+      toValue: -1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentScreen('register');
+      slideAnim.setValue(1);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        registerEmailRef.current?.focus(); // Giữ focus cho input đầu tiên
+      });
+    });
+  }, [slideAnim]);
+
+  const switchToLogin = useCallback(() => {
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentScreen('login');
+      slideAnim.setValue(-1);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        loginEmailRef.current?.focus(); // Giữ focus cho input đầu tiên
+      });
+    });
+  }, [slideAnim]);
+
+  const RegisterFunc = () => {
+    Alert.alert(`Register with ${registerEmail}, ${registerUsername}`);
+    switchToLogin();
+  }
+
   // Đăng ký
   const RegisterContent = () => (
     <View>
       <Text style={styles.registerTitle}>Đăng Ký</Text>
 
       <TextInput
+        ref={registerEmailRef}
         style={styles.registerInput}
         placeholder="Email"
         placeholderTextColor="#888"
@@ -80,19 +129,27 @@ export default function LoginScreen({ navigation }: Props) {
         textContentType="emailAddress"
         value={registerEmail}
         onChangeText={setRegisterEmail}
+        returnKeyType="next"
+        onSubmitEditing={() => registerUsernameRef.current?.focus()}
+        blurOnSubmit={false}
       />
 
       <TextInput
+        ref={registerUsernameRef}
         style={styles.registerInput}
         placeholder="Tên đăng nhập"
         placeholderTextColor="#888"
-        textContentType="name"
+        textContentType="username"
         value={registerUsername}
         onChangeText={setRegisterUsername}
+        returnKeyType="next"
+        onSubmitEditing={() => registerPasswordRef.current?.focus()}
+        blurOnSubmit={false}
       />
 
       <View style={styles.inputContainerRegister}>
         <TextInput
+          ref={registerPasswordRef}
           style={styles.inputWithIcon}
           placeholder="Mật khẩu"
           placeholderTextColor="#888"
@@ -100,11 +157,13 @@ export default function LoginScreen({ navigation }: Props) {
           textContentType="password"
           value={registerPassword}
           onChangeText={setRegisterPassword}
+          returnKeyType="next"
+          onSubmitEditing={() => registerConfirmPasswordRef.current?.focus()}
+          blurOnSubmit={false}
         />
         <TouchableOpacity
           style={styles.eyeIcon}
-           onPress={() => setRegisterShowPassword(!registerShowPassword)}
-           
+          onPress={() => setRegisterShowPassword(!registerShowPassword)}
         >
           <Icon
             name={registerShowPassword ? 'eye' : 'eye-slash'}
@@ -116,6 +175,7 @@ export default function LoginScreen({ navigation }: Props) {
 
       <View style={styles.inputContainerRegister}>
         <TextInput
+          ref={registerConfirmPasswordRef}
           style={styles.inputWithIcon}
           placeholder="Xác nhận mật khẩu"
           placeholderTextColor="#888"
@@ -123,10 +183,12 @@ export default function LoginScreen({ navigation }: Props) {
           textContentType="password"
           value={registerConfirmPassword}
           onChangeText={setRegisterConfirmPassword}
+          returnKeyType="done"
+          blurOnSubmit={true}
         />
         <TouchableOpacity
           style={styles.eyeIcon}
-           onPress={() => setRegisterShowConfirmPassword(!registerShowConfirmPassword)}
+          onPress={() => setRegisterShowConfirmPassword(!registerShowConfirmPassword)}
         >
           <Icon
             name={registerShowConfirmPassword ? 'eye' : 'eye-slash'}
@@ -138,7 +200,7 @@ export default function LoginScreen({ navigation }: Props) {
 
       <TouchableOpacity
         style={styles.registerButton}
-        onPress={() => Alert.alert('Đăng ký thành công')}
+        onPress={RegisterFunc}
       >
         <Text style={styles.registerButtonText}>Đăng ký</Text>
       </TouchableOpacity>
@@ -163,7 +225,7 @@ export default function LoginScreen({ navigation }: Props) {
         <Text style={styles.registerSignupText}>Đã có tài khoản?</Text>
         <TouchableOpacity
           style={styles.registerSignupButton}
-          onPress={() => setCurrentScreen('login')}
+          onPress={switchToLogin}
         >
           <Text style={styles.registerSignupButtonText}>Đăng nhập</Text>
         </TouchableOpacity>
@@ -178,12 +240,27 @@ export default function LoginScreen({ navigation }: Props) {
         style={styles.backgroundImage}
       />
 
-      <View style={styles.card}>
+      <Animated.View
+        style={[
+          styles.card,
+          {
+            transform: [
+              {
+                translateX: slideAnim.interpolate({
+                  inputRange: [-1, 0, 1],
+                  outputRange: [-300, 0, 300],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         {currentScreen === 'login' ? (
           <>
             <Text style={styles.title}>Đăng Nhập</Text>
 
             <TextInput
+              ref={loginEmailRef}
               style={styles.input}
               placeholder="Email"
               placeholderTextColor="#888"
@@ -193,10 +270,14 @@ export default function LoginScreen({ navigation }: Props) {
               textContentType="emailAddress"
               value={loginEmail}
               onChangeText={setLoginEmail}
+              returnKeyType="next"
+              onSubmitEditing={() => loginPasswordRef.current?.focus()}
+              blurOnSubmit={false}
             />
 
             <View style={styles.inputContainerLogin}>
               <TextInput
+                ref={loginPasswordRef}
                 style={styles.inputWithIcon}
                 placeholder="Mật khẩu"
                 placeholderTextColor="#888"
@@ -204,6 +285,8 @@ export default function LoginScreen({ navigation }: Props) {
                 textContentType="password"
                 value={loginPassword}
                 onChangeText={setLoginPassword}
+                returnKeyType="done"
+                blurOnSubmit={true}
               />
               <TouchableOpacity
                 style={styles.eyeIcon}
@@ -241,7 +324,7 @@ export default function LoginScreen({ navigation }: Props) {
               <Text style={styles.signupText}>Chưa có tài khoản?</Text>
               <TouchableOpacity
                 style={styles.signupButton}
-                onPress={() => setCurrentScreen('register')}
+                onPress={switchToRegister}
               >
                 <Text style={styles.signupButtonText}>Đăng ký</Text>
               </TouchableOpacity>
@@ -250,7 +333,7 @@ export default function LoginScreen({ navigation }: Props) {
         ) : (
           <RegisterContent />
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -268,10 +351,10 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderRadius: 15,
     padding: 20,
-    width: '80%',
+    width: '90%',
     alignItems: 'center',
     elevation: 8,
     shadowColor: '#000',
@@ -279,7 +362,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-  // Style cho đăng nhập
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -289,11 +371,11 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 15,
+    paddingVertical: 12,
     marginBottom: 15,
     fontSize: 16,
   },
@@ -302,18 +384,18 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 15,
   },
-    inputContainerRegister: {
+  inputContainerRegister: {
     position: 'relative',
     marginBottom: 15,
   },
   inputWithIcon: {
     width: '100%',
-    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 15,
-    paddingRight: 45, 
+    paddingVertical: 12,
+    paddingRight: 45,
     fontSize: 16,
   },
   eyeIcon: {
@@ -325,7 +407,7 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: '#313335ff',
     width: '100%',
-    height: 50,
+    paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -385,7 +467,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#007AFF',
   },
-  // Style của đăng ký
   registerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -395,18 +476,18 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif-medium',
   },
   registerInput: {
-    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 15,
+    paddingVertical: 12,
     marginBottom: 15,
     fontSize: 16,
     backgroundColor: '#ffffffff',
   },
   registerButton: {
     backgroundColor: '#313335ff',
-    height: 50,
+    paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
