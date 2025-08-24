@@ -39,7 +39,7 @@ export default function LoginScreen({ navigation }: Props) {
       return (
         <TouchableNativeFeedback
           onPress={onPress}
-          background={TouchableNativeFeedback.Ripple('#ffffff', false)} // màu trắng ripple
+          background={TouchableNativeFeedback.Ripple('#ffffff', false)}
         >
           <View style={styles.loginButton}>{children}</View>
         </TouchableNativeFeedback>
