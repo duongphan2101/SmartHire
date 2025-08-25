@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Login.css";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../../hook/useAuth";
 
 function Login() {
   const navigate = useNavigate();
@@ -12,34 +14,34 @@ function Login() {
   const [isShown, setIsShown] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, loading, error } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Regex check
-    const emailRegex =
-      /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com)$/;
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{6,}$/;
 
     if (!email) {
       toast.error("Email không được để trống");
       return;
     }
 
-    if (!emailRegex.test(email)) {
-      toast.error("Email phải đúng cú pháp");
+    if (!password) {
+      toast.error("Mật khẩu không được để trống");
       return;
     }
 
-    if (!passwordRegex.test(password)) {
-      toast.error(
-        "Mật khẩu phải có ít nhất 1 ký tự hoa, 1 số và 1 ký tự đặc biệt"
-      );
-      return;
+    try {
+      await login(email, password);
+      toast.success("Đăng nhập thành công!");
+      navigate("/home");
+    } catch (err: any) {
+      toast.error(err?.message || "Đăng nhập thất bại!");
     }
-    toast.success("Đăng nhập thành công!");
-    navigate("/home");
   };
 
   return (
@@ -48,15 +50,13 @@ function Login() {
         <div className="tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""
-              }`}
+            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""}`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""
-              }`}
+            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""}`}
           >
             Đăng ký
           </Link>
@@ -93,8 +93,8 @@ function Login() {
             </span>
           </div>
 
-          <button className="signup-btn" type="submit" >
-            Đăng nhập
+          <button className="signup-btn" type="submit" disabled={loading}>
+            {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
 
@@ -116,7 +116,7 @@ function Login() {
           </button>
         </div>
 
-        <ToastContainer />
+        <ToastContainer position="top-right" autoClose={2000} />
       </div>
     </div>
   );
