@@ -88,6 +88,7 @@ const BuildCV: React.FC = () => {
     <div className="App">
       <Header />
       <div className="cv-builder">
+
         <div className="cv-template">
           <h2>{cvData.name || "[Họ và Tên]"}</h2>
           <div className="section">Thông Tin Cá Nhân</div>
@@ -143,6 +144,7 @@ const BuildCV: React.FC = () => {
             <button>Tiếng Việt</button>
           </div>
         </div>
+        
         <div className="cv-input">
           <div className="input-group">
             <input
@@ -315,6 +317,7 @@ const BuildCV: React.FC = () => {
             <label htmlFor="activitiesAwards">Hoạt động / Giải thưởng</label>
           </div>
         </div>
+
       </div>
       <ChatWithAI />
       <Footer />
