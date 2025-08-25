@@ -51,6 +51,7 @@ export default function useAuth() {
 
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       return res.data;
     } catch (err) {
@@ -64,6 +65,7 @@ export default function useAuth() {
   const logout = (): void => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   };
 
   return { login, register, logout, loading, error };

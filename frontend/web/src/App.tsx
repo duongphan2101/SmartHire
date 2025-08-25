@@ -6,6 +6,7 @@ import Login from "./pages/Started/Login";
 import Register from "./pages/Started/Register";
 import Intro from "./pages/Introduction/Intro";
 import BuildCV from "./pages/buildCV/BuildCV";
+import Profile from "./pages/Profile/Profile";
 
 import {
   BrowserRouter as Router,
@@ -25,6 +26,8 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/intro" element={<Intro />} />
         <Route path="/buildcv" element={<BuildCV />} />
+        <Route path="/profile" element={<Profile />} />
+        
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>
