@@ -36,12 +36,15 @@ function Login() {
     }
 
     try {
-      await login(email, password);
-      toast.success("Đăng nhập thành công!");
-      navigate("/home");
+      const result = await login(email, password);
+      if (result) {
+        toast.success("Đăng nhập thành công!");
+        navigate("/home");
+      }
     } catch (err: any) {
       toast.error(err?.message || "Đăng nhập thất bại!");
     }
+
   };
 
   return (
