@@ -6,9 +6,14 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../../hook/useAuth";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 function Login() {
+
   const location = useLocation();
+  const { register, logout } = useAuth();
 
   const [isShown, setIsShown] = useState(false);
   const [isShownRe, setIsShownRe] = useState(false);
@@ -19,7 +24,9 @@ function Login() {
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const MySwal = withReactContent(Swal);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Regex check
@@ -55,8 +62,38 @@ function Login() {
       );
       return;
     }
-    toast.success("Đăng ký thành công!");
+
+
+    try {
+      await register(fullName, email, password);
+
+      const result = await MySwal.fire({
+        title: "Đăng ký thành công!",
+        text: "Bạn có muốn đăng nhập ngay bằng tài khoản vừa tạo không?",
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonText: "Đăng nhập",
+        cancelButtonText: "Không",
+      });
+
+      if (result.isConfirmed) {
+        window.location.href = "/home";
+      } else {
+        logout();
+        setEmail("");
+        setFullName("");
+        setPassword("");
+        setRePassword("");
+        return;
+      }
+    } catch (err: any) {
+      toast.error("Đăng ký thất bại, vui lòng thử lại");
+      console.log(err?.message);
+      return;
+    }
+    
   };
+
   return (
     <div className="login-background">
       <div className="login-container">

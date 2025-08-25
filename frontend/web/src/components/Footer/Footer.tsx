@@ -20,9 +20,9 @@ const Footer: React.FC = () => {
                             Kết nối tiềm năng, mở rộng cơ hội.
                         </span>
 
-                        <button
+                        <button                        
                             style={{ zIndex: 1000 }}
-                            onClick={() => alert("Button clicked!")}
+                            onClick={() => { window.location.href = '/buildcv' }}
                             className="footer-btn group animateRainbow rainbow-btn inline-flex items-center justify-center gap-2 relative px-6 py-2 h-12 rounded-2xl cursor-pointer bg-[length:200%] border-0 [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.08*1rem)_solid_transparent] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-95 transition-transform duration-150 bg-[linear-gradient(#121213,#121213),linear-gradient(#121213_50%,rgba(18,18,19,0.6)_80%,rgba(18,18,19,0)),linear-gradient(90deg,hsl(0,100%,63%),hsl(90,100%,63%),hsl(210,100%,63%),hsl(195,100%,63%),hsl(270,100%,63%))]"
                         >
                             <div className="relative overflow-hidden h-6 z-10">
@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
                                 <p className="footer-title  font-bold mb-2 ul-title">Dịch vụ</p>
                                 <li className="footer-li"><a href="/">Tìm việc</a></li>
                                 <li className="footer-li"><a href="/">Quản lí cv</a></li>
-                                <li className="footer-li"><a href="/">Tạo cv</a></li>
+                                <li className="footer-li"><a href="/buildcv">Tạo cv</a></li>
                             </ul>
 
                             <ul>

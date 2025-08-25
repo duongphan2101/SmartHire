@@ -23,6 +23,14 @@ const Header: React.FC = () => {
     }
   }, [getUser]);
 
+  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/home";
+  };
+
   return (
     <header className="header-container">
       <div className="header-script">
@@ -68,9 +76,12 @@ const Header: React.FC = () => {
                   </a>
 
                   <div className="user-dropdown">
-                    <a className="user-dropdown-item" href="/profile">Hồ sơ của tôi</a>
-                    <a className="user-dropdown-item" href="/settings">Cài đặt</a>
-                    <a className="user-dropdown-item" href="/logout">Đăng xuất</a>
+                    <a className="user-dropdown-item" href="/profile">Hồ sơ</a>
+                    <a className="user-dropdown-item" href="/cvs">Tủ CV</a>
+                    <a className="user-dropdown-item" href="/liked">Công việc đã lưu</a>
+                    <a className="user-dropdown-item" href="/applyted">Công việc đã ứng tuyển</a>
+                    <a className="user-dropdown-item" href="/setting">Cài đặt</a>
+                    <a className="user-dropdown-item" onClick={handleLogout}>Đăng xuất</a>
                   </div>
 
                 </div>

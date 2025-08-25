@@ -492,7 +492,7 @@ const Home: React.FC = () => {
                                         <p>Bắt đầu ngay</p>
                                     </button> */}
 
-                                    <button className="cssbuttons-io-button" onClick={() => {alert('Ehehe')}}>
+                                    <button className="cssbuttons-io-button" onClick={() => { window.location.href = "/buildcv"; }}>
                                         Bắt đầu ngay
                                         <div className="icon">
                                             <svg

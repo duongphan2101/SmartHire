@@ -23,7 +23,6 @@ export default function useUser() {
       const res = await axios.get<UserResponse>(`${HOSTS.userService}/${user_id}`);
       setUser(res.data);
 
-      console.log("Data user:", res.data);
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
