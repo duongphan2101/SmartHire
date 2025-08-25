@@ -28,7 +28,7 @@ const Header: React.FC = () => {
           <nav>
             <a className="nav-item" href="/" style={{ color: '#fff', margin: '0 1rem' }}>Trang chủ</a>
             <a className="nav-item" href="/intro" style={{ color: '#fff', margin: '0 1rem' }}>Về chúng tôi</a>
-            <a className="nav-item" href="/create-cv" style={{ color: '#fff', margin: '0 1rem' }}>Tạo CV</a>
+            <a className="nav-item" href="/buildCV" style={{ color: '#fff', margin: '0 1rem' }}>Tạo CV</a>
           </nav>
         </div>
 
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
           <nav className="mobile-nav">
             <a href="/" onClick={() => setMenuOpen(false)}>Trang chủ</a>
             <a href="/about" onClick={() => setMenuOpen(false)}>Về chúng tôi</a>
-            <a href="/contact" onClick={() => setMenuOpen(false)}>Tạo CV</a>
+            <a href="/buildcv" onClick={() => setMenuOpen(false)}>Tạo CV</a>
           </nav>
           <div className="mobile-user-buttons">
             <a
