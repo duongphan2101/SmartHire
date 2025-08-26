@@ -123,6 +123,7 @@ const BuildCV: React.FC = () => {
   return (
     <div className="App">
       <Header />
+      
       <div className="cv-builder">
 
         <div className="cv-template">
@@ -284,6 +285,7 @@ const BuildCV: React.FC = () => {
         </div>
 
       </div>
+
       <ChatWithAI />
       <Footer />
     </div>
