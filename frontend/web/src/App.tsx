@@ -17,20 +17,20 @@ import {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/intro" element={<Intro />} />
-        <Route path="/buildcv" element={<BuildCV />} />
-        <Route path="/profile" element={<Profile />} />
-        
-        <Route path="*" element={<Navigate to="/home" replace />} />
-      </Routes>
-    </Router>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/intro" element={<Intro />} />
+          <Route path="/buildcv" element={<BuildCV />} />
+          <Route path="/profile" element={<Profile />} />
+
+          <Route path="*" element={<Navigate to="/home" replace />} />
+        </Routes>
+      </Router>
   );
 }
 

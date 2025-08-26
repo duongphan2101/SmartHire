@@ -14,7 +14,7 @@ function Login() {
   const [isShown, setIsShown] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, loginWithFacebook, loginWithGoogle } = useAuth();
 
   useEffect(() => {
     if (error) {
@@ -108,12 +108,16 @@ function Login() {
         </div>
 
         <div className="social-buttons">
-          <button className="social-btn facebook">
+          <button className="social-btn facebook"
+            onClick={loginWithFacebook}
+          >
             <FaFacebook size={20} color="#197ce6" />
             Đăng nhập với Facebook
           </button>
 
-          <button className="social-btn google">
+          <button className="social-btn google"
+            onClick={loginWithGoogle}
+          >
             <FcGoogle size={20} />
             Đăng nhập với Google
           </button>

@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const { HOSTS } = require("../../host");
+const { OAuth2Client } = require("google-auth-library");
 
 // Tạo token
 const generateTokens = (account) => {
@@ -93,7 +94,6 @@ exports.login = async (req, res) => {
   }
 };
 
-
 // Refresh token
 exports.refresh = (req, res) => {
   const { refreshToken } = req.body;
@@ -110,3 +110,108 @@ exports.refresh = (req, res) => {
     res.status(403).json({ message: "Refresh token không hợp lệ" });
   }
 };
+
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
+
+exports.loginWithGoogle = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    const userServiceUrl = HOSTS.userService;
+    let user;
+
+    try {
+      const response = await axios.get(`${userServiceUrl}/emailfind/${encodeURIComponent(email)}`);
+      user = response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        const createResponse = await axios.post(`${userServiceUrl}`, {
+          email,
+          fullname: name,
+          avatar: picture,
+          role: "user",
+        });
+        user = createResponse.data;
+      } else {
+        throw error;
+      }
+    }
+
+    const tokens = generateTokens({
+      email: user.email,
+      user_id: user._id,
+    });
+
+    res.json({
+      ...tokens,
+      user,
+    });
+
+  } catch (err) {
+    console.error("Google login error:", err.message);
+    res.status(401).json({ message: "Google login failed" });
+  }
+};
+
+// Đăng nhập bằng Facebook
+exports.loginWithFacebook = async (req, res) => {
+  try {
+    const { accessToken, userID } = req.body;
+    if (!accessToken || !userID) {
+      return res.status(400).json({ message: "Thiếu Facebook token" });
+    }
+
+    const fbResp = await axios.get(
+      `https://graph.facebook.com/${userID}?fields=id,name,email,picture&access_token=${accessToken}`
+    );
+
+    const { email, name, picture } = fbResp.data;
+
+    if (!email) {
+      return res.status(400).json({ message: "Token Facebook không hợp lệ" });
+    }
+
+    let account = await Account.findOne({ email });
+
+    if (!account) {
+
+      const host = HOSTS.userService;
+      const userResp = await axios.post(`${host}`, {
+        fullname: name,
+        email,
+        avatar: picture.data.url,
+      });
+
+      const user_id = userResp.data._id;
+
+      account = await Account.create({ email, user_id, password: null });
+    }
+
+    const tokens = generateTokens(account);
+
+    return res.json({
+      message: "Đăng nhập Facebook thành công",
+      user: {
+        email,
+        user_id: account.user_id,
+        fullname: name,
+        avatar: picture.data.url,
+      },
+      ...tokens,
+    });
+  } catch (err) {
+    console.error("Login Facebook error:", err.response?.data || err.message);
+    return res.status(500).json({ message: "Đăng nhập Facebook thất bại" });
+  }
+};
+

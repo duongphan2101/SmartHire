@@ -22,9 +22,9 @@ const Profile: React.FC = () => {
             const storedUser = localStorage.getItem("user");
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
-                if (parsed?.user_id) {
-                    getUser(parsed.user_id);
-                }
+                const idToFetch = parsed.user_id ?? parsed._id;
+                getUser(idToFetch);
+
             }
         } catch (e) {
             console.error("Invalid user data in localStorage", e);
@@ -41,7 +41,7 @@ const Profile: React.FC = () => {
 
     return (
         <div className="profile-container bg-gray-50">
-            
+
             <Header />
 
             <div className="profile-content">
