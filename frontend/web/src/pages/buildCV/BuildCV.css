@@ -288,16 +288,18 @@
     margin-bottom: 20px;
   }
 
-  .cv-input .input-row {
+  .cv-input {
+    display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 15px;
   }
-  .cv-input .input-row .input-group {
-    margin-bottom: 15px;
-  }
-
-  .cv-controls button {
-    margin: 5px 0;
+  
+  .cv-input .input-row,
+  .cv-input .input-group-full-width,
+  .cv-input h3 {
     width: 100%;
+    grid-column: auto;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
