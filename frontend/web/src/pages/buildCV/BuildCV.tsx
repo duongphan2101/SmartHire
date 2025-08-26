@@ -4,62 +4,50 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 import "./BuildCV.css";
 
-interface Education {
-  degree: string;
-  year: string;
-  institution: string;
-  grade: string;
-}
-  
-interface CVData {
-  name: string;
-  address: string;
+interface ContactInfo {
   phone: string;
   email: string;
   github: string;
   website: string;
-  introduction: string;
-  education: Education[];
-  professionalSkills: string; 
-  softSkills: string; 
-  oLevels: string;
-  webDevSkills: string; 
-  otherWebDevSkills: string; 
-  gpa: string;
-  experience: string; 
-  certifications: string; 
-  languages: string;
-  interests: string; 
+}
+
+interface Education {
   university: string;
   major: string;
-  projects: string;
-  activitiesAwards: string; 
+  gpa: string;
+  year: string;
+}
+
+interface Project {
+  projectName: string;
+  projectDescription: string;
+}
+
+interface CVData {
+  name: string;
+  introduction: string;
+  professionalSkills: string;
+  softSkills: string;
+  experience: string;
+  certifications: string;
+  activitiesAwards: string;
+  contact: ContactInfo;
+  education: Education[];
+  projects: Project[];
 }
 
 const BuildCV: React.FC = () => {
   const [cvData, setCvData] = useState<CVData>({
     name: "",
-    address: "",
-    phone: "",
-    email: "",
-    github: "",
-    website: "",
     introduction: "",
-    education: [{ degree: "", year: "", institution: "", grade: "" }],
     professionalSkills: "",
     softSkills: "",
-    oLevels: "",
-    webDevSkills: "",
-    otherWebDevSkills: "",
-    gpa: "",
     experience: "",
     certifications: "",
-    languages: "",
-    interests: "",
-    university: "",
-    major: "",
-    projects: "",
     activitiesAwards: "",
+    contact: { phone: "", email: "", github: "", website: "" },
+    education: [{ university: "", major: "", gpa: "", year: "" }],
+    projects: [{ projectName: "", projectDescription: "" }],
   });
 
   const handleChange = (
@@ -69,6 +57,18 @@ const BuildCV: React.FC = () => {
     setCvData((prev) => ({ ...prev, [name]: value }));
   };
 
+  
+  const handleContactChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setCvData((prev) => ({
+      ...prev,
+      contact: { ...prev.contact, [name]: value },
+    }));
+  };
+
+  
   const handleEducationChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
@@ -80,6 +80,42 @@ const BuildCV: React.FC = () => {
     setCvData((prev) => ({ ...prev, education: newEducation }));
   };
 
+  const handleAddEducation = () => {
+    setCvData((prev) => ({
+      ...prev,
+      education: [...prev.education, { university: "", major: "", gpa: "", year: "" }],
+    }));
+  };
+
+  const handleRemoveEducation = (index: number) => {
+    const newEducation = cvData.education.filter((_, i) => i !== index);
+    setCvData((prev) => ({ ...prev, education: newEducation }));
+  };
+
+ 
+  const handleProjectChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    const newProjects = cvData.projects.map((project, i) =>
+      i === index ? { ...project, [name]: value } : project
+    );
+    setCvData((prev) => ({ ...prev, projects: newProjects }));
+  };
+
+  const handleAddProject = () => {
+    setCvData((prev) => ({
+      ...prev,
+      projects: [...prev.projects, { projectName: "", projectDescription: "" }],
+    }));
+  };
+
+  const handleRemoveProject = (index: number) => {
+    const newProjects = cvData.projects.filter((_, i) => i !== index);
+    setCvData((prev) => ({ ...prev, projects: newProjects }));
+  };
+
   const handleCreateCV = () => {
     alert("CV đã được tạo! (Chức năng tải xuống có thể được thêm vào.)");
   };
@@ -89,230 +125,160 @@ const BuildCV: React.FC = () => {
       <Header />
       <div className="cv-builder">
         <div className="cv-template">
-          <h2>{cvData.name || "[Họ và Tên]"}</h2>
+          <h2>{cvData.name || "Họ và Tên"}</h2>
+          
           <div className="section">Thông Tin Cá Nhân</div>
-          <div>Địa chỉ: {cvData.address || "[Địa chỉ]"}</div>
-          <div>Số điện thoại: {cvData.phone || "[Số điện thoại]"}</div>
-          <div>Email: {cvData.email || "[Email]"}</div>
-          <div>Github: {cvData.github || "[Github]"}</div>
-          <div>Website: {cvData.website || "[Website]"}</div>
-          <div className="section">Giới Thiệu & Mục Tiêu Nghề Nghiệp</div>
-          <div>{cvData.introduction || "[Giới thiệu & Mục tiêu]"}</div>
-          <div className="section">Học Vấn</div>
-          {cvData.education.map((edu, index) => (
-            <div key={index}>
-              {cvData.university || "[Trường đại học]"} -{" "}
-              {cvData.major || "[Chuyên ngành]"} - {edu.year || "[Thời gian]"} (Điểm:{" "}
-              {cvData.gpa || "[GPA]"})
-            </div>
-          ))}
-          <div className="section">O-Levels</div>
-          <div>{cvData.oLevels || "[Môn học]"}</div>
-          <div className="section skills">Kỹ Năng</div>
-          <div className="subsection">Kỹ Năng Chuyên Môn</div>
-          <div className="skill-list">
-            {cvData.professionalSkills ? (
-              <div className="skill-item">{cvData.professionalSkills}</div>
-            ) : (
-              <div className="skill-item">[Kỹ năng chuyên môn]</div>
-            )}
-          </div>
-          <div className="subsection">Kỹ Năng Mềm</div>
-          <div className="skill-list">
-            {cvData.softSkills ? (
-              <div className="skill-item">{cvData.softSkills}</div>
-            ) : (
-              <div className="skill-item">[Kỹ năng mềm]</div>
-            )}
-          </div>
-          <div className="section">Kinh Nghiệm</div>
-          <div>{cvData.experience || "[Kinh nghiệm]"}</div>
-          <div className="section">Chứng Chỉ</div>
-          <div>{cvData.certifications || "[Chứng chỉ]"}</div>
-          <div className="section">Dự Án</div>
-          <div>{cvData.projects || "[Dự án]"}</div>
-          <div className="section">Hoạt Động / Giải Thưởng</div>
-          <div>{cvData.activitiesAwards || "[Hoạt động / Giải thưởng]"}</div>
-          <div className="section">Ngôn Ngữ</div>
-          <div>{cvData.languages || "[Ngôn ngữ]"}</div>
-          <div className="section">Sở Thích</div>
-          <div>{cvData.interests || "[Sở thích]"}</div>
-          <div className="cv-controls">
-            <button onClick={handleCreateCV}>Tạo CV</button>
-            <button>Tiếng Anh</button>
-            <button>Tiếng Việt</button>
-          </div>
-        </div>
-        <div className="cv-input">
-          <div className="input-group">
-            <input
-              type="text"
-              name="name"
-              value={cvData.name}
-              onChange={handleChange}
-              id="name"
-            />
-            <label htmlFor="name">Họ Tên</label>
-          </div>
-          <div className="input-group">
-            <input
-              type="text"
-              name="phone"
-              value={cvData.phone}
-              onChange={handleChange}
-              id="phone"
-            />
-            <label htmlFor="phone">Số điện thoại</label>
-          </div>
-
-          {/* Hàng 2: Email, Github, Website */}
-          <div className="input-row">
-            <div className="input-group">
-              <input
-                type="email"
-                name="email"
-                value={cvData.email}
-                onChange={handleChange}
-                id="email"
-              />
-              <label htmlFor="email">Email</label>
-            </div>
-            <div className="input-group">
-              <input
-                type="text"
-                name="github"
-                value={cvData.github}
-                onChange={handleChange}
-                id="github"
-              />
-              <label htmlFor="github">Github</label>
-            </div>
-            <div className="input-group">
-              <input
-                type="text"
-                name="website"
-                value={cvData.website}
-                onChange={handleChange}
-                id="website"
-              />
-              <label htmlFor="website">Website</label>
-            </div>
+          <div className="template-info">
+            <p><strong>Số điện thoại:</strong> {cvData.contact.phone || "Chưa có thông tin"}</p>
+            <p><strong>Email:</strong> {cvData.contact.email || "Chưa có thông tin"}</p>
+            <p><strong>Github:</strong> {cvData.contact.github || "Chưa có thông tin"}</p>
+            <p><strong>Website:</strong> {cvData.contact.website || "Chưa có thông tin"}</p>
           </div>
           
-          {/* Giới thiệu */}
-          <div className="input-group-full-width">
-            <textarea
-              name="introduction"
-              value={cvData.introduction}
-              onChange={handleChange}
-              id="introduction"
-              rows={4}
-            />
-            <label htmlFor="introduction">Giới thiệu & Mục tiêu nghề nghiệp</label>
-          </div>
-        
-          <div className="input-group-full-width">
-            <input
-              type="text"
-              name="professionalSkills"
-              value={cvData.professionalSkills}
-              onChange={handleChange}
-              id="professionalSkills"
-            />
-            <label htmlFor="professionalSkills">Kỹ năng chuyên môn</label>
-          </div>
-          <div className="input-group-full-width">
-            <input
-              type="text"
-              name="softSkills"
-              value={cvData.softSkills}
-              onChange={handleChange}
-              id="softSkills"
-            />
-            <label htmlFor="softSkills">Kỹ năng mềm</label>
+          <div className="section">Giới Thiệu & Mục Tiêu Nghề Nghiệp</div>
+          <div className="template-info">{cvData.introduction || "Chưa có thông tin"}</div>
+          
+          <div className="section">Kỹ Năng</div>
+          <div className="subsection-content">
+            <p><strong>Kỹ Năng Chuyên Môn:</strong> {cvData.professionalSkills || "Chưa có thông tin"}</p>
+            <p><strong>Kỹ Năng Mềm:</strong> {cvData.softSkills || "Chưa có thông tin"}</p>
           </div>
 
-         
-          <div className="input-group">
-            <input
-              type="text"
-              name="university"
-              value={cvData.university}
-              onChange={handleChange}
-              id="university"
-            />
-            <label htmlFor="university">Trường đại học</label>
+          <div className="section">Học Vấn</div>
+          {cvData.education.map((edu, index) => (
+            <div key={index} className="subsection-content">
+              <p><strong>Trường:</strong> {edu.university || "Chưa có thông tin"}</p>
+              <p><strong>Chuyên ngành:</strong> {edu.major || "Chưa có thông tin"}</p>
+              <p><strong>GPA:</strong> {edu.gpa || "Chưa có thông tin"}</p>
+              <p><strong>Thời gian:</strong> {edu.year || "Chưa có thông tin"}</p>
+            </div>
+          ))}
+
+          <div className="section">Kinh Nghiệm</div>
+          <div className="subsection-content">{cvData.experience || "Chưa có thông tin"}</div>
+
+          <div className="section">Dự Án</div>
+          {cvData.projects.map((project, index) => (
+            <div key={index} className="subsection-content">
+              <p><strong>Tên dự án:</strong> {project.projectName || "Chưa có thông tin"}</p>
+              <p><strong>Mô tả:</strong> {project.projectDescription || "Chưa có thông tin"}</p>
+            </div>
+          ))}
+
+          <div className="section">Chứng Chỉ</div>
+          <div className="subsection-content">{cvData.certifications || "Chưa có thông tin"}</div>
+
+          <div className="section">Hoạt Động / Giải Thưởng</div>
+          <div className="subsection-content">{cvData.activitiesAwards || "Chưa có thông tin"}</div>
+          
+          <div className="cv-controls">
+            <button onClick={handleCreateCV}>Tạo CV</button>
+            <button style={{background:"#484747ff"}}>Tiếng Anh</button>
+            <button style={{background:"#484747ff"}}>Tiếng Việt</button>
           </div>
-          <div className="input-group">
-            <input
-              type="text"
-              name="major"
-              value={cvData.major}
-              onChange={handleChange}
-              id="major"
-            />
-            <label htmlFor="major">Chuyên ngành</label>
+        </div>
+
+        <div className="cv-input">
+          <h3 className="section-title">Thông Tin Cá Nhân</h3>
+          <div className="input-row">
+            <div className="input-group">
+              <label htmlFor="name">Họ Tên</label>
+              <input type="text" name="name" value={cvData.name} onChange={handleChange} id="name" placeholder="Nguyễn Văn A" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="phone">Số điện thoại</label>
+              <input type="tel" name="phone" value={cvData.contact.phone} onChange={handleContactChange} id="phone" placeholder="0987654321" />
+            </div>
           </div>
-          <div className="input-group">
-            <input
-              type="text"
-              name="gpa"
-              value={cvData.gpa}
-              onChange={handleChange}
-              id="gpa"
-            />
-            <label htmlFor="gpa">GPA (../4)</label>
+          <div className="input-row">
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input type="email" name="email" value={cvData.contact.email} onChange={handleContactChange} id="email" placeholder="nguyenvana@example.com" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="github">Github</label>
+              <input type="url" name="github" value={cvData.contact.github} onChange={handleContactChange} id="github" placeholder="https://github.com/nguyenvana" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="website">Website</label>
+              <input type="url" name="website" value={cvData.contact.website} onChange={handleContactChange} id="website" placeholder="https://nguyenvana.dev" />
+            </div>
           </div>
-          <div className="input-group">
-            <input
-              type="text"
-              name="year"
-              value={cvData.education[0].year}
-              onChange={(e) => handleEducationChange(0, e)}
-              id="year"
-            />
-            <label htmlFor="year">Thời gian học (2021-2025)</label>
+
+          <h3 className="section-title">Giới Thiệu & Mục Tiêu Nghề Nghiệp</h3>
+          <div className="input-group-full-width">
+            <label htmlFor="introduction">Giới thiệu & Mục tiêu nghề nghiệp</label>
+            <textarea name="introduction" value={cvData.introduction} onChange={handleChange} id="introduction" rows={4} placeholder="Sinh viên năm cuối ngành Kỹ thuật phần mềm, có kiến thức về Java, Spring Boot, React..." />
+          </div>
+
+          <h3 className="section-title">Kỹ Năng</h3>
+          <div className="input-group-full-width">
+            <label htmlFor="professionalSkills">Kỹ năng chuyên môn</label>
+            <input type="text" name="professionalSkills" value={cvData.professionalSkills} onChange={handleChange} id="professionalSkills" placeholder="Java, Spring Boot, React, MongoDB" />
           </div>
           <div className="input-group-full-width">
-            <textarea
-              name="certifications"
-              value={cvData.certifications}
-              onChange={handleChange}
-              id="certifications"
-              rows={4}
-            />
+            <label htmlFor="softSkills">Kỹ năng mềm</label>
+            <input type="text" name="softSkills" value={cvData.softSkills} onChange={handleChange} id="softSkills" placeholder="Làm việc nhóm, Giải quyết vấn đề" />
+          </div>
+          
+          <h3 className="section-title">Học Vấn</h3>
+          {cvData.education.map((edu, index) => (
+            <div key={index} className="dynamic-input-group">
+              <div className="input-group">
+                <label htmlFor={`university-${index}`}>Trường đại học</label>
+                <input type="text" name="university" value={edu.university} onChange={(e) => handleEducationChange(index, e)} id={`university-${index}`} placeholder="Đại học Công nghệ thông tin" />
+              </div>
+              <div className="input-group">
+                <label htmlFor={`major-${index}`}>Chuyên ngành</label>
+                <input type="text" name="major" value={edu.major} onChange={(e) => handleEducationChange(index, e)} id={`major-${index}`} placeholder="Kỹ thuật phần mềm" />
+              </div>
+              <div className="input-group">
+                <label htmlFor={`gpa-${index}`}>GPA (../4)</label>
+                <input type="text" name="gpa" value={edu.gpa} onChange={(e) => handleEducationChange(index, e)} id={`gpa-${index}`} placeholder="3.8" />
+              </div>
+              <div className="input-group">
+                <label htmlFor={`year-${index}`}>Thời gian học</label>
+                <input type="text" name="year" value={edu.year} onChange={(e) => handleEducationChange(index, e)} id={`year-${index}`} placeholder="2021 - 2025" />
+              </div>
+              {cvData.education.length > 1 && (
+                <button type="button" onClick={() => handleRemoveEducation(index)} className="remove-btn">Xóa</button>
+              )}
+            </div>
+          ))}
+          <button type="button" onClick={handleAddEducation} className="add-btn">Thêm Học Vấn</button>
+
+          <h3 className="section-title">Kinh Nghiệm</h3>
+          <div className="input-group-full-width">
+            <label htmlFor="experience">Kinh nghiệm làm việc</label>
+            <textarea name="experience" value={cvData.experience} onChange={handleChange} id="experience" rows={4} placeholder="Ví dụ: Công ty ABC (2023 - Nay), Vị trí: Lập trình viên Backend..." />
+          </div>
+
+          <h3 className="section-title">Dự Án</h3>
+          {cvData.projects.map((project, index) => (
+            <div key={index} className="dynamic-input-group">
+              <div className="input-group-full-width">
+                <label htmlFor={`projectName-${index}`}>Tên dự án</label>
+                <input type="text" name="projectName" value={project.projectName} onChange={(e) => handleProjectChange(index, e)} id={`projectName-${index}`} placeholder="Ví dụ: Ứng dụng quản lý sinh viên" />
+              </div>
+              <div className="input-group-full-width">
+                <label htmlFor={`projectDescription-${index}`}>Mô tả dự án</label>
+                <textarea name="projectDescription" value={project.projectDescription} onChange={(e) => handleProjectChange(index, e)} id={`projectDescription-${index}`} rows={3} placeholder="Mô tả công nghệ sử dụng, chức năng chính và vai trò của bạn." />
+              </div>
+              {cvData.projects.length > 1 && (
+                <button type="button" onClick={() => handleRemoveProject(index)} className="remove-btn">Xóa</button>
+              )}
+            </div>
+          ))}
+          <button type="button" onClick={handleAddProject} className="add-btn">Thêm Dự Án</button>
+
+          <h3 className="section-title">Chứng Chỉ và Giải Thưởng</h3>
+          <div className="input-group-full-width">
             <label htmlFor="certifications">Chứng chỉ</label>
+            <textarea name="certifications" value={cvData.certifications} onChange={handleChange} id="certifications" rows={4} placeholder="Ví dụ: Chứng chỉ AWS Cloud Practitioner, TOEIC 900" />
           </div>
           <div className="input-group-full-width">
-            <textarea
-              name="projects"
-              value={cvData.projects}
-              onChange={handleChange}
-              id="projects"
-              rows={4}
-            />
-            <label htmlFor="projects">Dự án</label>
-          </div>
-          <div className="input-group-full-width">
-            <textarea
-              name="experience"
-              value={cvData.experience}
-              onChange={handleChange}
-              id="experience"
-              rows={4}
-            />
-            <label htmlFor="experience">Kinh nghiệm</label>
-          </div>
-         
-          <div className="input-group-full-width">
-            <textarea
-              name="activitiesAwards"
-              value={cvData.activitiesAwards}
-              onChange={handleChange}
-              id="activitiesAwards"
-              rows={4}
-            />
             <label htmlFor="activitiesAwards">Hoạt động / Giải thưởng</label>
+            <textarea name="activitiesAwards" value={cvData.activitiesAwards} onChange={handleChange} id="activitiesAwards" rows={4} placeholder="Ví dụ: Thành viên CLB Tin học, Giải ba cuộc thi lập trình" />
           </div>
         </div>
       </div>
