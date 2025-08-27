@@ -37,6 +37,8 @@ exports.register = async (req, res) => {
       fullname,
       email,
       avatar: "https://i.pinimg.com/736x/f5/52/a1/f552a14040107decc9a74a50e5a72423.jpg",
+      dob: null,
+      phone: null,
     });
 
     const user_id = userResp.data._id;
@@ -140,6 +142,8 @@ exports.loginWithGoogle = async (req, res) => {
           fullname: name,
           avatar: picture,
           role: "user",
+          dob: null,
+          phone: null,
         });
         user = createResponse.data;
       } else {

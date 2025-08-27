@@ -4,6 +4,7 @@ import './Home.css';
 import Header from '../../components/Header/Header';
 import ChatWithAI from '../../components/Chat-With-AI/ChatWithAI';
 import Footer from '../../components/Footer/Footer';
+import { fetchProvinces, type Province } from "../../utils/provinceApi";
 
 import imageBanner from "../../assets/images/banner-21.png";
 import cv_banner from "../../assets/images/man_with_bent_arm.png";
@@ -34,11 +35,12 @@ import { FaArrowRight } from 'react-icons/fa';
 const Home: React.FC = () => {
 
     const [jobTitle, setJobTitle] = useState("");
-    const [location, setLocation] = useState("");
     const [animate, setAnimate] = useState(true);
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [location, setLocation] = useState("");
 
     const slogans = ["cơ hội phát triển!", "nhà tuyển dụng hàng đầu!",
-        "việc làm mơ ước!", "tương lai tương sáng!"];
+        "việc làm mơ ước!", "tương lai tương sáng!", "ứng viên tiềm năng!"];
     const [slogan, setSlogan] = useState(slogans[0]);
 
     const handleSearch = () => {
@@ -47,6 +49,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         document.title = "S m a r t H i r e - Trang chủ";
+        fetchProvinces().then(setProvinces);
         let index = 0;
         const interval = setInterval(() => {
             setAnimate(false);
@@ -308,9 +311,11 @@ const Home: React.FC = () => {
                                         className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                     >
                                         <option value="">Chọn địa điểm</option>
-                                        <option value="hanoi">Hà Nội</option>
-                                        <option value="hcm">TP. Hồ Chí Minh</option>
-                                        <option value="danang">Đà Nẵng</option>
+                                        {provinces.map((p) => (
+                                            <option key={p.code} value={p.name}>
+                                                {p.name}
+                                            </option>
+                                        ))}
                                     </select>
 
                                     {/* Nút tìm kiếm */}

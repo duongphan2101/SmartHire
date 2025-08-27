@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import './Profile.css';
@@ -6,16 +6,24 @@ import { FaEdit } from 'react-icons/fa';
 import { TbWorld } from 'react-icons/tb';
 import { FaGithub } from 'react-icons/fa';
 import { FaLinkedin } from 'react-icons/fa';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 import useUser from "../../hook/useUser";
+import { uploadToCloudinary } from "../../utils/cloudinary";
 
 const Profile: React.FC = () => {
 
-    const { getUser, user } = useUser();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const { getUser, user, updateUser, updateUserAvatar } = useUser();
     const [userName, setUserName] = useState<string>('');
     const [userEmail, setUserEmail] = useState<string>('');
     const [userRole, setUserRole] = useState<string>('');
+    const [userDob, setUserDob] = useState<string>('');
+    const [userPhone, setUserPhone] = useState<string>('');
+    const MySwal = withReactContent(Swal);
 
+    const [userId, setUserId] = useState<string>('');
 
     useEffect(() => {
         try {
@@ -23,9 +31,10 @@ const Profile: React.FC = () => {
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
                 const idToFetch = parsed.user_id ?? parsed._id;
+                setUserId(idToFetch);
                 getUser(idToFetch);
-
             }
+
         } catch (e) {
             console.error("Invalid user data in localStorage", e);
         }
@@ -36,8 +45,101 @@ const Profile: React.FC = () => {
             setUserName(user.fullname || "");
             setUserEmail(user.email || "");
             setUserRole(user.role || "");
+            setUserDob(user.dob ? user.dob.split("T")[0] : "");
+            setUserPhone(user.phone || "");
         }
     }, [user]);
+
+
+    const handleSaveChanges = async () => {
+        if (userId) {
+            try {
+                // loading
+                Swal.fire({
+                    title: "Đang cập nhật...",
+                    text: "Vui lòng chờ trong giây lát",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                });
+
+                await updateUser(userId, {
+                    fullname: userName,
+                    email: userEmail,
+                    role: userRole,
+                    phone: userPhone,
+                    dob: userDob,
+                });
+
+                // success
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text: "Cập nhật hồ sơ thành công.",
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            } catch (error) {
+                // fail
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: "Không thể cập nhật hồ sơ. Vui lòng thử lại.",
+                });
+            }
+        }
+    };
+
+    const handleEditAvatar = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userId) return;
+
+        try {
+            MySwal.fire({
+                title: "Đang cập nhật...",
+                text: "Vui lòng chờ trong giây lát",
+                didOpen: () => {
+                    MySwal.showLoading();
+                },
+                allowOutsideClick: false,
+            });
+
+            // Upload lên Cloudinary trước
+            const imageUrl = await uploadToCloudinary(file);
+
+            const res = await updateUserAvatar(userId, imageUrl);
+
+            if (res) {
+                await MySwal.fire({
+                    title: "Thành công!",
+                    text: "Cập nhật ảnh đại diện thành công!",
+                    icon: "success",
+                    confirmButtonText: "Xác nhận",
+                });
+            } else {
+                throw new Error("No response from server");
+            }
+        } catch (err) {
+            console.error("Update avatar error:", err);
+            await MySwal.fire({
+                title: "Thất bại!",
+                text: "Có lỗi xảy ra khi cập nhật ảnh đại diện.",
+                icon: "error",
+                confirmButtonText: "Thử lại",
+            });
+        } finally {
+            e.target.value = "";
+        }
+    };
+
+
 
     return (
         <div className="profile-container bg-gray-50">
@@ -45,6 +147,7 @@ const Profile: React.FC = () => {
             <Header />
 
             <div className="profile-content">
+
                 <ul className="profile-nav flex gap-2"
                     style={{ padding: '10px' }}
                 >
@@ -66,9 +169,18 @@ const Profile: React.FC = () => {
                                     style={{ padding: '20px' }}
                                 >
                                     <div className="profile-avatar_container">
-                                        <div className="avtar-edit" onClick={() => alert('Edit avatar clicked!')}>
+                                        <div className="avtar-edit" onClick={handleEditAvatar}>
                                             <FaEdit size={24} color="#fff" />
                                         </div>
+
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            ref={fileInputRef}
+                                            style={{ display: "none" }}
+                                            onChange={handleFileChange}
+                                        />
+
                                         <img
                                             src={user?.avatar}
                                             alt="User Avatar"
@@ -144,8 +256,29 @@ const Profile: React.FC = () => {
                                         <label>Role</label>
                                     </div>
 
+                                    <div className="group">
+                                        <input type="date" className="input" required
+                                            value={userDob}
+                                            onChange={(e) => setUserDob(e.target.value)}
+                                            placeholder="YYYY-MM-DD"
+                                        />
+                                        <span className="highlight"></span>
+                                        <span className="bar"></span>
+                                        <label>Date of birth</label>
+                                    </div>
 
-                                    <button className="button" onClick={() => alert('Save changes clicked!')}>
+                                    <div className="group">
+                                        <input type="text" className="input" required
+                                            value={userPhone}
+                                            onChange={(e) => setUserPhone(e.target.value)}
+                                        />
+                                        <span className="highlight"></span>
+                                        <span className="bar"></span>
+                                        <label>Phone</label>
+                                    </div>
+
+
+                                    <button className="button" onClick={handleSaveChanges}>
                                         Save Changes
                                     </button>
 
@@ -156,7 +289,6 @@ const Profile: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
 
             </div>
 

@@ -104,7 +104,6 @@ export default function useAuth() {
     }
   };
 
-
   // 🔹 Login with Facebook
   useEffect(() => {
     (window as any).fbAsyncInit = function () {

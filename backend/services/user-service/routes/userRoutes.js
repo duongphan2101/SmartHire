@@ -14,6 +14,7 @@ router.get("/", getUsers);
 router.get("/:id", getUserById);
 router.get("/emailfind/:email", getUserByEmail);
 router.put("/:id", updateUser);
+router.put("/avt/:id", updateUser);
 router.delete("/:id", deleteUser);
 
 module.exports = router;

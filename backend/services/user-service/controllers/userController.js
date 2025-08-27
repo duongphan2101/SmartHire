@@ -46,7 +46,6 @@ exports.getUserByEmail = async (req, res) => {
   }
 };
 
-
 // Update
 exports.updateUser = async (req, res) => {
   try {
@@ -59,6 +58,34 @@ exports.updateUser = async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+};
+
+// Update Avatar
+exports.updateUserAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+
+    if (!avatar) {
+      return res.status(400).json({ message: "Avatar URL is required" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { avatar },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Avatar updated successfully",
+      user,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
