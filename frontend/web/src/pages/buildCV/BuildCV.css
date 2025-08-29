@@ -2,7 +2,7 @@
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  /* background-color: #f0f2f5; */
+  background-color: #f0f2f5;
 }
 
 .cv-builder {
@@ -29,7 +29,7 @@
   margin-bottom: 20px;
   color: #2c3e50;
   text-align: center;
-  border-bottom: 3px solid #3498db;
+  border-bottom: 3px solid #28a745;
   padding-bottom: 10px;
   word-wrap: break-word;
 }
@@ -42,7 +42,7 @@
   margin-bottom: 10px;
   padding: 10px 15px;
   background-color: #ecf0f1;
-  border-left: 5px solid #3498db;
+  border-left: 5px solid #28a745;
   border-radius: 5px;
 }
 
@@ -53,7 +53,7 @@
   margin-bottom: 25px;
   padding-left: 15px;
   text-align: left;
-  word-wrap: break-word; 
+  word-wrap: break-word;
 }
 
 .cv-template .template-info p,
@@ -72,10 +72,11 @@
   word-wrap: break-word;
 }
 
+/* Input form styling */
 .cv-input h3.section-title {
   font-size: 20px;
   color: #2c3e50;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid #28a745;
   padding-bottom: 5px;
   margin-top: 25px;
   margin-bottom: 15px;
@@ -89,12 +90,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
-  margin-bottom: 15px;
 }
 
-.input-group,
-.input-group-full-width {
-  position: relative;
+.input-group {
   flex: 1;
 }
 
@@ -102,37 +100,60 @@
   flex-basis: 100%;
 }
 
-.input-group label,
-.input-group-full-width label {
-  position: absolute;
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #6c757d;
-  background-color: #fff;
-  padding: 0 5px;
-  font-weight: 600;
-  pointer-events: none;
-}
-
-.cv-input input,
-.cv-input textarea {
+.input-container {
+  position: relative;
   width: 100%;
-  padding: 15px 12px 10px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  margin-bottom: 20px;
 }
 
-.cv-input input:focus,
-.cv-input textarea:focus {
+.input-container input,
+.input-container textarea {
+  font-size: 16px;
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 10px 0 5px;
+  background-color: transparent;
   outline: none;
-  border-color: #3498db;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.input-container .label {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  color: #999;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  font-size: 14px;
+}
+
+.input-container input:focus ~ .label,
+.input-container input:not(:placeholder-shown):valid ~ .label,
+.input-container textarea:focus ~ .label,
+.input-container textarea:not(:placeholder-shown):valid ~ .label {
+  top: -15px;
+  font-size: 12px;
+  color: #28a745;
+}
+
+.input-container .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #28a745;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.input-container input:focus ~ .underline,
+.input-container input:not(:placeholder-shown):valid ~ .underline,
+.input-container textarea:focus ~ .underline,
+.input-container textarea:not(:placeholder-shown):valid ~ .underline {
+  transform: scaleX(1);
 }
 
 .dynamic-input-group {
@@ -144,6 +165,7 @@
   border: 1px dashed #ccc;
   padding: 15px;
   border-radius: 8px;
+  align-items: flex-start;
 }
 
 .remove-btn {
@@ -214,5 +236,28 @@
   .remove-btn {
     position: static;
     margin-top: 10px;
+  }
+}
+
+@media print {
+  .cv-input,
+  .cv-controls,
+  .header,
+  .footer {
+    display: none !important;
+  }
+
+  .cv-builder {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+  .cv-template {
+    width: 100% !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+    margin: 0 !important;
   }
 }
