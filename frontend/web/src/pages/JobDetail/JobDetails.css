@@ -1,0 +1,64 @@
+.App {
+    text-align: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.content {
+    padding: 120px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.content-main {
+    max-width: 1360px;
+    width: 1360px;
+}
+
+.content-main-header {
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 13px 29px #0000001a;
+}
+
+.head-card {
+    background-color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    display: flex;
+    flex-wrap: wrap;
+    box-shadow: 0 13px 29px #0000001a;
+}
+
+.btn-filter {
+    padding: 5px;
+    gap: 10px;
+    border-radius: 5px;
+    border: 1.5px solid var(--color-gray-300)
+}
+
+.head-left-top {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.job-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-gray-300);
+    cursor: pointer;
+}
+
+.job-item:last-child {
+    border-bottom: 0px;
+}
+
+.job-item-image {
+    height: 60px;
+    width: 60px;
+}
+
+@media (max-width: 1280px) {
+    .content {
+        padding: 80px 10px 0 10px;
+    }
+}

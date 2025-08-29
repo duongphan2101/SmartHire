@@ -129,7 +129,7 @@ const Home: React.FC = () => {
             department: "Apple",
             image: apple,
             tech: ["Object C", "Swift", "XCode"],
-            url: "/",
+            url: "/jobdetail",
             location: "Hà Nội",
             salary: "$1,200 - $1,800",
             level: "Fresher",
@@ -435,7 +435,7 @@ const Home: React.FC = () => {
 
                                                 <div className='item-top_right'>
                                                     <a href={item.url} className='btn-apply'>
-                                                        Apply
+                                                        View
                                                     </a>
                                                 </div>
                                             </div>

@@ -1,0 +1,251 @@
+import React, { useState, useEffect } from "react";
+
+import './JobDetails.css';
+import Footer from "../../components/Footer/Footer";
+import Header from "../../components/Header/Header";
+import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
+import apple from "../../assets/images/apple.png";
+import google from "../../assets/images/google.png";
+import nike from "../../assets/images/nike.png";
+import stabuck from "../../assets/images/starbuck.png";
+import volkswagen from "../../assets/images/volkswagen.png";
+import meta from "../../assets/images/meta.png";
+import { fetchProvinces, type Province } from "../../utils/provinceApi";
+import { BsFilter } from 'react-icons/bs';
+
+const JobDetails: React.FC = () => {
+
+    const [jobTitle, setJobTitle] = useState("");
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [location, setLocation] = useState("");
+
+    useEffect(() => {
+        fetchProvinces().then(setProvinces);
+    }, []);
+
+    const handleSearch = () => {
+        alert(`Tìm kiếm: ${jobTitle} tại ${location}`);
+    };
+
+    const lastest = [
+        {
+            id: 1,
+            nameJob: "IOS Developer",
+            department: "Apple",
+            image: apple,
+            tech: ["Object C", "Swift", "XCode"],
+            url: "/jobdetail",
+            location: "Hà Nội",
+            salary: "$1,200 - $1,800",
+            level: "Fresher",
+            type: "Fulltime",
+            postedAt: "2025-08-13T10:00:00Z",
+            updatedAt: "2025-08-14T13:04:00Z",
+            isSaved: false
+        },
+        {
+            id: 2,
+            nameJob: "Frontend Developer",
+            department: "Google",
+            image: google,
+            tech: ["HTML", "CSS", "JavaScript"],
+            url: "/",
+            location: "TP. Hồ Chí Minh",
+            salary: "$1,000 - $1,500",
+            level: "Junior",
+            type: "Hybrid",
+            postedAt: "2025-08-10T08:30:00Z",
+            updatedAt: null,
+            isSaved: false
+        },
+        {
+            id: 3,
+            nameJob: "Backend Developer",
+            department: "Starbucks",
+            image: stabuck,
+            tech: ["Node.js", "Express", "MongoDB"],
+            url: "/",
+            location: "Đà Nẵng",
+            salary: "$1,500 - $2,000",
+            level: "Senior",
+            type: "Onsite",
+            postedAt: "2025-08-12T15:00:00Z",
+            updatedAt: "2025-08-14T09:00:00Z",
+            isSaved: false
+        },
+        {
+            id: 4,
+            nameJob: "Mobile App Developer",
+            department: "Volkswagen",
+            image: volkswagen,
+            tech: ["Java", "Kotlin", "Android Studio"],
+            url: "/",
+            location: "Hà Nội",
+            salary: "$1,000 - $1,700",
+            level: "Fresher",
+            type: "Remote",
+            postedAt: "2025-08-08T10:00:00Z",
+            updatedAt: null,
+            isSaved: false
+        },
+        {
+            id: 5,
+            nameJob: "UI/UX Designer",
+            department: "Nike",
+            image: nike,
+            tech: ["Figma", "Adobe XD", "Sketch"],
+            url: "/",
+            location: "TP. Hồ Chí Minh",
+            salary: "$900 - $1,400",
+            level: "Intern",
+            type: "Parttime",
+            postedAt: "2025-08-11T14:00:00Z",
+            updatedAt: "2025-08-14T06:00:00Z",
+            isSaved: false
+        },
+        {
+            id: 6,
+            nameJob: "Fullstack Developer",
+            department: "Meta",
+            image: meta,
+            tech: ["React", "Node.js", "GraphQL"],
+            url: "/",
+            location: "Đà Nẵng",
+            salary: "$1,800 - $2,500",
+            level: "Senior",
+            type: "Fulltime",
+            postedAt: "2025-08-09T09:00:00Z",
+            updatedAt: null,
+            isSaved: false
+        }
+    ];
+
+    const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
+        const date = new Date(updatedAt || postedAt);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffMinutes < 1) {
+            return "Vừa xong";
+        } else if (diffMinutes < 60) {
+            return `${diffMinutes} phút trước`;
+        } else if (diffHours < 24) {
+            return `${diffHours} giờ trước`;
+        } else {
+            return `${diffDays} ngày trước`;
+        }
+    };
+
+    const handlerJobItem = (id: string) => {
+        alert(`ID : ${id}`);
+    }
+
+    return (
+        <>
+            <div className="App">
+                <Header />
+                <ChatWithAI />
+
+                <div className="content bg-gray-50">
+
+                    <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
+
+                        <div className="content-main-header bg-white w-full flex gap-5">
+                            {/* Combobox Vị trí tuyển dụng */}
+                            <select
+                                value={jobTitle}
+                                onChange={(e) => setJobTitle(e.target.value)}
+                                className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            >
+                                <option value="">Chọn vị trí tuyển dụng</option>
+                                <option value="intern frontend">Intern Frontend</option>
+                                <option value="intern backend">Intern Backend</option>
+                                <option value="intern designer">Intern UI/UX Designer</option>
+                            </select>
+
+                            {/* Combobox Địa điểm */}
+                            <select
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            >
+                                <option value="">Chọn địa điểm</option>
+                                {provinces.map((p) => (
+                                    <option key={p.code} value={p.name}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Nút tìm kiếm */}
+                            <button
+                                onClick={handleSearch}
+                                className="btn-searchjob w-full xl:w-2/6 bg-emerald-600 rounded-lg text-white hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition p-2"
+                            >
+                                Tìm kiếm
+                            </button>
+                        </div>
+
+                        <div className="content-main-center grid grid-cols-1 md:grid-cols-9 lg:grid-cols-9 gap-2 w-full">
+
+                            <div className="lg:col-span-3 md:col-span-3">
+                                <div className="head-card head-left gap-5">
+
+                                    <div className="head-left-top flex w-full">
+                                        <p>Có liên quan</p>
+                                        <button className="btn-filter flex items-center">
+                                            <BsFilter />
+                                            Fillters
+                                        </button>
+                                    </div>
+
+                                    <div className="head-left-main flex flex-col w-full">
+                                        {lastest.map((item) => (
+                                            <div className="job-item flex items-center gap-5"
+                                                onClick={() => {handlerJobItem(item.id.toString())}}
+                                            >
+                                                <div className="bg-gray-200"
+                                                    style={{ borderRadius: 5, padding: 5 }}
+                                                >
+                                                    <img className="job-item-image" src={item.image} />
+                                                </div>
+                                                <div className="flex flex-col gap-2 text-left flex-2/4">
+                                                    <span style={{fontWeight: 'bold'}}>{item.nameJob}</span>
+                                                    <div className="flex gap-5">
+                                                        <span className="text-gray-500">{item.department}</span>
+                                                        <span className="text-gray-500">{getTimeAgo(item.postedAt!, item.updatedAt!)}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-2 text-center flex-1/4">
+                                                    <span>{item.level}</span>
+                                                    <span>{item.type}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-6 md:col-span-6">
+                                <div className="head-card">
+                                    hehe
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <Footer />
+            </div>
+        </>
+    );
+}
+
+export default JobDetails;

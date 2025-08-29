@@ -139,8 +139,6 @@ const Profile: React.FC = () => {
         }
     };
 
-
-
     return (
         <div className="profile-container bg-gray-50">
 

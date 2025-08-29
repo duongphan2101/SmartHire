@@ -7,6 +7,7 @@ import Register from "./pages/Started/Register";
 import Intro from "./pages/Introduction/Intro";
 import BuildCV from "./pages/buildCV/BuildCV";
 import Profile from "./pages/Profile/Profile";
+import JobDetail from "./pages/JobDetail/JobDetail";
 
 import {
   BrowserRouter as Router,
@@ -27,6 +28,7 @@ function App() {
           <Route path="/intro" element={<Intro />} />
           <Route path="/buildcv" element={<BuildCV />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/jobdetail" element={<JobDetail />} />
 
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
