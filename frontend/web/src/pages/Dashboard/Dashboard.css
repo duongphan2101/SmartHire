@@ -1,0 +1,27 @@
+.App {
+    text-align: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #ffffff;
+}
+.dashboard-layout-container {
+    height: 80vh;
+    margin-top: 130px;
+    display: flex; 
+    background-color: #f8f9fa;
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.main-content-wrapper {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-left: 1px solid #e5e7eb;
+}
+
+.page-content {
+    padding: 20px; 
+  background-color: #ffffff;
+}
