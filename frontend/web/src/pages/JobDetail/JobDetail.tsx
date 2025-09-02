@@ -57,7 +57,14 @@ const JobDetails: React.FC = () => {
                 "Knowledge of Swift, Objective-C, and iOS frameworks",
                 "Familiarity with Xcode and iOS design principles",
                 "Good problem-solving and teamwork skills"
-            ]
+            ],
+            benefits: [
+                "13th month salary and performance bonus",
+                "Health insurance and annual health check",
+                "MacBook provided",
+                "Team building activities"
+            ],
+            workingHours: "Mon - Fri, 9:00 AM - 6:00 PM"
         },
         {
             id: 2,
@@ -85,7 +92,14 @@ const JobDetails: React.FC = () => {
                 "Experience with modern frontend frameworks (React, Vue, Angular is a plus)",
                 "Basic knowledge of REST APIs",
                 "Good communication and teamwork"
-            ]
+            ],
+            benefits: [
+                "Flexible working schedule",
+                "Free lunch and snacks",
+                "Health & dental insurance",
+                "Training budget"
+            ],
+            workingHours: "Mon - Fri, 10:00 AM - 7:00 PM"
         },
         {
             id: 3,
@@ -113,7 +127,14 @@ const JobDetails: React.FC = () => {
                 "Proficiency in MongoDB and database design",
                 "Understanding of authentication and authorization (JWT, OAuth)",
                 "5+ years of backend development experience"
-            ]
+            ],
+            benefits: [
+                "Free coffee & beverages",
+                "Annual performance bonus",
+                "Comprehensive healthcare package",
+                "International working environment"
+            ],
+            workingHours: "Mon - Fri, 8:30 AM - 5:30 PM"
         },
         {
             id: 4,
@@ -141,7 +162,14 @@ const JobDetails: React.FC = () => {
                 "Familiarity with Android SDK and Android Studio",
                 "Basic understanding of RESTful APIs",
                 "Eagerness to learn and grow in a professional environment"
-            ]
+            ],
+            benefits: [
+                "Remote work allowance",
+                "Online training courses",
+                "Health insurance after probation",
+                "Annual company trip"
+            ],
+            workingHours: "Flexible hours, expected 40h/week"
         },
         {
             id: 5,
@@ -169,7 +197,14 @@ const JobDetails: React.FC = () => {
                 "Basic understanding of UX principles",
                 "Creative mindset with attention to detail",
                 "Good communication and teamwork"
-            ]
+            ],
+            benefits: [
+                "Part-time flexible schedule",
+                "Mentorship from senior designers",
+                "Networking opportunities",
+                "Access to premium design tools"
+            ],
+            workingHours: "20h/week, flexible arrangement"
         },
         {
             id: 6,
@@ -197,7 +232,14 @@ const JobDetails: React.FC = () => {
                 "Good knowledge of GraphQL and REST APIs",
                 "Experience with CI/CD pipelines",
                 "5+ years of fullstack development experience"
-            ]
+            ],
+            benefits: [
+                "High salary & stock options",
+                "Comprehensive healthcare package",
+                "Free gym membership",
+                "Annual learning budget"
+            ],
+            workingHours: "Mon - Fri, 9:00 AM - 6:00 PM"
         }
     ];
 

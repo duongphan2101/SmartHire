@@ -8,7 +8,7 @@ import Intro from "./pages/Introduction/Intro";
 import BuildCV from "./pages/buildCV/BuildCV";
 import Profile from "./pages/Profile/Profile";
 import JobDetail from "./pages/JobDetail/JobDetail";
-
+import { Dashboard } from "./pages/Dashboard/Dashboard";
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,6 +29,7 @@ function App() {
           <Route path="/buildcv" element={<BuildCV />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/jobdetail" element={<JobDetail />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
