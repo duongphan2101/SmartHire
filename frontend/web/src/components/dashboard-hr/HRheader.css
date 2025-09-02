@@ -1,0 +1,121 @@
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+    border-bottom: 2px solid #e5e7eb;
+}
+
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-container {
+  /* background-color: #22c55e;  */
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+
+}
+
+.app-name {
+  font-weight: 700;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.nav-button:hover {
+  background-color: #f3f4f6;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+ color: #6b7280;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.breadcrumb-item {
+  color: #9ca3af;
+}
+
+.breadcrumb-item.current {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.breadcrumb-divider {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-group {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  padding: 8px;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background-color: #f3f4f6;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.avatar-dropdown-button {
+  padding: 4px;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.avatar-dropdown-button:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: #4b5563;
+}
