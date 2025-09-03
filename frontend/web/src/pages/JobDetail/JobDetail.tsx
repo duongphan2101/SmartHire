@@ -12,12 +12,15 @@ import volkswagen from "../../assets/images/volkswagen.png";
 import meta from "../../assets/images/meta.png";
 import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import { BsFilter } from 'react-icons/bs';
+import Detail from "../../components/Detail-Job/Detail";
 
 const JobDetails: React.FC = () => {
 
     const [jobTitle, setJobTitle] = useState("");
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [location, setLocation] = useState("");
+    const [selectedJob, setSelectedJob] = useState<any | null>(null);
+
 
     useEffect(() => {
         fetchProvinces().then(setProvinces);
@@ -30,18 +33,38 @@ const JobDetails: React.FC = () => {
     const lastest = [
         {
             id: 1,
-            nameJob: "IOS Developer",
+            nameJob: "iOS Developer",
             department: "Apple",
             image: apple,
-            tech: ["Object C", "Swift", "XCode"],
+            tech: ["Objective-C", "Swift", "XCode"],
             url: "/jobdetail",
-            location: "Hà Nội",
+            location: "Hanoi",
             salary: "$1,200 - $1,800",
             level: "Fresher",
-            type: "Fulltime",
+            type: "Full-time",
             postedAt: "2025-08-13T10:00:00Z",
             updatedAt: "2025-08-14T13:04:00Z",
-            isSaved: false
+            isSaved: false,
+            about: "You will work on designing and developing iOS applications for Apple's ecosystem, focusing on high performance and seamless user experiences.",
+            responsibilities: [
+                "Develop and maintain iOS applications using Swift and Objective-C",
+                "Collaborate with designers and backend developers",
+                "Optimize applications for performance and responsiveness",
+                "Participate in code reviews and provide constructive feedback"
+            ],
+            requirements: [
+                "Bachelor’s degree in Computer Science or related field",
+                "Knowledge of Swift, Objective-C, and iOS frameworks",
+                "Familiarity with Xcode and iOS design principles",
+                "Good problem-solving and teamwork skills"
+            ],
+            benefits: [
+                "13th month salary and performance bonus",
+                "Health insurance and annual health check",
+                "MacBook provided",
+                "Team building activities"
+            ],
+            workingHours: "Mon - Fri, 9:00 AM - 6:00 PM"
         },
         {
             id: 2,
@@ -50,13 +73,33 @@ const JobDetails: React.FC = () => {
             image: google,
             tech: ["HTML", "CSS", "JavaScript"],
             url: "/",
-            location: "TP. Hồ Chí Minh",
+            location: "Ho Chi Minh City",
             salary: "$1,000 - $1,500",
             level: "Junior",
             type: "Hybrid",
             postedAt: "2025-08-10T08:30:00Z",
             updatedAt: null,
-            isSaved: false
+            isSaved: false,
+            about: "Join Google's frontend team to create interactive, scalable, and user-friendly web applications.",
+            responsibilities: [
+                "Implement responsive UI with HTML, CSS, and JavaScript",
+                "Work closely with designers and backend engineers",
+                "Ensure cross-browser and cross-device compatibility",
+                "Optimize application for speed and performance"
+            ],
+            requirements: [
+                "Solid understanding of HTML, CSS, JavaScript",
+                "Experience with modern frontend frameworks (React, Vue, Angular is a plus)",
+                "Basic knowledge of REST APIs",
+                "Good communication and teamwork"
+            ],
+            benefits: [
+                "Flexible working schedule",
+                "Free lunch and snacks",
+                "Health & dental insurance",
+                "Training budget"
+            ],
+            workingHours: "Mon - Fri, 10:00 AM - 7:00 PM"
         },
         {
             id: 3,
@@ -65,13 +108,33 @@ const JobDetails: React.FC = () => {
             image: stabuck,
             tech: ["Node.js", "Express", "MongoDB"],
             url: "/",
-            location: "Đà Nẵng",
+            location: "Da Nang",
             salary: "$1,500 - $2,000",
             level: "Senior",
             type: "Onsite",
             postedAt: "2025-08-12T15:00:00Z",
             updatedAt: "2025-08-14T09:00:00Z",
-            isSaved: false
+            isSaved: false,
+            about: "Work on building and maintaining backend services that power Starbucks' digital platforms.",
+            responsibilities: [
+                "Design and develop RESTful APIs",
+                "Integrate backend with databases (MongoDB, SQL)",
+                "Maintain security and data protection standards",
+                "Mentor junior developers and review code"
+            ],
+            requirements: [
+                "Strong experience with Node.js and Express",
+                "Proficiency in MongoDB and database design",
+                "Understanding of authentication and authorization (JWT, OAuth)",
+                "5+ years of backend development experience"
+            ],
+            benefits: [
+                "Free coffee & beverages",
+                "Annual performance bonus",
+                "Comprehensive healthcare package",
+                "International working environment"
+            ],
+            workingHours: "Mon - Fri, 8:30 AM - 5:30 PM"
         },
         {
             id: 4,
@@ -80,13 +143,33 @@ const JobDetails: React.FC = () => {
             image: volkswagen,
             tech: ["Java", "Kotlin", "Android Studio"],
             url: "/",
-            location: "Hà Nội",
+            location: "Hanoi",
             salary: "$1,000 - $1,700",
             level: "Fresher",
             type: "Remote",
             postedAt: "2025-08-08T10:00:00Z",
             updatedAt: null,
-            isSaved: false
+            isSaved: false,
+            about: "Volkswagen is looking for enthusiastic mobile developers to contribute to Android applications for connected car services.",
+            responsibilities: [
+                "Develop Android apps using Java and Kotlin",
+                "Work with APIs and cloud integration",
+                "Fix bugs and improve application performance",
+                "Collaborate with the UX/UI design team"
+            ],
+            requirements: [
+                "Bachelor’s degree in IT or related field",
+                "Familiarity with Android SDK and Android Studio",
+                "Basic understanding of RESTful APIs",
+                "Eagerness to learn and grow in a professional environment"
+            ],
+            benefits: [
+                "Remote work allowance",
+                "Online training courses",
+                "Health insurance after probation",
+                "Annual company trip"
+            ],
+            workingHours: "Flexible hours, expected 40h/week"
         },
         {
             id: 5,
@@ -95,13 +178,33 @@ const JobDetails: React.FC = () => {
             image: nike,
             tech: ["Figma", "Adobe XD", "Sketch"],
             url: "/",
-            location: "TP. Hồ Chí Minh",
+            location: "Ho Chi Minh City",
             salary: "$900 - $1,400",
             level: "Intern",
-            type: "Parttime",
+            type: "Part-time",
             postedAt: "2025-08-11T14:00:00Z",
             updatedAt: "2025-08-14T06:00:00Z",
-            isSaved: false
+            isSaved: false,
+            about: "As a UI/UX Designer Intern at Nike, you will help design intuitive digital experiences for millions of users worldwide.",
+            responsibilities: [
+                "Assist in creating wireframes, prototypes, and user flows",
+                "Support senior designers in product design tasks",
+                "Participate in user research and usability testing",
+                "Ensure consistent branding and design standards"
+            ],
+            requirements: [
+                "Familiarity with design tools such as Figma, Adobe XD, or Sketch",
+                "Basic understanding of UX principles",
+                "Creative mindset with attention to detail",
+                "Good communication and teamwork"
+            ],
+            benefits: [
+                "Part-time flexible schedule",
+                "Mentorship from senior designers",
+                "Networking opportunities",
+                "Access to premium design tools"
+            ],
+            workingHours: "20h/week, flexible arrangement"
         },
         {
             id: 6,
@@ -110,13 +213,33 @@ const JobDetails: React.FC = () => {
             image: meta,
             tech: ["React", "Node.js", "GraphQL"],
             url: "/",
-            location: "Đà Nẵng",
+            location: "Da Nang",
             salary: "$1,800 - $2,500",
             level: "Senior",
-            type: "Fulltime",
+            type: "Full-time",
             postedAt: "2025-08-09T09:00:00Z",
             updatedAt: null,
-            isSaved: false
+            isSaved: false,
+            about: "Work on end-to-end development of Meta’s web applications, from frontend to backend.",
+            responsibilities: [
+                "Build scalable web applications with React and Node.js",
+                "Design APIs and integrate with GraphQL services",
+                "Maintain high code quality through testing and reviews",
+                "Collaborate with cross-functional teams"
+            ],
+            requirements: [
+                "Strong experience with React and Node.js",
+                "Good knowledge of GraphQL and REST APIs",
+                "Experience with CI/CD pipelines",
+                "5+ years of fullstack development experience"
+            ],
+            benefits: [
+                "High salary & stock options",
+                "Comprehensive healthcare package",
+                "Free gym membership",
+                "Annual learning budget"
+            ],
+            workingHours: "Mon - Fri, 9:00 AM - 6:00 PM"
         }
     ];
 
@@ -141,8 +264,10 @@ const JobDetails: React.FC = () => {
     };
 
     const handlerJobItem = (id: string) => {
-        alert(`ID : ${id}`);
-    }
+        const job = lastest.find((item) => item.id.toString() === id);
+        setSelectedJob(job || null);
+    };
+
 
     return (
         <>
@@ -205,8 +330,10 @@ const JobDetails: React.FC = () => {
 
                                     <div className="head-left-main flex flex-col w-full">
                                         {lastest.map((item) => (
-                                            <div className="job-item flex items-center gap-5"
-                                                onClick={() => {handlerJobItem(item.id.toString())}}
+                                            <div
+                                                key={item.id}
+                                                className={`job-item flex items-center gap-5 cursor-pointer`}
+                                                onClick={() => handlerJobItem(item.id.toString())}
                                             >
                                                 <div className="bg-gray-200"
                                                     style={{ borderRadius: 5, padding: 5 }}
@@ -214,7 +341,7 @@ const JobDetails: React.FC = () => {
                                                     <img className="job-item-image" src={item.image} />
                                                 </div>
                                                 <div className="flex flex-col gap-2 text-left flex-2/4">
-                                                    <span style={{fontWeight: 'bold'}}>{item.nameJob}</span>
+                                                    <span style={{ fontWeight: 'bold' }}>{item.nameJob}</span>
                                                     <div className="flex gap-5">
                                                         <span className="text-gray-500">{item.department}</span>
                                                         <span className="text-gray-500">{getTimeAgo(item.postedAt!, item.updatedAt!)}</span>
@@ -232,7 +359,11 @@ const JobDetails: React.FC = () => {
 
                             <div className="lg:col-span-6 md:col-span-6">
                                 <div className="head-card">
-                                    hehe
+                                    {selectedJob ? (
+                                        <Detail item={selectedJob} />
+                                    ) : (
+                                        <p className="text-gray-500">Hãy chọn 1 công việc để xem chi tiết</p>
+                                    )}
                                 </div>
                             </div>
 
