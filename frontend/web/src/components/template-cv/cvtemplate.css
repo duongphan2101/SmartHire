@@ -1,0 +1,144 @@
+.cv-template {
+  width: 100%; 
+  max-width: 1000px; 
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow-y: auto; 
+  font-family: Arial, sans-serif; 
+}
+
+.cv-template h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  text-align: center;
+  /* border-bottom: 3px solid #28a745; */
+  padding-bottom: 10px;
+  word-wrap: break-word;
+  font-weight: 700; 
+}
+
+.cv-template .section {
+  font-size: 18px;
+  font-weight: bold;
+  color: #34495e;
+  margin-top: 25px;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  /* background-color: #ecf0f1; */
+  display: flex;
+  border-bottom: 2px solid #28a745;
+  border-radius: 5px;
+  position: relative; 
+}
+
+.cv-template .template-info{
+      line-height: 1.6;
+  color: #555;
+  margin-bottom: 25px;
+  padding-left: 15px;
+  display: flex;
+  justify-content: space-around;
+  text-align: left;
+  word-wrap: break-word;
+}
+.cv-template .template-info,
+.cv-template .subsection-content {
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 25px;
+  padding-left: 15px;
+
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.cv-template .template-info p,
+.cv-template .subsection-content p {
+  margin: 5px 0;
+  font-size: 14px;
+  word-wrap: break-word;
+
+  color: #333; 
+}
+
+.cv-template .template-info:empty::after,
+.cv-template .subsection-content:empty::after {
+  content: "Chưa có thông tin";
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+
+.cv-template .template-info strong,
+.cv-template .subsection-content strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.skill-tag {
+  background: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cv-template {
+    width: 90%; /* Thu nhỏ khi màn hình nhỏ */
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .cv-template h2 {
+    font-size: 24px;
+  }
+
+  .cv-template .section {
+    font-size: 16px;
+    padding: 8px 10px;
+  }
+
+  .cv-template .template-info p,
+  .cv-template .subsection-content p {
+    font-size: 13px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .cv-template {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .cv-template h2 {
+    font-size: 28px;
+    border-bottom: 2px solid #28a745;
+  }
+
+  .cv-template .section {
+    margin-top: 15px;
+    padding: 5mm 10mm;
+    border-left: 4mm solid #28a745;
+  }
+}

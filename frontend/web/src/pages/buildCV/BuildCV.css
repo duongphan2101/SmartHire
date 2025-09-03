@@ -9,12 +9,12 @@
   display: flex;
   justify-content: space-between;
   padding: 20px;
-  max-width: 1400px;
+  max-width: 2000px;
   margin: 120px auto 20px;
   gap: 20px;
+  background-color: #f0f2f5;
 }
 
-.cv-template,
 .cv-input {
   width: 50%;
   padding: 30px;
@@ -24,55 +24,6 @@
   box-sizing: border-box;
 }
 
-.cv-template h2 {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #2c3e50;
-  text-align: center;
-  border-bottom: 3px solid #28a745;
-  padding-bottom: 10px;
-  word-wrap: break-word;
-}
-
-.cv-template .section {
-  font-size: 18px;
-  font-weight: bold;
-  color: #34495e;
-  margin-top: 25px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  background-color: #ecf0f1;
-  border-left: 5px solid #28a745;
-  border-radius: 5px;
-}
-
-.cv-template .template-info,
-.cv-template .subsection-content {
-  line-height: 1.6;
-  color: #555;
-  margin-bottom: 25px;
-  padding-left: 15px;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-.cv-template .template-info p,
-.cv-template .subsection-content p {
-  margin: 5px 0;
-  font-size: 14px;
-  word-wrap: break-word;
-}
-
-.cv-template .template-info:empty::after,
-.cv-template .subsection-content:empty::after {
-  content: "Chưa có thông tin";
-  color: #999;
-  font-style: italic;
-  font-size: 14px;
-  word-wrap: break-word;
-}
-
-/* Input form styling */
 .cv-input h3.section-title {
   font-size: 20px;
   color: #2c3e50;
@@ -130,10 +81,10 @@
   font-size: 14px;
 }
 
-.input-container input:focus ~ .label,
-.input-container input:not(:placeholder-shown):valid ~ .label,
-.input-container textarea:focus ~ .label,
-.input-container textarea:not(:placeholder-shown):valid ~ .label {
+.input-container input:focus~.label,
+.input-container input:not(:placeholder-shown):valid~.label,
+.input-container textarea:focus~.label,
+.input-container textarea:not(:placeholder-shown):valid~.label {
   top: -15px;
   font-size: 12px;
   color: #28a745;
@@ -150,10 +101,10 @@
   transition: all 0.3s ease;
 }
 
-.input-container input:focus ~ .underline,
-.input-container input:not(:placeholder-shown):valid ~ .underline,
-.input-container textarea:focus ~ .underline,
-.input-container textarea:not(:placeholder-shown):valid ~ .underline {
+.input-container input:focus~.underline,
+.input-container input:not(:placeholder-shown):valid~.underline,
+.input-container textarea:focus~.underline,
+.input-container textarea:not(:placeholder-shown):valid~.underline {
   transform: scaleX(1);
 }
 
@@ -223,17 +174,20 @@
     flex-direction: column;
     padding: 10px;
   }
-  .cv-template,
+
   .cv-input {
     width: 100%;
     padding: 20px;
   }
+
   .input-row {
     flex-direction: column;
   }
+
   .dynamic-input-group {
     flex-direction: column;
   }
+
   .remove-btn {
     position: static;
     margin-top: 10px;
@@ -241,6 +195,7 @@
 }
 
 @media print {
+
   .cv-input,
   .cv-controls,
   .header,
@@ -252,12 +207,6 @@
     display: block !important;
     width: 100% !important;
     padding: 0 !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-  }
-  .cv-template {
-    width: 100% !important;
-    padding: 10mm !important;
     box-shadow: none !important;
     margin: 0 !important;
   }
