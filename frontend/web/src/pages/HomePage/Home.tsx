@@ -369,7 +369,7 @@ const Home: React.FC = () => {
                                             </a>
                                             <div className='bg-white item-bottom'>
                                                 <span className='item-title '>{item.name}</span>
-                                                <span className='item-posted'>Posted:
+                                                <span className='item-posted'>Bài đăng:
                                                     <span className='bg-emerald-500'
                                                         style={{
                                                             color: '#fff', marginLeft: 10, padding: 5,
@@ -455,7 +455,7 @@ const Home: React.FC = () => {
                                                     style={{ padding: 5, borderRadius: 5 }}
                                                     onClick={() => toggleSave(item.id)}
                                                 >
-                                                    <span style={{ fontSize: 12 }} className={`${item.isSaved ? "text-white" : "text-gray-500"}`}>{item.isSaved ? "Saved" : "Save"}</span>
+                                                    <span style={{ fontSize: 12 }} className={`${item.isSaved ? "text-white" : "text-gray-500"}`}>{item.isSaved ? "Đã lưu" : "Lưu bài đăng"}</span>
                                                     {item.isSaved ? <FaBookmark color="#fff" size={14} /> : <FaRegBookmark color="gray" size={14} />}
                                                 </div>
 

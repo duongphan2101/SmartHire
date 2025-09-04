@@ -1,0 +1,14 @@
+.App {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    background-color: #e5e7eb;
+}
+
+.btn-logout {
+    padding: 10px 25px;
+    color: #fff;
+    cursor: pointer;
+    background-color: var(--color-red-400);
+    border-radius: 5px;
+}

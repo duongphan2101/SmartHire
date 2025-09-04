@@ -83,7 +83,7 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
 
             </div>
 
-            <div className="page-content text-left">
+            <div className="page-content-main text-left">
                 <h3 className="content-title">Về công việc này</h3>
                 <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.about}</p>
 
