@@ -3,7 +3,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    background-color: #f8f9fa;
+    background-color: #fff;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
     border-bottom: 2px solid #e5e7eb;
 }
@@ -16,14 +16,14 @@
 }
 
 .logo-container {
-  background-color: #22c55e; 
+  /* background-color: #22c55e;  */
   padding: 8px;
   border-radius: 8px;
 }
 
 .logo-image {
   width: 60px;
-  height: 50px;
+  height: 60px;
   border-radius: 50%;
 
 }

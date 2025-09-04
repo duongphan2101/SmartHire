@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Detail.css";
 
 import page from "../../assets/images/page-picture.jpg";
+
+import { FaLocationDot } from 'react-icons/fa6';
+import { RiMoneyDollarBoxFill } from 'react-icons/ri';
 
 interface DetailProps {
     item: any;
 }
 
 const Detail: React.FC<DetailProps> = ({ item }) => {
+
+    const [saved, setSaved] = useState(item.isSaved);
 
     const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
         const date = new Date(updatedAt || postedAt);
@@ -36,19 +41,54 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
                 <img className="bg-picture" src={page} alt="page-picture" />
             </div>
 
-            <div className="page-title w-full flex flex-col">
+            <div className="page-title w-full flex flex-col gap-3">
                 <img className="avt-department" src={item.image} />
-                <span className="text-left title-job">{item.nameJob}</span>
-                <a className="text-left text-gray-600" href={`/department/${item.department}`}
-                    style={{ fontSize: 18 }}
-                >
-                    {item.department} • chỉnh sửa {getTimeAgo(item.postedAt!, item.updatedAt!)}
-                </a>
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-left title-job">{item.nameJob}</span>
+                        <a className="text-left text-gray-600" href={`/department/${item.department}`}
+                            style={{ fontSize: 18 }}
+                        >
+                            {item.department} • chỉnh sửa {getTimeAgo(item.postedAt!, item.updatedAt!)}
+                        </a>
+                    </div>
+
+                    <div className="flex gap-10 items-center">
+                        <div>
+                            <div className="flex items-center gap-2"><FaLocationDot size={14} color="green" /> {item.location}</div>
+                            <div className="flex items-center gap-2 font-bold"
+                                style={{ fontSize: 20 }}
+                            ><RiMoneyDollarBoxFill color="green" /> {item.salary}</div>
+                        </div>
+                        <div className="flex gap-3 items-center flex-wrap">
+
+                            <button
+                                type="button"
+                                className={`button-save btn ${saved ? "saved" : ""}`}
+                                onClick={() => setSaved(!saved)}
+                            >
+                                {saved ? "Đã lưu" : "Lưu bài đăng"}
+                            </button>
+
+                            <button type="button" className="button-apply btn"
+                                onClick={() => { alert("OK") }}
+                            >
+                                Ứng tuyển
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
-            <div className="page-content text-left">
+            <div className="page-content-main text-left">
                 <h3 className="content-title">Về công việc này</h3>
                 <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.about}</p>
+
+                <h3 className="content-title">Hình thức làm việc</h3>
+                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.type}</p>
 
                 <h3 className="content-title">Trách nhiệm</h3>
                 {Array.isArray(item.responsibilities) ? (
@@ -71,6 +111,21 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
                 ) : (
                     <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.requirements}</p>
                 )}
+
+                <h3 className="content-title">Phúc lợi</h3>
+                {Array.isArray(item.benefits) ? (
+                    <ul style={{ paddingTop: 10, paddingBottom: 10, listStyle: "disc", paddingLeft: 20 }}>
+                        {item.requirements.map((req: string, idx: number) => (
+                            <li key={idx}>{req}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.benefits}</p>
+                )}
+
+                <h3 className="content-title">Thời gian làm việc</h3>
+                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.workingHours}</p>
+
             </div>
 
 

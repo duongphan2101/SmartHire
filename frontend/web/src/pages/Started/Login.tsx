@@ -38,8 +38,11 @@ function Login() {
     try {
       const result = await login(email, password);
       if (result) {
-        toast.success("Đăng nhập thành công!");
-        navigate("/home");
+        if (result.user.role === "hr") {
+          navigate("/dashboard");
+        } else {
+          navigate("/home");
+        }
       }
     } catch (err: any) {
       toast.error(err?.message || "Đăng nhập thất bại!");
