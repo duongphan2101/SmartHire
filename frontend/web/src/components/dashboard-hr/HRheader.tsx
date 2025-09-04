@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
+import useUser from "../../hook/useUser";
 
 interface HRheaderProps {
   breadcrumb: string;
+  setPage: (page: "dashboard" | "about") => void;
 }
 
-const HRheader = ({ breadcrumb }: HRheaderProps) => {
+const HRheader = ({ breadcrumb, setPage }: HRheaderProps) => {
+
+  const { getUser, user } = useUser();
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const idToFetch = parsed.user_id ?? parsed._id;
+        getUser(idToFetch);
+      }
+    } catch (e) {
+      console.error("Invalid user data in localStorage", e);
+    }
+  }, [getUser]);
+
+  const handleAbout = () => {
+    setPage("about");
+  };
+
   return (
     <div className="main-header">
       <div className="header-left">
@@ -18,9 +40,8 @@ const HRheader = ({ breadcrumb }: HRheaderProps) => {
           {breadcrumb.split(" > ").map((item, index: number, array) => (
             <React.Fragment key={item}>
               <span
-                className={`breadcrumb-item ${
-                  index === array.length - 1 ? "current" : ""
-                }`}
+                className={`breadcrumb-item ${index === array.length - 1 ? "current" : ""
+                  }`}
               >
                 {item}
               </span>
@@ -33,6 +54,7 @@ const HRheader = ({ breadcrumb }: HRheaderProps) => {
       </div>
 
       <div className="header-right">
+
         <div className="icon-group">
           <button className="icon-button">
             <svg
@@ -83,8 +105,9 @@ const HRheader = ({ breadcrumb }: HRheaderProps) => {
             </svg>
           </button>
         </div>
-        <div className="user-avatar">
-          <img src={logo} alt="User Avatar" className="avatar-image" />
+
+        <div className="user-avatar" onClick={handleAbout}>
+          <img src={user?.avatar} alt="User Avatar" className="avatar-image" />
           <button className="avatar-dropdown-button">
             <svg
               className="dropdown-icon"
@@ -102,6 +125,7 @@ const HRheader = ({ breadcrumb }: HRheaderProps) => {
             </svg>
           </button>
         </div>
+
       </div>
     </div>
   );

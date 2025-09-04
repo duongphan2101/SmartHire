@@ -68,6 +68,7 @@ exports.register = async (req, res) => {
 // Đăng nhập
 exports.login = async (req, res) => {
   try {
+    const host = HOSTS.userService;
     const { email, password } = req.body;
 
     // 1. Tìm account theo email
@@ -82,12 +83,31 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Sai email hoặc password" });
     }
 
-    // 3. Generate token
-    const tokens = generateTokens(account);
+    // 3. Gọi sang User Service để lấy role
+    const userRes = await axios.get(
+      `${host}/emailfind/${email}`
+    );
+    const user = userRes.data;
 
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy user" });
+    }
+
+    // 4. Generate token
+    const tokens = generateTokens({
+      accountId: account._id,
+      email: account.email,
+      role: user.role,
+    });
+
+    // 5. Trả response
     return res.status(200).json({
       message: "Đăng nhập thành công",
-      user: { email: account.email, user_id: account.user_id },
+      user: {
+        email: account.email,
+        user_id: user._id,
+        role: user.role,
+      },
       ...tokens,
     });
   } catch (err) {
