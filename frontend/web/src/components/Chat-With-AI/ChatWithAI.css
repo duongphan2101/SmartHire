@@ -120,6 +120,7 @@
     width: fit-content;
     max-width: 75%;
     line-height: 1.4;
+    text-align: justify;
 }
 
 .message-ai {
