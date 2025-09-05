@@ -2,40 +2,19 @@ import React, { useState } from "react";
 import './ChatWithAI.css';
 import icon from "../../assets/icons/Robot.png";
 import { BsFillSendFill } from 'react-icons/bs';
-
-interface Message {
-  sender: "user" | "ai";
-  text: string;
-}
+import { useChatWithAI } from "../../hook/useChatWithAI";
 
 const ChatWithAI: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const { messages, sendMessage, loading } = useChatWithAI();
 
-  const [messages, setMessages] = useState<Message[]>([
-    { sender: "ai", text: "Xin chào! Tôi là trợ lý AI của SmartHire." },
-    { sender: "user", text: "Chào AI! Giúp tôi tìm việc frontend nhé." },
-    { sender: "ai", text: "Tuyệt! Bạn muốn làm ở thành phố nào?" },
-  ]);
-
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen);
-  };
+  const toggleChat = () => setIsChatOpen(!isChatOpen);
 
   const handleSend = () => {
     if (!message.trim()) return;
-
-    const newMessages: Message[] = [...messages, { sender: "user", text: message }];
-
-    setMessages(newMessages);
+    sendMessage(message);
     setMessage("");
-
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        { sender: "ai", text: `AI trả lời: "${message}"` }
-      ]);
-    }, 1000);
   };
 
   return (
@@ -62,6 +41,7 @@ const ChatWithAI: React.FC = () => {
                 {msg.text}
               </div>
             ))}
+            {loading && <div className="message message-ai">...</div>}
           </div>
 
           <div className="chat-box-bottom flex justify-between">
