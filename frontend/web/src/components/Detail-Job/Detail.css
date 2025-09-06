@@ -85,3 +85,7 @@
     background-color: var(--color-emerald-600);
     color: white;
 }
+
+.map {
+    margin-top: 20px;
+}
