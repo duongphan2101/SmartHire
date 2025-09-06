@@ -33,7 +33,7 @@ export default function useDepartment(): UseDepartmentReturn {
         
         // Sử dụng URL từ HOSTS.companyService để lấy dữ liệu departments
         const host = HOSTS.companyService; 
-        const response = await axios.get<DepartmentData[]>(host);
+        const response = await axios.get<DepartmentData[]>(`${host}/getAll`);
         
         setDepartments(response.data);
       } catch (err) {

@@ -1,4 +1,4 @@
-const Department = require("../models/Derparment");
+const Department = require("../models/Department");
 
 // @desc    Get all departments
 // @route   GET /api/department
