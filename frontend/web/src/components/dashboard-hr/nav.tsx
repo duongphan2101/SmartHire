@@ -15,14 +15,15 @@ import "./Nav.css";
 // Định nghĩa interface cho props
 interface NavProps {
   setBreadcrumb: (breadcrumb: string) => void;
+  setPage: (page: "dashboard" | "about" | "company") => void;
 }
 
-const Nav = ({ setBreadcrumb }: NavProps) => {
+const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
   const [isIconMode, setIsIconMode] = useState(false);
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isWorkOpen, setIsWorkOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
 
-  // Xử lý sự kiện khi nhấn vào biểu tượng menu nha
+  // Xử lý sự kiện khi nhấn vào biểu tượng menu
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsIconMode(true);
@@ -31,22 +32,24 @@ const Nav = ({ setBreadcrumb }: NavProps) => {
   const handleBackClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsIconMode(false);
-    setIsDashboardOpen(false);
+    setIsWorkOpen(false);
   };
 
   const handleDropdownClick = (e: React.MouseEvent, menu: string) => {
     e.stopPropagation();
     if (!isIconMode) {
-      if (menu === "Dashboard") {
-        setIsDashboardOpen(!isDashboardOpen);
+      if (menu === "Công việc") {
+        setIsWorkOpen(!isWorkOpen);
       }
     }
   };
 
   const handleItemClick = (item: string, isSubMenu: boolean) => {
-    const breadcrumbText = isSubMenu ? `Dashboard > ${item}` : item;
+    const breadcrumbText = isSubMenu ? `Công việc > ${item}` : item;
     setBreadcrumb(breadcrumbText);
     setActiveItem(item);
+    if (item === "Công ty") setPage("company");
+    else if (item === "Dashboard") setPage("dashboard");
   };
 
   return (
@@ -75,87 +78,67 @@ const Nav = ({ setBreadcrumb }: NavProps) => {
       {/* Main Navigation Menu */}
       <ul className="nav-menu">
         <li
+          className={`nav-item ${activeItem === "Dashboard" ? "active" : ""}`}
+          onClick={() => handleItemClick("Dashboard", false)}
+        >
+          <div className="nav-item-content">
+            <div className="nav-item-text">
+              <HiOutlineMenuAlt3 className="nav-item-icon" />
+              <span>Dashboard</span>
+            </div>
+          </div>
+        </li>
+
+        <li
           className={`nav-item with-dropdown ${
-            activeItem === "Dashboard" ? "active" : ""
+            activeItem === "Công việc" ? "active" : ""
           }`}
         >
           <div
             className="nav-item-content"
             onClick={(e) => {
-              handleDropdownClick(e, "Dashboard");
-              handleItemClick("Dashboard", false);
+              handleDropdownClick(e, "Công việc");
+              handleItemClick("Công việc", false);
             }}
           >
             <div className="nav-item-text">
-              <HiOutlineMenuAlt3 className="nav-item-icon" />
-              <span>Dashboard</span>
+              <HiOutlineAdjustments className="nav-item-icon" />
+              <span>Công việc</span>
             </div>
             <HiOutlineChevronDown
-              className={`dropdown-arrow ${isDashboardOpen ? "open" : ""}`}
+              className={`dropdown-arrow ${isWorkOpen ? "open" : ""}`}
             />
           </div>
-          {isDashboardOpen && !isIconMode && (
+          {isWorkOpen && !isIconMode && (
             <ul className="sub-menu">
               <li
                 className={`sub-menu-item ${
-                  activeItem === "Generate Articles" ? "active" : ""
+                  activeItem === "Tất cả công việc" ? "active" : ""
                 }`}
-                onClick={() => handleItemClick("Generate Articles", true)}
+                onClick={() => handleItemClick("Tất cả công việc", true)}
               >
-                Generate Articles
+                Tất cả công việc
               </li>
               <li
                 className={`sub-menu-item ${
-                  activeItem === "History" ? "active" : ""
+                  activeItem === "Công việc đã đăng" ? "active" : ""
                 }`}
-                onClick={() => handleItemClick("History", true)}
+                onClick={() => handleItemClick("Công việc bạn đã đăng", true)}
               >
-                History
-              </li>
-              <li
-                className={`sub-menu-item ${
-                  activeItem === "All Articles" ? "active" : ""
-                }`}
-                onClick={() => handleItemClick("All Articles", true)}
-              >
-                All Articles
-              </li>
-              <li
-                className={`sub-menu-item ${
-                  activeItem === "AI SEO Editor" ? "active" : ""
-                }`}
-                onClick={() => handleItemClick("AI SEO Editor", true)}
-              >
-                AI SEO Editor
+                Công việc đã đăng
               </li>
             </ul>
           )}
         </li>
 
         <li
-          className={`nav-item ${
-            activeItem === "Customization" ? "active" : ""
-          }`}
-          onClick={() => handleItemClick("Customization", false)}
-        >
-          <div className="nav-item-content">
-            <div className="nav-item-text">
-              <HiOutlineAdjustments className="nav-item-icon" />
-              <span>Customization</span>
-            </div>
-          </div>
-        </li>
-
-        <li
-          className={`nav-item ${
-            activeItem === "Blog Automation" ? "active" : ""
-          }`}
-          onClick={() => handleItemClick("Blog Automation", false)}
+          className={`nav-item ${activeItem === "Công ty" ? "active" : ""}`}
+          onClick={() => handleItemClick("Công ty", false)}
         >
           <div className="nav-item-content">
             <div className="nav-item-text">
               <HiOutlineClock className="nav-item-icon" />
-              <span>Blog Automation</span>
+              <span>Công ty</span>
             </div>
           </div>
         </li>
