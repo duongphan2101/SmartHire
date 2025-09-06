@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Detail.css";
 
 import page from "../../assets/images/page-picture.jpg";
+import Map from "../Map/Map";
 
 import { FaLocationDot } from 'react-icons/fa6';
 import { RiMoneyDollarBoxFill } from 'react-icons/ri';
@@ -125,6 +126,13 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
 
                 <h3 className="content-title">Thời gian làm việc</h3>
                 <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.workingHours}</p>
+
+                <h3 className="content-title">Địa điểm</h3>
+                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.address}</p>
+                <div className="map w-full">
+                    <Map address={item.address} />
+                </div>
+
 
             </div>
 
