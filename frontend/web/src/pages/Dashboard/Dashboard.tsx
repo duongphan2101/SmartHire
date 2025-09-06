@@ -8,15 +8,18 @@ import Nav from "../../components/dashboard-hr/nav";
 import About from "../../components/About-HR/About-hr";
 import CompanyContent from "../Company/CompanyContent";
 import JobPost from "../../components/dashboard-hr/JobPost";
-import google from "../../assets/images/google.png";
+import useDepartment from "../../hook/useDepartment";
 
 // interface NavProps {
 //   setBreadcrumb: (breadcrumb: string) => void;
 // }
 export const Dashboard = () => {
   const [breadcrumb, setBreadcrumb] = useState("Dashboard");
-  const [page, setPage] = useState<"dashboard" | "about" | "company" | "jobPost">("dashboard");
-
+  const [page, setPage] = useState<
+    "dashboard" | "about" | "company" | "jobPost"
+  >("dashboard");
+  const { departments } = useDepartment();
+  const companyName = departments[0]?.name || "SmartHire";
   return (
     <div className="App">
       <ChatWithAI />
@@ -25,15 +28,15 @@ export const Dashboard = () => {
         <Nav setBreadcrumb={setBreadcrumb} setPage={setPage} />
 
         <div className="main-content-wrapper">
-        <HRheader breadcrumb={breadcrumb} setPage={setPage}  />
+          <HRheader
+            breadcrumb={breadcrumb}
+            setPage={setPage}
+            companyName={companyName}
+          />
           <div className="page-content">
-            {page === "dashboard" && (
-              <>
-               
-              </>
-            )}
+            {page === "dashboard" && <></>}
             {page === "about" && <About />}
-            {page === "company" && <CompanyContent />} 
+            {page === "company" && <CompanyContent />}
             {page === "jobPost" && <JobPost />}
           </div>
         </div>

@@ -3,6 +3,7 @@ import "./CompanyContent.css";
 import Company from "../../components/Company-HR/Company";
 import useCompany from "../../hook/useDepartment"; // Import hook mới
 
+
 const CompanyContent = () => {
   const { departments, loading, error } = useCompany();
 

@@ -1,0 +1,90 @@
+.view-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px; /* chống dính mép */
+}
+
+.view-modal {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  width: 850px;
+  max-width: 95%;
+  max-height: 90vh; 
+  overflow-y: auto; 
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
+  animation: fadeInScale 0.25s ease;
+  position: relative;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+
+.view-modal h2 {
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.job-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px 30px;
+  margin-bottom: 20px;
+}
+
+.job-info p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.job-info b {
+  color: #111;
+  display: inline-block;
+  min-width: 110px;
+}
+
+.job-description {
+  margin-top: 10px;
+  padding: 18px;
+  background: #f4f7fb;
+  border-left: 4px solid #41be14;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #444;
+  white-space: pre-line;
+}
+
+.job-date {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+  text-align: right;
+}
+
+.view-modal .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.view-modal .close-btn:hover {
+  color: #e74c3c;
+}
