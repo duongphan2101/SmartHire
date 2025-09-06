@@ -3,9 +3,10 @@ import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
 
+
 interface HRheaderProps {
   breadcrumb: string;
-  setPage: (page: "dashboard" | "about" | "company") => void;
+  setPage: (page: "dashboard" | "about" | "company" | "jobPost") => void;
 }
 
 const HRheader = ({ breadcrumb, setPage }: HRheaderProps) => {
@@ -83,37 +84,6 @@ const HRheader = ({ breadcrumb, setPage }: HRheaderProps) => {
       </div>
 
       <div className="header-right">
-        <div className="company-avatar" onClick={handleCompanyAvatarClick}>
-          <img
-            src={companyAvatar || "../../assets/images/logo_v1.png"}
-            alt="Company Avatar"
-            className="avatar-image"
-          />
-          <button className="avatar-dropdown-button">
-            <svg
-              // className="dropdown-icon"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 9l-7 7-7-7"
-              ></path>
-            </svg>
-          </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            accept="image/*"
-          />
-        </div>
-
         <div className="icon-group">
           <button className="icon-button">
             <svg
