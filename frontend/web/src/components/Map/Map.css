@@ -1,0 +1,6 @@
+.mapp-app {
+    width: 100%;
+    height: 500px; 
+    max-height: fit-content;
+    position: relative;
+}

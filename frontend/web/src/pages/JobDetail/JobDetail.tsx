@@ -39,6 +39,7 @@ const JobDetails: React.FC = () => {
             tech: ["Objective-C", "Swift", "XCode"],
             url: "/jobdetail",
             location: "Hanoi",
+            address: "Apple Store, 25 Lý Thường Kiệt, Hoàn Kiếm, Hà Nội, Việt Nam",
             salary: "$1,200 - $1,800",
             level: "Fresher",
             type: "Full-time",
@@ -74,6 +75,7 @@ const JobDetails: React.FC = () => {
             tech: ["HTML", "CSS", "JavaScript"],
             url: "/",
             location: "Ho Chi Minh City",
+            address: "Google Asia Pacific, Nguyễn Văn Bảo/12 Đ. Hạnh Thông, Phường, Gò Vấp, Hồ Chí Minh 700000, Việt Nam",
             salary: "$1,000 - $1,500",
             level: "Junior",
             type: "Hybrid",
@@ -109,6 +111,7 @@ const JobDetails: React.FC = () => {
             tech: ["Node.js", "Express", "MongoDB"],
             url: "/",
             location: "Da Nang",
+            address: "Starbucks Da Nang, 63 Bạch Đằng, Hải Châu, Đà Nẵng, Việt Nam",
             salary: "$1,500 - $2,000",
             level: "Senior",
             type: "Onsite",
@@ -144,6 +147,7 @@ const JobDetails: React.FC = () => {
             tech: ["Java", "Kotlin", "Android Studio"],
             url: "/",
             location: "Hanoi",
+            address: "Volkswagen Showroom, 123 Láng Hạ, Đống Đa, Hà Nội, Việt Nam",
             salary: "$1,000 - $1,700",
             level: "Fresher",
             type: "Remote",
@@ -179,6 +183,7 @@ const JobDetails: React.FC = () => {
             tech: ["Figma", "Adobe XD", "Sketch"],
             url: "/",
             location: "Ho Chi Minh City",
+            address: "Nike Store, 25 Lê Lợi, Quận 1, TP. HCM, Việt Nam",
             salary: "$900 - $1,400",
             level: "Intern",
             type: "Part-time",
@@ -214,6 +219,7 @@ const JobDetails: React.FC = () => {
             tech: ["React", "Node.js", "GraphQL"],
             url: "/",
             location: "Da Nang",
+            address: "Meta Office, 60 Bạch Đằng, Hải Châu, Đà Nẵng, Việt Nam",
             salary: "$1,800 - $2,500",
             level: "Senior",
             type: "Full-time",
@@ -242,6 +248,7 @@ const JobDetails: React.FC = () => {
             workingHours: "Mon - Fri, 9:00 AM - 6:00 PM"
         }
     ];
+
 
     const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
         const date = new Date(updatedAt || postedAt);
@@ -359,11 +366,12 @@ const JobDetails: React.FC = () => {
 
                             <div className="lg:col-span-6 md:col-span-6">
                                 <div className="head-card">
-                                    {selectedJob ? (
-                                        <Detail item={selectedJob} />
+                                    {(selectedJob || lastest[0]) ? (
+                                        <Detail item={selectedJob || lastest[0]} />
                                     ) : (
                                         <p className="text-gray-500">Hãy chọn 1 công việc để xem chi tiết</p>
                                     )}
+
                                 </div>
                             </div>
 
