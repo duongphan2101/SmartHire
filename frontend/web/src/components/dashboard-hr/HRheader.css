@@ -119,3 +119,49 @@
   height: 16px;
   color: #4b5563;
 }
+.company-avatar, .user-avatar {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.avatar-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 5px;
+}
+
+.avatar-dropdown-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: #5f6368;
+}
+
+.icon-group {
+  display: flex;
+  margin-left: 15px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  padding: 5px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  color: #5f6368;
+}

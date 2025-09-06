@@ -1,0 +1,71 @@
+/* Container chính cho toàn bộ nội dung */
+.company-profile-container {
+    margin: 40px; /* Thêm margin để tạo khoảng trống với lề */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Kiểu dáng cho từng card công ty */
+.company-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Bỏ viền dưới cho card cuối cùng */
+.company-card:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* Avatar công ty */
+.company-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+}
+
+/* Phần nội dung chi tiết */
+.company-details {
+    flex-grow: 1;
+}
+
+/* Tiêu đề công ty */
+.company-details h3 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    color: #007bff;
+}
+
+/* Các đoạn văn bản */
+.company-details p {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Nhãn thông tin (in đậm) */
+.company-details p strong {
+    color: #555;
+    font-weight: 600;
+}
+
+/* Website link */
+.company-details a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.company-details a:hover {
+    text-decoration: underline;
+}

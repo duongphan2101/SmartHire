@@ -21,8 +21,15 @@
     border-left: 1px solid #e5e7eb;
 }
 
+.search-wrapper {
+    align-items: center;
+    
+    background-color: #e5e7eb; 
+    padding: 10px; 
+    border-radius: 4px; 
+}
 .page-content {
     padding: 10px;
-    background-color: #e5e7eb;
+    /* background-color: #e5e7eb; */
     height: 100%;
 }
