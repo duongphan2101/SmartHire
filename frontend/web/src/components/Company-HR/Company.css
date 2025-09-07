@@ -1,42 +1,38 @@
 /* Container chính cho toàn bộ nội dung */
 .company-profile-container {
-    margin: 40px; /* Thêm margin để tạo khoảng trống với lề */
-    padding: 20px;
-    background-color: #ffffff;
+    padding: 10px;
+    background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
 }
 
-/* Kiểu dáng cho từng card công ty */
 .company-card {
     display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
-    border-bottom: 1px solid #e0e0e0;
+    align-items: center;
+    gap: 50px;
+    padding: 10px;
 }
 
-/* Bỏ viền dưới cho card cuối cùng */
 .company-card:last-child {
     border-bottom: none;
     margin-bottom: 0;
 }
 
-/* Avatar công ty */
-.company-avatar {
-    width: 120px;
-    height: 120px;
+.company-profile-avatar {
+    width: 140px;
+    height: 140px;
+    padding: 30px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     border: 2px solid #f0f0f0;
 }
 
 /* Phần nội dung chi tiết */
 .company-details {
     flex-grow: 1;
+    text-align: justify;
 }
 
 /* Tiêu đề công ty */

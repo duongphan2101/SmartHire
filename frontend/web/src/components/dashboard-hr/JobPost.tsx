@@ -117,7 +117,7 @@ const JobPost = () => {
             <div className="job-body">
               <div className="flex items-center justify-between">
                 <span className="job-date" style={{ marginTop: 0 }}>
-                  {new Date(job.createdAt).toLocaleDateString()}
+                  {new Date(job.createdAt).toLocaleDateString()} - {new Date(job.endDate).toLocaleDateString()}
                 </span>
                 <p>{job.jobType}</p>
               </div>
@@ -133,8 +133,8 @@ const JobPost = () => {
               )}
             </div>
             <div className="job-footer">
-              <span className="font-bold">{job.salary}</span>
-              <span className="job-address">{job.address}</span>
+              <span className="font-bold text-gray-500">{job.salary}</span>
+              <span className="job-address text-gray-400">{job.address}</span>
               <button
                 className="details-button"
                 onClick={() => setViewJob(job)}

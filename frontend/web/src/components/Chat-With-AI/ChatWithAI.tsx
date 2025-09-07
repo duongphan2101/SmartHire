@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import './ChatWithAI.css';
 import icon from "../../assets/icons/Robot.png";
 import { BsFillSendFill } from 'react-icons/bs';
@@ -9,6 +9,8 @@ const ChatWithAI: React.FC = () => {
   const [message, setMessage] = useState("");
   const { messages, sendMessage, loading } = useChatWithAI();
 
+  const chatBodyRef = useRef<HTMLDivElement | null>(null);
+
   const toggleChat = () => setIsChatOpen(!isChatOpen);
 
   const handleSend = () => {
@@ -16,6 +18,12 @@ const ChatWithAI: React.FC = () => {
     sendMessage(message);
     setMessage("");
   };
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
 
   return (
     <div className="chat-with-ai-container">
@@ -32,7 +40,7 @@ const ChatWithAI: React.FC = () => {
             <button className="close-btn" onClick={toggleChat}>×</button>
           </div>
 
-          <div className="chat-box-body">
+          <div className="chat-box-body" ref={chatBodyRef}>
             {messages.map((msg, index) => (
               <div
                 key={index}

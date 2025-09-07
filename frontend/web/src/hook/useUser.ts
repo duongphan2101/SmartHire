@@ -5,6 +5,7 @@ import { HOSTS } from "../utils/host";
 export interface UserResponse {
   fullname: string;
   email: string;
+  _id: string;
   user_id: string;
   avatar: string;
   role: string;

@@ -3,6 +3,7 @@ import "./AddJobModal.css";
 import { HOSTS } from "../../utils/host";
 import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import useDepartment from "../../hook/useDepartment";
+import useUser from "../../hook/useUser";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,13 +14,26 @@ interface AddJobModalProps {
     jobTitle: string;
     jobType: string;
     jobLevel: string;
+
+    department: {
+      id: string;
+      name: string;
+      avatar?: string;
+    };
+
+    createBy: {
+      id: string;
+      fullname: string;
+      avatar?: string;
+    };
+
     requirement: string[];
     skills: string[];
     benefits: string[];
     salary: string;
     location: string;
     address: string;
-    jobDescription: string;
+    jobDescription: string[];
     date: string;
     endDate: string;
     num: number;
@@ -38,25 +52,25 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
   const [jobDescriptions, setJobDescriptions] = useState([""]);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [location, setLocation] = useState("");
-  const [createBy, setCreateBy] = useState("");
   const [endDate, setEndDate] = useState("");
   const [num, setNum] = useState<number | "">("");
   const { department } = useDepartment();
-  const companyID = department?._id || "SmartHire";
+  const { getUser, user } = useUser();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setCreateBy(user.user_id || user._id || "");
-      } catch (error) {
-        console.error("Error parsing user from localStorage:", error);
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const idToFetch = parsed.user_id ?? parsed._id;
+        getUser(idToFetch);
       }
+    } catch (e) {
+      console.error("Invalid user data in localStorage", e);
     }
 
     fetchProvinces().then(setProvinces);
-  }, []);
+  }, [getUser]);
 
   // Thêm / xóa / sửa mô tả
   const handleAddDescription = () => setJobDescriptions([...jobDescriptions, ""]);
@@ -114,7 +128,6 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
     if (
       !jobTitle.trim() ||
       !jobType.trim() ||
@@ -122,8 +135,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
       !salary.trim() ||
       !address.trim() ||
       !location.trim() ||
-      !createBy ||
-      !companyID ||
+      !department ||
       !endDate ||
       !num ||
       jobDescriptions.some((s) => !s.trim()) ||
@@ -134,14 +146,20 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
       alert("Vui lòng điền đầy đủ tất cả các trường!");
       return;
     }
-
-    // Build payload
     const payload = {
       jobTitle,
       jobType,
       jobLevel,
-      department: companyID,
-      createBy,
+      department: {
+        _id: department._id,
+        name: department.name,
+        avatar: department.avatar || "",
+      },
+      createBy: {
+        _id: user?.user_id || user?._id,
+        fullname: user?.fullname,
+        avatar: user?.avatar
+      },
       skills: skills.filter((s) => s.trim()),
       requirement: requirements.filter((s) => s.trim()),
       benefits: benefits.filter((s) => s.trim()),

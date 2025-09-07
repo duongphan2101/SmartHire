@@ -21,7 +21,7 @@ export const Dashboard = () => {
   const { department } = useDepartment();
   const companyName = department?.name || "SmartHire";
   return (
-    <div className="App">
+    <div className="App-Dashboard">
       <ChatWithAI />
 
       <div className="dashboard-layout-container">
