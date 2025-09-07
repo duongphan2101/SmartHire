@@ -12,11 +12,12 @@
   max-width: 2000px;
   padding-top: 120px;
   gap: 20px;
-  background-color: #f0f2f5;
+  background-color: #e5e7eb;
+  margin: auto;
 }
 
 .cv-input {
-  width: 50%;
+  width: 40%;
   padding: 30px;
   background-color: #fff;
   border-radius: 8px;
@@ -172,6 +173,42 @@
 
 .cv-controls button:hover {
   background-color: #229954;
+}
+
+.rendering-template {
+  width: 60%;
+  /* background-color: #27ae60; */
+}
+
+.template-box {
+  display: flex;
+  background-color: #fff;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+  padding: 10px 0;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);;
+}
+
+.btn-template {
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.btn-template:hover {
+  cursor: pointer;
+}
+
+.btn-template.active {
+  background-color: var(--color-emerald-600);
+  color: #fff;
 }
 
 @media (max-width: 768px) {

@@ -141,10 +141,8 @@ const About = () => {
 
     return (
         <>
-            <div className="App">
-                <div className="about-hr flex flex-wrap xl:flex-nowrap"
-                    style={{ paddingTop: '20px', paddingBottom: '20px' }}
-                >
+            <div className="App-about-hr">
+                <div className="about-hr flex flex-wrap xl:flex-nowrap">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 w-full">
                         {/* Trái 40% */}

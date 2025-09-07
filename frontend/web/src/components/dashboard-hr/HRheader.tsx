@@ -7,9 +7,10 @@ import useUser from "../../hook/useUser";
 interface HRheaderProps {
   breadcrumb: string;
   setPage: (page: "dashboard" | "about" | "company" | "jobPost") => void;
+  companyName: string;
 }
 
-const HRheader = ({ breadcrumb, setPage }: HRheaderProps) => {
+const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,6 +85,7 @@ const HRheader = ({ breadcrumb, setPage }: HRheaderProps) => {
       </div>
 
       <div className="header-right">
+        <span style={{ fontSize: "18px"}}>{companyName}</span>
         <div className="icon-group">
           <button className="icon-button">
             <svg

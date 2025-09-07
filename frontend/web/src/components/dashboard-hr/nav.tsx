@@ -70,12 +70,6 @@ const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
         )}
       </div>
 
-      {/* Search Input */}
-      <div className="search-container">
-        <HiOutlineSearch className="search-icon" />
-        <input type="text" placeholder="Search" className="search-input" />
-      </div>
-
       {/* Main Navigation Menu */}
       <ul className="nav-menu">
         <li

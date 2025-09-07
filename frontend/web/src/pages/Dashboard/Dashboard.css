@@ -1,4 +1,4 @@
-.App {
+.App-Dashboard {
     text-align: center;
     height: 100vh;
     width: 100vw;
@@ -23,13 +23,10 @@
 
 .search-wrapper {
     align-items: center;
-    
     background-color: #e5e7eb; 
     padding: 10px; 
     border-radius: 4px; 
 }
 .page-content {
-    padding: 10px;
-    /* background-color: #e5e7eb; */
     height: 100%;
 }

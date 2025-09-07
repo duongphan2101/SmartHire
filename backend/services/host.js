@@ -1,7 +1,8 @@
  const HOSTS = {
   userService: "http://localhost:2222/api/users",
   authService: "http://localhost:1111/api/auth",
-  companyService: "http://localhost:4444/api/departments" 
+  companyService: "http://localhost:4444/api/departments",
+  jobService: "http://localhost:4444/api/jobs"
 };
 
 module.exports = { HOSTS };
