@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import "./JobPost.css";
 import AddJobModal from "../dashboard-hr/AddJobmodal";
-import ViewModal from "../dashboard-hr/Viewmodal"; 
+import ViewModal from "../dashboard-hr/Viewmodal";
 import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+
+import { AiOutlinePlusCircle } from 'react-icons/ai';
+import { FaRegEye } from 'react-icons/fa6';
 
 const MySwal = withReactContent(Swal);
 
@@ -16,7 +19,7 @@ const JobPost = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
-  const [viewJob, setViewJob] = useState<any | null>(null); // ⬅ job đang được xem
+  const [viewJob, setViewJob] = useState<any | null>(null);
 
   const handleAddClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -76,19 +79,19 @@ const JobPost = () => {
 
   return (
     <div className="job-post-container">
-      <div className="search-wrapper">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search by title or skill"
-            className="search-input"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-          <button className="add-button" onClick={handleAddClick}>
-            Thêm
-          </button>
-        </div>
+
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search by title or skill"
+          className="search-input"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+        <button className="add-button" onClick={handleAddClick}>
+          <AiOutlinePlusCircle size={20} />
+          Thêm
+        </button>
       </div>
 
       {isModalOpen && (
@@ -103,9 +106,7 @@ const JobPost = () => {
         {jobsToRender.map((job) => (
           <div className="job-card" key={job._id}>
             <div className="job-card-header">
-              <span className="job-date">
-                {new Date(job.createdAt).toLocaleDateString()}
-              </span>
+              <h3 className="font-bold">{job.jobTitle}</h3>
               <button
                 className="close-card-button"
                 onClick={() => handleRemoveJob(job._id)}
@@ -113,23 +114,32 @@ const JobPost = () => {
                 ×
               </button>
             </div>
-            <h3>{job.jobTitle}</h3>
-            <p>{job.jobType}</p>
-            {job.skills.length > 0 && (
-              <div className="job-skills">
-                {job.skills.map((skill: string, index: number) => (
-                  <span key={index}>{skill}</span>
-                ))}
+            <div className="job-body">
+              <div className="flex items-center justify-between">
+                <span className="job-date" style={{ marginTop: 0 }}>
+                  {new Date(job.createdAt).toLocaleDateString()}
+                </span>
+                <p>{job.jobType}</p>
               </div>
-            )}
+              {job.skills.length > 0 && (
+                <div className="job-skills">
+                  {job.skills.slice(0, 3).map((skill: string, index: number) => (
+                    <span key={index}>
+                      {skill.length > 15 ? skill.slice(0, 15) + "…" : skill}
+                    </span>
+                  ))}
+                  {job.skills.length > 3 && <span>...</span>}
+                </div>
+              )}
+            </div>
             <div className="job-footer">
-              <span>{job.salary}/hr</span>
-              <span>{job.address}</span>
+              <span className="font-bold">{job.salary}</span>
+              <span className="job-address">{job.address}</span>
               <button
                 className="details-button"
-                onClick={() => setViewJob(job)} // ⬅ mở modal
+                onClick={() => setViewJob(job)}
               >
-                View
+                <FaRegEye size={18} color="#fff" />
               </button>
             </div>
           </div>

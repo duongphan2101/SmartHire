@@ -4,8 +4,16 @@ import jsPDF from "jspdf";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
+
 import CVTemplate from "../../components/template-cv/CVTemplate";
+import CVTemplate2 from "../../components/template-cv/cvtemplate2";
+import CVTemplate3 from "../../components/template-cv/cvtemplate2";
+import CVTemplate4 from "../../components/template-cv/cvtemplate2";
+import CVTemplate5 from "../../components/template-cv/cvtemplate2";
+
 import "./BuildCV.css";
+
+import { BiSkipPrevious, BiSkipNext } from 'react-icons/bi';
 
 interface ContactInfo {
   phone: string;
@@ -57,6 +65,34 @@ const BuildCV: React.FC = () => {
   const [originalData, setOriginalData] = useState<CVData>({ ...cvData });
   const cvTemplateRef = useRef<HTMLDivElement>(null);
 
+  type TemplateKey = "template1" | "template2" | "template3" | "template4" | "template5";
+  const templates: Record<TemplateKey, React.ForwardRefExoticComponent<any>> = {
+    template1: CVTemplate,
+    template2: CVTemplate2,
+    template3: CVTemplate3,
+    template4: CVTemplate4,
+    template5: CVTemplate5,
+  };
+
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>('template1');
+  const templateKeys = Object.keys(templates) as TemplateKey[];
+  const CurrentTemplate = templates[selectedTemplate];
+
+  const handlePrevTemplate = () => {
+    const idx = templateKeys.indexOf(selectedTemplate);
+    const newIndex = idx === 0 ? templateKeys.length - 1 : idx - 1;
+    setSelectedTemplate(templateKeys[newIndex]);
+  };
+
+  const handleNextTemplate = () => {
+    const idx = templateKeys.indexOf(selectedTemplate);
+    const newIndex = idx === templateKeys.length - 1 ? 0 : idx + 1;
+    setSelectedTemplate(templateKeys[newIndex]);
+  };
+
+  const handleSelectTemplate = (key: TemplateKey) => setSelectedTemplate(key);
+
+  // --- Handle input changes ---
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -77,10 +113,7 @@ const BuildCV: React.FC = () => {
     }));
   };
 
-  const handleEducationChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleEducationChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const newEducation = cvData.education.map((edu, i) =>
       i === index ? { ...edu, [name]: value } : edu
@@ -95,17 +128,11 @@ const BuildCV: React.FC = () => {
   const handleAddEducation = () => {
     setCvData((prev) => ({
       ...prev,
-      education: [
-        ...prev.education,
-        { university: "", major: "", gpa: "", year: "" },
-      ],
+      education: [...prev.education, { university: "", major: "", gpa: "", year: "" }],
     }));
     setOriginalData((prev) => ({
       ...prev,
-      education: [
-        ...prev.education,
-        { university: "", major: "", gpa: "", year: "" },
-      ],
+      education: [...prev.education, { university: "", major: "", gpa: "", year: "" }],
     }));
   };
 
@@ -116,10 +143,7 @@ const BuildCV: React.FC = () => {
     setOriginalData((prev) => ({ ...prev, education: newOriginalEducation }));
   };
 
-  const handleProjectChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleProjectChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const newProjects = cvData.projects.map((project, i) =>
       i === index ? { ...project, [name]: value } : project
@@ -214,33 +238,29 @@ const BuildCV: React.FC = () => {
 
   const handleCreateCV = async () => {
     const element = cvTemplateRef.current;
-    if (element) {
-      try {
-        const canvas = await html2canvas(element, { scale: 2 });
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        let heightLeft = pdfHeight;
-        let position = 0;
+    if (!element) return alert("Không tìm thấy nội dung CV để tạo PDF.");
+    try {
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      let heightLeft = pdfHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
         heightLeft -= pdf.internal.pageSize.getHeight();
-
-        while (heightLeft >= 0) {
-          position = heightLeft - pdfHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-          heightLeft -= pdf.internal.pageSize.getHeight();
-        }
-        pdf.save("cv.pdf");
-        alert("CV đã được tạo và tải xuống thành công!");
-      } catch (error) {
-        console.error("Lỗi khi tạo PDF:", error);
-        alert("Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.");
       }
-    } else {
-      alert("Không tìm thấy nội dung CV để tạo PDF.");
+      pdf.save("cv.pdf");
+      alert("CV đã được tạo và tải xuống thành công!");
+    } catch (error) {
+      console.error("Lỗi khi tạo PDF:", error);
+      alert("Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.");
     }
   };
 
@@ -248,8 +268,59 @@ const BuildCV: React.FC = () => {
     <div className="App">
       <Header />
       <div className="cv-builder">
-        {/* cv-template */}
-        <CVTemplate ref={cvTemplateRef} cvData={cvData} currentLanguage={currentLanguage} />
+        {/* --- Template rendering with selector --- */}
+        <div className="rendering-template">
+
+          <div className="template-box">
+            <button className="btn-template btn-template-prev" onClick={handlePrevTemplate}>
+              <BiSkipPrevious size={20} />
+            </button>
+            <ul className="flex gap-3">
+              {templateKeys.map((key, index) => {
+                const total = templateKeys.length;
+
+                if (
+                  index === 0 ||
+                  index === total - 1 ||
+                  Math.abs(index - templateKeys.indexOf(selectedTemplate)) <= 1
+                ) {
+                  return (
+                    <li
+                      key={key}
+                      className={`btn-template ${selectedTemplate === key ? "active" : ""}`}
+                      onClick={() => handleSelectTemplate(key)}
+                    >
+                      {index + 1}
+                    </li>
+                  );
+                }
+
+                if (
+                  (index === 1 && templateKeys.indexOf(selectedTemplate) > 2) ||
+                  (index === total - 2 &&
+                    templateKeys.indexOf(selectedTemplate) < total - 3)
+                ) {
+                  return (
+                    <li key={key} className="btn-template disabled">
+                      ...
+                    </li>
+                  );
+                }
+
+                return null;
+              })}
+            </ul>
+
+            <button className="btn-template btn-template-next" onClick={handleNextTemplate}>
+              <BiSkipNext size={20} />
+            </button>
+          </div>
+
+          <CurrentTemplate ref={cvTemplateRef} cvData={cvData} currentLanguage={currentLanguage} />
+
+        </div>
+
+        {/* --- Form input section --- */}
         <div className="cv-input">
           <h3 className="section-title">{currentLanguage === 'vi' ? "Thông Tin Cá Nhân" : "Personal Information"}</h3>
           <div className="input-row">
@@ -590,12 +661,14 @@ const BuildCV: React.FC = () => {
               <div className="underline"></div>
             </div>
           </div>
+
           <div className="cv-controls">
             <button onClick={handleCreateCV}>Tạo CV</button>
             <button style={{ background: "#484747ff" }} onClick={() => handleTranslate('en')}>Tiếng Anh</button>
             <button style={{ background: "#484747ff" }} onClick={() => handleTranslate('vi')}>Tiếng Việt</button>
           </div>
         </div>
+
       </div>
       <ChatWithAI />
       <Footer />

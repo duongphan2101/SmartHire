@@ -6,10 +6,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  gap: 60px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
 }
 
 .search-input {
@@ -17,29 +13,32 @@
   border: 2px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  border-radius: 20px;
+  width: 300px;
   outline: none;
   transition: border-color 0.3s ease;
-  flex-grow: 1;
 }
 
 .search-input:focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  border-color: var(--color-emerald-600);
 }
 
 .add-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 25px;
+  background-color: var(--color-emerald-600);
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 20px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .add-button:hover {
-  background-color: #45a049;
+  background-color: var(--color-emerald-700);
   transform: translateY(-1px);
 }
 
@@ -50,18 +49,20 @@
 .job-cards {
   margin-top: 20px;
   display: flex;
-  flex-direction: row; /* Thay đổi từ column sang row */
-  flex-wrap: wrap; /* Cho phép xuống dòng khi hết không gian */
-  gap: 15px; /* Khoảng cách giữa các card */
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .job-card {
-  background-color: #e0f7fa;
+  background: url('../../assets/images/origin.webp')
+   center no-repeat;
   border-radius: 8px;
   padding: 15px;
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 300px; /* Kích thước cố định như ảnh */
+  width: 300px;
+  text-align: left;
 }
 
 .job-card-header {
@@ -79,7 +80,7 @@
 .close-card-button {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 24px;
   cursor: pointer;
   color: #ff4444;
 
@@ -111,11 +112,25 @@
   font-size: 14px;
 }
 
+.job-body {
+  display: flex;
+  flex-direction: column;
+
+}
+
 .job-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.job-address {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .details-button {
@@ -123,7 +138,7 @@
   background-color: #000;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 }
 

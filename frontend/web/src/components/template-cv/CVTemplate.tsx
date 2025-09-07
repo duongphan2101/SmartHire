@@ -1,5 +1,6 @@
 import { forwardRef} from 'react';
 import './cvtemplate.css';
+
 interface ContactInfo {
   phone: string;
   email: string;
@@ -44,11 +45,11 @@ const CVTemplate = forwardRef<HTMLDivElement, CVTemplateProps>((props, ref) => {
     <div className="cv-template" ref={ref}>
       <h2>{cvData.name || (currentLanguage === 'vi' ? "Họ và Tên" : "Full Name")}</h2>
       {/* <div className="section">{currentLanguage === 'vi' ? "Thông Tin Cá Nhân" : "Personal Information"}</div> */}
-      <div className="template-info">
+      <div className="template-info" style={{flexDirection: 'row'}}>
         <p><strong>{currentLanguage === 'vi' ? "Số điện thoại:" : "Phone:"}</strong> {cvData.contact.phone || (currentLanguage === 'vi' ? "Chưa có thông tin" : "No information yet")}</p>
         <p><strong>Email:</strong> {cvData.contact.email || (currentLanguage === 'vi' ? "Chưa có thông tin" : "No information yet")}</p>
         <p><strong>Github:</strong> {cvData.contact.github || (currentLanguage === 'vi' ? "Chưa có thông tin" : "No information yet")}</p>
-        <p><strong>Website:</strong> {cvData.contact.website || (currentLanguage === 'vi' ? "Chưa có thông tin" : "No information yet")}</p>
+        <p><strong>Website:</strong> <a href={cvData.contact.website}>{cvData.contact.website || (currentLanguage === 'vi' ? "Chưa có thông tin" : "No information yet")}</a></p>
       </div>
       <div className="section">{currentLanguage === 'vi' ? "Giới Thiệu & Mục Tiêu Nghề Nghiệp" : "Introduction & Career Objective"}</div>
       <div className="template-info">

@@ -18,8 +18,8 @@ export const Dashboard = () => {
   const [page, setPage] = useState<
     "dashboard" | "about" | "company" | "jobPost"
   >("dashboard");
-  const { departments } = useDepartment();
-  const companyName = departments[0]?.name || "SmartHire";
+  const { department } = useDepartment();
+  const companyName = department?.name || "SmartHire";
   return (
     <div className="App">
       <ChatWithAI />
