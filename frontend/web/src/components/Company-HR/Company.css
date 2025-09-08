@@ -65,3 +65,107 @@
 .company-details a:hover {
     text-decoration: underline;
 }
+.company-profile-header{
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+.search-container{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+/* Danh sách department */
+.department-list {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* Card của mỗi department */
+.department-card {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.department-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tiêu đề department */
+.department-card h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #222;
+}
+
+/* Địa chỉ department */
+.department-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+.company-wrapper {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.company-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.company-actions .view-btn,
+.company-actions .delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.company-actions .view-btn {
+  background: #0a9c45;
+  color: #fff;
+}
+
+.company-actions .delete-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+}
