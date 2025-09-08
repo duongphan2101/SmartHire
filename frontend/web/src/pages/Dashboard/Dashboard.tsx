@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../../components/Header/Header";
 import "../../components/Footer/Footer";
 import "./Dashboard.css";
-import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
+// import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import HRheader from "../../components/dashboard-hr/HRheader";
 import Nav from "../../components/dashboard-hr/nav";
 import About from "../../components/About-HR/About-hr";
@@ -10,9 +10,6 @@ import CompanyContent from "../Company/CompanyContent";
 import JobPost from "../../components/dashboard-hr/JobPost";
 import useDepartment from "../../hook/useDepartment";
 
-// interface NavProps {
-//   setBreadcrumb: (breadcrumb: string) => void;
-// }
 export const Dashboard = () => {
   const [breadcrumb, setBreadcrumb] = useState("Dashboard");
   const [page, setPage] = useState<
@@ -22,7 +19,7 @@ export const Dashboard = () => {
   const companyName = department?.name || "SmartHire";
   return (
     <div className="App-Dashboard">
-      <ChatWithAI />
+      {/* <ChatWithAI /> */}
 
       <div className="dashboard-layout-container">
         <Nav setBreadcrumb={setBreadcrumb} setPage={setPage} />

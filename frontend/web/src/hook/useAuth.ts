@@ -25,7 +25,6 @@ export default function useAuth() {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      console.log(`DATA: ${res.data}`);
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;

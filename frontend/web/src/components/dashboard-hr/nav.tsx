@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   HiOutlineFolder,
   HiOutlineChevronDown,
-  HiOutlineSearch,
   HiOutlineMenuAlt3,
   HiOutlineAdjustments,
   HiOutlineClock,

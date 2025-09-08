@@ -34,7 +34,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid gray;
+    border: 1px solid lightgray;
 }
 
 .title-job {

@@ -83,7 +83,7 @@ const JobPost = () => {
       <div className="search-container">
         <input
           type="text"
-          placeholder="Search by title or skill"
+          placeholder="Tìm kiếm bằng tên người đăng hoặc tên bài đăng"
           className="search-input"
           value={searchQuery}
           onChange={handleSearch}

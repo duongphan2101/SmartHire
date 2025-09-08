@@ -156,7 +156,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
         avatar: department.avatar || "",
       },
       createBy: {
-        _id: user?.user_id || user?._id,
+        _id: user?._id,
         fullname: user?.fullname,
         avatar: user?.avatar
       },
