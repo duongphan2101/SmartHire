@@ -21,6 +21,17 @@ const getJobs = async (req, res) => {
   }
 };
 
+const getLatestJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find()
+      .sort({ createdAt: -1 }) 
+      .limit(6);
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const searchJobs = async (req, res) => {
   try {
     const query = req.query.q;
@@ -58,4 +69,5 @@ module.exports = {
   getJobs,
   searchJobs,
   deleteJob,
+  getLatestJobs
 };

@@ -18,13 +18,6 @@ import Education from "../../assets/images/education.jpg";
 import HealCare from "../../assets/images/healcare.jpg";
 import Travel from "../../assets/images/travel.jpg";
 
-import apple from "../../assets/images/apple.png";
-import google from "../../assets/images/google.png";
-import nike from "../../assets/images/nike.png";
-import stabuck from "../../assets/images/starbuck.png";
-import volkswagen from "../../assets/images/volkswagen.png";
-import meta from "../../assets/images/meta.png";
-
 import { IoLocationOutline } from 'react-icons/io5';
 import { FaRegMoneyBillAlt } from 'react-icons/fa';
 import { AiOutlineClockCircle } from 'react-icons/ai';
@@ -32,12 +25,19 @@ import { RiContrastDrop2Line } from 'react-icons/ri';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { FaArrowRight } from 'react-icons/fa';
 
+import useJob from "../../hook/useJob";
+import useUser from "../../hook/useUser";
+import { useNavigate } from "react-router-dom";
+
 const Home: React.FC = () => {
 
     const [jobTitle, setJobTitle] = useState("");
     const [animate, setAnimate] = useState(true);
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [location, setLocation] = useState("");
+    const { joblatest } = useJob();
+    const { saveJob, unsaveJob, user, getUser } = useUser();
+    const navigate = useNavigate();
 
     const slogans = ["cơ hội phát triển!", "nhà tuyển dụng hàng đầu!",
         "việc làm mơ ước!", "tương lai tương sáng!", "ứng viên tiềm năng!"];
@@ -60,8 +60,19 @@ const Home: React.FC = () => {
             }, 50);
         }, 3000);
 
+        try {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const parsed = JSON.parse(storedUser);
+                const idToFetch = parsed.user_id ?? parsed._id;
+                getUser(idToFetch);
+            }
+        } catch (e) {
+            console.error("Invalid user data in localStorage", e);
+        }
+
         return () => clearInterval(interval);
-    }, []);
+    }, [getUser]);
 
     const categories = [
         {
@@ -122,124 +133,51 @@ const Home: React.FC = () => {
         }
     ];
 
-    const lastest = [
-        {
-            id: 1,
-            nameJob: "IOS Developer",
-            department: "Apple",
-            image: apple,
-            tech: ["Object C", "Swift", "XCode"],
-            url: "/jobdetail",
-            location: "Hà Nội",
-            salary: "$1,200 - $1,800",
-            level: "Fresher",
-            type: "Fulltime",
-            postedAt: "2025-08-13T10:00:00Z",
-            updatedAt: "2025-08-14T13:04:00Z",
-            isSaved: false
-        },
-        {
-            id: 2,
-            nameJob: "Frontend Developer",
-            department: "Google",
-            image: google,
-            tech: ["HTML", "CSS", "JavaScript"],
-            url: "/",
-            location: "TP. Hồ Chí Minh",
-            salary: "$1,000 - $1,500",
-            level: "Junior",
-            type: "Hybrid",
-            postedAt: "2025-08-10T08:30:00Z",
-            updatedAt: null,
-            isSaved: false
-        },
-        {
-            id: 3,
-            nameJob: "Backend Developer",
-            department: "Starbucks",
-            image: stabuck,
-            tech: ["Node.js", "Express", "MongoDB"],
-            url: "/",
-            location: "Đà Nẵng",
-            salary: "$1,500 - $2,000",
-            level: "Senior",
-            type: "Onsite",
-            postedAt: "2025-08-12T15:00:00Z",
-            updatedAt: "2025-08-14T09:00:00Z",
-            isSaved: false
-        },
-        {
-            id: 4,
-            nameJob: "Mobile App Developer",
-            department: "Volkswagen",
-            image: volkswagen,
-            tech: ["Java", "Kotlin", "Android Studio"],
-            url: "/",
-            location: "Hà Nội",
-            salary: "$1,000 - $1,700",
-            level: "Fresher",
-            type: "Remote",
-            postedAt: "2025-08-08T10:00:00Z",
-            updatedAt: null,
-            isSaved: false
-        },
-        {
-            id: 5,
-            nameJob: "UI/UX Designer",
-            department: "Nike",
-            image: nike,
-            tech: ["Figma", "Adobe XD", "Sketch"],
-            url: "/",
-            location: "TP. Hồ Chí Minh",
-            salary: "$900 - $1,400",
-            level: "Intern",
-            type: "Parttime",
-            postedAt: "2025-08-11T14:00:00Z",
-            updatedAt: "2025-08-14T06:00:00Z",
-            isSaved: false
-        },
-        {
-            id: 6,
-            nameJob: "Fullstack Developer",
-            department: "Meta",
-            image: meta,
-            tech: ["React", "Node.js", "GraphQL"],
-            url: "/",
-            location: "Đà Nẵng",
-            salary: "$1,800 - $2,500",
-            level: "Senior",
-            type: "Fulltime",
-            postedAt: "2025-08-09T09:00:00Z",
-            updatedAt: null,
-            isSaved: false
-        }
-    ];
+    const [lastestJobs, setLastestJobs] = useState<any[]>([]);
 
-    const [lastestJobs, setLastestJobs] = useState(lastest.map(job => ({ ...job, animateSave: false })));
+    useEffect(() => {
+        if (!joblatest || !user) return;
 
-    const toggleSave = (id: number) => {
+        const mapped = joblatest.map(job => ({
+            ...job,
+            isSaved: user.liked.includes(job._id),
+            animateSave: false
+        }));
+
+        setLastestJobs(mapped);
+    }, [joblatest, user]);
+
+    const toggleSave = async (jobId: string) => {
+        const currentJob = lastestJobs.find(j => j._id === jobId);
+        if (!currentJob) return;
+
+        const isSavedNext = !currentJob.isSaved;
+
         setLastestJobs(prev =>
-            prev.map(job => {
-                if (job.id === id) {
-                    // bật animation
-                    return { ...job, isSaved: !job.isSaved, animateSave: true };
-                }
-                return job;
-            })
+            prev.map(job =>
+                job._id === jobId
+                    ? { ...job, isSaved: isSavedNext, animateSave: true }
+                    : job
+            )
         );
 
-        // tắt animation sau 300ms
+        if (isSavedNext) {
+            await saveJob(user?._id as string, jobId);
+        } else {
+            await unsaveJob(user?._id as string, jobId);
+        }
+
         setTimeout(() => {
             setLastestJobs(prev =>
                 prev.map(job =>
-                    job.id === id ? { ...job, animateSave: false } : job
+                    job._id === jobId ? { ...job, animateSave: false } : job
                 )
             );
         }, 300);
     };
 
-    const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
-        const date = new Date(updatedAt || postedAt);
+    const formatTimeAgo = (dateStr: string): string => {
+        const date = new Date(dateStr);
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
 
@@ -256,6 +194,21 @@ const Home: React.FC = () => {
         } else {
             return `${diffDays} ngày trước`;
         }
+    };
+
+    const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
+        const postedAgo = formatTimeAgo(postedAt);
+
+        if (updatedAt && updatedAt !== postedAt) {
+            const updatedAgo = formatTimeAgo(updatedAt);
+            return `Đăng ${postedAgo} · Cập nhật ${updatedAgo}`;
+        }
+
+        return `Đăng ${postedAgo}`;
+    };
+
+    const hanldeView = (id: string) => {
+        navigate(`/jobdetail/${id}`);
     };
 
     return (
@@ -413,20 +366,20 @@ const Home: React.FC = () => {
                                             <div className='lasted-item_top flex justify-between'>
 
                                                 <div className='item-top_left flex justify-around'>
-                                                    <img src={item.image} className='lasted-item_image' />
+                                                    <img src={item.department.avatar} className='lasted-item_image' />
                                                 </div>
 
                                                 <div className='item-top_center flex flex-col flex-1 text-left'>
-                                                    <p className='lasted-item-nameJob' style={{ fontSize: 16, fontWeight: 'bold' }}>{item.nameJob}</p>
+                                                    <p className='lasted-item-nameJob' style={{ fontSize: 16, fontWeight: 'bold' }}>{item.jobTitle}</p>
 
                                                     <div style={{ fontSize: 16, paddingTop: 5, paddingBottom: 10 }} className='lasted-item-department flex gap-4'>
                                                         <p className='text-gray-800'>
-                                                            {item.department}
+                                                            {item.department.name}
                                                         </p>
-                                                        <span className='text-gray-600'>{getTimeAgo(item.postedAt!, item.updatedAt!)}</span>
+                                                        <span className='text-gray-600'>{getTimeAgo(item.createdAt!, item.updatedAt!)}</span>
                                                     </div>
 
-                                                    <div className='flex gap-3 lasted-techs'>{item.tech.map((i) => (
+                                                    <div className='flex gap-3 lasted-techs flex-wrap'>{item.skills.map((i: string) => (
                                                         <div className='lasted-tech-item'>
                                                             {i}
                                                         </div>
@@ -434,18 +387,18 @@ const Home: React.FC = () => {
                                                 </div>
 
                                                 <div className='item-top_right'>
-                                                    <a href={item.url} className='btn-apply'>
+                                                    <button className='btn-apply' onClick={() => hanldeView(item._id)}>
                                                         View
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </div>
                                             <div className='lasted-item_bottom'>
 
                                                 <ul className='flex gap-6 flex-1'>
-                                                    <li className='bottom-li flex gap-3 items-center'><IoLocationOutline /> {item.location}</li>
-                                                    <li className='bottom-li flex gap-3 items-center'><FaRegMoneyBillAlt /> {item.salary}</li>
-                                                    <li className='bottom-li flex gap-3 items-center'><AiOutlineClockCircle />{item.type}</li>
-                                                    <li className='bottom-li flex gap-3 items-center'><RiContrastDrop2Line />{item.level}</li>
+                                                    <li className='bottom-li flex gap-3 items-center' style={{ fontSize: 13 }}><IoLocationOutline color='#059669' /> {item.location}</li>
+                                                    <li className='bottom-li flex gap-3 items-center' style={{ fontSize: 13 }}><FaRegMoneyBillAlt color='#059669' /> {item.salary}</li>
+                                                    <li className='bottom-li flex gap-3 items-center' style={{ fontSize: 13 }}><AiOutlineClockCircle color='#059669' />{item.jobType}</li>
+                                                    <li className='bottom-li flex gap-3 items-center' style={{ fontSize: 13 }}><RiContrastDrop2Line color='#059669' />{item.jobLevel}</li>
                                                 </ul>
 
                                                 <div
@@ -453,7 +406,7 @@ const Home: React.FC = () => {
                                                     ${item.animateSave ? "scale-125" : "scale-100"} 
                                                     ${item.isSaved ? "bg-emerald-600 text-white" : "text-gray-500 bg-gray-200"}`}
                                                     style={{ padding: 5, borderRadius: 5 }}
-                                                    onClick={() => toggleSave(item.id)}
+                                                    onClick={() => toggleSave(item._id)}
                                                 >
                                                     <span style={{ fontSize: 12 }} className={`${item.isSaved ? "text-white" : "text-gray-500"}`}>{item.isSaved ? "Đã lưu" : "Lưu bài đăng"}</span>
                                                     {item.isSaved ? <FaBookmark color="#fff" size={14} /> : <FaRegBookmark color="gray" size={14} />}

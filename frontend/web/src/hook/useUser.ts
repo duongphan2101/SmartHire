@@ -3,15 +3,20 @@ import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 
 export interface UserResponse {
+  _id: string;
   fullname: string;
   email: string;
-  _id: string;
-  user_id: string;
   avatar: string;
-  role: string;
+  role: "user" | "hr" | "admin";
   dob?: string;
   phone?: string;
+  liked: string[];
+  applyted: string[];
+  cv: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
+
 
 export default function useUser() {
   const [loadingUser, setLoading] = useState(false);
@@ -72,5 +77,52 @@ export default function useUser() {
     []
   );
 
-  return { getUser, user, updateUser, updateUserAvatar, loadingUser, errorUser };
+  const saveJob = useCallback(
+    async (user_id: string, jobId: string): Promise<UserResponse | void> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await axios.post<UserResponse>(
+          `${HOSTS.userService}/save`,
+          { userId: user_id, jobId }
+        );
+
+        setUser(res.data);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "saveJob failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const unsaveJob = useCallback(
+    async (user_id: string, jobId: string): Promise<UserResponse | void> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await axios.post<UserResponse>(
+          `${HOSTS.userService}/unsave`,
+          { userId: user_id, jobId }
+        );
+
+        setUser(res.data);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "unsaveJob failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+
+  return { getUser, user, updateUser, updateUserAvatar, saveJob, unsaveJob, loadingUser, errorUser };
 }

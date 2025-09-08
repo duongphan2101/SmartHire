@@ -43,14 +43,14 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
             </div>
 
             <div className="page-title w-full flex flex-col gap-3">
-                <img className="avt-department" src={item.image} />
+                <img className="avt-department" src={item.department.avatar} />
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-left title-job">{item.nameJob}</span>
+                        <span className="text-left title-job">{item.jobTitle}</span>
                         <a className="text-left text-gray-600" href={`/department/${item.department}`}
                             style={{ fontSize: 18 }}
                         >
-                            {item.department} • chỉnh sửa {getTimeAgo(item.postedAt!, item.updatedAt!)}
+                            <span className="department-name">{item.department.name}</span> • chỉnh sửa {getTimeAgo(item.createAt!, item.updatedAt!)}
                         </a>
                     </div>
 
@@ -86,37 +86,45 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
 
             <div className="page-content-main text-left">
                 <h3 className="content-title">Về công việc này</h3>
-                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.about}</p>
-
-                <h3 className="content-title">Hình thức làm việc</h3>
-                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.type}</p>
-
-                <h3 className="content-title">Trách nhiệm</h3>
-                {Array.isArray(item.responsibilities) ? (
+                {Array.isArray(item.jobDescription) ? (
                     <ul style={{ paddingTop: 10, paddingBottom: 10, listStyle: "disc", paddingLeft: 20 }}>
-                        {item.responsibilities.map((res: string, idx: number) => (
+                        {item.jobDescription.map((res: string, idx: number) => (
                             <li key={idx}>{res}</li>
                         ))}
                     </ul>
                 ) : (
-                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.responsibilities}</p>
+                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.jobDescription}</p>
                 )}
 
-                <h3 className="content-title">Yêu cầu</h3>
-                {Array.isArray(item.requirements) ? (
+                <h3 className="content-title">Hình thức làm việc</h3>
+                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.jobType}</p>
+
+                <h3 className="content-title">Trách nhiệm chính</h3>
+                {Array.isArray(item.requirement) ? (
                     <ul style={{ paddingTop: 10, paddingBottom: 10, listStyle: "disc", paddingLeft: 20 }}>
-                        {item.requirements.map((req: string, idx: number) => (
+                        {item.requirement.map((res: string, idx: number) => (
+                            <li key={idx}>{res}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.requirement}</p>
+                )}
+
+                <h3 className="content-title">Kỹ năng cần có</h3>
+                {Array.isArray(item.skills) ? (
+                    <ul style={{ paddingTop: 10, paddingBottom: 10, listStyle: "disc", paddingLeft: 20 }}>
+                        {item.skills.map((req: string, idx: number) => (
                             <li key={idx}>{req}</li>
                         ))}
                     </ul>
                 ) : (
-                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.requirements}</p>
+                    <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.skills}</p>
                 )}
 
                 <h3 className="content-title">Phúc lợi</h3>
                 {Array.isArray(item.benefits) ? (
                     <ul style={{ paddingTop: 10, paddingBottom: 10, listStyle: "disc", paddingLeft: 20 }}>
-                        {item.requirements.map((req: string, idx: number) => (
+                        {item.benefits.map((req: string, idx: number) => (
                             <li key={idx}>{req}</li>
                         ))}
                     </ul>
@@ -124,8 +132,8 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
                     <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.benefits}</p>
                 )}
 
-                <h3 className="content-title">Thời gian làm việc</h3>
-                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.workingHours}</p>
+                {/* <h3 className="content-title">Thời gian làm việc</h3>
+                <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.workingHours}</p> */}
 
                 <h3 className="content-title">Địa điểm</h3>
                 <p style={{ paddingTop: 10, paddingBottom: 10 }}>{item.address}</p>

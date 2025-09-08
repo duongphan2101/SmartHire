@@ -99,3 +99,49 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Add job to liked
+exports.addJobToLiked = async (req, res) => {
+  try {
+    const { userId, jobId } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { liked: jobId } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Remove job from liked
+exports.removeJobFromLiked = async (req, res) => {
+  try {
+    const { userId, jobId } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { liked: jobId } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
+
+
