@@ -1,5 +1,6 @@
 .job-post-container {
-  padding: 20px;
+  padding: 10px;
+  position: relative;
 }
 
 .search-container {
@@ -14,7 +15,7 @@
   border-radius: 4px;
   font-size: 14px;
   border-radius: 20px;
-  width: 300px;
+  width: 500px;
   outline: none;
   transition: border-color 0.3s ease;
 }
@@ -48,11 +49,13 @@
 
 .job-cards {
   margin-top: 20px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 15px;
+  height: 100%;
+  /* background-color: #ff4444; */
 }
+
 
 .job-card {
   background: url('../../assets/images/origin.webp')
@@ -61,10 +64,10 @@
   padding: 15px;
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 320px;
   text-align: left;
   color: #ECE7E2;
 }
+
 
 .job-card-header {
   display: flex;
@@ -128,7 +131,7 @@
 }
 
 .job-address {
-  max-width: 100px;
+  max-width: 150px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

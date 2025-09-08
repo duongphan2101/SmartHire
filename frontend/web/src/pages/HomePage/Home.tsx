@@ -24,6 +24,7 @@ import { AiOutlineClockCircle } from 'react-icons/ai';
 import { RiContrastDrop2Line } from 'react-icons/ri';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { FaArrowRight } from 'react-icons/fa';
+import { FaRegEye } from 'react-icons/fa6';
 
 import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
@@ -353,10 +354,10 @@ const Home: React.FC = () => {
 
                                 <div className="fillter-type flex items-center justify-center">
                                     <ul className='fillter-type_ul flex'>
-                                        <li className='type-ul_li active'><a href="/">All</a></li>
-                                        <li className='type-ul_li'><a href="/">Full Time</a></li>
+                                        <li className='type-ul_li active'><a href="/">Mới nhất</a></li>
+                                        {/* <li className='type-ul_li'><a href="/">Full Time</a></li>
                                         <li className='type-ul_li'><a href="/">Part Time</a></li>
-                                        <li className='type-ul_li'><a href="/">Remote</a></li>
+                                        <li className='type-ul_li'><a href="/">Remote</a></li> */}
                                     </ul>
                                 </div>
 
@@ -388,7 +389,7 @@ const Home: React.FC = () => {
 
                                                 <div className='item-top_right'>
                                                     <button className='btn-apply' onClick={() => hanldeView(item._id)}>
-                                                        View
+                                                        <FaRegEye />
                                                     </button>
                                                 </div>
                                             </div>

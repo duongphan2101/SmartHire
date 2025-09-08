@@ -6,7 +6,6 @@
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     border-right: 1px solid #e5e7eb;
     transition: width 0.3s ease, padding 0.3s ease;
-    position: relative;
 }
 
 .nav-container.icon-mode {

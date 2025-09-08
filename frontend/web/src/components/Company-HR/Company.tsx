@@ -7,8 +7,21 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
+// Define DepartmentData type if not imported
+interface DepartmentData {
+  _id: string;
+  name: string;
+  address: string;
+  description: string;
+  website: string;
+  avatar: string;
+}
 
-const Company = () => {
+interface CompanyProps {
+  company: DepartmentData | null;
+}
+
+const Company: React.FC<CompanyProps> = ({ company }) => {
   const [companies, setCompanies] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<any | null>(null);

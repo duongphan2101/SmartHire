@@ -17,7 +17,6 @@ export interface UserResponse {
   updatedAt?: string;
 }
 
-
 export default function useUser() {
   const [loadingUser, setLoading] = useState(false);
   const [errorUser, setError] = useState<string | null>(null);
