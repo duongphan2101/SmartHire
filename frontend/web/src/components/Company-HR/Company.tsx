@@ -155,30 +155,94 @@ const Company: React.FC<CompanyProps> = ({ company }) => {
       </div>
 
       {/* Modal View */}
-      {selectedCompany && (
-        <div className="modal-overlay" onClick={() => setSelectedCompany(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedCompany.name}</h2>
-            <p>
-              <strong>Address:</strong> {selectedCompany.address}
-            </p>
-            <p>
-              <strong>Description:</strong> {selectedCompany.description}
-            </p>
-            <p>
-              <strong>Website:</strong>{" "}
-              <a
-                href={selectedCompany.website}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {selectedCompany.website}
-              </a>
-            </p>
-            <button onClick={() => setSelectedCompany(null)}>Đóng</button>
-          </div>
-        </div>
-      )}
+    {selectedCompany && (
+  <div className="modal-overlay" onClick={() => setSelectedCompany(null)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h2>Chỉnh sửa công ty</h2>
+
+      <div className="form-group">
+        <label>Tên công ty</label>
+        <input
+          type="text"
+          value={selectedCompany.name}
+          onChange={(e) =>
+            setSelectedCompany({ ...selectedCompany, name: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Địa chỉ</label>
+        <input
+          type="text"
+          value={selectedCompany.address}
+          onChange={(e) =>
+            setSelectedCompany({ ...selectedCompany, address: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Mô tả</label>
+        <input
+          type="text"
+          value={selectedCompany.description}
+          onChange={(e) =>
+            setSelectedCompany({ ...selectedCompany, description: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Website</label>
+        <input
+          type="text"
+          value={selectedCompany.website}
+          onChange={(e) =>
+            setSelectedCompany({ ...selectedCompany, website: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Avatar URL</label>
+        <input
+          type="text"
+          value={selectedCompany.avatar}
+          onChange={(e) =>
+            setSelectedCompany({ ...selectedCompany, avatar: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="modal-actions">
+        <button onClick={() => setSelectedCompany(null)}>Đóng</button>
+        <button
+          onClick={async () => {
+            try {
+              await fetch(`${HOSTS.companyService}/update/${selectedCompany._id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(selectedCompany),
+              });
+
+              MySwal.fire("Thành công!", "Cập nhật công ty thành công", "success");
+              setSelectedCompany(null);
+              fetchCompanies(); // refresh lại danh sách
+            } catch (err) {
+              console.error("Error updating company:", err);
+              MySwal.fire("Lỗi!", "Không thể cập nhật công ty.", "error");
+            }
+          }}
+          className="save-btn"
+        >
+          Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

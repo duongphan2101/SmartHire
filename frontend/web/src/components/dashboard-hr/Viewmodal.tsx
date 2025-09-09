@@ -7,7 +7,7 @@ import { HOSTS } from "../../utils/host";
 interface ViewModalProps {
   job: JobData;
   onClose: () => void;
-  onUpdated?: () => void; // callback để reload danh sách sau khi update
+  onUpdated?: () => void;
 }
 
 const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
@@ -51,15 +51,15 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
       setLoading(true);
 
       const res = await axios.put(
-        `${HOSTS.jobService}/${editedJob._id}`, 
+        `${HOSTS.jobService}/${editedJob._id}`,
         editedJob
       );
 
       if (res.status === 200) {
         alert("Cập nhật thành công!");
         console.log("Updated job:", res.data);
-        onUpdated?.(); 
-        onClose(); 
+        onUpdated?.();
+        onClose();
       }
     } catch (error) {
       console.error("Update failed:", error);
@@ -83,7 +83,6 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
             </button>
           </div>
 
- 
           <div className="view-modal-body">
             {/* Company Info */}
             <div className="company-info">
@@ -165,79 +164,79 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
               </div>
             </div>
 
-           {/* Description */}
-<div className="section job-description">
-  <h4>Mô tả công việc</h4>
-  <ul className="section-ul">
-    {editedJob.jobDescription?.map((desc, idx) => (
-      <li key={idx}>
-        <input
-          type="text"
-          value={desc}
-          onChange={(e) =>
-            handleArrayChange("jobDescription", idx, e.target.value)
-          }
-        />
-      </li>
-    ))}
-  </ul>
-</div>
+            {/* Description */}
+            <div className="section job-description">
+              <h4>Mô tả công việc</h4>
+              <ul className="section-ul">
+                {editedJob.jobDescription?.map((desc, idx) => (
+                  <li key={idx}>
+                    <input
+                      type="text"
+                      value={desc}
+                      onChange={(e) =>
+                        handleArrayChange("jobDescription", idx, e.target.value)
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-{/* Requirements */}
-<div className="section">
-  <h4>Yêu cầu</h4>
-  <ul className="section-ul">
-    {editedJob.requirement?.map((req, idx) => (
-      <li key={idx}>
-        <input
-          type="text"
-          value={req}
-          onChange={(e) =>
-            handleArrayChange("requirement", idx, e.target.value)
-          }
-        />
-      </li>
-    ))}
-  </ul>
-</div>
+            {/* Requirements */}
+            <div className="section">
+              <h4>Yêu cầu</h4>
+              <ul className="section-ul">
+                {editedJob.requirement?.map((req, idx) => (
+                  <li key={idx}>
+                    <input
+                      type="text"
+                      value={req}
+                      onChange={(e) =>
+                        handleArrayChange("requirement", idx, e.target.value)
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-{/* Skills */}
-<div className="section">
-  <h4>Kỹ năng</h4>
-  <ul className="skills-list section-ul">
-    {editedJob.skills?.map((skill, idx) => (
-      <li key={idx}>
-        <input
-          type="text"
-          value={skill}
-          onChange={(e) =>
-            handleArrayChange("skills", idx, e.target.value)
-          }
-        />
-      </li>
-    ))}
-  </ul>
-</div>
+            {/* Skills */}
+            <div className="section">
+              <h4>Kỹ năng</h4>
+              <ul className="skills-list section-ul">
+                {editedJob.skills?.map((skill, idx) => (
+                  <li key={idx}>
+                    <input
+                      type="text"
+                      value={skill}
+                      onChange={(e) =>
+                        handleArrayChange("skills", idx, e.target.value)
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-{/* Benefits */}
-{editedJob.benefits?.length > 0 && (
-  <div className="section">
-    <h4>Quyền lợi</h4>
-    <ul className="section-ul">
-      {editedJob.benefits?.map((benefit, idx) => (
-        <li key={idx}>
-          <input
-            type="text"
-            value={benefit}
-            onChange={(e) =>
-              handleArrayChange("benefits", idx, e.target.value)
-            }
-          />
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+            {/* Benefits */}
+            {editedJob.benefits?.length > 0 && (
+              <div className="section">
+                <h4>Quyền lợi</h4>
+                <ul className="section-ul">
+                  {editedJob.benefits?.map((benefit, idx) => (
+                    <li key={idx}>
+                      <input
+                        type="text"
+                        value={benefit}
+                        onChange={(e) =>
+                          handleArrayChange("benefits", idx, e.target.value)
+                        }
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Footer */}
             <div className="job-footer">
