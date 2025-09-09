@@ -7,8 +7,8 @@ import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
-import { AiOutlinePlusCircle } from 'react-icons/ai';
-import { FaRegEye } from 'react-icons/fa6';
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { FaRegEye } from "react-icons/fa6";
 
 const MySwal = withReactContent(Swal);
 
@@ -79,7 +79,6 @@ const JobPost = () => {
 
   return (
     <div className="job-post-container">
-
       <div className="search-container">
         <input
           type="text"
@@ -99,7 +98,11 @@ const JobPost = () => {
       )}
 
       {viewJob && (
-        <ViewModal job={viewJob} onClose={() => setViewJob(null)} />
+        <ViewModal
+          job={viewJob}
+          onClose={() => setViewJob(null)}
+          onUpdated={refetch}
+        />
       )}
 
       <div className="job-cards">
@@ -117,17 +120,20 @@ const JobPost = () => {
             <div className="job-body">
               <div className="flex items-center justify-between">
                 <span className="job-date" style={{ marginTop: 0 }}>
-                  {new Date(job.createdAt).toLocaleDateString()} - {new Date(job.endDate).toLocaleDateString()}
+                  {new Date(job.createdAt).toLocaleDateString()} -{" "}
+                  {new Date(job.endDate).toLocaleDateString()}
                 </span>
                 <p>{job.jobType}</p>
               </div>
               {job.skills.length > 0 && (
                 <div className="job-skills">
-                  {job.skills.slice(0, 3).map((skill: string, index: number) => (
-                    <span key={index}>
-                      {skill.length > 15 ? skill.slice(0, 15) + "…" : skill}
-                    </span>
-                  ))}
+                  {job.skills
+                    .slice(0, 3)
+                    .map((skill: string, index: number) => (
+                      <span key={index}>
+                        {skill.length > 15 ? skill.slice(0, 15) + "…" : skill}
+                      </span>
+                    ))}
                   {job.skills.length > 3 && <span>...</span>}
                 </div>
               )}
