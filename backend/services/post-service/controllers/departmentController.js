@@ -17,14 +17,17 @@ const findDepartmentByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
     const department = await Department.findOne({ employees: userId.toString() });
+
     if (!department) {
-      return res.status(404).json({ message: "Department not found for this user" });
+      return res.json({ message: "User chưa thuộc công ty nào" });
     }
+
     res.json(department);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // thêm
 const createDepartment = async (req, res) => {

@@ -3,6 +3,8 @@ import "./ViewModal.css";
 import type { JobData } from "../../hook/useJob";
 import axios from "axios";
 import { HOSTS } from "../../utils/host";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 interface ViewModalProps {
   job: JobData;
@@ -15,8 +17,8 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
 
   const [editedJob, setEditedJob] = useState<JobData>({ ...job });
   const [loading, setLoading] = useState(false);
+  const MySwal = withReactContent(Swal);
 
-  // cập nhật field thường (string, number, date, ...)
   const handleChange = <K extends keyof JobData>(
     field: K,
     value: JobData[K]
@@ -27,7 +29,6 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
     }));
   };
 
-  // cập nhật field dạng array (string[])
   const handleArrayChange = (
     field: "jobDescription" | "requirement" | "skills" | "benefits",
     index: number,
@@ -41,11 +42,14 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
     });
   };
 
-  // lưu xuống DB
   const handleSave = async () => {
     try {
       if (!editedJob?._id) {
-        alert("Không tìm thấy Job ID để cập nhật!");
+        MySwal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không tìm thấy Job ID để cập nhật!",
+        });
         return;
       }
       setLoading(true);
@@ -56,14 +60,22 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
       );
 
       if (res.status === 200) {
-        alert("Cập nhật thành công!");
+        MySwal.fire({
+          icon: "success",
+          title: "Thành công!",
+          text: "Cập nhật job thành công.",
+        });
         console.log("Updated job:", res.data);
         onUpdated?.();
         onClose();
       }
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Có lỗi xảy ra khi lưu!");
+      MySwal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi lưu!",
+      });
     } finally {
       setLoading(false);
     }
@@ -122,6 +134,7 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
               <div className="job-info-item">
                 <span className="label job-info-lable">Loại công việc:</span>
                 <input
+                  className="info-input"
                   value={editedJob.jobType}
                   onChange={(e) => handleChange("jobType", e.target.value)}
                 />
@@ -130,6 +143,7 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
               <div className="job-info-item">
                 <span className="label job-info-lable">Cấp bậc:</span>
                 <input
+                  className="info-input"
                   value={editedJob.jobLevel}
                   onChange={(e) => handleChange("jobLevel", e.target.value)}
                 />
@@ -138,6 +152,7 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
               <div className="job-info-item">
                 <span className="label job-info-lable">Lương:</span>
                 <input
+                  className="info-input"
                   value={editedJob.salary}
                   onChange={(e) => handleChange("salary", e.target.value)}
                 />
@@ -146,6 +161,7 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
               <div className="job-info-item">
                 <span className="label job-info-lable">Số lượng tuyển:</span>
                 <input
+                  className="info-input"
                   type="number"
                   value={editedJob.num}
                   onChange={(e) =>
@@ -154,9 +170,10 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
                 />
               </div>
 
-              <div className="job-info-item">
+              <div className="job-info-item items-center">
                 <span className="label job-info-lable">Hạn nộp:</span>
                 <input
+                  className="info-input"
                   type="date"
                   value={editedJob.endDate?.slice(0, 10)}
                   onChange={(e) => handleChange("endDate", e.target.value)}
@@ -171,6 +188,7 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
                 {editedJob.jobDescription?.map((desc, idx) => (
                   <li key={idx}>
                     <input
+                      className="info-input"
                       type="text"
                       value={desc}
                       onChange={(e) =>
@@ -183,12 +201,13 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
             </div>
 
             {/* Requirements */}
-            <div className="section">
+            <div className="section job-description">
               <h4>Yêu cầu</h4>
               <ul className="section-ul">
                 {editedJob.requirement?.map((req, idx) => (
                   <li key={idx}>
                     <input
+                      className="info-input"
                       type="text"
                       value={req}
                       onChange={(e) =>
@@ -201,12 +220,13 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
             </div>
 
             {/* Skills */}
-            <div className="section">
+            <div className="section job-description">
               <h4>Kỹ năng</h4>
               <ul className="skills-list section-ul">
                 {editedJob.skills?.map((skill, idx) => (
                   <li key={idx}>
                     <input
+                      className="info-input"
                       type="text"
                       value={skill}
                       onChange={(e) =>
@@ -220,12 +240,13 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
 
             {/* Benefits */}
             {editedJob.benefits?.length > 0 && (
-              <div className="section">
+              <div className="section job-description">
                 <h4>Quyền lợi</h4>
                 <ul className="section-ul">
                   {editedJob.benefits?.map((benefit, idx) => (
                     <li key={idx}>
                       <input
+                        className="info-input"
                         type="text"
                         value={benefit}
                         onChange={(e) =>

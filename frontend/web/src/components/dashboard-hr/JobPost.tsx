@@ -99,12 +99,12 @@ const JobPost = () => {
       )}
 
       {viewJob && (
-  <ViewModal 
-    job={viewJob} 
-    onClose={() => setViewJob(null)} 
-    onUpdated={refetch}   
-  />
-)}
+        <ViewModal
+          job={viewJob}
+          onClose={() => setViewJob(null)}
+          onUpdated={refetch}
+        />
+      )}
 
       <div className="job-cards">
         {jobsToRender.map((job) => (
@@ -137,8 +137,10 @@ const JobPost = () => {
               )}
             </div>
             <div className="job-footer">
-              <span className="font-bold text-gray-500">{job.salary}</span>
-              <span className="job-address text-gray-400">{job.address}</span>
+              <div className="flex gap-3 flex-wrap">
+                <span style={{fontSize: 13}} className="font-bold text-gray-500">{job.salary}</span>
+                <span style={{fontSize: 13}} className="job-address text-gray-400">{job.address}</span>
+              </div>
               <button
                 className="details-button"
                 onClick={() => setViewJob(job)}

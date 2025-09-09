@@ -185,7 +185,7 @@
   background: #fff;
   padding: 25px;
   border-radius: 12px;
-  max-width: 600px;
+  /* max-width: 600px; */
   width: 90%;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   animation: fadeIn 0.3s ease-in-out;
