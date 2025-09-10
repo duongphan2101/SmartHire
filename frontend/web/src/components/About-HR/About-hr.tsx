@@ -212,7 +212,7 @@ const About = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Name</label>
+                                        <label>Họ và Tên</label>
                                     </div>
 
                                     <div className="group">
@@ -233,7 +233,7 @@ const About = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Date of birth</label>
+                                        <label>Ngày sinh</label>
                                     </div>
 
                                     <div className="group">
@@ -243,16 +243,16 @@ const About = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Phone</label>
+                                        <label>Số điện thoại</label>
                                     </div>
 
                                     <div className="flex gap-5">
                                         <button className="button" onClick={handleSaveChanges}>
-                                            Save Changes
+                                            Lưu thay đổi
                                         </button>
 
                                         <button className="btn-logout" onClick={handleLogout}>
-                                            Logout
+                                            Đăng xuất
                                         </button>
                                     </div>
 

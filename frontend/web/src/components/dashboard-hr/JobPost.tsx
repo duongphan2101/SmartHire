@@ -133,8 +133,10 @@ const JobPost = () => {
               )}
             </div>
             <div className="job-footer">
-              <span className="font-bold text-gray-500">{job.salary}</span>
-              <span className="job-address text-gray-400">{job.address}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-gray-500" style={{fontSize: 14}}>{job.salary}</span>
+                <span className="job-address text-gray-400">{job.address}</span>
+              </div>
               <button
                 className="details-button"
                 onClick={() => setViewJob(job)}
