@@ -7,13 +7,14 @@ import HRheader from "../../components/dashboard-hr/HRheader";
 import Nav from "../../components/dashboard-hr/nav";
 import About from "../../components/About-HR/About-hr";
 import CompanyContent from "../Company/CompanyContent";
+import AllJobPost from "../../components/dashboard-hr/AllJobPost";
 import JobPost from "../../components/dashboard-hr/JobPost";
 import useDepartment from "../../hook/useDepartment";
 
 export const Dashboard = () => {
   const [breadcrumb, setBreadcrumb] = useState("Dashboard");
   const [page, setPage] = useState<
-    "dashboard" | "about" | "company" | "jobPost"
+    "dashboard" | "about" | "company" | "jobPost" | "allJobPost"
   >("dashboard");
   const { department } = useDepartment();
   const companyName = department?.name || "SmartHire";
@@ -34,6 +35,7 @@ export const Dashboard = () => {
             {page === "dashboard" && <></>}
             {page === "about" && <About />}
             {page === "company" && <CompanyContent />}
+            {page === "allJobPost" && <AllJobPost />}
             {page === "jobPost" && <JobPost />}
           </div>
         </div>

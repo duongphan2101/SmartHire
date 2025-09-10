@@ -14,7 +14,7 @@ import "./Nav.css";
 // Định nghĩa interface cho props
 interface NavProps {
   setBreadcrumb: (breadcrumb: string) => void;
-  setPage: (page: "dashboard" | "about" | "company" | "jobPost") => void;
+  setPage: (page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost") => void;
 }
 
 const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
@@ -50,6 +50,7 @@ const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
     if (item === "Công ty") setPage("company");
     else if (item === "Dashboard") setPage("dashboard");
     else if (item === "Công việc đã đăng") setPage("jobPost");
+    else if (item === "Tất cả công việc") setPage("allJobPost");
   };
 
   return (

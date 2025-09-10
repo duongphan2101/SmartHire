@@ -46,6 +46,7 @@ interface UseJobReturn {
   loading: boolean;
   error: string | null;
   refetch: () => void;
+  fetchJobsByUser: (userId: string) => JobData[]; // Lọc client-side
 }
 
 export default function useJob(): UseJobReturn {
@@ -63,7 +64,7 @@ export default function useJob(): UseJobReturn {
 
       const [allRes, latestRes] = await Promise.all([
         axios.get<JobData[]>(`${host}/getAll`),
-        axios.get<JobData[]>(`${host}/getLatest`)
+        axios.get<JobData[]>(`${host}/getLatest`),
       ]);
 
       setJobs(allRes.data);
@@ -76,6 +77,10 @@ export default function useJob(): UseJobReturn {
     }
   };
 
+  const fetchJobsByUser = (userId: string): JobData[] => {
+    return jobs.filter((job) => job.createBy._id === userId);
+  };
+
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -84,5 +89,5 @@ export default function useJob(): UseJobReturn {
     fetchJobs();
   };
 
-  return { jobs, joblatest, loading, error, refetch };
+  return { jobs, joblatest, loading, error, refetch, fetchJobsByUser };
 }
