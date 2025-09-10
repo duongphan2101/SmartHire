@@ -14,6 +14,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import useAuth from '../hook/useAuth';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -35,6 +36,9 @@ export default function LoginScreen({ navigation }: Props) {
 
   const [currentScreen, setCurrentScreen] = useState<'login' | 'register'>('login');
 
+  // State login / register
+  const { login, logout, register, loading, error } = useAuth();
+
   // Animation setup
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -46,10 +50,99 @@ export default function LoginScreen({ navigation }: Props) {
   const registerPasswordRef = useRef<TextInput>(null);
   const registerConfirmPasswordRef = useRef<TextInput>(null);
 
-  const LoginFunc = useCallback(() => {
-    Alert.alert(`Đăng nhập với ${loginEmail} và ${loginPassword}`);
-    navigation.navigate('Home');
-  }, [loginEmail, loginPassword]);
+  const LoginFunc = useCallback(async () => {
+    const success = await login(loginEmail, loginPassword);
+
+    if (success) {
+      navigation.navigate("Home");
+    } else {
+      Alert.alert("Login thất bại", error as string);
+    }
+  }, [loginEmail, loginPassword, login, navigation]);
+
+  const validateRegisterInput = (
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ): string | null => {
+    // Username: chỉ cho phép chữ + số, ít nhất 3 ký tự
+    const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+
+    // Email: chuẩn RFC đơn giản
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Password: ít nhất 8 ký tự, có 1 chữ hoa, 1 chữ thường, 1 số
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!usernameRegex.test(username)) {
+      return "Username phải từ 3 ký tự và chỉ chứa chữ, số, dấu gạch dưới";
+    }
+
+    if (!emailRegex.test(email)) {
+      return "Email không hợp lệ";
+    }
+
+    if (!passwordRegex.test(password)) {
+      return "Mật khẩu phải tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số";
+    }
+
+    if (password !== confirmPassword) {
+      return "Xác nhận mật khẩu không khớp";
+    }
+
+    return null; // hợp lệ
+  };
+
+  const RegisterFunc = useCallback(async () => {
+    const validationError = validateRegisterInput(
+      registerUsername,
+      registerEmail,
+      registerPassword,
+      registerConfirmPassword
+    );
+
+    if (validationError) {
+      Alert.alert("Lỗi đăng ký", validationError);
+      return;
+    }
+
+    const success = await register(registerUsername, registerEmail, registerPassword);
+
+    if (success) {
+      Alert.alert(
+        "Đăng ký thành công",
+        "Bạn có muốn đăng nhập bằng tài khoản mới này không?",
+        [
+          {
+            text: "Không",
+            style: "cancel",
+            onPress: () => {
+              logout();
+              Alert.alert("Bạn đã thoát, vui lòng đăng nhập thủ công sau.");
+            },
+          },
+          {
+            text: "Có",
+            onPress: () => {
+              navigation.navigate("Home");
+            },
+          },
+        ]
+      );
+    } else {
+      Alert.alert("Đăng ký thất bại", error || "Có lỗi xảy ra");
+    }
+  }, [
+    registerUsername,
+    registerEmail,
+    registerPassword,
+    registerConfirmPassword,
+    register,
+    navigation,
+    error,
+    logout,
+  ]);
 
   const ButtonWrapper: React.FC<{
     onPress: () => void;
@@ -108,11 +201,6 @@ export default function LoginScreen({ navigation }: Props) {
     });
   }, [slideAnim]);
 
-  const RegisterFunc = () => {
-    Alert.alert(`Register with ${registerEmail}, ${registerUsername}`);
-    switchToLogin();
-  }
-
   // Đăng ký
   const RegisterContent = () => (
     <View>
@@ -131,7 +219,6 @@ export default function LoginScreen({ navigation }: Props) {
         onChangeText={setRegisterEmail}
         returnKeyType="next"
         onSubmitEditing={() => registerUsernameRef.current?.focus()}
-        blurOnSubmit={false}
       />
 
       <TextInput
@@ -144,7 +231,6 @@ export default function LoginScreen({ navigation }: Props) {
         onChangeText={setRegisterUsername}
         returnKeyType="next"
         onSubmitEditing={() => registerPasswordRef.current?.focus()}
-        blurOnSubmit={false}
       />
 
       <View style={styles.inputContainerRegister}>
@@ -159,7 +245,6 @@ export default function LoginScreen({ navigation }: Props) {
           onChangeText={setRegisterPassword}
           returnKeyType="next"
           onSubmitEditing={() => registerConfirmPasswordRef.current?.focus()}
-          blurOnSubmit={false}
         />
         <TouchableOpacity
           style={styles.eyeIcon}
@@ -183,8 +268,7 @@ export default function LoginScreen({ navigation }: Props) {
           textContentType="password"
           value={registerConfirmPassword}
           onChangeText={setRegisterConfirmPassword}
-          returnKeyType="done"
-          blurOnSubmit={true}
+          // returnKeyType="next"
         />
         <TouchableOpacity
           style={styles.eyeIcon}

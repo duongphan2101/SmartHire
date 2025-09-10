@@ -1,0 +1,146 @@
+.all-job-post-container {
+  padding: 10px;
+  position: relative;
+}
+
+.all-search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.all-search-input {
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  border-radius: 20px;
+  width: 500px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.all-search-input:focus {
+  border-color: var(--color-emerald-600);
+}
+
+.all-add-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 25px;
+  background-color: var(--color-emerald-600);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.all-add-button:hover {
+  background-color: var(--color-emerald-700);
+  transform: translateY(-1px);
+}
+
+.all-add-button:active {
+  transform: translateY(0);
+}
+
+.all-job-cards {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  height: 100%;
+  /* background-color: #ff4444; */
+}
+
+.all-job-card {
+  background: url('../../assets/images/origin.webp') center no-repeat;
+  border-radius: 8px;
+  padding: 15px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  color: #ece7e2;
+}
+
+.all-job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.all-job-date {
+  font-size: 12px;
+  color: #666;
+}
+
+.all-close-card-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ff4444;
+}
+
+.all-job-card h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.all-job-card p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.all-job-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0;
+  color: #666;
+}
+
+.all-job-skills span {
+  background-color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.all-job-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.all-job-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.all-job-address {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.all-details-button {
+  padding: 5px 15px;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.all-details-button:hover {
+  background-color: #333;
+}

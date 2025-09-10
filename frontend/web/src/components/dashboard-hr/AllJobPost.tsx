@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./JobPost.css";
+import "./AllJobPost.css";
 import AddJobModal from "../dashboard-hr/AddJobmodal";
 import ViewModal from "../dashboard-hr/Viewmodal";
 import useJob from "../../hook/useJob";
@@ -11,17 +11,12 @@ import { FaRegEye } from "react-icons/fa6";
 
 const MySwal = withReactContent(Swal);
 
-const JobPost = () => {
+const AllJobPost = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { jobs: allJobs, loading, error, refetch } = useJob(); // Lấy tất cả job để lọc
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const currentUserId = currentUser._id; // Lấy userId từ localStorage
+  const { jobs, loading, error, refetch } = useJob();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [viewJob, setViewJob] = useState<any | null>(null);
-
-  // Lọc job của HR hiện tại
-  const jobs = allJobs.filter((job) => job.createBy._id === currentUserId);
 
   const handleAddClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -31,12 +26,6 @@ const JobPost = () => {
   };
 
   const handleRemoveJob = async (id: string) => {
-    const jobToDelete = jobs.find((j) => j._id === id);
-    if (!jobToDelete) {
-      MySwal.fire("Lỗi!", "Không tìm thấy công việc để xóa.", "error");
-      return;
-    }
-
     const result = await MySwal.fire({
       title: "Bạn có chắc chắn?",
       text: "Công việc này sẽ bị xóa và không thể khôi phục!",
@@ -72,9 +61,7 @@ const JobPost = () => {
     try {
       const res = await fetch(`${HOSTS.jobService}/search?q=${value}`);
       const data = await res.json();
-      // Lọc kết quả tìm kiếm theo userId
-      const filteredResults = data.filter((job: any) => job.createBy._id === currentUserId);
-      setSearchResults(filteredResults);
+      setSearchResults(data);
     } catch (err) {
       console.error("Error searching jobs:", err);
     }
@@ -83,20 +70,19 @@ const JobPost = () => {
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>Lỗi: {error}</div>;
 
-  // Sử dụng jobs đã lọc thay vì allJobs
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 
   return (
-    <div className="job-post-container">
-      <div className="search-container">
+    <div className="all-job-post-container">
+      <div className="all-search-container">
         <input
           type="text"
-          placeholder="Tìm kiếm bài đăng của bạn"
-          className="search-input"
+          placeholder="Tìm kiếm bằng tên người đăng hoặc tên bài đăng"
+          className="all-search-input"
           value={searchQuery}
           onChange={handleSearch}
         />
-        <button className="add-button" onClick={handleAddClick}>
+        <button className="all-add-button" onClick={handleAddClick}>
           <AiOutlinePlusCircle size={20} />
           Thêm
         </button>
@@ -114,28 +100,28 @@ const JobPost = () => {
         />
       )}
 
-      <div className="job-cards">
+      <div className="all-job-cards">
         {jobsToRender.map((job) => (
-          <div className="job-card" key={job._id}>
-            <div className="job-card-header">
+          <div className="all-job-card" key={job._id}>
+            <div className="all-job-card-header">
               <h3 className="font-bold">{job.jobTitle}</h3>
               <button
-                className="close-card-button"
+                className="all-close-card-button"
                 onClick={() => handleRemoveJob(job._id)}
               >
                 ×
               </button>
             </div>
-            <div className="job-body">
+            <div className="all-job-body">
               <div className="flex items-center justify-between">
-                <span className="job-date" style={{ marginTop: 0 }}>
+                <span className="all-job-date" style={{ marginTop: 0 }}>
                   {new Date(job.createdAt).toLocaleDateString()} -{" "}
                   {new Date(job.endDate).toLocaleDateString()}
                 </span>
                 <p>{job.jobType}</p>
               </div>
               {job.skills.length > 0 && (
-                <div className="job-skills">
+                <div className="all-job-skills">
                   {job.skills.slice(0, 3).map((skill: string, index: number) => (
                     <span key={index}>
                       {skill.length > 15 ? skill.slice(0, 15) + "…" : skill}
@@ -145,17 +131,17 @@ const JobPost = () => {
                 </div>
               )}
             </div>
-            <div className="job-footer">
+            <div className="all-job-footer">
               <div className="flex gap-3 flex-wrap">
                 <span style={{ fontSize: 13 }} className="font-bold text-gray-500">
                   {job.salary}
                 </span>
-                <span style={{ fontSize: 13 }} className="job-address text-gray-400">
+                <span style={{ fontSize: 13 }} className="all-job-address text-gray-400">
                   {job.address}
                 </span>
               </div>
               <button
-                className="details-button"
+                className="all-details-button"
                 onClick={() => setViewJob(job)}
               >
                 <FaRegEye size={18} color="#fff" />
@@ -168,4 +154,4 @@ const JobPost = () => {
   );
 };
 
-export default JobPost;
+export default AllJobPost;
