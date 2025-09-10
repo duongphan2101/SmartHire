@@ -67,7 +67,6 @@ const Profile: React.FC = () => {
                 await updateUser(userId, {
                     fullname: userName,
                     email: userEmail,
-                    role: userRole,
                     phone: userPhone,
                     dob: userDob,
                 });
