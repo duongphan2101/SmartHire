@@ -1,11 +1,14 @@
+// Company.tsx
 import "./Company.css";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaEye, FaTrash } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // thêm useEffect
 import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import useDepartment from "../../hook/useDepartment";
+import ModalViewCompany from "../dashboard-hr/ModalViewCompany";
+import { AddDepartmentmodal } from "../dashboard-hr/AddDerpartmentmodal";
 
 const MySwal = withReactContent(Swal);
 
@@ -21,7 +24,27 @@ interface DepartmentData {
 const Company: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
-  const { department } = useDepartment();
+  const { department } = useDepartment(); // vẫn giữ nguyên
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // ✅ thêm state lưu nhiều department
+  const [departments, setDepartments] = useState<DepartmentData[]>([]);
+
+  // ✅ hàm fetch danh sách
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch(`${HOSTS.companyService}/getAll`);
+      const data = await res.json();
+      setDepartments(data);
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+    }
+  };
+
+  // ✅ load danh sách khi mount
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
 
   const handleDelete = async (id: string) => {
     console.log(`ID Department: ${id}`);
@@ -40,7 +63,7 @@ const Company: React.FC = () => {
           method: "DELETE",
         });
         MySwal.fire("Đã xóa!", "Công ty đã được xóa.", "success");
-        // TODO: reload lại state nếu cần
+        fetchDepartments(); // ✅ load lại sau khi xóa
       } catch (err) {
         console.error("Error deleting company:", err);
         MySwal.fire("Lỗi!", "Không thể xóa công ty.", "error");
@@ -49,12 +72,38 @@ const Company: React.FC = () => {
   };
 
   const handleCreateDepartment = async () => {
-    alert(`HEHE`);
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveNewDepartment = async (data: {
+    name: string;
+    address: string;
+    description: string;
+    website: string;
+    avatar: string;
+    employees: string[];
+  }) => {
+    try {
+      const response = await fetch(`${HOSTS.companyService}/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        MySwal.fire("Thành công!", "Phòng ban đã được tạo.", "success");
+        setIsAddModalOpen(false);
+        fetchDepartments(); // ✅ load lại danh sách sau khi thêm
+      } else {
+        throw new Error("Failed to create department");
+      }
+    } catch (err) {
+      console.error("Error creating department:", err);
+      MySwal.fire("Lỗi!", "Không thể tạo phòng ban.", "error");
+    }
   };
 
   return (
     <div className="company-profile-container">
-
       <div className="company-profile-header">
         <div className="search-container">
           <input
@@ -72,144 +121,69 @@ const Company: React.FC = () => {
       </div>
 
       <div className="company-list">
-        {department && department._id ? (
-          <div className="company-wrapper">
-            <div className="company-card">
-              <img
-                src={department.avatar}
-                alt={department.name}
-                className="company-profile-avatar"
-              />
-              <div className="company-details">
-                <h3>{department.name}</h3>
-                <p>
-                  <strong>Address:</strong> {department.address}
-                </p>
-                <p>
-                  <strong>Description:</strong> {department.description}
-                </p>
-                <p>
-                  <strong>Website:</strong>{" "}
-                  <a
-                    href={department.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
+        {/* ✅ hiển thị danh sách departments */}
+        {departments.length > 0 ? (
+          departments
+            .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((dep) => (
+              <div className="company-wrapper" key={dep._id}>
+                <div className="company-card">
+                  <img
+                    src={dep.avatar}
+                    alt={dep.name}
+                    className="company-profile-avatar"
+                  />
+                  <div className="company-details">
+                    <h3>{dep.name}</h3>
+                    <p>
+                      <strong>Address:</strong> {dep.address}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {dep.description}
+                    </p>
+                    <p>
+                      <strong>Website:</strong>{" "}
+                      <a href={dep.website} target="_blank" rel="noopener noreferrer">
+                        {dep.website}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="company-actions">
+                  <button
+                    className="view-btn"
+                    onClick={() => setSelectedDepartment(dep)}
                   >
-                    {department.website}
-                  </a>
-                </p>
+                    <FaEye /> Xem
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(dep._id)}
+                  >
+                    <FaTrash /> Xóa
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="company-actions">
-              <button
-                className="view-btn"
-                onClick={() => setSelectedDepartment(department)}
-              >
-                <FaEye /> Xem
-              </button>
-              <button
-                className="delete-btn"
-                onClick={() => handleDelete(department._id)}
-              >
-                <FaTrash /> Xóa
-              </button>
-            </div>
-          </div>
+            ))
         ) : (
-          <p style={{padding: 20}}>Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc có thể liên hệ các HR cùng công tuy để được thêm vào công ty hiện có!</p>
+          <p style={{ padding: 20 }}>
+            Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc có thể liên hệ các HR cùng công ty để được thêm vào công ty hiện có!
+          </p>
         )}
-
       </div>
 
-      {/* Modal View */}
-      {selectedDepartment && (
-        <div className="modal-overlay" onClick={() => setSelectedDepartment(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="text-left text-2xl font-bold" style={{paddingBottom: 40, paddingTop: 20}}>
-            <h2>Chỉnh sửa công ty</h2>
-            </div>
+      <ModalViewCompany
+        selectedDepartment={selectedDepartment}
+        setSelectedDepartment={setSelectedDepartment}
+        onUpdated={fetchDepartments}
+      />
 
-            <div className="form-group">
-              <label>Tên công ty</label>
-              <input
-                type="text"
-                value={selectedDepartment.name}
-                onChange={(e) =>
-                  setSelectedDepartment({ ...selectedDepartment, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Địa chỉ</label>
-              <input
-                type="text"
-                value={selectedDepartment.address}
-                onChange={(e) =>
-                  setSelectedDepartment({ ...selectedDepartment, address: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Mô tả</label>
-              <input
-                type="text"
-                value={selectedDepartment.description}
-                onChange={(e) =>
-                  setSelectedDepartment({ ...selectedDepartment, description: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Website</label>
-              <input
-                type="text"
-                value={selectedDepartment.website}
-                onChange={(e) =>
-                  setSelectedDepartment({ ...selectedDepartment, website: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Avatar URL</label>
-              <input
-                type="text"
-                value={selectedDepartment.avatar}
-                onChange={(e) =>
-                  setSelectedDepartment({ ...selectedDepartment, avatar: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button onClick={() => setSelectedDepartment(null)}>Đóng</button>
-              <button
-                onClick={async () => {
-                  try {
-                    await fetch(`${HOSTS.companyService}/update/${selectedDepartment._id}`, {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(selectedDepartment),
-                    });
-
-                    MySwal.fire("Thành công!", "Cập nhật công ty thành công", "success");
-                    setSelectedDepartment(null);
-                  } catch (err) {
-                    console.error("Error updating company:", err);
-                    MySwal.fire("Lỗi!", "Không thể cập nhật công ty.", "error");
-                  }
-                }}
-                className="save-btn"
-              >
-                Lưu
-              </button>
-            </div>
-          </div>
-        </div>
+      {isAddModalOpen && (
+        <AddDepartmentmodal
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleSaveNewDepartment}
+        />
       )}
     </div>
   );
