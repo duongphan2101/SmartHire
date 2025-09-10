@@ -15,6 +15,7 @@ interface AddDerpartmentmodalProps {
   }) => void;
 }
 
+
 export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose, onSave }) => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");

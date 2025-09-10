@@ -212,7 +212,7 @@ const About = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Họ và Tên</label>
+                                        <label>Họ tên</label>
                                     </div>
 
                                     <div className="group">

@@ -11,7 +11,7 @@ async function chatWithBot(req, res) {
     const { message } = req.body;
 
     const response = await client.chat.completions.create({
-      model: "openai/gpt-oss-120b",
+      model: "Llama-3-70B-Instruct",
       messages: [
         {
           role: "system",

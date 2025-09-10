@@ -1,13 +1,17 @@
+// Company.tsx
 import "./Company.css";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaEye, FaTrash } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; // thêm useEffect
 import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import useDepartment from "../../hook/useDepartment";
+import ModalViewCompany from "../dashboard-hr/ModalViewCompany";
+import { AddDepartmentmodal } from "../dashboard-hr/AddDerpartmentmodal";
 
 const MySwal = withReactContent(Swal);
-// Define DepartmentData type if not imported
+
 interface DepartmentData {
   _id: string;
   name: string;
@@ -17,50 +21,33 @@ interface DepartmentData {
   avatar: string;
 }
 
-interface CompanyProps {
-  company: DepartmentData | null;
-}
-
-const Company: React.FC<CompanyProps> = ({ company }) => {
-  const [companies, setCompanies] = useState<any[]>([]);
+const Company: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState<any | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
+  const { department } = useDepartment(); // vẫn giữ nguyên
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const fetchCompanies = async () => {
+  // ✅ thêm state lưu nhiều department
+  const [departments, setDepartments] = useState<DepartmentData[]>([]);
+
+  // ✅ hàm fetch danh sách
+  const fetchDepartments = async () => {
     try {
       const res = await fetch(`${HOSTS.companyService}/getAll`);
       const data = await res.json();
-      setCompanies(Array.isArray(data) ? data : data.data || []);
+      setDepartments(data);
     } catch (err) {
-      console.error("Error fetching companies:", err);
+      console.error("Error fetching departments:", err);
     }
   };
 
+  // ✅ load danh sách khi mount
   useEffect(() => {
-    fetchCompanies();
+    fetchDepartments();
   }, []);
 
-  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-
-    if (!value.trim()) {
-      fetchCompanies();
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${HOSTS.companyService}/search?keyword=${value}`
-      );
-      const data = await res.json();
-      setCompanies(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
-      console.error("Error searching companies:", err);
-    }
-  };
-
   const handleDelete = async (id: string) => {
+    console.log(`ID Department: ${id}`);
     const confirm = await MySwal.fire({
       title: "Bạn chắc chắn?",
       text: "Công ty này sẽ bị xóa!",
@@ -76,11 +63,42 @@ const Company: React.FC<CompanyProps> = ({ company }) => {
           method: "DELETE",
         });
         MySwal.fire("Đã xóa!", "Công ty đã được xóa.", "success");
-        fetchCompanies();
+        fetchDepartments(); // ✅ load lại sau khi xóa
       } catch (err) {
         console.error("Error deleting company:", err);
         MySwal.fire("Lỗi!", "Không thể xóa công ty.", "error");
       }
+    }
+  };
+
+  const handleCreateDepartment = async () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveNewDepartment = async (data: {
+    name: string;
+    address: string;
+    description: string;
+    website: string;
+    avatar: string;
+    employees: string[];
+  }) => {
+    try {
+      const response = await fetch(`${HOSTS.companyService}/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        MySwal.fire("Thành công!", "Phòng ban đã được tạo.", "success");
+        setIsAddModalOpen(false);
+        fetchDepartments(); // ✅ load lại danh sách sau khi thêm
+      } else {
+        throw new Error("Failed to create department");
+      }
+    } catch (err) {
+      console.error("Error creating department:", err);
+      MySwal.fire("Lỗi!", "Không thể tạo phòng ban.", "error");
     }
   };
 
@@ -90,12 +108,12 @@ const Company: React.FC<CompanyProps> = ({ company }) => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search company..."
+            placeholder="Nhập tên công ty"
             className="search-input"
             value={searchQuery}
-            onChange={handleSearch}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="add-button">
+          <button className="add-button" onClick={handleCreateDepartment}>
             <AiOutlinePlusCircle size={20} />
             Thêm
           </button>
@@ -103,81 +121,69 @@ const Company: React.FC<CompanyProps> = ({ company }) => {
       </div>
 
       <div className="company-list">
-        {companies.length > 0 ? (
-          companies.map((company) => (
-            <div key={company._id} className="company-wrapper">
-              <div className="company-card">
-                <img
-                  src={company.avatar}
-                  alt={company.name}
-                  className="company-profile-avatar"
-                />
-                <div className="company-details">
-                  <h3>{company.name}</h3>
-                  <p>
-                    <strong>Address:</strong> {company.address}
-                  </p>
-                  <p>
-                    <strong>Description:</strong> {company.description}
-                  </p>
-                  <p>
-                    <strong>Website:</strong>{" "}
-                    <a
-                      href={company.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {company.website}
-                    </a>
-                  </p>
+        {/* ✅ hiển thị danh sách departments */}
+        {departments.length > 0 ? (
+          departments
+            .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((dep) => (
+              <div className="company-wrapper" key={dep._id}>
+                <div className="company-card">
+                  <img
+                    src={dep.avatar}
+                    alt={dep.name}
+                    className="company-profile-avatar"
+                  />
+                  <div className="company-details">
+                    <h3>{dep.name}</h3>
+                    <p>
+                      <strong>Address:</strong> {dep.address}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {dep.description}
+                    </p>
+                    <p>
+                      <strong>Website:</strong>{" "}
+                      <a href={dep.website} target="_blank" rel="noopener noreferrer">
+                        {dep.website}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="company-actions">
+                  <button
+                    className="view-btn"
+                    onClick={() => setSelectedDepartment(dep)}
+                  >
+                    <FaEye /> Xem
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(dep._id)}
+                  >
+                    <FaTrash /> Xóa
+                  </button>
                 </div>
               </div>
-
-              <div className="company-actions">
-                <button
-                  className="view-btn"
-                  onClick={() => setSelectedCompany(company)}
-                >
-                  <FaEye /> Xem
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDelete(company._id)}
-                >
-                  <FaTrash /> Xóa
-                </button>
-              </div>
-            </div>
-          ))
+            ))
         ) : (
-          <p>Không có công ty nào</p>
+          <p style={{ padding: 20 }}>
+            Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc có thể liên hệ các HR cùng công ty để được thêm vào công ty hiện có!
+          </p>
         )}
       </div>
 
-      {/* Modal View */}
-      {selectedCompany && (
-        <div className="modal-overlay" onClick={() => setSelectedCompany(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedCompany.name}</h2>
-            <p>
-              <strong>Address:</strong> {selectedCompany.address}
-            </p>
-            <p>
-              <strong>Description:</strong> {selectedCompany.description}
-            </p>
-            <p>
-              <strong>Website:</strong>{" "}
-              <a
-                href={selectedCompany.website}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {selectedCompany.website}
-              </a>
-            </p>
-            <button onClick={() => setSelectedCompany(null)}>Đóng</button>
-          </div>
-        </div>
+      <ModalViewCompany
+        selectedDepartment={selectedDepartment}
+        setSelectedDepartment={setSelectedDepartment}
+        onUpdated={fetchDepartments}
+      />
+
+      {isAddModalOpen && (
+        <AddDepartmentmodal
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleSaveNewDepartment}
+        />
       )}
     </div>
   );

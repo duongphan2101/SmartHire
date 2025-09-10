@@ -1,15 +1,15 @@
-.job-post-container {
+.all-job-post-container {
   padding: 10px;
   position: relative;
 }
 
-.search-container {
+.all-search-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.search-input {
+.all-search-input {
   padding: 10px 15px;
   border: 2px solid #ddd;
   border-radius: 4px;
@@ -20,11 +20,11 @@
   transition: border-color 0.3s ease;
 }
 
-.search-input:focus {
+.all-search-input:focus {
   border-color: var(--color-emerald-600);
 }
 
-.add-button {
+.all-add-button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -38,16 +38,16 @@
   transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-.add-button:hover {
+.all-add-button:hover {
   background-color: var(--color-emerald-700);
   transform: translateY(-1px);
 }
 
-.add-button:active {
+.all-add-button:active {
   transform: translateY(0);
 }
 
-.job-cards {
+.all-job-cards {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -56,52 +56,48 @@
   /* background-color: #ff4444; */
 }
 
-
-.job-card {
-  background: url('../../assets/images/origin.webp')
-   center no-repeat;
+.all-job-card {
+  background: url('../../assets/images/origin.webp') center no-repeat;
   border-radius: 8px;
   padding: 15px;
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
-  color: #ECE7E2;
+  color: #ece7e2;
 }
 
-
-.job-card-header {
+.all-job-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.job-date {
+.all-job-date {
   font-size: 12px;
   color: #666;
 }
 
-.close-card-button {
+.all-close-card-button {
   background: none;
   border: none;
   font-size: 24px;
   cursor: pointer;
   color: #ff4444;
-
 }
 
-.job-card h3 {
+.all-job-card h3 {
   margin: 0;
   font-size: 18px;
   color: #333;
 }
 
-.job-card p {
+.all-job-card p {
   margin: 5px 0;
   color: #666;
 }
 
-.job-skills {
+.all-job-skills {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
@@ -109,20 +105,19 @@
   color: #666;
 }
 
-.job-skills span {
+.all-job-skills span {
   background-color: #fff;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 14px;
 }
 
-.job-body {
+.all-job-body {
   display: flex;
   flex-direction: column;
-
 }
 
-.job-footer {
+.all-job-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -130,14 +125,14 @@
   flex-wrap: wrap;
 }
 
-.job-address {
+.all-job-address {
   max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.details-button {
+.all-details-button {
   padding: 5px 15px;
   background-color: #000;
   color: white;
@@ -146,6 +141,6 @@
   cursor: pointer;
 }
 
-.details-button:hover {
+.all-details-button:hover {
   background-color: #333;
 }
