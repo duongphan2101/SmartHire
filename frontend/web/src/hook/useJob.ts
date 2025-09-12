@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
-import debounce from "lodash.debounce";
+import useDepartment from "./useDepartment";
 
 export interface Job {
   _id: string;
@@ -33,20 +32,51 @@ export interface Job {
 
 export default function useJob() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [joblatest, setJobLatest] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { department } = useDepartment("user");
 
   const host = HOSTS.jobService;
 
+  useEffect(() => {
+    if (department && department._id) {
+      refetch();
+    }
+  }, [department]);
+
+
   // fetch all
   const refetch = async () => {
+    if (!department) {
+      setJobs([]);
+      setError("Bạn chưa thuộc công ty nào");
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await axios.get<Job[]>(`${host}/getAll`);
+      const res = await axios.get<Job[]>(`${host}/getAll/${department._id}`);
       setJobs(res.data);
+      setError("")
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "Failed to fetch jobs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // fetch all
+  const latest = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Job[]>(`${host}/getLatest`);
+      setJobLatest(res.data);
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch jobs latest");
     } finally {
       setLoading(false);
     }
@@ -83,26 +113,27 @@ export default function useJob() {
     }
   };
 
-//   // search
-// const searchJobs = useCallback(
-//     debounce(async (query: string, callback: (results: Job[]) => void) => {
-//       try {
-//         setLoading(true);
-//         const res = await axios.get<Job[]>(`${host}/search?q=${query}`);
-//         callback(res.data);
-//       } catch (err) {
-//         console.error("Search error:", err);
-//         callback([]);
-//       } finally {
-//         setLoading(false);
-//       }
-//     }, 300), 
-//     []
-//   );
+  //   // search
+  // const searchJobs = useCallback(
+  //     debounce(async (query: string, callback: (results: Job[]) => void) => {
+  //       try {
+  //         setLoading(true);
+  //         const res = await axios.get<Job[]>(`${host}/search?q=${query}`);
+  //         callback(res.data);
+  //       } catch (err) {
+  //         console.error("Search error:", err);
+  //         callback([]);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     }, 300), 
+  //     []
+  //   );
 
   useEffect(() => {
     refetch();
+    latest();
   }, []);
 
-  return { jobs, loading, error, refetch, createJob, deleteJob };
+  return { jobs, joblatest, loading, error, refetch, createJob, deleteJob };
 }

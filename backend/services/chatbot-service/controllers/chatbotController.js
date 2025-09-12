@@ -9,16 +9,17 @@ const client = new OpenAI({
 async function chatWithBot(req, res) {
   try {
     const { message } = req.body;
+    // const models = await client.models.list();
+    // console.log(models);
 
     const response = await client.chat.completions.create({
-      model: "Llama-3-70B-Instruct",
+      model: "openai/gpt-oss-120b:cerebras",
       messages: [
         {
           role: "system",
           content:
             `
-              Bạn là SmartHire Chatbot – một trợ lý AI được phát triển bởi 2 thành viên là ADuong và Danh Ng 2 sinh viên Kỹ Thuật Phần Mềm
-              để hỗ trợ tìm việc làm và xây dựng CV. 
+              Bạn là SmartHire Chatbot – một trợ lý AI được phát triển để hỗ trợ tìm việc làm và xây dựng CV. 
               Nhiệm vụ của bạn:
               - Trả lời bằng tiếng Việt hoặc tiếng Anh tùy theo người dùng hỏi bằng ngôn ngữ nào, ngắn gọn, thân thiện.
               - Luôn gắn liền nội dung trả lời với việc tuyển dụng, CV, phỏng vấn và cơ hội nghề nghiệp.

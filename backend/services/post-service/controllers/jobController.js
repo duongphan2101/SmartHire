@@ -14,12 +14,18 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
   try {
-    const jobs = await Job.find();
+    const { idDepartment } = req.params;
+    const jobs = await Job.find({ "department._id": idDepartment });
+    if (jobs.length === 0) {
+      return res.status(200).json({ message: "Không có job nào cho công ty này", jobs: [] });
+    }
+
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 const getLatestJobs = async (req, res) => {
   try {

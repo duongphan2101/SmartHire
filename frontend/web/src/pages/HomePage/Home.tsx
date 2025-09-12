@@ -5,6 +5,8 @@ import Header from '../../components/Header/Header';
 import ChatWithAI from '../../components/Chat-With-AI/ChatWithAI';
 import Footer from '../../components/Footer/Footer';
 import { fetchProvinces, type Province } from "../../utils/provinceApi";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 import imageBanner from "../../assets/images/banner-21.png";
 import cv_banner from "../../assets/images/man_with_bent_arm.png";
@@ -29,6 +31,7 @@ import { FaRegEye } from 'react-icons/fa6';
 import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import { useNavigate } from "react-router-dom";
+const MySwal = withReactContent(Swal);
 
 const Home: React.FC = () => {
 
@@ -137,11 +140,11 @@ const Home: React.FC = () => {
     const [lastestJobs, setLastestJobs] = useState<any[]>([]);
 
     useEffect(() => {
-        if (!joblatest || !user) return;
+        if (!joblatest) return;
 
         const mapped = joblatest.map(job => ({
             ...job,
-            isSaved: user.liked.includes(job._id),
+            isSaved: user ? user.liked.includes(job._id) : false,
             animateSave: false
         }));
 
@@ -149,6 +152,24 @@ const Home: React.FC = () => {
     }, [joblatest, user]);
 
     const toggleSave = async (jobId: string) => {
+        if (!user) {
+            MySwal.fire({
+                title: "Bạn cần đăng nhập",
+                text: "Hãy đăng nhập để lưu bài đăng.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Đăng nhập",
+                cancelButtonText: "Hủy",
+                confirmButtonColor: "#0F828C",
+                cancelButtonColor: "#ccc",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/login";
+                }
+            });
+            return;
+        }
+
         const currentJob = lastestJobs.find(j => j._id === jobId);
         if (!currentJob) return;
 
@@ -163,9 +184,9 @@ const Home: React.FC = () => {
         );
 
         if (isSavedNext) {
-            await saveJob(user?._id as string, jobId);
+            await saveJob(user._id, jobId);
         } else {
-            await unsaveJob(user?._id as string, jobId);
+            await unsaveJob(user._id, jobId);
         }
 
         setTimeout(() => {
@@ -176,6 +197,7 @@ const Home: React.FC = () => {
             );
         }, 300);
     };
+
 
     const formatTimeAgo = (dateStr: string): string => {
         const date = new Date(dateStr);

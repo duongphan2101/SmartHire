@@ -4,12 +4,9 @@ import AddJobModal from "../dashboard-hr/AddJobmodal";
 import ViewModal from "../dashboard-hr/Viewmodal";
 import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
 
-const MySwal = withReactContent(Swal);
 
 const AllJobPost = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,30 +20,6 @@ const AllJobPost = () => {
 
   const handleSaveJob = async () => {
     await refetch();
-  };
-
-  const handleRemoveJob = async (id: string) => {
-    const result = await MySwal.fire({
-      title: "Bạn có chắc chắn?",
-      text: "Công việc này sẽ bị xóa và không thể khôi phục!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "rgba(241, 0, 0, 1)",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await fetch(`${HOSTS.jobService}/${id}`, { method: "DELETE" });
-        await refetch();
-        MySwal.fire("Đã xóa!", "Công việc đã được xóa thành công.", "success");
-      } catch (err) {
-        console.error("Error deleting job:", err);
-        MySwal.fire("Lỗi!", "Không thể xóa công việc.", "error");
-      }
-    }
   };
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +41,8 @@ const AllJobPost = () => {
   };
 
   if (loading) return <div>Đang tải...</div>;
-  if (error) return <div>Lỗi: {error}</div>;
+  if (error) return <div className="text-2xl"
+  style={{padding: 20}}>{error}</div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 
@@ -97,6 +71,7 @@ const AllJobPost = () => {
           job={viewJob}
           onClose={() => setViewJob(null)}
           onUpdated={refetch}
+          update={false}
         />
       )}
 
@@ -105,12 +80,12 @@ const AllJobPost = () => {
           <div className="all-job-card" key={job._id}>
             <div className="all-job-card-header">
               <h3 className="font-bold">{job.jobTitle}</h3>
-              <button
+              {/* <button
                 className="all-close-card-button"
                 onClick={() => handleRemoveJob(job._id)}
               >
                 ×
-              </button>
+              </button> */}
             </div>
             <div className="all-job-body">
               <div className="flex items-center justify-between">

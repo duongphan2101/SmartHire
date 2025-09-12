@@ -13,8 +13,8 @@ export interface DepartmentData {
 
 interface UseDepartmentReturn {
   // data
-  department: DepartmentData | null; 
-  departments: DepartmentData[]; 
+  department: DepartmentData | null;
+  departments: DepartmentData[];
 
   // state
   loading: boolean;
@@ -79,7 +79,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     fetchData();
   }, [fetchData]);
 
- 
+
   const createDepartment = async (data: Omit<DepartmentData, "_id"> & { employees: string[] }) => {
     try {
       await axios.post(`${HOSTS.companyService}/create`, data);

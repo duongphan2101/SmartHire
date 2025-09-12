@@ -4,7 +4,7 @@ import { FaEye, FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import useDepartment, {type DepartmentData } from "../../hook/useDepartment";
+import useDepartment, { type DepartmentData } from "../../hook/useDepartment";
 import ModalViewCompany from "../dashboard-hr/ModalViewCompany";
 import { AddDepartmentmodal } from "../dashboard-hr/AddDerpartmentmodal";
 
@@ -15,7 +15,7 @@ const Company: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const { departments, loading, error, createDepartment, deleteDepartment, refetch } = useDepartment("all");
+  const { department, loading, error, createDepartment, deleteDepartment, refetch } = useDepartment("user");
 
   const handleDelete = async (id: string) => {
     const confirm = await MySwal.fire({
@@ -69,42 +69,58 @@ const Company: React.FC = () => {
       </div>
 
       <div className="company-list">
-        {departments.length > 0 ? (
-          departments
-            .filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
-            .map((dep) => (
-              <div className="company-wrapper" key={dep._id}>
-                <div className="company-card">
-                  <img src={dep.avatar} alt={dep.name} className="company-profile-avatar" />
-                  <div className="company-details">
-                    <h3>{dep.name}</h3>
-                    <p><strong>Address:</strong> {dep.address}</p>
-                    <p><strong>Description:</strong> {dep.description}</p>
-                    <p>
-                      <strong>Website:</strong>{" "}
-                      <a href={dep.website} target="_blank" rel="noopener noreferrer">
-                        {dep.website}
-                      </a>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="company-actions">
-                  <button className="view-btn" onClick={() => setSelectedDepartment(dep)}>
-                    <FaEye /> Xem
-                  </button>
-                  <button className="delete-btn" onClick={() => handleDelete(dep._id)}>
-                    <FaTrash /> Xóa
-                  </button>
-                </div>
+        {department && department._id ? (
+          <div className="company-wrapper" key={department._id}>
+            <div className="company-card">
+              <img
+                src={department.avatar}
+                alt={department.name}
+                className="company-profile-avatar"
+              />
+              <div className="company-details">
+                <h3>{department.name}</h3>
+                <p>
+                  <strong>Address:</strong> {department.address}
+                </p>
+                <p>
+                  <strong>Description:</strong> {department.description}
+                </p>
+                <p>
+                  <strong>Website:</strong>{" "}
+                  <a
+                    href={department.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {department.website}
+                  </a>
+                </p>
               </div>
-            ))
+            </div>
+
+            <div className="company-actions">
+              <button
+                className="view-btn"
+                onClick={() => setSelectedDepartment(department)}
+              >
+                <FaEye /> Xem
+              </button>
+              <button
+                className="delete-btn"
+                onClick={() => handleDelete(department._id)}
+              >
+                <FaTrash /> Xóa
+              </button>
+            </div>
+          </div>
         ) : (
           <p style={{ padding: 20 }}>
-            Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc liên hệ HR để được thêm vào công ty hiện có!
+            Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc liên hệ HR
+            để được thêm vào công ty hiện có!
           </p>
         )}
       </div>
+
 
       <ModalViewCompany selectedDepartment={selectedDepartment} setSelectedDepartment={setSelectedDepartment} onUpdated={refetch} />
 
