@@ -70,7 +70,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
     <div className="modal" onDoubleClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <p className="font-bold text-2xl">Thêm Phòng Ban</p>
+          <p className="font-bold text-2xl">Thêm công ty</p>
         </div>
         <div className="modal-body">
           <form onSubmit={handleSubmit}>
@@ -86,7 +86,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
                   onChange={(e) => setName(e.target.value)}
                 />
                 <label className="label" htmlFor="name">
-                  Tên phòng ban
+                  Tên công ty
                 </label>
                 <div className="underline"></div>
               </div>

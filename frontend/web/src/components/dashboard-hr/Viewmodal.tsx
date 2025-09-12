@@ -1,29 +1,30 @@
 import { useState } from "react";
 import "./ViewModal.css";
-import type { JobData } from "../../hook/useJob";
+import type { Job } from "../../hook/useJob";
 import axios from "axios";
 import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 interface ViewModalProps {
-  job: JobData;
+  job: Job;
   onClose: () => void;
   onUpdated?: () => void;
+  update: boolean;
 }
 
-const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
+const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   if (!job) return null;
 
-  const [editedJob, setEditedJob] = useState<JobData>({ ...job });
+  const [editedJob, setEditedJob] = useState<Job>({ ...job });
   const [loading, setLoading] = useState(false);
   const MySwal = withReactContent(Swal);
 
-  const handleChange = <K extends keyof JobData>(
+  const handleChange = <K extends keyof Job>(
     field: K,
-    value: JobData[K]
+    value: Job[K]
   ) => {
-    setEditedJob((prev: JobData) => ({
+    setEditedJob((prev: Job) => ({
       ...prev,
       [field]: value,
     }));
@@ -260,15 +261,19 @@ const ViewModal = ({ job, onClose, onUpdated }: ViewModalProps) => {
             )}
 
             {/* Footer */}
-            <div className="job-footer">
-              <button
-                className="btn-save-edit"
-                onClick={handleSave}
-                disabled={loading}
-              >
-                {loading ? "Đang lưu..." : "Lưu chỉnh sửa"}
-              </button>
-            </div>
+            {update && (
+              <div className="job-footer">
+                <button
+                  className="btn-save-edit"
+                  onClick={handleSave}
+                  disabled={loading}
+                >
+                  {loading ? "Đang lưu..." : "Lưu chỉnh sửa"}
+                </button>
+              </div>
+            )}
+
+
           </div>
         </div>
       </div>

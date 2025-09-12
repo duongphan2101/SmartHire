@@ -13,9 +13,9 @@ const MySwal = withReactContent(Swal);
 
 const JobPost = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { jobs: allJobs, loading, error, refetch } = useJob(); // Lấy tất cả job để lọc
+  const { jobs: allJobs, loading, error, refetch } = useJob();
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const currentUserId = currentUser._id; // Lấy userId từ localStorage
+  const currentUserId = currentUser._id || currentUser.user_id;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [viewJob, setViewJob] = useState<any | null>(null);
@@ -81,7 +81,8 @@ const JobPost = () => {
   };
 
   if (loading) return <div>Đang tải...</div>;
-  if (error) return <div>Lỗi: {error}</div>;
+  if (error) return <div className="text-2xl"
+    style={{ padding: 20 }}>{error}</div>;
 
   // Sử dụng jobs đã lọc thay vì allJobs
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
@@ -111,6 +112,7 @@ const JobPost = () => {
           job={viewJob}
           onClose={() => setViewJob(null)}
           onUpdated={refetch}
+          update={true}
         />
       )}
 
