@@ -19,13 +19,13 @@ interface DepartmentData {
 interface ModalViewCompanyProps {
   selectedDepartment: DepartmentData | null;
   setSelectedDepartment: React.Dispatch<React.SetStateAction<DepartmentData | null>>;
-  onUpdated: () => void; 
+  onUpdated: () => void;
 }
 
 const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
   selectedDepartment,
   setSelectedDepartment,
-  onUpdated, 
+  onUpdated,
 }) => {
   if (!selectedDepartment) return null;
 
@@ -77,13 +77,17 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
 
         <div className="form-group">
           <label>Mô tả</label>
-          <input
-            type="text"
+          <textarea
+            className="info-input-area"
             value={selectedDepartment.description}
             onChange={(e) =>
-              setSelectedDepartment({ ...selectedDepartment, description: e.target.value })
+              setSelectedDepartment({
+                ...selectedDepartment,
+                description: e.target.value,
+              })
             }
           />
+
         </div>
 
         <div className="form-group">

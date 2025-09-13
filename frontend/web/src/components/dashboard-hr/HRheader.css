@@ -1,13 +1,17 @@
 .main-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
-    border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #fff;
+ box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+  border-bottom: 2px solid #e5e7eb;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
 }
-
 
 .header-left {
   display: flex;
@@ -25,7 +29,6 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-
 }
 
 .app-name {
@@ -41,7 +44,7 @@
 .nav-icon {
   width: 20px;
   height: 20px;
- color: #6b7280;
+  color: #6b7280;
 }
 
 .breadcrumbs {
@@ -119,7 +122,8 @@
   height: 16px;
   color: #4b5563;
 }
-.company-avatar, .user-avatar {
+.company-avatar,
+.user-avatar {
   display: flex;
   align-items: center;
   margin-left: 15px;

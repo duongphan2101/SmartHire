@@ -82,7 +82,7 @@ const Company: React.FC = () => {
                 <p>
                   <strong>Address:</strong> {department.address}
                 </p>
-                <p>
+                <p className="company-des">
                   <strong>Description:</strong> {department.description}
                 </p>
                 <p>

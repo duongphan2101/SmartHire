@@ -1,12 +1,15 @@
 .nav-container {
-    width: 250px;
-    background-color: #fff;
-    padding: 20px;
-    overflow-y: auto;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-    border-right: 1px solid #e5e7eb;
-    transition: width 0.3s ease, padding 0.3s ease;
-    
+  width: 220px;
+  background-color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.3s ease, padding 0.3s ease;
+  height: 100%; 
+    position: fixed;
+    top: 110px;
+    left: 0;
 }
 
 .nav-container.icon-mode {

@@ -24,6 +24,7 @@ export interface Job {
   salary: string;
   location: string;
   address: string;
+  workingHours: string;
   jobDescription: string[];
   endDate: string;
   num: number;

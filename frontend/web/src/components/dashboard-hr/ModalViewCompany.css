@@ -17,7 +17,7 @@
   padding: 25px;
   border-radius: 12px;
   width: 90%;
-  max-width: 600px; /* Giới hạn chiều rộng tối đa */
+  /* max-width: 600px; */
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -104,4 +104,13 @@
 .modal-actions .close-btn {
   background: #ccc;
   color: #333;
+}
+
+.info-input-area {
+   width: 100%;
+  min-height: 300px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
 }

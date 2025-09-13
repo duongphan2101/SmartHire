@@ -47,6 +47,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
     const [jobTitle, setJobTitle] = useState("");
     const [jobType, setJobType] = useState("");
     const [jobLevel, setJobLevel] = useState("");
+    const [workingHours, setWorkingHours] = useState("");
     const [requirements, setRequirements] = useState([""]);
     const [skills, setSkills] = useState([""]);
     const [benefits, setBenefits] = useState([""]);
@@ -147,6 +148,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             !salary.trim() ||
             !address.trim() ||
             !location.trim() ||
+            !workingHours.trim() ||
             !department ||
             !endDate ||
             !num ||
@@ -183,10 +185,13 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             salary,
             address,
             location,
+            workingHours,
             jobDescription: jobDescriptions.filter((d) => d.trim()),
             endDate,
             num,
         };
+
+        // console.log("PAYLOAD: ", payload);
 
         try {
             const response = await fetch(`${HOSTS.jobService}/create`, {
@@ -488,6 +493,21 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                                     </label>
                                     <div className="add-job-underline"></div>
                                 </div>
+
+                                <div className="add-job-input-container add-job-half-width">
+                                    <input
+                                        required
+                                        id="working-hours"
+                                        type="text"
+                                        value={workingHours}
+                                        onChange={(e) => setWorkingHours(e.target.value)}
+                                    />
+                                    <label className="add-job-label" htmlFor="working-hours">
+                                        Thời gian làm việc
+                                    </label>
+                                    <div className="add-job-underline"></div>
+                                </div>
+
                             </div>
                         </div>
 

@@ -42,7 +42,7 @@ const AllJobPost = () => {
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div className="text-2xl"
-  style={{padding: 20}}>{error}</div>;
+    style={{ padding: 20 }}>{error}</div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 
@@ -76,7 +76,7 @@ const AllJobPost = () => {
       )}
 
       <div className="all-job-cards">
-        {jobsToRender.map((job) => (
+        {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
           <div className="all-job-card" key={job._id}>
             <div className="all-job-card-header">
               <h3 className="font-bold">{job.jobTitle}</h3>
