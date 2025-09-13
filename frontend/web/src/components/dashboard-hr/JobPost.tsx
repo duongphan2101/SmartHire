@@ -21,7 +21,10 @@ const JobPost = () => {
   const [viewJob, setViewJob] = useState<any | null>(null);
 
   // Lọc job của HR hiện tại
-  const jobs = allJobs.filter((job) => job.createBy._id === currentUserId);
+  const jobs = Array.isArray(allJobs)
+  ? allJobs.filter((job) => String(job?.createBy?._id) === String(currentUserId))
+  : [];
+
 
   const handleAddClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -117,7 +120,7 @@ const JobPost = () => {
       )}
 
       <div className="job-cards">
-        {jobsToRender.map((job) => (
+        {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
           <div className="job-card" key={job._id}>
             <div className="job-card-header">
               <h3 className="font-bold">{job.jobTitle}</h3>

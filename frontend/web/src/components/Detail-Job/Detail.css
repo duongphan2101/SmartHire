@@ -44,6 +44,12 @@
 
 .page-content-main {
     padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.li-job-item {
+    margin-left: 20px;
 }
 
 .content-title:first-child {
@@ -67,12 +73,14 @@
 .button-apply {
     border: 1px solid var(--color-emerald-600);
     color: var(--color-emerald-600);
+    width: 100%;
 }
 
 .button-save {
     border: 1px solid var(--color-gray-200);
     background-color: var(--color-gray-200);
     color: var(--color-gray-500);
+    width: 100%;
 }
 
 .btn:hover {
@@ -88,4 +96,25 @@
 
 .map {
     margin-top: 20px;
+}
+
+.department-item-name {
+    display: inline-block;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.item-department {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid var(--color-emerald-600);
+    border-radius: 10px;
 }

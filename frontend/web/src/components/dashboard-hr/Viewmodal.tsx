@@ -171,6 +171,15 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                 />
               </div>
 
+              <div className="job-info-item">
+                <span className="label job-info-lable">Thời gian làm việc:</span>
+                <input
+                  className="info-input"
+                  value={editedJob.workingHours}
+                  onChange={(e) => handleChange("workingHours", e.target.value)}
+                />
+              </div>
+
               <div className="job-info-item items-center">
                 <span className="label job-info-lable">Hạn nộp:</span>
                 <input

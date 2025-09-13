@@ -153,3 +153,15 @@
     background: #dc3545;
     color: #fff;
 }
+
+.company-des {
+        display: inline-block;
+    max-width: 800px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
