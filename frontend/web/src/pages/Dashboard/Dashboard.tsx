@@ -12,20 +12,30 @@ import JobPost from "../../components/dashboard-hr/JobPost";
 import useDepartment from "../../hook/useDepartment";
 
 export const Dashboard = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [breadcrumb, setBreadcrumb] = useState("Dashboard");
   const [page, setPage] = useState<
     "dashboard" | "about" | "company" | "jobPost" | "allJobPost"
   >("dashboard");
+
   const { department } = useDepartment();
   const companyName = department?.name || "SmartHire";
+
   return (
     <div className="App-Dashboard">
-      {/* <ChatWithAI /> */}
-
       <div className="dashboard-layout-container">
-        <Nav setBreadcrumb={setBreadcrumb} setPage={setPage} />
+        <Nav
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          setBreadcrumb={setBreadcrumb}
+          setPage={setPage}
+        />
 
-        <div className="main-content-wrapper">
+        <div
+          className={`main-content-wrapper ${
+            collapsed ? "collapsed" : "expanded"
+          }`}
+        >
           <HRheader
             breadcrumb={breadcrumb}
             setPage={setPage}

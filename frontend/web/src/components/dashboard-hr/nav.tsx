@@ -14,10 +14,14 @@ import "./Nav.css";
 // Định nghĩa interface cho props
 interface NavProps {
   setBreadcrumb: (breadcrumb: string) => void;
-  setPage: (page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost") => void;
+  setPage: (
+    page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost"
+  ) => void;
+  collapsed: boolean;
+  setCollapsed: (v: boolean) => void;
 }
 
-const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
+const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
   const [isIconMode, setIsIconMode] = useState(false);
   const [isWorkOpen, setIsWorkOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
@@ -54,19 +58,20 @@ const Nav = ({ setBreadcrumb, setPage }: NavProps) => {
   };
 
   return (
-    <div className={`nav-container ${isIconMode ? "icon-mode" : ""}`}>
+    <div className={`nav-container ${collapsed ? "icon-mode" : ""}`}>
       {/* Project Selection */}
       <div className="nav-section project-selector">
-        {isIconMode ? (
-          <HiMenu className="back-icon" onClick={handleBackClick} />
+        {collapsed ? (
+          <HiMenu className="back-icon" onClick={() => setCollapsed(false)} />
         ) : (
           <div className="project-name-wrapper">
             <HiOutlineFolder className="project-icon" />
             <span>Default project</span>
+            <HiMenu
+              className="dropdown-arrow"
+              onClick={() => setCollapsed(true)}
+            />
           </div>
-        )}
-        {!isIconMode && (
-          <HiMenu className="dropdown-arrow" onClick={handleMenuClick} />
         )}
       </div>
 
