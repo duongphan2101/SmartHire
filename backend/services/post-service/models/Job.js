@@ -27,6 +27,7 @@ const JobSchema = new mongoose.Schema(
     salary: { type: String, required: true },
     location: { type: String, required: true },
     address: { type: String, required: true },
+    workingHours: { type: String, required: true },
 
     endDate: { type: Date, required: false },
     num: { type: Number, required: false },

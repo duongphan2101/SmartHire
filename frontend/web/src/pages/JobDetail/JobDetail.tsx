@@ -128,7 +128,7 @@ const JobDetails: React.FC = () => {
                                                     <span style={{ fontWeight: 'bold' }}>{item.jobTitle}</span>
                                                     <div className="flex gap-5" style={{fontSize: 15}}>
                                                         <span className="text-gray-500 department-name">{item.department.name}</span>
-                                                        <span className="text-gray-500">{getTimeAgo(item.createdAt!, item.updatedAt!)}</span>
+                                                        {/* <span className="text-gray-500">{getTimeAgo(item.createdAt!, item.updatedAt!)}</span> */}
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col gap-2 text-center flex-1/4">

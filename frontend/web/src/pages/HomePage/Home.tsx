@@ -198,7 +198,6 @@ const Home: React.FC = () => {
         }, 300);
     };
 
-
     const formatTimeAgo = (dateStr: string): string => {
         const date = new Date(dateStr);
         const now = new Date();
@@ -224,7 +223,7 @@ const Home: React.FC = () => {
 
         if (updatedAt && updatedAt !== postedAt) {
             const updatedAgo = formatTimeAgo(updatedAt);
-            return `Đăng ${postedAgo} · Cập nhật ${updatedAgo}`;
+            return `Cập nhật ${updatedAgo}`;
         }
 
         return `Đăng ${postedAgo}`;
