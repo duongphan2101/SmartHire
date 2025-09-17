@@ -29,6 +29,7 @@ function App() {
           <Route path="/intro" element={<Intro />} />
           <Route path="/buildcv" element={<BuildCV />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/jobdetail" element={<JobDetails />} />
           <Route path="/jobdetail/:id" element={<JobDetails />} />
 
 

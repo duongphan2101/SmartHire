@@ -41,7 +41,7 @@
 .project-name-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 19px;
 }
 
 .project-icon {
@@ -75,7 +75,7 @@
 }
 
 .nav-container.icon-mode .project-name-wrapper span {
-    display: none; 
+    display: none;
 }
 
 .nav-container.icon-mode .dropdown-arrow {
