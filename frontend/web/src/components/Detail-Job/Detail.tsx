@@ -8,6 +8,7 @@ import { FaLocationDot } from 'react-icons/fa6';
 import { RiMoneyDollarBoxFill } from 'react-icons/ri';
 import { MdApartment } from 'react-icons/md';
 import { AiFillClockCircle } from 'react-icons/ai';
+import { BiSolidTimer } from 'react-icons/bi';
 
 interface DetailProps {
     item: any;
@@ -49,33 +50,13 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
                 <div className="flex items-center">
                     <div className="flex flex-col">
                         <span className="text-left title-job">{item.jobTitle}</span>
-                        <a className="text-left text-gray-600" href={`/department/${item.department}`}
+                        <a className="text-left text-gray-600" href={`/department/${item.department._id}`}
                             style={{ fontSize: 18 }}
                         >
                             <span className="department-item-name">{item.department.name}</span>
                         </a>
                     </div>
 
-                    {/* <div className="flex gap-10 items-center">
-                        <div className="flex gap-3 items-center flex-wrap">
-
-                            <button
-                                type="button"
-                                className={`button-save btn ${saved ? "saved" : ""}`}
-                                onClick={() => setSaved(!saved)}
-                            >
-                                {saved ? "Đã lưu" : "Lưu bài đăng"}
-                            </button>
-
-                            <button type="button" className="button-apply btn"
-                                onClick={() => { alert("OK") }}
-                            >
-                                Ứng tuyển
-                            </button>
-
-                        </div>
-
-                    </div> */}
                 </div>
 
             </div>
@@ -146,6 +127,7 @@ const Detail: React.FC<DetailProps> = ({ item }) => {
                                         ><RiMoneyDollarBoxFill color="green" /> {item.salary}</div>
                                         <div className="flex items-center gap-2"><FaLocationDot size={14} color="green" /> {item.location}</div>
                                         <span className="department-item-name"><MdApartment color="green" />{item.department.name}</span>
+                                        <span className="department-item-name"><BiSolidTimer color="green" />{item.workingHours}</span>
                                         <span className="text-black flex items-center gap-2"><AiFillClockCircle color="green" /> chỉnh sửa {getTimeAgo(item.createAt!, item.updatedAt!)}</span>
                                         
                                         <div className="flex gap-5 items-center flex-wrap" style={{paddingTop: 10}}>
