@@ -10,8 +10,19 @@ import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 
+// Thêm debounce utility
+const debounce = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 const JobDetails: React.FC = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
+  const [loadingJob, setLoadingJob] = useState(false); // Loading cho job chi tiết
+  const [loadingRelated, setLoadingRelated] = useState(false); // Loading cho related jobs
   const locationHook = useLocation();
   const queryParams = new URLSearchParams(locationHook.search);
   const [job, setJob] = useState<Job | null>(null);
@@ -21,17 +32,19 @@ const JobDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getJobById } = useJob();
   const { filterJobs } = useJob();
-  const { joblatest } = useJob();
+  const { joblatest } = useJob(); // Lấy joblatest nhưng không phụ thuộc trực tiếp
   const navigate = useNavigate();
 
+  const fetchJob = async (id: string) => {
+    setLoadingJob(true);
+    const jobData = await getJobById(id);
+    if (jobData) setJob(jobData);
+    setLoadingJob(false);
+  };
+
   useEffect(() => {
-    const fetchJob = async () => {
-      if (!id) return;
-      const jobData = await getJobById(id);
-      if (jobData) setJob(jobData);
-    };
-    fetchJob();
-  }, [id, getJobById]);
+    if (id) fetchJob(id);
+  }, [id]);
 
   useEffect(() => {
     const loadProvinces = async () => {
@@ -41,30 +54,46 @@ const JobDetails: React.FC = () => {
     loadProvinces();
   }, []);
 
-  useEffect(() => {
   const fetchRelatedJobs = async () => {
-    if (jobTitle || location) {
-      const results = await filterJobs(jobTitle, location);
-      setRelatedJobs(results);
-    } else {
-      setRelatedJobs(joblatest);
+    setLoadingRelated(true);
+    try {
+      console.log("Fetching related jobs with jobTitle:", jobTitle, "location:", location);
+      const results = jobTitle || location ? await filterJobs(jobTitle, location) : joblatest || [];
+      setRelatedJobs(Array.isArray(results) ? results : []);
+    } catch (error) {
+      console.error("Error fetching related jobs:", error);
+      setRelatedJobs([]);
+    } finally {
+      setLoadingRelated(false);
     }
   };
-  fetchRelatedJobs();
-}, [jobTitle, location, filterJobs, joblatest]);
 
+  // Áp dụng debounce cho fetchRelatedJobs
+  const debouncedFetchRelatedJobs = debounce(fetchRelatedJobs, 500); // Tăng delay lên 500ms
 
-const handleSearch = async () => {
-  const results = await filterJobs(jobTitle, location);
-  if (results.length > 0) {
-    setRelatedJobs(results);
-    navigate(`/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}`);
-  } else {
-    setRelatedJobs([]);
-    alert("Không tìm thấy công việc phù hợp");
-  }
-};
+  useEffect(() => {
+    debouncedFetchRelatedJobs();
+    // Loại bỏ filterJobs và joblatest khỏi dependencies để tránh re-render không cần thiết
+  }, [jobTitle, location]);
 
+  const handleSearch = async () => {
+    setLoadingRelated(true);
+    try {
+      const results = await filterJobs(jobTitle, location);
+      if (results.length > 0) {
+        setRelatedJobs(results);
+        navigate(`/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}`);
+      } else {
+        setRelatedJobs([]);
+        alert("Không tìm thấy công việc phù hợp");
+      }
+    } catch (error) {
+      console.error("Error in handleSearch:", error);
+      setRelatedJobs([]);
+    } finally {
+      setLoadingRelated(false);
+    }
+  };
 
   const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
     const date = new Date(updatedAt || postedAt);
@@ -87,8 +116,10 @@ const handleSearch = async () => {
   };
 
   const handlerJobItem = async (id: string) => {
+    setLoadingJob(true);
     const jobData = await getJobById(id);
     if (jobData) setJob(jobData);
+    setLoadingJob(false);
     navigate(`/jobdetail/${id}?title=${jobTitle}&location=${location}`, { replace: true });
   };
 
@@ -153,7 +184,9 @@ const handleSearch = async () => {
                   </div>
 
                   <div className="head-left-main flex flex-col w-full">
-                    {(relatedJobs.length > 0 ?relatedJobs : joblatest).map(
+                    {loadingRelated ? (
+                      <p className="text-gray-500">Đang tải công việc liên quan...</p>
+                    ) : (relatedJobs.length > 0 ? relatedJobs : joblatest || []).map(
                       (item) => (
                         <div
                           key={item._id}
@@ -194,12 +227,12 @@ const handleSearch = async () => {
               </div>
               <div className="lg:col-span-6 md:col-span-6">
                 <div className="head-card">
-                  {job ? (
+                  {loadingJob ? (
+                    <p className="text-gray-500">Đang tải...</p>
+                  ) : job ? (
                     <Detail item={job} />
                   ) : (
-                    <p className="text-gray-500">
-                      Hãy chọn 1 công việc để xem chi tiết
-                    </p>
+                    <p className="text-gray-500">Hãy chọn 1 công việc để xem chi tiết</p>
                   )}
                 </div>
               </div>
