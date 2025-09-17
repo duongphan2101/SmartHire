@@ -66,7 +66,7 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
         ) : (
           <div className="project-name-wrapper">
             <HiOutlineFolder className="project-icon" />
-            <span>Default project</span>
+            <span >Dự án chung</span>
             <HiMenu
               className="dropdown-arrow"
               onClick={() => setCollapsed(true)}
@@ -78,13 +78,13 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
       {/* Main Navigation Menu */}
       <ul className="nav-menu">
         <li
-          className={`nav-item ${activeItem === "Dashboard" ? "active" : ""}`}
-          onClick={() => handleItemClick("Dashboard", false)}
+          className={`nav-item ${activeItem === "Bảng điều khiển" ? "active" : ""}`}
+          onClick={() => handleItemClick("Bảng điều khiển", false)}
         >
           <div className="nav-item-content">
             <div className="nav-item-text">
               <HiOutlineMenuAlt3 className="nav-item-icon" />
-              <span>Dashboard</span>
+              <span>Bảng điều khiển</span>
             </div>
           </div>
         </li>
@@ -146,30 +146,30 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
 
       {/* Other Menus */}
       <div className="nav-divider"></div>
-      <span className="nav-title">Others</span>
+      <span className="nav-title">Khác</span>
       <ul className="nav-menu">
         <li
           className={`nav-item ${
-            activeItem === "Learn & Training" ? "active" : ""
+            activeItem === "Học tập & Đào tạo" ? "active" : ""
           }`}
-          onClick={() => handleItemClick("Learn & Training", false)}
+          onClick={() => handleItemClick("Học tập & Đào tạo", false)}
         >
           <div className="nav-item-content">
             <div className="nav-item-text">
               <HiOutlineUser className="nav-item-icon" />
-              <span>Learn & Training</span>
+              <span style={{ fontSize: "15px" }}>Học tập & Đào tạo</span>
             </div>
           </div>
         </li>
 
         <li
-          className={`nav-item ${activeItem === "What's New" ? "active" : ""}`}
-          onClick={() => handleItemClick("What's New", false)}
+          className={`nav-item ${activeItem === "Tin tức mới" ? "active" : ""}`}
+          onClick={() => handleItemClick("Tin tức mới", false)}
         >
           <div className="nav-item-content">
             <div className="nav-item-text">
               <HiOutlineDotsCircleHorizontal className="nav-item-icon" />
-              <span>What's New</span>
+              <span>Tin tức mới</span>
             </div>
           </div>
         </li>

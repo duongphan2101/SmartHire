@@ -38,6 +38,38 @@ const getLatestJobs = async (req, res) => {
   }
 };
 
+const getJobById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const job = await Job.findById(id);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+    res.json(job);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const filterJobs = async (req, res) => {
+  try {
+    const { title, location } = req.query;
+
+    const filter = {};
+    if (title) {
+      filter.jobTitle = { $regex: title, $options: "i" };
+    }
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    const jobs = await Job.find(filter);
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const searchJobs = async (req, res) => {
   try {
     const query = req.query.q;
@@ -88,5 +120,7 @@ module.exports = {
   searchJobs,
   deleteJob,
   getLatestJobs,
-  updateJob
+  updateJob,
+  getJobById,
+  filterJobs
 };

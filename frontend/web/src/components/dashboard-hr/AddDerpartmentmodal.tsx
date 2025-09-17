@@ -145,7 +145,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
 
             {/* Nhân viên */}
             <div className="section-container">
-              <h3>Danh sách nhân viên</h3>
+              <h3>Nhân viên</h3>
               {employees.map((employee, index) => (
                 <div className="skill-input-wrapper" key={index}>
                   <div className="input-container">
@@ -155,10 +155,10 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
                       value={employee}
                       onChange={(e) => handleEmployeeChange(index, e.target.value)}
                     />
-                    <label className="label">{`Nhân viên ${index + 1}`}</label>
+                    <label className="label">{`Nhân viên`}</label>
                     <div className="underline"></div>
                   </div>
-                  {employees.length > 1 && (
+                  {/* {employees.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveEmployee(index)}
@@ -166,14 +166,14 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
                     >
                       Xóa
                     </button>
-                  )}
+                  )} */}
                 </div>
               ))}
-              <div className="add-button-container">
+              {/* <div className="add-button-container">
                 <button type="button" onClick={handleAddEmployee}>
                   Thêm nhân viên
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <button type="submit" className="submit-button">
