@@ -9,7 +9,7 @@ import {
   HiOutlineDotsCircleHorizontal,
   HiMenu,
 } from "react-icons/hi";
-import "./Nav.css";
+import "./nav.css";
 
 // Định nghĩa interface cho props
 interface NavProps {

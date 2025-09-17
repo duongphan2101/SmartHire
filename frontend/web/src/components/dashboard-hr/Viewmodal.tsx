@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./ViewModal.css";
+import "./Viewmodal.css";
 import type { Job } from "../../hook/useJob";
 import axios from "axios";
 import { HOSTS } from "../../utils/host";

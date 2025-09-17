@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./AddJobModal.css";
+import "./AddJobmodal.css";
 import { HOSTS } from "../../utils/host";
 import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import useDepartment from "../../hook/useDepartment";
