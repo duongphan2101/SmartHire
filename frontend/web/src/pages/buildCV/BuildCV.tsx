@@ -1,9 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import Swal from "sweetalert2";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
+
+import useCV from "../../hook/useCV";
 
 import CVTemplate from "../../components/template-cv/CVTemplate";
 import CVTemplate2 from "../../components/template-cv/cvtemplate2";
@@ -14,6 +17,8 @@ import CVTemplate5 from "../../components/template-cv/cvtemplate2";
 import "./BuildCV.css";
 
 import { BiSkipPrevious, BiSkipNext } from 'react-icons/bi';
+import { uploadPDF } from "../../utils/uploadPDF";
+import useUser from "../../hook/useUser";
 
 interface ContactInfo {
   phone: string;
@@ -64,6 +69,21 @@ const BuildCV: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState<'vi' | 'en'>('vi');
   const [originalData, setOriginalData] = useState<CVData>({ ...cvData });
   const cvTemplateRef = useRef<HTMLDivElement>(null);
+  const { createCV } = useCV();
+  const { getUser, user } = useUser();
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const idToFetch = parsed.user_id ?? parsed._id;
+        getUser(idToFetch);
+      }
+    } catch (e) {
+      console.error("Invalid user data in localStorage", e);
+    }
+  }, [getUser]);
 
   type TemplateKey = "template1" | "template2" | "template3" | "template4" | "template5";
   const templates: Record<TemplateKey, React.ForwardRefExoticComponent<any>> = {
@@ -236,10 +256,47 @@ const BuildCV: React.FC = () => {
     }
   };
 
+  // const handleCreateCV = async () => {
+  //   const element = cvTemplateRef.current;
+  //   if (!element) return alert("Không tìm thấy nội dung CV để tạo PDF.");
+  //   try {
+  //     const canvas = await html2canvas(element, { scale: 2 });
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const imgProps = pdf.getImageProperties(imgData);
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  //     let heightLeft = pdfHeight;
+  //     let position = 0;
+  //     pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+  //     heightLeft -= pdf.internal.pageSize.getHeight();
+  //     while (heightLeft >= 0) {
+  //       position = heightLeft - pdfHeight;
+  //       pdf.addPage();
+  //       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+  //       heightLeft -= pdf.internal.pageSize.getHeight();
+  //     }
+  //     pdf.save("cv.pdf");
+  //     alert("CV đã được tạo và tải xuống thành công!");
+  //   } catch (error) {
+  //     console.error("Lỗi khi tạo PDF:", error);
+  //     alert("Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.");
+  //   }
+  // };
+
   const handleCreateCV = async () => {
     const element = cvTemplateRef.current;
-    if (!element) return alert("Không tìm thấy nội dung CV để tạo PDF.");
+    if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
+
     try {
+      // Hiển thị loading
+      Swal.fire({
+        title: "Đang tạo CV...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      // Tạo PDF
       const canvas = await html2canvas(element, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
@@ -248,19 +305,28 @@ const BuildCV: React.FC = () => {
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       let heightLeft = pdfHeight;
       let position = 0;
+
       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
       heightLeft -= pdf.internal.pageSize.getHeight();
+
       while (heightLeft >= 0) {
         position = heightLeft - pdfHeight;
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
         heightLeft -= pdf.internal.pageSize.getHeight();
       }
-      pdf.save("cv.pdf");
-      alert("CV đã được tạo và tải xuống thành công!");
+
+      const pdfBlob = pdf.output("blob");
+
+      const pdfUrl = await uploadPDF(pdfBlob, `cv-${user?._id}_${Date.now()}.pdf`);
+      const userId = user?._id || "";
+
+      await createCV(userId, cvData, pdfUrl);
+
+      Swal.fire("Thành công", "CV đã được tạo!", "success");
     } catch (error) {
-      console.error("Lỗi khi tạo PDF:", error);
-      alert("Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.");
+      console.error("Lỗi khi tạo CV:", error);
+      Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
     }
   };
 
