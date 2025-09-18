@@ -21,7 +21,6 @@ export default function useCV() {
     try {
       setLoading(true);
       setError(null);
-
       const res = await axios.get<CVResponse[]>(`${HOSTS.cvService}/user/${userId}`);
       setCVs(res.data);
       return res.data;

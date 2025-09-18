@@ -8,7 +8,8 @@ const {
   deleteUser,
   getUserByEmail,
   addJobToLiked,
-  removeJobFromLiked
+  removeJobFromLiked,
+  addJobToApplyted
 } = require("../controllers/userController");
 
 router.post("/", createUser);
@@ -20,5 +21,6 @@ router.put("/avt/:id", updateUser);
 router.delete("/:id", deleteUser);
 router.post("/save", addJobToLiked);
 router.post("/unsave", removeJobFromLiked);
+router.post("/apply", addJobToApplyted);
 
 module.exports = router;
