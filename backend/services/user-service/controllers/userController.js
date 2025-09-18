@@ -142,6 +142,27 @@ exports.removeJobFromLiked = async (req, res) => {
   }
 };
 
+// Add job to applyted
+exports.addJobToApplyted = async (req, res) => {
+  try {
+    const { userId, jobId } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { applyted: jobId } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 
 
 
