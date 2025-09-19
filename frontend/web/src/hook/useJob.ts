@@ -29,6 +29,7 @@ export interface Job {
   endDate: string;
   num: number;
   createdAt: string;
+  districts?: { name: string }[];
 }
 
 export default function useJob() {
@@ -113,22 +114,23 @@ export default function useJob() {
       setLoading(false);
     }
   };
- const filterJobs = async (title?: string, location?: string) => {
-    try {
-      setLoading(true);
-      const res = await axios.get<Job[]>(
-        `${host}/filter/search`,
-        { params: { title, location } }
-      );
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to filter jobs");
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
+const filterJobs = async (title?: string, location?: string, district?: string, jobType?: string,
+  jobLevel?: string) => {
+  try {
+    setLoading(true);
+     const res = await axios.get<Job[]>(`${host}/filter/search`, {
+      params: { title, location, district, jobType, jobLevel }, // ✅ thêm vào đây
+    });
+    return res.data;
+  } catch (err) {
+    const axiosErr = err as AxiosError<{ message?: string }>;
+    setError(axiosErr.response?.data?.message || "Failed to filter jobs");
+    return [];
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ✅ get job by id (cho trang JobDetail)
   const getJobById = async (id: string) => {

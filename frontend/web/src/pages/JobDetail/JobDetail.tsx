@@ -1,40 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "./JobDetails.css";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
-import { useNavigate } from "react-router-dom";
-import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 
-// Thêm debounce utility
-const debounce = (func: Function, delay: number) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
+interface District {
+  code: number;
+  name: string;
+}
+
+interface Province {
+  code: number;
+  name: string;
+  districts: District[];
+}
 
 const JobDetails: React.FC = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
-  const [loadingJob, setLoadingJob] = useState(false); // Loading cho job chi tiết
-  const [loadingRelated, setLoadingRelated] = useState(false); // Loading cho related jobs
+  const [loadingJob, setLoadingJob] = useState(false);
+  const [loadingRelated, setLoadingRelated] = useState(false);
+  const [job, setJob] = useState<Job | null>(null);
+
   const locationHook = useLocation();
   const queryParams = new URLSearchParams(locationHook.search);
-  const [job, setJob] = useState<Job | null>(null);
+
   const [jobTitle, setJobTitle] = useState(queryParams.get("title") || "");
-  const [provinces, setProvinces] = useState<Province[]>([]);
   const [location, setLocation] = useState(queryParams.get("location") || "");
+  const [jobType, setJobType] = useState(queryParams.get("jobType") || "");
+  const [jobLevel, setJobLevel] = useState(queryParams.get("jobLevel") || "");
+  const [district, setDistrict] = useState("");
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+
   const { id } = useParams<{ id: string }>();
-  const { getJobById } = useJob();
-  const { filterJobs } = useJob();
-  const { joblatest } = useJob(); // Lấy joblatest nhưng không phụ thuộc trực tiếp
+  const { getJobById, filterJobs, joblatest } = useJob();
   const navigate = useNavigate();
 
+  // Lấy job chi tiết
   const fetchJob = async (id: string) => {
     setLoadingJob(true);
     const jobData = await getJobById(id);
@@ -46,82 +52,91 @@ const JobDetails: React.FC = () => {
     if (id) fetchJob(id);
   }, [id]);
 
+  // Load danh sách tỉnh/thành (có cả quận/huyện trong depth=2)
   useEffect(() => {
     const loadProvinces = async () => {
-      const data = await fetchProvinces();
-      setProvinces(data);
+      try {
+        const res = await fetch("https://provinces.open-api.vn/api/?depth=2");
+        const data = await res.json();
+        setProvinces(data);
+      } catch (err) {
+        console.error("fetch provinces error:", err);
+      }
     };
     loadProvinces();
   }, []);
 
-  const fetchRelatedJobs = async () => {
-    setLoadingRelated(true);
-    try {
-      console.log("Fetching related jobs with jobTitle:", jobTitle, "location:", location);
-      const results = jobTitle || location ? await filterJobs(jobTitle, location) : joblatest || [];
-      setRelatedJobs(Array.isArray(results) ? results : []);
-    } catch (error) {
-      console.error("Error fetching related jobs:", error);
-      setRelatedJobs([]);
-    } finally {
-      setLoadingRelated(false);
-    }
-  };
-
-  // Áp dụng debounce cho fetchRelatedJobs
-  const debouncedFetchRelatedJobs = debounce(fetchRelatedJobs, 500); // Tăng delay lên 500ms
-
+  // Khi chọn tỉnh → set districts
   useEffect(() => {
-    debouncedFetchRelatedJobs();
-    // Loại bỏ filterJobs và joblatest khỏi dependencies để tránh re-render không cần thiết
-  }, [jobTitle, location]);
-
-  const handleSearch = async () => {
-    setLoadingRelated(true);
-    try {
-      const results = await filterJobs(jobTitle, location);
-      if (results.length > 0) {
-        setRelatedJobs(results);
-        navigate(`/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}`);
+    if (location) {
+      const selectedProvince = provinces.find((p) => p.name === location);
+      if (selectedProvince) {
+        setDistricts(selectedProvince.districts);
       } else {
-        setRelatedJobs([]);
-        alert("Không tìm thấy công việc phù hợp");
+        setDistricts([]);
       }
-    } catch (error) {
-      console.error("Error in handleSearch:", error);
-      setRelatedJobs([]);
-    } finally {
-      setLoadingRelated(false);
-    }
-  };
-
-  const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
-    const date = new Date(updatedAt || postedAt);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMinutes < 1) {
-      return "Vừa xong";
-    } else if (diffMinutes < 60) {
-      return `${diffMinutes} phút trước`;
-    } else if (diffHours < 24) {
-      return `${diffHours} giờ trước`;
     } else {
-      return `${diffDays} ngày trước`;
+      setDistricts([]);
     }
-  };
+  }, [location, provinces]);
 
+  // Fetch related jobs
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (!id) return;
+      setLoadingRelated(true);
+
+      const jobData = await getJobById(id);
+      setJob(jobData);
+
+      if (jobData) {
+      const results =
+        jobTitle || location || district || jobType || jobLevel
+          ? await filterJobs(jobTitle, location, district, jobType, jobLevel)
+          : joblatest || [];
+
+      setRelatedJobs(results.filter((j) => j._id !== id));
+    }
+
+      setLoadingRelated(false);
+    };
+
+    fetchRelated();
+  },[id, jobTitle, location, district, jobType, jobLevel]);
+
+  // Khi bấm nút tìm kiếm
+const handleSearch = async () => {
+  setLoadingRelated(true);
+  try {
+    const results = await filterJobs(jobTitle, location, district, jobType, jobLevel);
+    if (results.length > 0) {
+      setRelatedJobs(results);
+      navigate(
+        `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`
+      );
+    } else {
+      setRelatedJobs([]);
+      alert("Không tìm thấy công việc phù hợp");
+    }
+  } catch (error) {
+    console.error("Error in handleSearch:", error);
+    setRelatedJobs([]);
+  } finally {
+    setLoadingRelated(false);
+  }
+};
+
+  // Khi click vào job trong related list
   const handlerJobItem = async (id: string) => {
-    setLoadingJob(true);
-    const jobData = await getJobById(id);
-    if (jobData) setJob(jobData);
-    setLoadingJob(false);
-    navigate(`/jobdetail/${id}?title=${jobTitle}&location=${location}`, { replace: true });
-  };
+  setLoadingJob(true);
+  const jobData = await getJobById(id);
+  if (jobData) setJob(jobData);
+  setLoadingJob(false);
+  navigate(
+    `/jobdetail/${id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`,
+    { replace: true }
+  );
+};
 
   return (
     <>
@@ -131,7 +146,7 @@ const JobDetails: React.FC = () => {
 
         <div className="content bg-gray-50">
           <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
-            <div className="content-main-header bg-white w-full flex gap-5">
+            <div className="content-main-header bg-white w-full flex gap-5 flex-col xl:flex-row">
               {/* Combobox Vị trí tuyển dụng */}
               <select
                 value={jobTitle}
@@ -163,6 +178,20 @@ const JobDetails: React.FC = () => {
                 ))}
               </select>
 
+              {/* Combobox Quận/Huyện */}
+              <select
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">Chọn quận/huyện</option>
+                {districts.map((d) => (
+                  <option key={d.code} value={d.name}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+
               {/* Nút tìm kiếm */}
               <button
                 onClick={handleSearch}
@@ -171,7 +200,34 @@ const JobDetails: React.FC = () => {
                 Tìm kiếm
               </button>
             </div>
+            {/* HÀNG 2: jobType + jobLevel */}
+            <div className="bg-white w-full flex gap-5 flex-col xl:flex-row p-2">
+              <select
+                className="w-full xl:w-2/6 h-12 px-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={jobType}
+                onChange={(e) => setJobType(e.target.value)}
+              >
+                <option value="">Hình thức làm việc</option>
+                <option value="Full Time">Full Time</option>
+                <option value="Part Time">Part Time</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Remote">Remote</option>
+              </select>
 
+              <select
+                className="w-full xl:w-2/6 h-12 px-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={jobLevel}
+                onChange={(e) => setJobLevel(e.target.value)}
+              >
+                <option value="">Vị trí (Level)</option>
+                <option value="Internship">Internship</option>
+                <option value="Fresher">Fresher</option>
+                <option value="Junior">Junior</option>
+                <option value="Mid-level">Mid-level</option>
+                <option value="Senior">Senior</option>
+                <option value="Lead">Lead</option>
+              </select>
+            </div>
             <div className="content-main-center grid grid-cols-1 md:grid-cols-9 lg:grid-cols-9 gap-2 w-full">
               <div className="lg:col-span-3 md:col-span-3">
                 <div className="head-card head-left gap-5">
@@ -185,9 +241,14 @@ const JobDetails: React.FC = () => {
 
                   <div className="head-left-main flex flex-col w-full">
                     {loadingRelated ? (
-                      <p className="text-gray-500">Đang tải công việc liên quan...</p>
-                    ) : (relatedJobs.length > 0 ? relatedJobs : joblatest || []).map(
-                      (item) => (
+                      <p className="text-gray-500">
+                        Đang tải công việc liên quan...
+                      </p>
+                    ) : (
+                      (relatedJobs.length > 0
+                        ? relatedJobs
+                        : joblatest || []
+                      ).map((item) => (
                         <div
                           key={item._id}
                           className="job-item flex items-center gap-5 cursor-pointer"
@@ -220,11 +281,12 @@ const JobDetails: React.FC = () => {
                             <span>{item.jobType}</span>
                           </div>
                         </div>
-                      )
+                      ))
                     )}
                   </div>
                 </div>
               </div>
+
               <div className="lg:col-span-6 md:col-span-6">
                 <div className="head-card">
                   {loadingJob ? (
@@ -232,7 +294,9 @@ const JobDetails: React.FC = () => {
                   ) : job ? (
                     <Detail item={job} />
                   ) : (
-                    <p className="text-gray-500">Hãy chọn 1 công việc để xem chi tiết</p>
+                    <p className="text-gray-500">
+                      Hãy chọn 1 công việc để xem chi tiết
+                    </p>
                   )}
                 </div>
               </div>
