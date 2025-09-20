@@ -8,6 +8,7 @@ import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 import useUser, { type UserResponse } from "../../hook/useUser";
+import Swal from "sweetalert2";
 
 interface District {
   code: number;
@@ -88,7 +89,7 @@ const JobDetails: React.FC<DetailProps> = () => {
     }
   }, [location, provinces]);
 
-  // Fetch related jobs
+  // Fetch related jobs mặc định (chỉ khi load trang)
   useEffect(() => {
     const fetchRelated = async () => {
       if (!id) return;
@@ -98,53 +99,74 @@ const JobDetails: React.FC<DetailProps> = () => {
       setJob(jobData);
 
       if (jobData) {
-      const results =
-        jobTitle || location || district || jobType || jobLevel
-          ? await filterJobs(jobTitle, location, district, jobType, jobLevel)
-          : joblatest || [];
-
-      setRelatedJobs(results.filter((j) => j._id !== id));
-    }
+        const results = joblatest || [];
+        setRelatedJobs(results.filter((j) => j._id !== id));
+      }
 
       setLoadingRelated(false);
     };
 
     fetchRelated();
-  },[id, jobTitle, location, district, jobType, jobLevel]);
+  }, [id]);
 
   // Khi bấm nút tìm kiếm
-const handleSearch = async () => {
-  setLoadingRelated(true);
-  try {
-    const results = await filterJobs(jobTitle, location, district, jobType, jobLevel);
-    if (results.length > 0) {
-      setRelatedJobs(results);
-      navigate(
-        `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`
+  const handleSearch = async () => {
+    setLoadingRelated(true);
+    try {
+      const results = await filterJobs(
+        jobTitle,
+        location,
+        district,
+        jobType,
+        jobLevel
       );
-    } else {
+
+      if (results.length > 0) {
+        setRelatedJobs(results);
+        navigate(
+          `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`
+        );
+      } else {
+        setRelatedJobs([]);
+        let message = "Không tìm thấy công việc phù hợp";
+
+        if (location) message = "Địa điểm này không có job bạn cần";
+        else if (district) message = "Quận/Huyện này không có job bạn cần";
+        else if (jobTitle) message = "Không có job phù hợp với vị trí này";
+        else if (jobType) message = "Không có job với hình thức này";
+        else if (jobLevel) message = "Không có job với level này";
+
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: message,
+          confirmButtonText: "Đóng",
+        });
+      }
+    } catch (error) {
+      console.error("Error in handleSearch:", error);
       setRelatedJobs([]);
-      alert("Không tìm thấy công việc phù hợp");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại sau!",
+      });
+    } finally {
+      setLoadingRelated(false);
     }
-  } catch (error) {
-    console.error("Error in handleSearch:", error);
-    setRelatedJobs([]);
-  } finally {
-    setLoadingRelated(false);
-  }
-};
+  };
 
   // Khi click vào job trong related list
   const handlerJobItem = async (id: string) => {
-  setLoadingJob(true);
-  const jobData = await getJobById(id);
-  if (jobData) setJob(jobData);
-  setLoadingJob(false);
-  navigate(
-    `/jobdetail/${id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`,
-    { replace: true }
-  );
-};
+    setLoadingJob(true);
+    const jobData = await getJobById(id);
+    if (jobData) setJob(jobData);
+    setLoadingJob(false);
+    navigate(
+      `/jobdetail/${id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`,
+      { replace: true }
+    );
+  };
 
   return (
     <>
@@ -268,7 +290,9 @@ const handleSearch = async () => {
                           >
                             <img
                               className="job-item-image"
-                              src={item.department.avatar || "/default-avatar.png"}
+                              src={
+                                item.department.avatar || "/default-avatar.png"
+                              }
                             />
                           </div>
                           <div className="flex flex-col gap-2 text-left flex-2/4">

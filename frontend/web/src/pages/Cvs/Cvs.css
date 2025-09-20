@@ -63,8 +63,8 @@
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(247, 230, 230, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -111,5 +111,27 @@
 
 .view-detail-btn:hover {
   background-color: #047857;
+  transform: translateY(-2px);
+}
+.cv-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.delete-cv-btn {
+  background-color: #dc2626;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.delete-cv-btn:hover {
+  background-color: #b91c1c;
   transform: translateY(-2px);
 }

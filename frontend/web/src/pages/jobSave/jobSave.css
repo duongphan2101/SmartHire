@@ -1,0 +1,82 @@
+.App {
+  text-align: center;
+  width: 100vw;
+  height: 100vh; 
+  display: flex;
+  flex-direction: column;
+}
+.job-save-container {
+  padding-top: 120px;
+  background: #f9fafb;
+  min-height: 80vh;
+}
+
+.job-save-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.job-save-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.job-save-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.job-save-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* .job-save-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.12);
+} */
+
+.job-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.job-department {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.job-details {
+  font-size: 13px;
+  color: #374151;
+}
+
+.btn-view {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.job-save-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.btn-view:hover {
+  background: #047857;
+}
