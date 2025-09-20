@@ -10,6 +10,8 @@ import Profile from "./pages/Profile/Profile";
 import JobDetails from "./pages/JobDetail/JobDetail";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/Protechted/ProtectedRoute";
+import Cvs from "./pages/Cvs/Cvs";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,6 +33,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/jobdetail" element={<JobDetails />} />
           <Route path="/jobdetail/:id" element={<JobDetails />} />
+          <Route path="/cvs" element={<Cvs />} />
 
 
           <Route element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}>

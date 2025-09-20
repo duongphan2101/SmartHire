@@ -35,6 +35,17 @@ exports.getCVsByUser = async (req, res) => {
   }
 };
 
+// Get all CVs of a user
+exports.getCVsByCVid = async (req, res) => {
+  try {
+    const { Id } = req.params;
+    const cvs = await CV.findById(Id);
+    res.json(cvs);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 // Update CV
 exports.updateCV = async (req, res) => {
   try {

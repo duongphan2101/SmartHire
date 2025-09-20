@@ -38,8 +38,9 @@
 .view-modal {
   background: #fff;
   border-radius: 15px;
-  width: 850px;
-  max-width: 95%;
+  width: 1200px;
+  height: 900px;
+  max-width: 1200px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -214,3 +215,110 @@
   background-color: var(--color-emerald-600);
   border-radius: 15px;
 }
+
+/* slide-in từ phải */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* slide-out sang trái */
+@keyframes slideOutLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.tab-content-enter {
+  animation: slideInRight 0.3s forwards;
+}
+
+.tab-content-exit {
+  animation: slideOutLeft 0.3s forwards;
+}
+
+.table-wrapper {
+  overflow-x: auto; /* responsive */
+  margin-top: 1rem;
+}
+
+.applications-table {
+  width: 100%;
+  border: none;
+  min-width: 600px;
+}
+
+.applications-table th,
+.applications-table td {
+  /* border: 1px solid #d1d5db;  */
+  padding: 8px 15px;
+  text-align: left;
+}
+
+.applications-table th {
+  background-color: #f9fafb; /* gray-50 */
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.applications-table tr:hover {
+  background-color: #f3f4f6; /* hover bg */
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-reviewed {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+}
+
+.status-accepted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.candidate-name {
+  max-width: 200px;       /* giới hạn chiều ngang */
+  white-space: nowrap;     /* 1 dòng */
+  overflow: hidden;        /* ẩn phần dư thừa */
+  text-overflow: ellipsis; /* ... */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.candidate-avt {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+

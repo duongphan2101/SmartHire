@@ -47,7 +47,6 @@ export default function useJob() {
     }
   }, [department]);
 
-
   // fetch all
   const refetch = async () => {
     if (!department) {
@@ -60,7 +59,7 @@ export default function useJob() {
       setLoading(true);
       const res = await axios.get<Job[]>(`${host}/getAll/${department._id}`);
       setJobs(res.data);
-      setError("")
+      setError("");
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "Failed to fetch jobs");
@@ -68,7 +67,6 @@ export default function useJob() {
       setLoading(false);
     }
   };
-
 
   // fetch all
   const latest = async () => {
@@ -78,7 +76,9 @@ export default function useJob() {
       setJobLatest(res.data);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch jobs latest");
+      setError(
+        axiosErr.response?.data?.message || "Failed to fetch jobs latest"
+      );
     } finally {
       setLoading(false);
     }
@@ -114,23 +114,27 @@ export default function useJob() {
       setLoading(false);
     }
   };
-const filterJobs = async (title?: string, location?: string, district?: string, jobType?: string,
-  jobLevel?: string) => {
-  try {
-    setLoading(true);
-     const res = await axios.get<Job[]>(`${host}/filter/search`, {
-      params: { title, location, district, jobType, jobLevel }, // ✅ thêm vào đây
-    });
-    return res.data;
-  } catch (err) {
-    const axiosErr = err as AxiosError<{ message?: string }>;
-    setError(axiosErr.response?.data?.message || "Failed to filter jobs");
-    return [];
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const filterJobs = async (
+    title?: string,
+    location?: string,
+    district?: string,
+    jobType?: string,
+    jobLevel?: string
+  ) => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Job[]>(`${host}/filter/search`, {
+        params: { title, location, district, jobType, jobLevel },
+      });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to filter jobs");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ✅ get job by id (cho trang JobDetail)
   const getJobById = async (id: string) => {
@@ -159,7 +163,7 @@ const filterJobs = async (title?: string, location?: string, district?: string, 
   //       } finally {
   //         setLoading(false);
   //       }
-  //     }, 300), 
+  //     }, 300),
   //     []
   //   );
 
@@ -168,5 +172,15 @@ const filterJobs = async (title?: string, location?: string, district?: string, 
     latest();
   }, []);
 
-  return { jobs, joblatest, loading, error, refetch, createJob, deleteJob, filterJobs, getJobById};
+  return {
+    jobs,
+    joblatest,
+    loading,
+    error,
+    refetch,
+    createJob,
+    deleteJob,
+    filterJobs,
+    getJobById,
+  };
 }

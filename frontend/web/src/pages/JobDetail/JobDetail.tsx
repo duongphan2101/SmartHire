@@ -7,6 +7,7 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
+import useUser, { type UserResponse } from "../../hook/useUser";
 
 interface District {
   code: number;
@@ -19,7 +20,13 @@ interface Province {
   districts: District[];
 }
 
-const JobDetails: React.FC = () => {
+interface DetailProps {
+  item: Job;
+  saveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
+  unsaveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
+}
+
+const JobDetails: React.FC<DetailProps> = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
   const [loadingJob, setLoadingJob] = useState(false);
   const [loadingRelated, setLoadingRelated] = useState(false);
@@ -39,6 +46,7 @@ const JobDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getJobById, filterJobs, joblatest } = useJob();
   const navigate = useNavigate();
+  const { saveJob, unsaveJob } = useUser();
 
   // Lấy job chi tiết
   const fetchJob = async (id: string) => {
@@ -260,7 +268,7 @@ const handleSearch = async () => {
                           >
                             <img
                               className="job-item-image"
-                              src={item.department.avatar}
+                              src={item.department.avatar || "/default-avatar.png"}
                             />
                           </div>
                           <div className="flex flex-col gap-2 text-left flex-2/4">
@@ -292,7 +300,7 @@ const handleSearch = async () => {
                   {loadingJob ? (
                     <p className="text-gray-500">Đang tải...</p>
                   ) : job ? (
-                      <Detail item={job} />
+                    <Detail item={job} saveJob={saveJob} unsaveJob={unsaveJob} />
                   ) : (
                     <p className="text-gray-500">
                       Hãy chọn 1 công việc để xem chi tiết
