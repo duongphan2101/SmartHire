@@ -13,10 +13,29 @@ const ApplicationSchema = new mongoose.Schema(
       ref: "User",
     },
     resumeId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "CV"
     },
+
+    // Snapshot thông tin lúc apply
+    jobSnapshot: {
+      title: String,
+      salary: String,
+      jobType: String,
+      jobLevel: String,
+      address: String,
+      location: String,
+    },
+    userSnapshot: {
+      fullname: String,
+      email: String,
+      avatar: String,
+    },
+    cvSnapshot: {
+      fileUrls: String
+    },
+
     coverLetter: {
       type: String,
     },

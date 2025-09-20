@@ -1,11 +1,51 @@
 const Application = require("../models/Application");
+const { HOSTS } = require("../../host");
+const axios = require("axios");
 
-// Apply job
+// Apply job với snapshot
 exports.applyJob = async (req, res) => {
-  try {
-    const { jobId, userId, resumeId, coverLetter } = req.body;
+  const { jobId, userId, resumeId, coverLetter } = req.body;
+  const Id = resumeId;
 
-    const application = new Application({ jobId, userId, resumeId, coverLetter });
+  try {
+    const [jobRes, userRes, cvRes] = await Promise.all([
+      axios.get(`${HOSTS.jobService}/${jobId}`),
+      axios.get(`${HOSTS.userService}/${userId}`),
+      axios.get(`${HOSTS.cvService}/cv/${Id}`)
+    ]);
+
+    const job = jobRes.data;
+    const user = userRes.data;
+    const cv = cvRes.data;
+
+    if (!job || !user || !cv) {
+      return res.status(404).json({ success: false, message: "Job, User hoặc CV không tồn tại" });
+    }
+
+    // Tạo application kèm snapshot
+    const application = new Application({
+      jobId,
+      userId,
+      resumeId,
+      coverLetter,
+      jobSnapshot: {
+        title: job.jobTitle,
+        salary: job.salary,
+        jobType: job.jobType,
+        jobLevel: job.jobLevel,
+        address: job.address,
+        location: job.location,
+      },
+      userSnapshot: {
+        fullname: user.fullname,
+        email: user.email,
+        avatar: user.avatar,
+      },
+      cvSnapshot: {
+        fileUrls: cv.fileUrls[0]
+      },
+    });
+
     await application.save();
 
     res.status(201).json({ success: true, data: application });
@@ -16,6 +56,7 @@ exports.applyJob = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Get all applications of a job
 exports.getApplicationsByJob = async (req, res) => {

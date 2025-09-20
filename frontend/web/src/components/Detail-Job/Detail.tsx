@@ -11,14 +11,14 @@ import { MdApartment } from "react-icons/md";
 import { AiFillClockCircle } from "react-icons/ai";
 import { BiSolidTimer } from "react-icons/bi";
 
-import useUser from "../../hook/useUser";
+import useUser, { type UserResponse } from "../../hook/useUser";
 
 import Swal from "sweetalert2";
 
 interface Department {
     _id: string;
     name: string;
-    avatar: string;
+    avatar?: string;
 }
 
 interface Job {
@@ -26,6 +26,7 @@ interface Job {
     jobTitle: string;
     department: Department;
     jobDescription: string[] | string;
+    jobLevel: string;
     jobType: string;
     requirement: string[] | string;
     skills: string[] | string;
@@ -41,8 +42,8 @@ interface Job {
 
 interface DetailProps {
     item: Job;
-    saveJob: (userId: string, jobId: string) => Promise<void>;
-    unsaveJob: (userId: string, jobId: string) => Promise<void>;
+    saveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
+    unsaveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
 }
 
 const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
@@ -216,6 +217,9 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                                 ) : (
                                     <p className="py-2">{item.jobDescription}</p>
                                 )}
+
+                                <h3 className="content-title">Cấp bậc</h3>
+                                <p className="py-2 pl-4">{item.jobLevel}</p>
 
                                 <h3 className="content-title">Hình thức làm việc</h3>
                                 <p className="py-2 pl-4">{item.jobType}</p>

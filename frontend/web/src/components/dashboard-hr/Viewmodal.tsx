@@ -5,6 +5,7 @@ import axios from "axios";
 import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { CoverLetterCell } from "./CoverLetterCell";
 
 interface ViewModalProps {
   job: Job;
@@ -158,10 +159,10 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
           </div>
 
           {/* Tab content */}
-          <div className="view-modal-body">
+          <div className="view-modal-body h-full">
 
             {activeTab === "info" && (
-              <div>
+              <div className="tab-content tab-content-enter">
                 {/* Company Info */}
                 <div className="company-info">
                   <div className="flex gap-5 items-center">
@@ -365,28 +366,65 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
             )}
 
             {activeTab === "applicants" && (
-              <div>
-
+              <div className="tab-content tab-content-enter overflow-x-auto">
                 {loadingApplicants ? (
                   <p>Đang tải ứng viên...</p>
                 ) : applicants.length === 0 ? (
                   <p>Chưa có ai ứng tuyển</p>
                 ) : (
-                  <ul>
-                    {applicants.map(app => (
-                      <li key={app._id}>
-                        {app.userId} - {app.coverLetter}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                  <div className="inline-block min-w-full align-middle">
 
+                    <div className="table-wrapper">
+                      <p className="text-left font-bold" style={{paddingBottom: 10}}>Tổng số ứng viên: {applicants.length}</p>
+                      <table className="applications-table">
+                        <thead>
+                          <tr>
+                            <th>Ứng viên</th>
+                            <th>Thư giới thiệu</th>
+                            <th>Trạng thái</th>
+                            <th>Độ phù hợp</th>
+                            <th>CV</th>
+                            <th>Liên hệ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {applicants.map((app) => (
+                            <tr key={app._id}>
+                              <td className="flex gap-1.5 items-center w-fit">
+                                <img src={app.userSnapshot.avatar} className="candidate-avt" alt="" /> {app.userSnapshot.fullname}
+                              </td>
+
+                              {/* <td className="flex-1">{app.coverLetter || "-"}</td> */}
+                              <CoverLetterCell coverLetter={app.coverLetter} />
+                              <td>
+                                <span className={`status-badge status-${app.status}`}>
+                                  {app.status}
+                                </span>
+                              </td>
+                              <td className="font-bold text-emerald-500">78%</td>
+                              <td>
+                                {app.cvSnapshot?.fileUrls ? (
+                                  <a href={app.cvSnapshot.fileUrls} target="_blank" rel="noreferrer" className="text-blue-600 font-bold">
+                                    Xem
+                                  </a>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td>Liên hệ</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+                )}
               </div>
             )}
 
-
             {activeTab === "candidates" && (
-              <div>
+              <div className="tab-content tab-content-enter">
 
                 Ứng viên phù hợp
 

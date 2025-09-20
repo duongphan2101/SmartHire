@@ -9,6 +9,7 @@ import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
+import useUser, { type UserResponse } from "../../hook/useUser";
 
 // Thêm debounce utility
 const debounce = (func: Function, delay: number) => {
@@ -19,7 +20,13 @@ const debounce = (func: Function, delay: number) => {
   };
 };
 
-const JobDetails: React.FC = () => {
+interface DetailProps {
+  item: Job;
+  saveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
+  unsaveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
+}
+
+const JobDetails: React.FC<DetailProps> = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
   const [loadingJob, setLoadingJob] = useState(false); // Loading cho job chi tiết
   const [loadingRelated, setLoadingRelated] = useState(false); // Loading cho related jobs
@@ -32,8 +39,9 @@ const JobDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getJobById } = useJob();
   const { filterJobs } = useJob();
-  const { joblatest } = useJob(); // Lấy joblatest nhưng không phụ thuộc trực tiếp
+  const { joblatest } = useJob();
   const navigate = useNavigate();
+  const { saveJob, unsaveJob } = useUser();
 
   const fetchJob = async (id: string) => {
     setLoadingJob(true);
@@ -69,11 +77,10 @@ const JobDetails: React.FC = () => {
   };
 
   // Áp dụng debounce cho fetchRelatedJobs
-  const debouncedFetchRelatedJobs = debounce(fetchRelatedJobs, 500); // Tăng delay lên 500ms
+  const debouncedFetchRelatedJobs = debounce(fetchRelatedJobs, 500);
 
   useEffect(() => {
     debouncedFetchRelatedJobs();
-    // Loại bỏ filterJobs và joblatest khỏi dependencies để tránh re-render không cần thiết
   }, [jobTitle, location]);
 
   const handleSearch = async () => {
@@ -92,26 +99,6 @@ const JobDetails: React.FC = () => {
       setRelatedJobs([]);
     } finally {
       setLoadingRelated(false);
-    }
-  };
-
-  const getTimeAgo = (postedAt: string, updatedAt?: string): string => {
-    const date = new Date(updatedAt || postedAt);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMinutes < 1) {
-      return "Vừa xong";
-    } else if (diffMinutes < 60) {
-      return `${diffMinutes} phút trước`;
-    } else if (diffHours < 24) {
-      return `${diffHours} giờ trước`;
-    } else {
-      return `${diffDays} ngày trước`;
     }
   };
 
@@ -199,7 +186,7 @@ const JobDetails: React.FC = () => {
                           >
                             <img
                               className="job-item-image"
-                              src={item.department.avatar}
+                              src={item.department.avatar || "/default-avatar.png"}
                             />
                           </div>
                           <div className="flex flex-col gap-2 text-left flex-2/4">
@@ -230,7 +217,7 @@ const JobDetails: React.FC = () => {
                   {loadingJob ? (
                     <p className="text-gray-500">Đang tải...</p>
                   ) : job ? (
-                    <Detail item={job} />
+                    <Detail item={job} saveJob={saveJob} unsaveJob={unsaveJob} />
                   ) : (
                     <p className="text-gray-500">Hãy chọn 1 công việc để xem chi tiết</p>
                   )}

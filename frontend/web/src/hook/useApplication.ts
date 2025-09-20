@@ -32,7 +32,6 @@ export default function useApplication() {
           `${HOSTS.applicationService}`,
           data
         );
-
         return res.data;
       } catch (err) {
         const axiosErr = err as AxiosError<{ message?: string }>;

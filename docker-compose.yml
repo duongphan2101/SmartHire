@@ -1,0 +1,74 @@
+services:
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "1111:1111"
+    env_file:
+      - ./backend/services/auth-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/auth-service:/app
+    restart: unless-stopped
+
+  post-service:
+    build:
+      context: ./backend/services/post-service
+      dockerfile: Dockerfile
+    container_name: post-service
+    ports:
+      - "4444:4444"
+    env_file:
+      - ./backend/services/post-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/post-service:/app
+    restart: unless-stopped
+
+  chatbot-service:
+    build:
+      context: ./backend/services/chatbot-service
+      dockerfile: Dockerfile
+    container_name: chatbot-service
+    ports:
+      - "3333:3333"
+    env_file:
+      - ./backend/services/chatbot-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/chatbot-service:/app
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./backend/services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "2222:2222"
+    env_file:
+      - ./backend/services/user-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/user-service:/app
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+    container_name: smarthire-web
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/web:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
