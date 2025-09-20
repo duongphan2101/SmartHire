@@ -292,7 +292,7 @@ const handleSearch = async () => {
                   {loadingJob ? (
                     <p className="text-gray-500">Đang tải...</p>
                   ) : job ? (
-                    <Detail item={job} />
+                      <Detail item={job} />
                   ) : (
                     <p className="text-gray-500">
                       Hãy chọn 1 công việc để xem chi tiết

@@ -322,4 +322,3 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
 };
 
 export default Detail;
-
