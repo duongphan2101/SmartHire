@@ -31,7 +31,6 @@ import { FaRegEye } from "react-icons/fa6";
 import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import { useNavigate } from "react-router-dom";
-import { Axios } from "axios";
 const MySwal = withReactContent(Swal);
 
 const Home: React.FC = () => {
@@ -53,17 +52,16 @@ const Home: React.FC = () => {
   ];
   const [slogan, setSlogan] = useState(slogans[0]);
 
-const handleSearch = async () => {
-  const results = await filterJobs(jobTitle, location);
-  if (results.length > 0) {
-    navigate(
-      `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
-    );
-  } else {
-    alert("Không tìm thấy công việc phù hợp");
-  }
-};
-
+  const handleSearch = async () => {
+    const results = await filterJobs(jobTitle, location);
+    if (results.length > 0) {
+      navigate(
+        `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+      );
+    } else {
+      alert("Không tìm thấy công việc phù hợp");
+    }
+  };
 
   useEffect(() => {
     document.title = "S m a r t H i r e - Trang chủ";
@@ -244,10 +242,10 @@ const handleSearch = async () => {
   };
 
   const hanldeView = (id: string) => {
-  navigate(
-    `/jobdetail/${id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
-  );
-};
+    navigate(
+      `/jobdetail/${id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+    );
+  };
 
 
   return (
@@ -511,24 +509,21 @@ const handleSearch = async () => {
 
                         <div
                           className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 
-                                                    ${
-                                                      item.animateSave
-                                                        ? "scale-125"
-                                                        : "scale-100"
-                                                    } 
-                                                    ${
-                                                      item.isSaved
-                                                        ? "bg-emerald-600 text-white"
-                                                        : "text-gray-500 bg-gray-200"
-                                                    }`}
+                                                    ${item.animateSave
+                              ? "scale-125"
+                              : "scale-100"
+                            } 
+                                                    ${item.isSaved
+                              ? "bg-emerald-600 text-white"
+                              : "text-gray-500 bg-gray-200"
+                            }`}
                           style={{ padding: 5, borderRadius: 5 }}
                           onClick={() => toggleSave(item._id)}
                         >
                           <span
                             style={{ fontSize: 12 }}
-                            className={`${
-                              item.isSaved ? "text-white" : "text-gray-500"
-                            }`}
+                            className={`${item.isSaved ? "text-white" : "text-gray-500"
+                              }`}
                           >
                             {item.isSaved ? "Đã lưu" : "Lưu bài đăng"}
                           </span>

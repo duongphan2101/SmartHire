@@ -11,6 +11,30 @@
   z-index: 1000;
 }
 
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
 .view-modal {
   background: #fff;
   border-radius: 15px;
@@ -25,6 +49,11 @@
   font-family: "Segoe UI", Roboto, sans-serif;
   overflow: hidden;
   padding: 15px;
+  animation: slideInRight 0.5s ease forwards;
+}
+
+.view-modal.close {
+  animation: slideOutRight 0.5s ease forwards;
 }
 
 .view-modal-head {
@@ -43,11 +72,9 @@
   overflow-y: auto;
 }
 
-.view-modal h2 {
-  margin-bottom: 25px;
+.view-modal-title {
   font-size: 28px;
   font-weight: 700;
-  text-align: center;
 }
 
 .view-modal .close-btn {
@@ -155,7 +182,7 @@
 }
 
 .job-description {
-  background: rgb(248, 248, 248);
+  background: var(--color-gray-50);
   border-left: 4px solid var(--color-emerald-600);
   padding: 12px 16px;
   border-radius: 6px;

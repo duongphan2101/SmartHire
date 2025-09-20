@@ -122,6 +122,29 @@ export default function useUser() {
     []
   );
 
+  const applyJob = useCallback(
+    async (user_id: string, jobId: string): Promise<UserResponse | void> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  return { getUser, user, updateUser, updateUserAvatar, saveJob, unsaveJob, loadingUser, errorUser };
+        const res = await axios.post<UserResponse>(
+          `${HOSTS.userService}/apply`,
+          { userId: user_id, jobId }
+        );
+
+        setUser(res.data);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "applyJob failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+
+  return { getUser, user, updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser };
 }
