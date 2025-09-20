@@ -290,6 +290,7 @@ const BuildCV: React.FC = () => {
     if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
 
     try {
+      window.scrollTo(0,0);
       // Hiển thị loading
       Swal.fire({
         title: "Đang tạo CV...",

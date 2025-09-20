@@ -1,0 +1,12 @@
+.cover-letter {
+  white-space: nowrap;      /* hiển thị 1 dòng */
+  overflow: hidden;         /* ẩn phần dư thừa */
+  text-overflow: ellipsis;  /* ... */
+  transition: max-height 0.3s ease, white-space 0.3s ease; 
+  max-height: 1.2em;        /* chiều cao 1 dòng */
+}
+
+.cover-letter.expanded {
+  white-space: normal;      /* hiển thị nhiều dòng */
+  max-height: 500px;        /* tuỳ chỉnh đủ cao */
+}
