@@ -25,6 +25,32 @@ const Cvs: React.FC = () => {
     }
   }, [user]);
 
+  const handleDeleteCV = async (cvId: string) => {
+    try {
+      const res = await fetch(`http://localhost:2222/api/cvs/${cvId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Xóa CV thất bại");
+
+      setCvs((prev) => prev.filter((item) => item._id !== cvId));
+
+      Swal.fire({
+        title: "Đã xóa!",
+        text: "CV đã được xóa thành công.",
+        icon: "success",
+        confirmButtonColor: "#059669",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Không thể xóa CV. Vui lòng thử lại.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
+
   if (loadingUser) return <p className="loading">Đang tải CV...</p>;
 
   return (
@@ -39,7 +65,10 @@ const Cvs: React.FC = () => {
             <p className="empty-text">
               Bạn chưa có CV nào. Hãy tạo CV đầu tiên của bạn!
             </p>
-            <button className="create-cv-button">Tạo CV mới</button>
+         <a href="/buildCV" className="create-cv-button">
+  Tạo CV mới
+</a>
+
           </div>
         ) : (
           <div className="cv-list-grid">
@@ -57,15 +86,12 @@ const Cvs: React.FC = () => {
                     />
 
                     <div className="cv-actions">
-                      {/* Nút xem chi tiết */}
                       <button
                         className="view-detail-btn"
                         onClick={() => window.open(cv.fileUrls, "_blank")}
                       >
                         Xem chi tiết
                       </button>
-
-                      {/* Nút xóa CV với Swal */}
                       <button
                         className="delete-cv-btn"
                         onClick={() => {
@@ -80,17 +106,7 @@ const Cvs: React.FC = () => {
                             cancelButtonText: "Hủy",
                           }).then((result) => {
                             if (result.isConfirmed) {
-                              setCvs((prev) =>
-                                prev.filter((item) => item._id !== cv._id)
-                              );
-                              // TODO: gọi API xóa ở backend tại đây
-
-                              Swal.fire({
-                                title: "Đã xóa!",
-                                text: "CV đã được xóa thành công.",
-                                icon: "success",
-                                confirmButtonColor: "#059669",
-                              });
+                              handleDeleteCV(cv._id);
                             }
                           });
                         }}

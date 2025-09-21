@@ -139,16 +139,17 @@ export default function useJob() {
   // ✅ get job by id (cho trang JobDetail)
   const getJobById = async (id: string) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const res = await axios.get<Job>(`${host}/${id}`);
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
       return null;
-    } finally {
-      setLoading(false);
-    }
+     } 
+    // finally {
+    //   setLoading(false);
+    // }
   };
   //   // search
   // const searchJobs = useCallback(

@@ -1,14 +1,15 @@
 .App {
   text-align: center;
   width: 100vw;
-  height: 100vh; 
+  min-height: 100vh; 
   display: flex;
   flex-direction: column;
 }
 .job-save-container {
+   flex: 1;
   padding-top: 120px;
+  padding-bottom: 120px;
   background: #f9fafb;
-  min-height: 80vh;
 }
 
 .job-save-title {
@@ -37,6 +38,8 @@
   padding: 16px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  width: 90%;
+  margin: 0 auto;
 }
 
 /* .job-save-card:hover {
@@ -59,16 +62,24 @@
   font-size: 13px;
   color: #374151;
 }
+.job-save-card-top .flex.gap-2 {
+  margin-top: 40px; 
+}
 
 .btn-view {
-  background: #059669;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #059669; 
   color: white;
-  border: none;
-  padding: 6px 12px;
+  padding: 14px 14px;
   border-radius: 8px;
   font-size: 14px;
+  font-weight: 500;
+  border: none;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 .job-save-avatar {
   width: 50px;
@@ -78,5 +89,39 @@
 }
 
 .btn-view:hover {
-  background: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.btn-view:active {
+  transform: scale(0.96);
+}
+
+
+.btn-unsave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+ background-color: #dc2626; 
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-unsave:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-unsave:active {
+  transform: scale(0.96);
+}
+
+.btn-unsave svg {
+  font-size: 15px;
 }

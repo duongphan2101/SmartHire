@@ -31,17 +31,20 @@ exports.getCVsByUser = async (req, res) => {
     const cvs = await CV.find({ user_id: userId });
     res.json(cvs);
   } catch (err) {
+    console.error("getCVsByUser error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
 // Get all CVs of a user
-exports.getCVsByCVid = async (req, res) => {
+exports.getCVById = async (req, res) => {
   try {
-    const { Id } = req.params;
-    const cvs = await CV.findById(Id);
-    res.json(cvs);
+    const { cvId } = req.params;
+    const cv = await CV.findById(cvId);
+    if (!cv) return res.status(404).json({ error: "CV not found" });
+    res.json(cv);
   } catch (err) {
+    console.error("getCVById error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -63,14 +66,15 @@ exports.updateCV = async (req, res) => {
 exports.deleteCV = async (req, res) => {
   try {
     const { cvId } = req.params;
+
     const cv = await CV.findByIdAndDelete(cvId);
     if (!cv) return res.status(404).json({ error: "CV not found" });
 
-    // Remove CV _id khỏi user.cvs
-    await User.findByIdAndUpdate(cv.user, { $pull: { cv: cv._id } });
+    await User.findByIdAndUpdate(cv.user_id, { $pull: { cv: cv._id } });
 
     res.json({ message: "CV deleted" });
   } catch (err) {
+    console.error("deleteCV error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

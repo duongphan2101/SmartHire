@@ -8,16 +8,18 @@ import { IoLocationOutline } from "react-icons/io5";
 import { FaRegMoneyBillAlt, FaRegBookmark } from "react-icons/fa";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
-import { FaRegEye } from "react-icons/fa6";
+import { FaRegEye, FaTrash } from "react-icons/fa6";
+import Swal from "sweetalert2";
 import "./JobSave.css";
 
 const JobSave: React.FC = () => {
-  const { user, getUser } = useUser();
+  const { user, getUser, saveJob, unsaveJob } = useUser();
   const { getJobById } = useJob();
   const [savedJobs, setSavedJobs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Lấy user từ localStorage nếu chưa có
   useEffect(() => {
     if (!user) {
       const storedUser = localStorage.getItem("user");
@@ -29,6 +31,7 @@ const JobSave: React.FC = () => {
     }
   }, [user, getUser]);
 
+  // Fetch danh sách job đã lưu ban đầu
   useEffect(() => {
     const fetchSavedJobs = async () => {
       if (user && user.liked?.length > 0) {
@@ -36,14 +39,47 @@ const JobSave: React.FC = () => {
           user.liked.map((jobId: string) => getJobById(jobId))
         );
         setSavedJobs(jobsData.filter(Boolean));
+      } else {
+        setSavedJobs([]);
       }
-      setLoading(false); 
+      setLoading(false);
     };
-    fetchSavedJobs();
-  }, [user, getJobById]);
+    if (user?._id) {
+      fetchSavedJobs();
+    }
+  }, [user?._id, getJobById]);
 
+  // Xem chi tiết
   const handleView = (jobId: string) => {
     navigate(`/jobdetail/${jobId}`);
+  };
+
+  // Bỏ lưu job
+  const handleUnsave = async (jobId: string) => {
+    if (!user?._id) return;
+
+    try {
+      const updatedUser = await unsaveJob(user._id, jobId);
+      if (!updatedUser) return;
+
+      // Xóa job ngay khỏi danh sách FE
+      setSavedJobs((prev) => prev.filter((job) => job._id !== jobId));
+
+      Swal.fire({
+        icon: "success",
+        title: "Đã bỏ lưu",
+        text: "Công việc đã được bỏ lưu thành công!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("❌ Unsave job error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể bỏ lưu công việc, vui lòng thử lại.",
+      });
+    }
   };
 
   return (
@@ -74,12 +110,20 @@ const JobSave: React.FC = () => {
                     </div>
                   </div>
 
-                  <button
-                    className="btn-view"
-                    onClick={() => handleView(item._id)}
-                  >
-                    <FaRegEye /> Xem
-                  </button>
+                  <div className="flex gap-2 ">
+                    <button
+                      className="btn-view"
+                      onClick={() => handleView(item._id)}
+                    >
+                      <FaRegEye /> Xem
+                    </button>
+                    <button
+                      className="btn-unsave"
+                      onClick={() => handleUnsave(item._id)}
+                    >
+                      <FaTrash /> Bỏ lưu
+                    </button>
+                  </div>
                 </div>
 
                 <ul className="job-details flex gap-6 flex-1 mt-3">
@@ -110,6 +154,5 @@ const JobSave: React.FC = () => {
     </div>
   );
 };
-
 
 export default JobSave;
