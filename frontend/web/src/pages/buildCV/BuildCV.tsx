@@ -52,7 +52,7 @@ interface CVData {
 }
 
 const BuildCV: React.FC = () => {
-  
+
   const [cvData, setCvData] = useState<CVData>({
     name: "",
     introduction: "",
@@ -290,7 +290,7 @@ const BuildCV: React.FC = () => {
     if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
 
     try {
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
       // Hiển thị loading
       Swal.fire({
         title: "Đang tạo CV...",
@@ -333,7 +333,7 @@ const BuildCV: React.FC = () => {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{ backgroundColor: '#e5e7eb'}}>
       <Header />
       <div className="cv-builder">
         {/* --- Template rendering with selector --- */}
@@ -740,7 +740,7 @@ const BuildCV: React.FC = () => {
       </div>
       <ChatWithAI />
       <Footer />
-    </div>
+    </div >
   );
 };
 

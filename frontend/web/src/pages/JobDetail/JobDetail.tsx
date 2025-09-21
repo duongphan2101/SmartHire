@@ -130,11 +130,11 @@ const JobDetails: React.FC<DetailProps> = () => {
         setRelatedJobs([]);
         let message = "Không tìm thấy công việc phù hợp";
 
-        if (location) message = "Địa điểm này không có job bạn cần";
-        else if (district) message = "Quận/Huyện này không có job bạn cần";
-        else if (jobTitle) message = "Không có job phù hợp với vị trí này";
-        else if (jobType) message = "Không có job với hình thức này";
-        else if (jobLevel) message = "Không có job với level này";
+        if (location) message = "Địa điểm này không có công việc bạn cần";
+        else if (district) message = "Quận/Huyện này không có công việc bạn cần";
+        else if (jobTitle) message = "Không có công việc phù hợp với vị trí này";
+        else if (jobType) message = "Không có công việc với hình thức này";
+        else if (jobLevel) message = "Không có công việc với level này";
 
         Swal.fire({
           icon: "info",
@@ -176,6 +176,7 @@ const JobDetails: React.FC<DetailProps> = () => {
 
         <div className="content bg-gray-50">
           <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
+            {/* HÀNG 1: nameJob + location */}
             <div className="content-main-header bg-white w-full flex gap-5 flex-col xl:flex-row">
               {/* Combobox Vị trí tuyển dụng */}
               <select
@@ -230,10 +231,11 @@ const JobDetails: React.FC<DetailProps> = () => {
                 Tìm kiếm
               </button>
             </div>
+
             {/* HÀNG 2: jobType + jobLevel */}
-            <div className="bg-white w-full flex gap-5 flex-col xl:flex-row p-2">
+            <div className="bg-white w-full flex gap-5 flex-col xl:flex-row content-main-header">
               <select
-                className="w-full xl:w-2/6 h-12 px-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={jobType}
                 onChange={(e) => setJobType(e.target.value)}
               >
@@ -245,7 +247,7 @@ const JobDetails: React.FC<DetailProps> = () => {
               </select>
 
               <select
-                className="w-full xl:w-2/6 h-12 px-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={jobLevel}
                 onChange={(e) => setJobLevel(e.target.value)}
               >
@@ -258,6 +260,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 <option value="Lead">Lead</option>
               </select>
             </div>
+
             <div className="content-main-center grid grid-cols-1 md:grid-cols-9 lg:grid-cols-9 gap-2 w-full">
               <div className="lg:col-span-3 md:col-span-3">
                 <div className="head-card head-left gap-5">
