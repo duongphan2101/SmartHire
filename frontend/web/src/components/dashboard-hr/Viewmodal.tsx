@@ -6,6 +6,7 @@ import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CoverLetterCell } from "./CoverLetterCell";
+import gray  from "../../assets/images/gray.avif";
 
 interface ViewModalProps {
   job: Job;
@@ -375,7 +376,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                   <div className="inline-block min-w-full align-middle">
 
                     <div className="table-wrapper">
-                      <p className="text-left font-bold" style={{paddingBottom: 10}}>Tổng số ứng viên: {applicants.length}</p>
+                      <p className="text-left font-bold" style={{ paddingBottom: 10 }}>Tổng số ứng viên: {applicants.length}</p>
                       <table className="applications-table">
                         <thead>
                           <tr>
@@ -391,7 +392,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           {applicants.map((app) => (
                             <tr key={app._id}>
                               <td className="flex gap-1.5 items-center w-fit">
-                                <img src={app.userSnapshot.avatar} className="candidate-avt" alt="" /> {app.userSnapshot.fullname}
+                                <img src={app.userSnapshot.avatar || gray} className="candidate-avt" alt="" /> {app.userSnapshot.fullname}
                               </td>
 
                               {/* <td className="flex-1">{app.coverLetter || "-"}</td> */}
