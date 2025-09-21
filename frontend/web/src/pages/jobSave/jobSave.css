@@ -1,0 +1,127 @@
+.App {
+  text-align: center;
+  width: 100vw;
+  min-height: 100vh; 
+  display: flex;
+  flex-direction: column;
+}
+.job-save-container {
+   flex: 1;
+  padding-top: 120px;
+  padding-bottom: 120px;
+  background: #f9fafb;
+}
+
+.job-save-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.job-save-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.job-save-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.job-save-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  width: 90%;
+  margin: 0 auto;
+}
+
+/* .job-save-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.12);
+} */
+
+.job-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.job-department {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.job-details {
+  font-size: 13px;
+  color: #374151;
+}
+.job-save-card-top .flex.gap-2 {
+  margin-top: 40px; 
+}
+
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #059669; 
+  color: white;
+  padding: 14px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.job-save-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.btn-view:active {
+  transform: scale(0.96);
+}
+
+
+.btn-unsave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+ background-color: #dc2626; 
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-unsave:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-unsave:active {
+  transform: scale(0.96);
+}
+
+.btn-unsave svg {
+  font-size: 15px;
+}

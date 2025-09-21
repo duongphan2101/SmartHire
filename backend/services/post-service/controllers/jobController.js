@@ -17,7 +17,9 @@ const getJobs = async (req, res) => {
     const { idDepartment } = req.params;
     const jobs = await Job.find({ "department._id": idDepartment });
     if (jobs.length === 0) {
-      return res.status(200).json({ message: "Không có job nào cho công ty này", jobs: [] });
+      return res
+        .status(200)
+        .json({ message: "Không có job nào cho công ty này", jobs: [] });
     }
 
     res.json(jobs);
@@ -26,12 +28,9 @@ const getJobs = async (req, res) => {
   }
 };
 
-
 const getLatestJobs = async (req, res) => {
   try {
-    const jobs = await Job.find()
-      .sort({ createdAt: -1 }) 
-      .limit(6);
+    const jobs = await Job.find().sort({ createdAt: -1 }).limit(6);
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -53,7 +52,7 @@ const getJobById = async (req, res) => {
 
 const filterJobs = async (req, res) => {
   try {
-    const { title, location } = req.query;
+    const { title, location, district, jobType, jobLevel } = req.query;
 
     const filter = {};
     if (title) {
@@ -62,6 +61,15 @@ const filterJobs = async (req, res) => {
     if (location) {
       filter.location = { $regex: location, $options: "i" };
     }
+    if (district) {
+      filter["districts.name"] = { $regex: district, $options: "i" };
+    }
+    if (jobType) {
+      filter.jobType = { $regex: jobType, $options: "i" }; // hoặc === nếu muốn khớp tuyệt đối
+    }
+    if (jobLevel) {
+      filter.jobLevel = { $regex: jobLevel, $options: "i" };
+    }
 
     const jobs = await Job.find(filter);
     res.json(jobs);
@@ -69,6 +77,7 @@ const filterJobs = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 const searchJobs = async (req, res) => {
   try {
@@ -101,6 +110,7 @@ const deleteJob = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 const updateJob = async (req, res) => {
   try {
     const { id } = req.params;
@@ -122,5 +132,5 @@ module.exports = {
   getLatestJobs,
   updateJob,
   getJobById,
-  filterJobs
+  filterJobs,
 };
