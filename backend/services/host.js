@@ -6,6 +6,7 @@ const HOSTS = {
   jobService: "http://localhost:4444/api/jobs",
   application: "http://localhost:5555/api/applications",
   cvaiService: "http://localhost:8080/api/cvai",
+  forgotPasswordService: "http://localhost:5000/api/forgot-password",
 };
 
 module.exports = { HOSTS };

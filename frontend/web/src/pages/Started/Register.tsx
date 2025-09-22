@@ -11,7 +11,6 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 function Login() {
-
   const location = useLocation();
   const { register, logout } = useAuth();
 
@@ -63,7 +62,6 @@ function Login() {
       return;
     }
 
-
     try {
       await register(fullName, email, password);
 
@@ -91,7 +89,6 @@ function Login() {
       console.log(err?.message);
       return;
     }
-    
   };
 
   return (
@@ -100,13 +97,17 @@ function Login() {
         <div className="tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""}`}
+            className={`tab1 ${
+              location.pathname === "/login" ? "active-tab" : ""
+            }`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""}`}
+            className={`tab2 ${
+              location.pathname === "/register" ? "active-tab" : ""
+            }`}
           >
             Đăng ký
           </Link>
@@ -154,7 +155,6 @@ function Login() {
           </div>
 
           <div className="password-row">
-
             <div className="input-group">
               <input
                 type={isShown ? "text" : "password"}
@@ -168,7 +168,7 @@ function Login() {
                 className="toggle-password"
                 onClick={() => setIsShown(!isShown)}
               >
-                {isShown ? <FaEyeSlash /> : <FaEye />}
+                {isShown ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
 
@@ -185,7 +185,7 @@ function Login() {
                 className="toggle-password"
                 onClick={() => setIsShownRe(!isShownRe)}
               >
-                {isShownRe ? <FaEyeSlash /> : <FaEye />}
+                {isShownRe ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
           </div>
