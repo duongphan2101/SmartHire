@@ -237,4 +237,26 @@ exports.loginWithFacebook = async (req, res) => {
     console.error("Login Facebook error:", err.response?.data || err.message);
     return res.status(500).json({ message: "Đăng nhập Facebook thất bại" });
   }
+  
+};
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log(`Nhận yêu cầu cập nhật mật khẩu cho email: ${email}`);
+        const account = await Account.findOne({ email });
+        if (!account) {
+            console.error(`Không tìm thấy tài khoản với email: ${email}`);
+            return res.status(404).json({ message: "Account không tồn tại" });
+        }
+        console.log("Đã tìm thấy tài khoản. Bắt đầu hash mật khẩu.");
+        const hashedPwd = await bcrypt.hash(password, 10);
+        account.password = hashedPwd;
+        await account.save();
+        console.log("Cập nhật mật khẩu thành công.");
+        return res.status(200).json({ message: "Cập nhật password thành công" });
+    } catch (err) {
+        console.error("Update password error:", err);
+        return res.status(500).json({ message: "Có lỗi xảy ra: " + err.message });
+    }
 };

@@ -14,7 +14,8 @@ function Login() {
   const [isShown, setIsShown] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error, loginWithFacebook, loginWithGoogle } = useAuth();
+  const { login, loading, error, loginWithFacebook, loginWithGoogle } =
+    useAuth();
 
   useEffect(() => {
     if (error) {
@@ -47,7 +48,6 @@ function Login() {
     } catch (err: any) {
       toast.error(err?.message || "Đăng nhập thất bại!");
     }
-
   };
 
   return (
@@ -56,13 +56,17 @@ function Login() {
         <div className="tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""}`}
+            className={`tab1 ${
+              location.pathname === "/login" ? "active-tab" : ""
+            }`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""}`}
+            className={`tab2 ${
+              location.pathname === "/register" ? "active-tab" : ""
+            }`}
           >
             Đăng ký
           </Link>
@@ -95,7 +99,7 @@ function Login() {
               className="toggle-password"
               onClick={() => setIsShown(!isShown)}
             >
-              {isShown ? <FaEyeSlash /> : <FaEye />}
+              {isShown ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
 
@@ -103,7 +107,11 @@ function Login() {
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
-
+            <div style={{ textAlign: "right", width: "100%", marginTop: "10px" }}>
+          <Link to="/forgot-password" className="forgot-password-link">
+            Quên mật khẩu ?
+          </Link>
+            </div>
         <div className="divider">
           <hr />
           <span>hoặc</span>
@@ -111,16 +119,12 @@ function Login() {
         </div>
 
         <div className="social-buttons">
-          <button className="social-btn facebook"
-            onClick={loginWithFacebook}
-          >
+          <button className="social-btn facebook" onClick={loginWithFacebook}>
             <FaFacebook size={20} color="#197ce6" />
             Đăng nhập với Facebook
           </button>
 
-          <button className="social-btn google"
-            onClick={loginWithGoogle}
-          >
+          <button className="social-btn google" onClick={loginWithGoogle}>
             <FcGoogle size={20} />
             Đăng nhập với Google
           </button>

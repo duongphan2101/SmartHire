@@ -13,6 +13,11 @@ import ProtectedRoute from "./components/Protechted/ProtectedRoute";
 import Cvs from "./pages/Cvs/Cvs";
 import JobSave from "./pages/jobSave/jobSave";
 
+// Import các trang mới cho chức năng quên mật khẩu
+import { ForgotPasswordPage } from "./pages/forgotPassword/ForgotPasswordPage";
+import { OtpPage } from "./pages/forgotPassword/OtpPage";
+import { ResetPasswordPage } from "./pages/forgotPassword/ResetPasswordPage";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -24,25 +29,30 @@ function App() {
   return (
     <Router>
       <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/intro" element={<Intro />} />
-          <Route path="/buildcv" element={<BuildCV />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/jobdetail" element={<JobDetails />} />
-          <Route path="/jobdetail/:id" element={<JobDetails />} />
-          <Route path="/cvs" element={<Cvs />} />
-          <Route path="/liked" element={<JobSave />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
+        {/* Thêm các Routes mới cho chức năng quên mật khẩu */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/otp-verification" element={<OtpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        
+        <Route path="/home" element={<Home />} />
+        <Route path="/intro" element={<Intro />} />
+        <Route path="/buildcv" element={<BuildCV />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/jobdetail" element={<JobDetails />} />
+        <Route path="/jobdetail/:id" element={<JobDetails />} />
+        <Route path="/cvs" element={<Cvs />} />
+        <Route path="/liked" element={<JobSave />} />
 
-          <Route element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Route>
+        <Route element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
 
-          <Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>
   );
