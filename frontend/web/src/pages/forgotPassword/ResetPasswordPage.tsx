@@ -59,7 +59,7 @@ export const ResetPasswordPage: React.FC = () => {
         <p className="subtitle">Nhập mật khẩu mới của bạn.</p>
         <form onSubmit={handleResetPassword}>
           <div className="input-group">
-            <label htmlFor="new-password">Mật khẩu mới</label>
+            {/* <label htmlFor="new-password">Mật khẩu mới</label> */}
             <input
               type="password"
               id="new-password"
@@ -70,7 +70,7 @@ export const ResetPasswordPage: React.FC = () => {
             />
           </div>
           <div className="input-group">
-            <label htmlFor="confirm-password">Xác nhận mật khẩu</label>
+            {/* <label htmlFor="confirm-password">Xác nhận mật khẩu</label> */}
             <input
               type="password"
               id="confirm-password"
