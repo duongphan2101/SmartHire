@@ -15,14 +15,11 @@ export const ForgotPasswordPage: React.FC = () => {
       toast.error('Vui lòng nhập email của bạn.');
       return;
     }
-
     try {
-      // Thay đổi URL API cho phù hợp với backend của bạn
       const response = await axios.post('http://localhost:5000/api/forgot-password/forgot', { email });
       
       if (response.data.success) {
         toast.success(response.data.message);
-        // Chuyển hướng đến trang OTP và truyền email đi kèm
         navigate('/otp-verification', { state: { email } });
       } else {
         toast.error(response.data.message || "Có lỗi xảy ra. Vui lòng thử lại.");
@@ -41,7 +38,7 @@ export const ForgotPasswordPage: React.FC = () => {
         <p className="subtitle">Nhập email của bạn để nhận mã xác thực (OTP).</p>
         <form onSubmit={handleForgotPassword}>
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            {/* <label htmlFor="email">Email</label> */}
             <input
               type="email"
               id="email"

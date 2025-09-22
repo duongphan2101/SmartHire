@@ -58,7 +58,7 @@ export const OtpPage: React.FC = () => {
       const response = await axios.post('http://localhost:5000/api/forgot-password/resend', { email });
       if (response.data.success) {
         toast.success(response.data.message);
-        setCountdown(600); // Reset bộ đếm
+        setCountdown(600); 
       } else {
         toast.error(response.data.message);
       }
@@ -90,7 +90,7 @@ export const OtpPage: React.FC = () => {
         </p>
         <form onSubmit={handleVerifyOtp}>
           <div className="input-group">
-            <label htmlFor="otp">Mã OTP</label>
+            {/* <label htmlFor="otp">Mã OTP</label> */}
             <input
               type="text"
               id="otp"
