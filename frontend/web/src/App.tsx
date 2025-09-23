@@ -17,6 +17,7 @@ import JobSave from "./pages/jobSave/jobSave";
 import { ForgotPasswordPage } from "./pages/forgotPassword/ForgotPasswordPage";
 import { OtpPage } from "./pages/forgotPassword/OtpPage";
 import { ResetPasswordPage } from "./pages/forgotPassword/ResetPasswordPage";
+import VerifyEmail from "./pages/forgotPassword/VerifyEmail";
 
 import {
   BrowserRouter as Router,
@@ -33,6 +34,7 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+         <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* Thêm các Routes mới cho chức năng quên mật khẩu */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
