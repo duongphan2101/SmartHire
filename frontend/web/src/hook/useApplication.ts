@@ -27,7 +27,6 @@ export default function useApplication() {
       try {
         setLoading(true);
         setError(null);
-
         const res = await axios.post<ApplicationResponse>(
           `${HOSTS.applicationService}`,
           data

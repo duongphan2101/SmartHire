@@ -5,5 +5,6 @@ export const HOSTS = {
   chatbotService: "http://localhost:3333/api/chatbot",
   companyService: "http://localhost:4444/api/departments",
   jobService: "http://localhost:4444/api/jobs",
-  applicationService: "http://localhost:5555/api/applications"
+  applicationService: "http://localhost:5555/api/applications",
+  cvAIService: "http://localhost:8080/api/cvai"
 };

@@ -50,13 +50,16 @@
 }
 
 .input-group-full-width {
+  position: relative;
   flex-basis: 100%;
+  box-sizing: border-box;
 }
 
 .input-container {
   position: relative;
   width: 100%;
   margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .input-container input,
@@ -80,6 +83,7 @@
   transition: all 0.3s ease;
   pointer-events: none;
   font-size: 14px;
+  z-index: 999;
 }
 
 .input-container input:focus~.label,
@@ -89,6 +93,7 @@
   top: -15px;
   font-size: 12px;
   color: #28a745;
+  z-index: 999;
 }
 
 .input-container .underline {
@@ -110,9 +115,9 @@
 }
 
 .dynamic-input-group {
-  display: flex;
+  /* display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 15px; */
   margin-bottom: 15px;
   position: relative;
   border: 1px dashed #ccc;
@@ -189,7 +194,8 @@
   padding: 10px 0;
   border-radius: 5px;
   margin-bottom: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  ;
 }
 
 .btn-template {
@@ -253,4 +259,67 @@
     box-shadow: none !important;
     margin: 0 !important;
   }
+}
+
+.box-ai-recomend {
+  position: absolute;
+  top: -350px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.multi-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+}
+
+.multi-input input {
+  border: none;
+  flex: 1;
+  min-width: 100px;
+  outline: none;
+}
+
+.tag {
+  background-color: #059669;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.tag span {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #059669;
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  height: 350px;
+  overflow-y: scroll;
+}
+
+.suggestion-list li {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.suggestion-list li:hover {
+  background-color: #059669;
+  color: white;
 }

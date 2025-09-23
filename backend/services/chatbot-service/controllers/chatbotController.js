@@ -9,8 +9,6 @@ const client = new OpenAI({
 async function chatWithBot(req, res) {
   try {
     const { message } = req.body;
-    // const models = await client.models.list();
-    // console.log(models);
 
     const response = await client.chat.completions.create({
       model: "openai/gpt-oss-120b:cerebras",

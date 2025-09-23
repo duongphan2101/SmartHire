@@ -39,8 +39,8 @@ exports.getCVsByUser = async (req, res) => {
 // Get all CVs of a user
 exports.getCVById = async (req, res) => {
   try {
-    const { cvId } = req.params;
-    const cv = await CV.findById(cvId);
+    const { Id } = req.params;
+    const cv = await CV.findById(Id);
     if (!cv) return res.status(404).json({ error: "CV not found" });
     res.json(cv);
   } catch (err) {

@@ -12,11 +12,20 @@ export interface CVResponse {
   updatedAt?: string;
 }
 
+export interface CVAIResponse {
+  optimizedSummary?: string;
+  optimizedSkills?: string[];
+  optimizedExperience?: string;
+  optimizedEducation?: string;
+  optimizedProjects?: string;
+}
+
 export default function useCV() {
   const [loadingCV, setLoading] = useState(false);
   const [errorCV, setError] = useState<string | null>(null);
   const [cvs, setCVs] = useState<CVResponse[]>([]);
 
+  // ================= CRUD =================
   const getCVs = useCallback(async (userId: string) => {
     try {
       setLoading(true);
@@ -84,5 +93,89 @@ export default function useCV() {
     }
   }, []);
 
-  return { cvs, loadingCV, errorCV, getCVs, createCV, updateCV, deleteCV };
+  // ================= AI Optimize =================
+  const optimizeSummary = useCallback(async (content: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/summary`, { content });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "optimizeSummary failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const optimizeSkills = useCallback(async (content: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/skills`, { content });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "optimizeSkills failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const optimizeExperience = useCallback(async (content: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/experience`, { content });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "optimizeExperience failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const optimizeEducation = useCallback(async (content: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/education`, { content });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "optimizeEducation failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const optimizeProjects = useCallback(async (content: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/projects`, { content });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "optimizeProjects failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    cvs,
+    loadingCV,
+    errorCV,
+    getCVs,
+    createCV,
+    updateCV,
+    deleteCV,
+    optimizeSummary,
+    optimizeSkills,
+    optimizeExperience,
+    optimizeEducation,
+    optimizeProjects,
+  };
 }
