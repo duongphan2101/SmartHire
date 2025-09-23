@@ -36,7 +36,8 @@ exports.register = async (req, res) => {
     const userResp = await axios.post(`${host}`, {
       fullname,
       email,
-      avatar: "https://i.pinimg.com/736x/f5/52/a1/f552a14040107decc9a74a50e5a72423.jpg",
+      avatar:
+        "https://i.pinimg.com/736x/f5/52/a1/f552a14040107decc9a74a50e5a72423.jpg",
       dob: null,
       phone: null,
     });
@@ -49,15 +50,18 @@ exports.register = async (req, res) => {
       email,
       user_id,
       password: hashedPwd,
+      isVerified: false, // mặc định chưa verify
     });
 
-    // 4. Generate token
-    const tokens = generateTokens(newAcc);
+    // 4. Gửi email xác nhận
+    await axios.post(`${HOSTS.emailService}/send-verify`, {
+      email,
+      user_id,
+    });
 
     return res.status(201).json({
-      message: "Đăng ký thành công",
-      user: { email, user_id, fullname },
-      ...tokens,
+      message:
+        "Đăng ký thành công, vui lòng kiểm tra email để xác nhận tài khoản",
     });
   } catch (err) {
     console.error("Register error:", err);
@@ -77,30 +81,33 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Sai email hoặc password" });
     }
 
-    // 2. So sánh password
+    // 2. Check đã verify chưa
+    if (!account.isVerified) {
+      return res.status(403).json({ message: "Email chưa được xác nhận" });
+    }
+
+    // 3. So sánh password
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Sai email hoặc password" });
     }
 
-    // 3. Gọi sang User Service để lấy role
-    const userRes = await axios.get(
-      `${host}/emailfind/${email}`
-    );
+    // 4. Gọi sang User Service để lấy role
+    const userRes = await axios.get(`${host}/emailfind/${email}`);
     const user = userRes.data;
 
     if (!user) {
       return res.status(404).json({ message: "Không tìm thấy user" });
     }
 
-    // 4. Generate token
+    // 5. Generate token
     const tokens = generateTokens({
       accountId: account._id,
       email: account.email,
       role: user.role,
     });
 
-    // 5. Trả response
+    // 6. Trả response
     return res.status(200).json({
       message: "Đăng nhập thành công",
       user: {
@@ -259,4 +266,25 @@ exports.updatePassword = async (req, res) => {
         console.error("Update password error:", err);
         return res.status(500).json({ message: "Có lỗi xảy ra: " + err.message });
     }
+};
+// Xác thực tài khoản
+exports.verifyAccount = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const account = await Account.findOneAndUpdate(
+      { email },
+      { isVerified: true },
+      { new: true }
+    );
+
+    if (!account) {
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+    }
+
+    return res.json({ message: "Tài khoản đã được xác thực", account });
+  } catch (err) {
+    console.error("Verify account error:", err.message);
+    return res.status(500).json({ message: "Lỗi xác thực tài khoản" });
+  }
 };
