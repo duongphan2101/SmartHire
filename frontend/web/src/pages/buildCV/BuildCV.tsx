@@ -547,6 +547,7 @@ const BuildCV: React.FC = () => {
             <div className="input-group">
               <div className="input-container">
                 <input
+                  className="input-container_input"
                   required={true}
                   id="name"
                   type="text"
@@ -564,13 +565,13 @@ const BuildCV: React.FC = () => {
             <div className="input-group">
               <div className="input-container">
                 <input
+                  className="input-container_input"
                   required={true}
                   id="phone"
                   type="tel"
                   name="phone"
                   value={cvData.contact.phone}
                   onChange={handleContactChange}
-                  placeholder=" "
                 />
                 <label className="label" htmlFor="phone">
                   {currentLanguage === 'vi' ? "Số điện thoại" : "Phone"}
@@ -583,13 +584,13 @@ const BuildCV: React.FC = () => {
             <div className="input-group">
               <div className="input-container">
                 <input
+                  className="input-container_input"
                   required={true}
                   id="email"
                   type="email"
                   name="email"
                   value={cvData.contact.email}
                   onChange={handleContactChange}
-                  placeholder=" "
                 />
                 <label className="label" htmlFor="email">
                   Email
@@ -600,6 +601,7 @@ const BuildCV: React.FC = () => {
             <div className="input-group">
               <div className="input-container">
                 <input
+                  className="input-container_input"
                   required={true}
                   id="github"
                   type="url"
@@ -617,6 +619,7 @@ const BuildCV: React.FC = () => {
             <div className="input-group">
               <div className="input-container">
                 <input
+                  className="input-container_input"
                   required={true}
                   id="website"
                   type="url"
@@ -651,6 +654,7 @@ const BuildCV: React.FC = () => {
             <div className="input-container">
               <textarea
                 required={true}
+                className="input-container_input"
                 name="introduction"
                 value={cvData.introduction}
                 onChange={handleChange}
@@ -683,6 +687,7 @@ const BuildCV: React.FC = () => {
                 </span>
               ))}
               <input
+                className="input-container_input"
                 value={profInput}
                 onChange={handleProfInputChange}
                 onFocus={handleProfFocus}
@@ -710,6 +715,7 @@ const BuildCV: React.FC = () => {
                 </span>
               ))}
               <input
+                className="input-container_input"
                 value={softInput}
                 onChange={handleSoftInputChange}
                 onFocus={handleSoftFocus}
@@ -735,6 +741,7 @@ const BuildCV: React.FC = () => {
               <div className="input-group">
                 <div className="input-container">
                   <input
+                    className="input-container_input"
                     required={true}
                     type="text"
                     name="university"
@@ -752,6 +759,7 @@ const BuildCV: React.FC = () => {
               <div className="input-group">
                 <div className="input-container">
                   <input
+                    className="input-container_input"
                     required={true}
                     type="text"
                     name="major"
@@ -772,6 +780,7 @@ const BuildCV: React.FC = () => {
                 <div className="input-group flex-[3]">
                   <div className="input-container">
                     <input
+                      className="input-container_input"
                       required
                       type="number"
                       name="gpa"
@@ -794,6 +803,7 @@ const BuildCV: React.FC = () => {
                   {/* Năm bắt đầu */}
                   <div className="input-container flex-1">
                     <input
+                      className="input-container_input"
                       required
                       type="number"
                       name="startYear"
@@ -813,6 +823,7 @@ const BuildCV: React.FC = () => {
                   {/* Năm kết thúc */}
                   <div className="input-container flex-1">
                     <input
+                      className="input-container_input"
                       required
                       type="number"
                       name="endYear"
@@ -869,6 +880,7 @@ const BuildCV: React.FC = () => {
 
             <div className="input-container">
               <textarea
+                className="input-container_input"
                 required={true}
                 name="experience"
                 value={cvData.experience}
@@ -895,6 +907,7 @@ const BuildCV: React.FC = () => {
               <div className="input-group-full-width">
                 <div className="input-container">
                   <input
+                    className="input-container_input"
                     required={true}
                     type="text"
                     name="projectName"
@@ -929,6 +942,7 @@ const BuildCV: React.FC = () => {
 
                 <div className="input-container">
                   <textarea
+                    className="input-container_input"
                     required={true}
                     name="projectDescription"
                     value={project.projectDescription}
@@ -970,6 +984,7 @@ const BuildCV: React.FC = () => {
           <div className="input-group-full-width">
             <div className="input-container">
               <textarea
+                className="input-container_input"
                 required={true}
                 name="certifications"
                 value={cvData.certifications}
@@ -987,6 +1002,7 @@ const BuildCV: React.FC = () => {
           <div className="input-group-full-width">
             <div className="input-container">
               <textarea
+                className="input-container_input"
                 required={true}
                 name="activitiesAwards"
                 value={cvData.activitiesAwards}

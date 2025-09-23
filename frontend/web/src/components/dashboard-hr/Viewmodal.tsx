@@ -6,7 +6,8 @@ import { HOSTS } from "../../utils/host";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CoverLetterCell } from "./CoverLetterCell";
-import gray  from "../../assets/images/gray.avif";
+import gray from "../../assets/images/gray.avif";
+import useApplication, { type MatchingResponse } from "../../hook/useApplication";
 
 interface ViewModalProps {
   job: Job;
@@ -23,8 +24,10 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const [activeTab, setActiveTab] = useState<"info" | "applicants" | "candidates">("info");
   const [applicants, setApplicants] = useState<any[]>([]);
   const [loadingApplicants, setLoadingApplicants] = useState(false);
-
   const [closing, setClosing] = useState(false);
+  const [matchingJobs, setMatchingJobs] = useState<MatchingResponse[]>([]);
+  const [matchingCandidate, setMatchingCandidate] = useState<MatchingResponse[]>([]);
+  const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
 
   const MySwal = withReactContent(Swal);
 
@@ -51,6 +54,53 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     };
     fetchApplicants();
   }, [activeTab, job._id]);
+
+  useEffect(() => {
+    const fetchMatchingOne = async () => {
+      try {
+        const results: MatchingResponse[] = await Promise.all(
+          applicants.map(async (applicant) => {
+            const data = {
+              job_id: job._id,
+              cv_id: applicant.resumeId,
+            };
+            const res = await renderMatchingCvForJob(data);
+            return { ...res, cvId: applicant.resumeId };
+          })
+        );
+        setMatchingJobs(results);
+      } catch (err) {
+        console.error("❌ MatchingOne error:", err);
+      }
+    };
+
+    const fetchMatchingCvsForOneJob = async () => {
+      try {
+        const data = { job_id: job._id };
+        const res = await renderMatchingCvsForOneJob(data); // res là list
+        setMatchingCandidate(res);
+      } catch (err) {
+        console.error("❌ MatchingCvsForOneJob error:", err);
+      }
+    };
+
+    if (job?._id) {
+      if (applicants.length > 0) {
+        fetchMatchingOne();
+      } else {
+        fetchMatchingCvsForOneJob();
+      }
+    }
+  }, [applicants, job?._id, renderMatchingCvForJob, renderMatchingCvsForOneJob]);
+
+
+  const mergedApplicants = applicants.map((app, index) => ({
+    ...app,
+    score: matchingJobs[index]?.score ? Number(matchingJobs[index].score) : null,
+  }));
+
+  const sortedApplicants = [...mergedApplicants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
 
   const handleChange = <K extends keyof Job>(
     field: K,
@@ -118,6 +168,16 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
       setClosing(false);
     }, 300);
   };
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    try {
+      const res = await updateStatus({ id, status: newStatus });
+      console.log("✅ Updated:", res.data);
+    } catch (err) {
+      console.error("❌ Update failed:", err);
+    }
+  };
+
 
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
@@ -231,6 +291,22 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                     </select>
                   </div>
 
+                  <div className="job-info-item">
+                    <span className="label job-info-lable">Cấp bậc:</span>
+                    <select
+                      className="info-input"
+                      value={editedJob.experience}
+                      onChange={(e) => handleChange("experience", e.target.value)}
+                    >
+                      <option value="none">Không yêu cầu</option>
+                      <option value="lt1">Dưới 1 năm</option>
+                      <option value="1-3">1 - 3 năm</option>
+                      <option value="3-5">3 - 5 năm</option>
+                      <option value="5-7">5 - 7 năm</option>
+                      <option value="7-10">7 - 10 năm</option>
+                      <option value="gt10">Trên 10 năm</option>
+                    </select>
+                  </div>
 
                   <div className="job-info-item">
                     <span className="label job-info-lable">Lương:</span>
@@ -389,32 +465,46 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {applicants.map((app) => (
+
+                          {sortedApplicants.map((app) => (
                             <tr key={app._id}>
                               <td className="flex gap-1.5 items-center w-fit">
-                                <img src={app.userSnapshot.avatar || gray} className="candidate-avt" alt="" /> {app.userSnapshot.fullname}
+                                <img src={app.userSnapshot.avatar || gray} className="candidate-avt" alt="" />{" "}
+                                {app.userSnapshot.fullname}
                               </td>
 
-                              {/* <td className="flex-1">{app.coverLetter || "-"}</td> */}
                               <CoverLetterCell coverLetter={app.coverLetter} />
+
                               <td>
                                 <span className={`status-badge status-${app.status}`}>
                                   {app.status}
                                 </span>
                               </td>
-                              <td className="font-bold text-emerald-500">78%</td>
+
+                              <td className="font-bold text-emerald-500">
+                                {app.score !== null ? `${app.score.toFixed(2)}%` : "-"}
+                              </td>
+
                               <td>
                                 {app.cvSnapshot?.fileUrls ? (
-                                  <a href={app.cvSnapshot.fileUrls} target="_blank" rel="noreferrer" className="text-blue-600 font-bold">
+                                  <a
+                                    href={app.cvSnapshot.fileUrls}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 font-bold"
+                                    onClick={() => { handleUpdateStatus(app._id, "reviewed") }}
+                                  >
                                     Xem
                                   </a>
                                 ) : (
                                   "-"
                                 )}
                               </td>
+
                               <td>Liên hệ</td>
                             </tr>
                           ))}
+
                         </tbody>
                       </table>
                     </div>
@@ -426,11 +516,68 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
+                <h3 className="text-lg font-bold mb-3">Ứng viên phù hợp</h3>
 
-                Ứng viên phù hợp
-
+                <table className="table-auto w-full border">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2 text-left">Tên</th>
+                      <th className="px-4 py-2">Trạng thái</th>
+                      <th className="px-4 py-2">Điểm phù hợp</th>
+                      <th className="px-4 py-2">CV</th>
+                      <th className="px-4 py-2">Liên hệ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {applicants
+                      .map((app) => {
+                        const match = matchingCandidate.find((m) => m.cvId === app.resumeId);
+                        return {
+                          ...app,
+                          score: match ? Number(match.score).toFixed(2) : null,
+                        };
+                      })
+                      .sort((a, b) => (b.score || 0) - (a.score || 0)) // sắp xếp giảm dần theo score
+                      .map((app) => (
+                        <tr key={app._id} className="border-t">
+                          <td className="px-4 py-2 flex items-center gap-2">
+                            <img
+                              src={app.userSnapshot.avatar || gray}
+                              alt=""
+                              className="w-8 h-8 rounded-full"
+                            />
+                            {app.userSnapshot.fullname}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={`status-badge status-${app.status}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 font-bold text-emerald-500">
+                            {app.score ? `${app.score}%` : "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {app.cvSnapshot?.fileUrls ? (
+                              <a
+                                href={app.cvSnapshot.fileUrls}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 font-bold"
+                              >
+                                Xem
+                              </a>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td className="px-4 py-2">Liên hệ</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             )}
+
 
           </div>
         </div>

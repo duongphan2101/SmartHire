@@ -148,9 +148,9 @@ const Profile: React.FC = () => {
                 <ul className="profile-nav flex gap-2"
                     style={{ padding: '10px' }}
                 >
-                    <li className="profile-nav_item text-blue-400"><a href="/home">Home</a></li>
+                    <li className="profile-nav_item text-blue-400"><a href="/home">Trang chủ</a></li>
                     <li className="profile-nav_item text-blue-400">/</li>
-                    <li className="profile-nav_item text-gray-400"><a href="">Profile</a></li>
+                    <li className="profile-nav_item text-gray-400"><a href="">Hồ sơ</a></li>
                 </ul>
 
                 <div className="profile-details flex flex-wrap xl:flex-nowrap"
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Name</label>
+                                        <label>Họ Tên</label>
                                     </div>
 
                                     <div className="group">
@@ -250,7 +250,7 @@ const Profile: React.FC = () => {
                                         </select>
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Role</label>
+                                        <label>Vai trò</label>
                                     </div>
 
                                     <div className="group">
@@ -261,7 +261,7 @@ const Profile: React.FC = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Date of birth</label>
+                                        <label>Ngày sinh</label>
                                     </div>
 
                                     <div className="group">
@@ -271,12 +271,12 @@ const Profile: React.FC = () => {
                                         />
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
-                                        <label>Phone</label>
+                                        <label>Số điện thoại</label>
                                     </div>
 
 
                                     <button className="button" onClick={handleSaveChanges}>
-                                        Save Changes
+                                        Lưu thay đổi
                                     </button>
 
                                 </div>

@@ -26,6 +26,7 @@ export interface Job {
   address: string;
   workingHours: string;
   jobDescription: string[];
+  experience: string;
   endDate: string;
   num: number;
   createdAt: string;

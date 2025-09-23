@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   pool: true,
   maxConnections: 5,
   maxMessages: 100,
-  rateDelta: 10000, 
+  rateDelta: 10000,
   rateLimit: 10,
 
   logger: process.env.NODE_ENV === 'development',
@@ -40,9 +40,9 @@ exports.forgotPassword = async (req, res) => {
 
     // Validation
     if (!email || !email.includes('@')) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Email không hợp lệ" 
+        message: "Email không hợp lệ"
       });
     }
 
@@ -52,39 +52,39 @@ exports.forgotPassword = async (req, res) => {
     const userHost = process.env.USER_SERVICE_URL || 'http://localhost:2222/api/users';
     try {
       const userResponse = await axios.get(
-        `${userHost}/emailfind/${encodeURIComponent(email)}`, 
+        `${userHost}/emailfind/${encodeURIComponent(email)}`,
         { timeout: 10000 }
       );
-      
+
       if (!userResponse.data || !userResponse.data.email) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           success: false,
-          message: "Email không tồn tại trong hệ thống" 
+          message: "Email không tồn tại trong hệ thống"
         });
       }
-      
+
       console.log(` User found: ${userResponse.data.email}`);
     } catch (error) {
       console.error('User service error:', error.response?.status, error.message);
-      
+
       if (error.response?.status === 404) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           success: false,
-          message: "Email không tồn tại trong hệ thống" 
+          message: "Email không tồn tại trong hệ thống"
         });
       }
-      
+
       if (error.code === 'ECONNABORTED') {
-        return res.status(503).json({ 
+        return res.status(503).json({
           success: false,
-          message: "Dịch vụ người dùng tạm thời không khả dụng" 
+          message: "Dịch vụ người dùng tạm thời không khả dụng"
         });
       }
-      
+
       console.error('Unexpected user service error:', error.message);
-      return res.status(503).json({ 
+      return res.status(503).json({
         success: false,
-        message: "Lỗi kiểm tra người dùng" 
+        message: "Lỗi kiểm tra người dùng"
       });
     }
 
@@ -97,9 +97,9 @@ exports.forgotPassword = async (req, res) => {
     const expireAt = new Date(Date.now() + 10 * 60 * 1000);
 
     // 4. Lưu OTP vào database
-    const otpDoc = await Otp.create({ 
-      email: email.toLowerCase(), 
-      otp, 
+    const otpDoc = await Otp.create({
+      email: email.toLowerCase(),
+      otp,
       expireAt,
       ipAddress: clientIp,
       userAgent
@@ -110,13 +110,13 @@ exports.forgotPassword = async (req, res) => {
     // 5. Gửi email OTP
     try {
       const mailOptions = {
-        from: `"Hệ Thống SmartHire" <${process.env.EMAIL_USER}>`, 
+        from: `"Hệ Thống SmartHire" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: "🔐 Mã Xác Thực Đặt Lại Mật Khẩu - SmartHire", 
+        subject: "Mã Xác Thực Đặt Lại Mật Khẩu - SmartHire",
         html: `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px; border-radius: 10px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white;">
-              <h1 style="margin: 0; font-size: 24px;">🔐 SmartHire - Đặt Lại Mật Khẩu</h1>
+            <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white;">
+              <h1 style="margin: 0; font-size: 24px;">SmartHire - Đặt Lại Mật Khẩu</h1>
               <p style="margin: 5px 0 0 0; opacity: 0.9;">Xác thực yêu cầu của bạn</p>
             </div>
             
@@ -173,32 +173,32 @@ exports.forgotPassword = async (req, res) => {
       const info = await transporter.sendMail(mailOptions);
       console.log(`📧 OTP email sent successfully to ${email}: ${info.messageId}`);
       console.log(`📊 Email stats: ${info.accepted.length} accepted, ${info.rejected.length} rejected`);
-      
+
     } catch (emailError) {
       console.error('❌ Email sending error:', emailError.message);
-      
+
       // Log detailed error
       if (emailError.response) {
         console.error('Email response:', emailError.response);
       }
-      
+
       // Không throw error ở đây vì OTP đã được lưu
       // User vẫn có thể verify qua frontend
     }
 
     // Trả về success ngay cả khi email fail (vì OTP đã lưu DB)
-    return res.status(200).json({ 
+    return res.status(200).json({
       success: true,
-      message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả thư rác/spam)." 
+      message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả thư rác/spam)."
     });
 
   } catch (error) {
     console.error('❌ Forgot password error:', error.message);
     console.error('Stack trace:', error.stack);
-    
-    return res.status(500).json({ 
+
+    return res.status(500).json({
       success: false,
-      message: "Có lỗi xảy ra. Vui lòng thử lại sau." 
+      message: "Có lỗi xảy ra. Vui lòng thử lại sau."
     });
   }
 };
@@ -210,17 +210,17 @@ exports.verifyOtp = async (req, res) => {
 
     // Validation
     if (!email || !otp || otp.length !== 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Email hoặc mã OTP không hợp lệ" 
+        message: "Email hoặc mã OTP không hợp lệ"
       });
     }
 
     // Validate OTP chỉ chứa số
     if (!/^\d{6}$/.test(otp)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Mã OTP phải là 6 chữ số" 
+        message: "Mã OTP phải là 6 chữ số"
       });
     }
 
@@ -235,9 +235,9 @@ exports.verifyOtp = async (req, res) => {
 
     if (!otpDoc) {
       console.log(`❌ Invalid or expired OTP for: ${email}`);
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu gửi lại." 
+        message: "Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu gửi lại."
       });
     }
 
@@ -253,8 +253,8 @@ exports.verifyOtp = async (req, res) => {
     };
 
     const resetToken = jwt.sign(
-      payload, 
-      process.env.JWT_SECRET, 
+      payload,
+      process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
 
@@ -270,9 +270,9 @@ exports.verifyOtp = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Verify OTP error:', error.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Có lỗi xảy ra khi xác thực OTP" 
+      message: "Có lỗi xảy ra khi xác thực OTP"
     });
   }
 };
@@ -285,31 +285,31 @@ exports.resetPassword = async (req, res) => {
 
     // Validation
     if (!resetToken || !newPassword || !confirmPassword) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Thiếu thông tin yêu cầu" 
+        message: "Thiếu thông tin yêu cầu"
       });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Mật khẩu xác nhận không khớp" 
+        message: "Mật khẩu xác nhận không khớp"
       });
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Mật khẩu phải có ít nhất 6 ký tự" 
+        message: "Mật khẩu phải có ít nhất 6 ký tự"
       });
     }
 
     // Password strength validation (basic)
     if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(newPassword)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số" 
+        message: "Mật khẩu phải chứa ít nhất 1 chữ cái và 1 số"
       });
     }
 
@@ -317,19 +317,19 @@ exports.resetPassword = async (req, res) => {
     let payload;
     try {
       payload = jwt.verify(resetToken, process.env.JWT_SECRET);
-      
+
       // Check token type
       if (payload.type !== 'password_reset') {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: "Token không hợp lệ" 
+          message: "Token không hợp lệ"
         });
       }
     } catch (error) {
       console.log(`❌ Invalid reset token: ${error.message}`);
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Token không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu lại." 
+        message: "Token không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu lại."
       });
     }
 
@@ -339,12 +339,12 @@ exports.resetPassword = async (req, res) => {
     // Gọi auth-service để update password
     try {
       const updateResponse = await axios.post(
-        `${authHost}/update-password`, 
-        { 
+        `${authHost}/update-password`,
+        {
           email: email.toLowerCase(),
-          password: newPassword 
+          password: newPassword
         },
-        { 
+        {
           timeout: 10000,
           headers: {
             'Content-Type': 'application/json'
@@ -354,7 +354,7 @@ exports.resetPassword = async (req, res) => {
 
       if (updateResponse.status === 200) {
         console.log(`✅ Password reset successful for: ${email}`);
-        
+
         // Optional: Gửi email thông báo password đã đổi
         try {
           const notifyMailOptions = {
@@ -384,47 +384,47 @@ exports.resetPassword = async (req, res) => {
           console.warn('Password notification email failed:', notifyError.message);
           // Không throw error vì password đã reset thành công
         }
-        
-        return res.status(200).json({ 
+
+        return res.status(200).json({
           success: true,
-          message: "Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ." 
+          message: "Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ."
         });
       } else {
-        return res.status(updateResponse.status).json({ 
+        return res.status(updateResponse.status).json({
           success: false,
-          message: updateResponse.data?.message || "Lỗi cập nhật mật khẩu" 
+          message: updateResponse.data?.message || "Lỗi cập nhật mật khẩu"
         });
       }
 
     } catch (error) {
       console.error('Auth service error:', error.response?.status, error.message);
-      
+
       if (error.response?.status === 404) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           success: false,
-          message: "Không tìm thấy tài khoản" 
+          message: "Không tìm thấy tài khoản"
         });
       }
-      
+
       if (error.code === 'ECONNABORTED') {
-        return res.status(503).json({ 
+        return res.status(503).json({
           success: false,
-          message: "Dịch vụ xác thực tạm thời không khả dụng" 
+          message: "Dịch vụ xác thực tạm thời không khả dụng"
         });
       }
-      
+
       console.error('Auth service full error:', error.response?.data || error.message);
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
-        message: "Có lỗi xảy ra khi đặt lại mật khẩu" 
+        message: "Có lỗi xảy ra khi đặt lại mật khẩu"
       });
     }
 
   } catch (error) {
     console.error('❌ Reset password error:', error.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Có lỗi xảy ra khi đặt lại mật khẩu" 
+      message: "Có lỗi xảy ra khi đặt lại mật khẩu"
     });
   }
 };
@@ -435,9 +435,9 @@ exports.resendOtp = async (req, res) => {
     const { email } = req.body;
 
     if (!email || !email.includes('@')) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Email không hợp lệ" 
+        message: "Email không hợp lệ"
       });
     }
 
@@ -445,25 +445,25 @@ exports.resendOtp = async (req, res) => {
 
     // Gọi lại logic forgotPassword
     const forgotResult = await exports.forgotPassword(
-      { 
-        body: { email }, 
-        ip: req.ip, 
-        get: (header) => req.get(header) 
-      }, 
+      {
+        body: { email },
+        ip: req.ip,
+        get: (header) => req.get(header)
+      },
       res  // Pass res để có thể return từ forgotPassword
     );
 
     // Return success message cho resend
-    return res.status(200).json({ 
+    return res.status(200).json({
       success: true,
-      message: "Mã OTP mới đã được gửi đến email của bạn." 
+      message: "Mã OTP mới đã được gửi đến email của bạn."
     });
 
   } catch (error) {
     console.error('❌ Resend OTP error:', error.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Có lỗi khi gửi lại OTP" 
+      message: "Có lỗi khi gửi lại OTP"
     });
   }
 };
@@ -474,9 +474,9 @@ exports.checkOtpStatus = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Email is required" 
+        message: "Email is required"
       });
     }
 
@@ -508,9 +508,9 @@ exports.checkOtpStatus = async (req, res) => {
 
   } catch (error) {
     console.error('Check OTP status error:', error.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Lỗi kiểm tra trạng thái OTP" 
+      message: "Lỗi kiểm tra trạng thái OTP"
     });
   }
 };

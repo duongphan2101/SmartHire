@@ -17,8 +17,10 @@
   padding: 2rem;
   border-radius: 8px;
   width: 700px;
-  max-height: 90vh; /* Giới hạn chiều cao để có thể cuộn */
-  overflow-y: auto; /* Thêm thanh cuộn khi nội dung dài */
+  max-height: 90vh;
+  /* Giới hạn chiều cao để có thể cuộn */
+  overflow-y: auto;
+  /* Thêm thanh cuộn khi nội dung dài */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   display: flex;
@@ -69,7 +71,8 @@
   background-color: transparent;
   outline: none;
   box-sizing: border-box;
-  resize: vertical; /* Cho phép textarea thay đổi kích thước theo chiều dọc */
+  resize: vertical;
+  /* Cho phép textarea thay đổi kích thước theo chiều dọc */
 }
 
 .input-container .label {
@@ -81,14 +84,14 @@
   pointer-events: none;
 }
 
-.input-container input[type="text"]:focus ~ .label,
-.input-container input[type="text"]:valid ~ .label,
-.input-container textarea:focus ~ .label,
-.input-container textarea:valid ~ .label {
+.input-container input[type="text"]:focus~.label,
+.input-container input[type="text"]:valid~.label,
+.input-container textarea:focus~.label,
+.input-container textarea:valid~.label {
   top: -1.25rem;
   font-size: 0.8rem;
   color: #333;
-  
+
 }
 
 .input-container .underline {
@@ -97,15 +100,16 @@
   left: 0;
   height: 2px;
   width: 100%;
-  background-color: #333;
+  /* background-color: #333; */
+  background-color: #28a745;
   transform: scaleX(0);
   transition: all 0.3s ease;
 }
 
-.input-container input[type="text"]:focus ~ .underline,
-.input-container input[type="text"]:valid ~ .underline,
-.input-container textarea:focus ~ .underline,
-.input-container textarea:valid ~ .underline {
+.input-container input[type="text"]:focus~.underline,
+.input-container input[type="text"]:valid~.underline,
+.input-container textarea:focus~.underline,
+.input-container textarea:valid~.underline {
   transform: scaleX(1);
   border-bottom: 2px solid #4CAF50;
 }

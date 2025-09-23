@@ -28,6 +28,7 @@ const JobSchema = new mongoose.Schema(
     location: { type: String, required: true },
     address: { type: String, required: true },
     workingHours: { type: String, required: true },
+    experience: { type: String, required: true },
 
     endDate: { type: Date, required: false },
     num: { type: Number, required: false },

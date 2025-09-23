@@ -28,6 +28,21 @@ const getJobs = async (req, res) => {
   }
 };
 
+const getAllJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find();
+    if (jobs.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Không có job nào cho công ty này", jobs: [] });
+    }
+
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const getLatestJobs = async (req, res) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 }).limit(6);
@@ -78,7 +93,6 @@ const filterJobs = async (req, res) => {
   }
 };
 
-
 const searchJobs = async (req, res) => {
   try {
     const query = req.query.q;
@@ -127,6 +141,7 @@ const updateJob = async (req, res) => {
 module.exports = {
   createJob,
   getJobs,
+  getAllJobs,
   searchJobs,
   deleteJob,
   getLatestJobs,

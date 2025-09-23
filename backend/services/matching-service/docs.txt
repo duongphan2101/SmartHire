@@ -1,0 +1,3 @@
+NLP (Natural Language Processing).
+
+(Modal all-MiniLM-L6-v2), transformer đã pre-train để biến text thành vector embedding (kiểu 384 chiều).
