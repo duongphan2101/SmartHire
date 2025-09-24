@@ -35,6 +35,7 @@ interface Job {
     location: string;
     workingHours: string;
     address: string;
+    experience: string;
     isSaved?: boolean;
     createAt?: string;
     updatedAt?: string;
@@ -168,6 +169,16 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
         return `${diffDays} ngày trước`;
     };
 
+    const experienceMap: { [key: string]: string } = {
+        none: "Không yêu cầu",
+        lt1: "Dưới 1 năm",
+        "1-3": "1 - 3 năm",
+        "3-5": "3 - 5 năm",
+        "5-7": "5 - 7 năm",
+        "7-10": "7 - 10 năm",
+        gt10: "Trên 10 năm"
+    };
+
     return (
         <div className="detail-container w-full">
             <div className="page-picture">
@@ -185,7 +196,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
 
             <div className="page-title w-full flex flex-col gap-3">
                 <img className="avt-department" src={item.department.avatar} />
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                         <span className="text-left title-job">{item.jobTitle}</span>
                         <a
@@ -195,6 +206,10 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                         >
                             <span className="department-item-name">{item.department.name}</span>
                         </a>
+                    </div>
+
+                    <div className="experience-box">
+                        Kinh nghiệm: {experienceMap[item.experience] || "Không rõ"}
                     </div>
                 </div>
             </div>
@@ -219,10 +234,10 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                                 )}
 
                                 <h3 className="content-title">Cấp bậc</h3>
-                                <p className="py-2 pl-4">{item.jobLevel}</p>
+                                <p className="py-2 pl-4">•  {item.jobLevel}</p>
 
                                 <h3 className="content-title">Hình thức làm việc</h3>
-                                <p className="py-2 pl-4">{item.jobType}</p>
+                                <p className="py-2 pl-4">•  {item.jobType}</p>
 
                                 <h3 className="content-title">Trách nhiệm chính</h3>
                                 {Array.isArray(item.requirement) ? (

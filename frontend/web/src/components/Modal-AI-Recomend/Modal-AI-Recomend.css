@@ -1,0 +1,46 @@
+.modal-ai-recomend-box {
+    position: absolute;
+    z-index: 99999;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.recomend-box_head {
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.recomend-box_body {
+    padding: 10px;
+}
+
+.ip-body-content {
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 150px;
+}
+
+/* .ip-body-content:focus {
+    border: 1px solid var(--color-emerald-400);
+    border-radius: 10px;
+} */
+
+.recomend-box_bottom {
+    padding:10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.btn-acept, .btn-suggest {
+    padding: 5px 15px;
+    border-radius: 10px;
+}
+
+.btn-coppy {
+    padding: 5px 15px;
+    border-radius: 10px;
+    background-color: var(--color-emerald-300);
+}

@@ -34,6 +34,7 @@ interface AddJobModalProps {
         salary: string;
         location: string;
         address: string;
+        experience: string;
         jobDescription: string[];
         date: string;
         endDate: string;
@@ -44,6 +45,7 @@ interface AddJobModalProps {
 const MySwal = withReactContent(Swal);
 
 const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
+    
     const [jobTitle, setJobTitle] = useState("");
     const [jobType, setJobType] = useState("");
     const [jobLevel, setJobLevel] = useState("");
@@ -53,6 +55,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
     const [benefits, setBenefits] = useState([""]);
     const [salary, setSalary] = useState("");
     const [address, setAddress] = useState("");
+    const [experience, setExperience] = useState("");
     const [jobDescriptions, setJobDescriptions] = useState([""]);
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [location, setLocation] = useState("");
@@ -145,6 +148,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             !jobTitle.trim() ||
             !jobType.trim() ||
             !jobLevel.trim() ||
+            !experience.trim() ||
             !salary.trim() ||
             !address.trim() ||
             !location.trim() ||
@@ -184,6 +188,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             benefits: benefits.filter((s) => s.trim()),
             salary,
             address,
+            experience,
             location,
             workingHours,
             jobDescription: jobDescriptions.filter((d) => d.trim()),
@@ -273,6 +278,24 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                                         <option value="Mid-level">Mid-level</option>
                                         <option value="Senior">Senior</option>
                                         <option value="Lead">Lead</option>
+                                    </select>
+                                    <div className="add-job-underline"></div>
+                                </div>
+                                <div className="add-job-input-container add-job-half-width">
+                                    <select
+                                        required
+                                        id="experience"
+                                        value={experience}
+                                        onChange={(e) => setExperience(e.target.value)}
+                                    >
+                                        <option value="">Chọn kinh nghiệm</option>
+                                        <option value="none">Không yêu cầu</option>
+                                        <option value="lt1">Dưới 1 năm</option>
+                                        <option value="1-3">1 - 3 năm</option>
+                                        <option value="3-5">3 - 5 năm</option>
+                                        <option value="5-7">5 - 7 năm</option>
+                                        <option value="7-10">7 - 10 năm</option>
+                                        <option value="gt10">Trên 10 năm</option>
                                     </select>
                                     <div className="add-job-underline"></div>
                                 </div>
