@@ -461,10 +461,16 @@ const Home: React.FC = () => {
                           </div>
 
                           <div className="flex gap-3 lasted-techs flex-wrap">
-                            {item.skills.map((i: string) => (
-                              <div className="lasted-tech-item">{i}</div>
+                            {item.skills.slice(0, 3).map((i: string, index: number) => (
+                              <div key={index} className="lasted-tech-item">
+                                {i.length > 10 ? i.slice(0, 10) + "..." : i}
+                              </div>
                             ))}
+                            {item.skills.length > 3 && (
+                              <div className="lasted-tech-item">...</div>
+                            )}
                           </div>
+
                         </div>
 
                         <div className="item-top_right">
@@ -476,7 +482,7 @@ const Home: React.FC = () => {
                           </button>
                         </div>
                       </div>
-                      <div className="lasted-item_bottom">
+                      <div className="lasted-item_bottom gap-2">
                         <ul className="flex gap-6 flex-1">
                           <li
                             className="bottom-li flex gap-3 items-center"

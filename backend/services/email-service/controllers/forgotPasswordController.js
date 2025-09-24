@@ -49,7 +49,7 @@ exports.forgotPassword = async (req, res) => {
     console.log(`🔍 Checking user existence for: ${email}`);
 
     // 1. Kiểm tra email tồn tại qua user-service
-    const userHost = process.env.USER_SERVICE_URL || 'http://localhost:2222/api/users';
+    const userHost = process.env.USER_SERVICE_URL;
     try {
       const userResponse = await axios.get(
         `${userHost}/emailfind/${encodeURIComponent(email)}`,
