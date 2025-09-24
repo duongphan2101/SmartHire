@@ -12,6 +12,7 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/Protechted/ProtectedRoute";
 import Cvs from "./pages/Cvs/Cvs";
 import JobSave from "./pages/jobSave/jobSave";
+import JobApplied from "./pages/JobApplied/JobApplied";
 
 // Import các trang mới cho chức năng quên mật khẩu
 import { ForgotPasswordPage } from "./pages/forgotPassword/ForgotPasswordPage";
@@ -49,6 +50,7 @@ function App() {
         <Route path="/jobdetail/:id" element={<JobDetails />} />
         <Route path="/cvs" element={<Cvs />} />
         <Route path="/liked" element={<JobSave />} />
+        <Route path="/applyted" element={<JobApplied />} />
 
         <Route element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}>
           <Route path="/dashboard" element={<Dashboard />} />

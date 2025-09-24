@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import "./AddDerpartmentmodal.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { uploadToCloudinary } from "../../utils/cloudinary";
+import useUser from "../../hook/useUser";
 
 interface AddDerpartmentmodalProps {
   onClose: () => void;
@@ -15,55 +17,80 @@ interface AddDerpartmentmodalProps {
   }) => void;
 }
 
-
-export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose, onSave }) => {
+export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
+  onClose,
+  onSave,
+}) => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [employees, setEmployees] = useState([""]);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Employees
-  const handleAddEmployee = () => setEmployees([...employees, ""]);
-  const handleRemoveEmployee = (index: number) => {
-    const newEmployees = [...employees];
-    newEmployees.splice(index, 1);
-    setEmployees(newEmployees);
-  };
-  const handleEmployeeChange = (index: number, value: string) => {
-    const newEmployees = [...employees];
-    newEmployees[index] = value;
-    setEmployees(newEmployees);
+  const { getUser, user, loadingUser, errorUser } = useUser();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const userId = parsed.user_id ?? parsed._id;
+        if (userId) {
+          await getUser(userId);
+        }
+      }
+    };
+    fetchUser();
+  }, [getUser]);
+
+  // Avatar
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatar(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Submit
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !name.trim() ||
-      !address.trim() ||
-      !description.trim() ||
-      !website.trim() ||
-      !avatar.trim() ||
-      employees.some((emp) => !emp.trim())
-    ) {
+    if (!name.trim() || !address.trim() || !description.trim() || !website.trim() || !avatar) {
       toast.error("Vui lòng điền đầy đủ tất cả các trường!");
       return;
     }
 
-    const payload = {
-      name,
-      address,
-      description,
-      website,
-      avatar,
-      employees: employees.filter((emp) => emp.trim()),
-    };
+    if (loadingUser || errorUser) {
+      toast.error("Lỗi khi lấy thông tin người dùng!");
+      return;
+    }
 
-    onSave(payload);
-    toast.success("Tạo phòng ban thành công");
-    onClose();
+    try {
+      // Upload avatar lên Cloudinary
+      const avatarUrl = await uploadToCloudinary(avatar);
+
+      // Lấy _id từ user hiện tại
+      const userId = user?._id || "";
+
+      const employees = userId ? [userId] : [];
+
+      const payload = {
+        name,
+        address,
+        description,
+        website,
+        avatar: avatarUrl,
+        employees,
+      };
+
+      onSave(payload);
+      toast.success("Tạo phòng ban thành công");
+      onClose();
+    } catch (err) {
+      toast.error("Upload ảnh thất bại!");
+    }
   };
 
   return (
@@ -120,15 +147,29 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
                 <input
                   required
                   id="avatar"
-                  type="text"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
                 />
                 <label className="label" htmlFor="avatar">
-                  URL ảnh đại diện
+                  Ảnh đại diện
                 </label>
                 <div className="underline"></div>
               </div>
+              
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="preview"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    marginTop: "10px",
+                    borderRadius: "8px",
+                  }}
+                />
+              )}
               <div className="input-container">
                 <textarea
                   required
@@ -141,39 +182,6 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({ onClose
                 </label>
                 <div className="underline"></div>
               </div>
-            </div>
-
-            {/* Nhân viên */}
-            <div className="section-container">
-              <h3>Nhân viên</h3>
-              {employees.map((employee, index) => (
-                <div className="skill-input-wrapper" key={index}>
-                  <div className="input-container">
-                    <input
-                      required
-                      type="text"
-                      value={employee}
-                      onChange={(e) => handleEmployeeChange(index, e.target.value)}
-                    />
-                    <label className="label">{`Nhân viên`}</label>
-                    <div className="underline"></div>
-                  </div>
-                  {/* {employees.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveEmployee(index)}
-                      className="remove-skill-button"
-                    >
-                      Xóa
-                    </button>
-                  )} */}
-                </div>
-              ))}
-              {/* <div className="add-button-container">
-                <button type="button" onClick={handleAddEmployee}>
-                  Thêm nhân viên
-                </button>
-              </div> */}
             </div>
 
             <button type="submit" className="submit-button">
