@@ -1,9 +1,9 @@
-// ModalViewCompany.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./ModalViewCompany.css";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { HOSTS } from "../../utils/host";
+import { uploadToCloudinary } from "../../utils/cloudinary";
 
 const MySwal = withReactContent(Swal);
 
@@ -18,7 +18,9 @@ interface DepartmentData {
 
 interface ModalViewCompanyProps {
   selectedDepartment: DepartmentData | null;
-  setSelectedDepartment: React.Dispatch<React.SetStateAction<DepartmentData | null>>;
+  setSelectedDepartment: React.Dispatch<
+    React.SetStateAction<DepartmentData | null>
+  >;
   onUpdated: () => void;
 }
 
@@ -27,14 +29,43 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
   setSelectedDepartment,
   onUpdated,
 }) => {
-  if (!selectedDepartment) return null;
+  const [localDept, setLocalDept] = useState<DepartmentData | null>(
+    selectedDepartment
+  );
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalDept(selectedDepartment);
+    setPreviewUrl(selectedDepartment?.avatar || null);
+    setAvatarFile(null);
+  }, [selectedDepartment]);
+
+  if (!localDept) return null;
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
   const handleSave = async () => {
+    if (!localDept) return;
+
     try {
-      await fetch(`${HOSTS.companyService}/update/${selectedDepartment._id}`, {
+      let avatarUrl = localDept.avatar;
+      if (avatarFile) {
+        avatarUrl = await uploadToCloudinary(avatarFile);
+      }
+
+      const payload = { ...localDept, avatar: avatarUrl };
+
+      await fetch(`${HOSTS.companyService}/update/${localDept._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedDepartment),
+        body: JSON.stringify(payload),
       });
 
       MySwal.fire("Thành công!", "Cập nhật công ty thành công", "success");
@@ -57,9 +88,9 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
           <label>Tên công ty</label>
           <input
             type="text"
-            value={selectedDepartment.name}
+            value={localDept.name}
             onChange={(e) =>
-              setSelectedDepartment({ ...selectedDepartment, name: e.target.value })
+              setLocalDept({ ...localDept, name: e.target.value })
             }
           />
         </div>
@@ -68,9 +99,9 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
           <label>Địa chỉ</label>
           <input
             type="text"
-            value={selectedDepartment.address}
+            value={localDept.address}
             onChange={(e) =>
-              setSelectedDepartment({ ...selectedDepartment, address: e.target.value })
+              setLocalDept({ ...localDept, address: e.target.value })
             }
           />
         </div>
@@ -79,41 +110,45 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
           <label>Mô tả</label>
           <textarea
             className="info-input-area"
-            value={selectedDepartment.description}
+            value={localDept.description}
             onChange={(e) =>
-              setSelectedDepartment({
-                ...selectedDepartment,
-                description: e.target.value,
-              })
+              setLocalDept({ ...localDept, description: e.target.value })
             }
           />
-
         </div>
 
         <div className="form-group">
           <label>Website</label>
           <input
             type="text"
-            value={selectedDepartment.website}
+            value={localDept.website}
             onChange={(e) =>
-              setSelectedDepartment({ ...selectedDepartment, website: e.target.value })
+              setLocalDept({ ...localDept, website: e.target.value })
             }
           />
         </div>
 
         <div className="form-group">
-          <label>Avatar URL</label>
-          <input
-            type="text"
-            value={selectedDepartment.avatar}
-            onChange={(e) =>
-              setSelectedDepartment({ ...selectedDepartment, avatar: e.target.value })
-            }
-          />
+          <label>Ảnh đại diện</label>
+          <div className="file-input-container">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="file-input"
+              id="avatar-upload"
+            />
+          </div>
         </div>
-
+        {avatarFile && <p className="file-name">{avatarFile.name}</p>}
+        {previewUrl && (
+          <img src={previewUrl} alt="preview" className="avatar-preview" />
+        )}
         <div className="modal-actions">
-          <button className="close-btn" onClick={() => setSelectedDepartment(null)}>
+          <button
+            className="close-btn"
+            onClick={() => setSelectedDepartment(null)}
+          >
             Đóng
           </button>
           <button className="save-btn" onClick={handleSave}>
