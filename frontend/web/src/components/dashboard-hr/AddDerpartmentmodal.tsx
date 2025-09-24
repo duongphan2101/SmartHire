@@ -30,13 +30,15 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
 
   const { getUser, user, loadingUser, errorUser } = useUser();
 
-  // Lấy thông tin người dùng khi component mount
   useEffect(() => {
     const fetchUser = async () => {
-      // Giả sử bạn có user_id từ context, localStorage, hoặc prop
-      const userId = "68d3a66cf1e9316ff4c2e1f3"; // Thay bằng cách lấy user_id thực tế
-      if (userId) {
-        await getUser(userId);
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const userId = parsed.user_id ?? parsed._id;
+        if (userId) {
+          await getUser(userId);
+        }
       }
     };
     fetchUser();
@@ -69,7 +71,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
       // Upload avatar lên Cloudinary
       const avatarUrl = await uploadToCloudinary(avatar);
 
-      // Lấy _id từ user, nếu có
+      // Lấy _id từ user hiện tại
       const userId = user?._id || "";
 
       const employees = userId ? [userId] : [];
