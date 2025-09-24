@@ -178,6 +178,14 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     }
   };
 
+  const hanldeContact = () => {
+    MySwal.fire({
+      icon: "info",
+      title: "Chức năng đang phát triển",
+      text: "Chức năng liên hệ đang được phát triển. Vui lòng thử lại sau.",
+    });
+  }
+
 
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
@@ -501,7 +509,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                                 )}
                               </td>
 
-                              <td>Liên hệ</td>
+                              <td>
+                                <button className="btn-contact" onClick={hanldeContact}>Liên hệ</button>
+                              </td>
                             </tr>
                           ))}
 
@@ -516,12 +526,11 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
-                <h3 className="text-lg font-bold mb-3">Ứng viên phù hợp</h3>
 
-                <table className="table-auto w-full border">
+                <table className="applications-table" style={{marginTop: 20}}>
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-4 py-2 text-left">Tên</th>
+                      <th className="px-4 py-2 text-left">Ứng viên</th>
                       <th className="px-4 py-2">Trạng thái</th>
                       <th className="px-4 py-2">Điểm phù hợp</th>
                       <th className="px-4 py-2">CV</th>
@@ -537,26 +546,26 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           score: match ? Number(match.score).toFixed(2) : null,
                         };
                       })
-                      .sort((a, b) => (b.score || 0) - (a.score || 0)) // sắp xếp giảm dần theo score
+                      .sort((a, b) => (b.score || 0) - (a.score || 0))
                       .map((app) => (
-                        <tr key={app._id} className="border-t">
-                          <td className="px-4 py-2 flex items-center gap-2">
+                        <tr key={app._id} className="">
+                          <td className="flex items-center gap-2">
                             <img
                               src={app.userSnapshot.avatar || gray}
                               alt=""
-                              className="w-8 h-8 rounded-full"
+                              className="candidate-avt"
                             />
                             {app.userSnapshot.fullname}
                           </td>
-                          <td className="px-4 py-2">
+                          <td>
                             <span className={`status-badge status-${app.status}`}>
                               {app.status}
                             </span>
                           </td>
-                          <td className="px-4 py-2 font-bold text-emerald-500">
+                          <td className="font-bold text-emerald-500">
                             {app.score ? `${app.score}%` : "-"}
                           </td>
-                          <td className="px-4 py-2">
+                          <td>
                             {app.cvSnapshot?.fileUrls ? (
                               <a
                                 href={app.cvSnapshot.fileUrls}
@@ -570,7 +579,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                               "-"
                             )}
                           </td>
-                          <td className="px-4 py-2">Liên hệ</td>
+                          <td>
+                            <button className="btn-contact" onClick={hanldeContact}>Liên hệ</button>
+                          </td>
                         </tr>
                       ))}
                   </tbody>
