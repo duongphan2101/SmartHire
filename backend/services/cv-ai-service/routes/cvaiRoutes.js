@@ -3,7 +3,8 @@ const { summary,
     education,
     experience,
     projects,
-    skills } = require("../controllers/cvaiController");
+    skills,
+    coverLetter } = require("../controllers/cvaiController");
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.post("/education", education);
 router.post("/experience", experience);
 router.post("/projects", projects);
 router.post("/skills", skills);
+router.post("/coverLetter", coverLetter);
 
 module.exports = router;

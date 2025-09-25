@@ -8,13 +8,14 @@ import {
   Button,
   TextField,
   Slide,
-  Switch,
   FormControlLabel,
   CircularProgress,
   Select,
   MenuItem,
   InputLabel,
   FormControl,
+  Switch,
+  FormGroup,
 } from "@mui/material";
 import type { TransitionProps } from "@mui/material/transitions";
 import useCV from "../../hook/useCV";
@@ -38,9 +39,9 @@ interface ApplyModalProps {
 }
 
 const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open, onClose, userId }) => {
-  const [aiSupport, setAiSupport] = React.useState(false);
+  const [aiSupport, setAiSupport] = useState<boolean>(false);
   const { loadingCV, errorCV, getCVs, cvs } = useCV();
-  const { createApplication, error } = useApplication();
+  const { createApplication, error, loading, generateCoverLetter, coverLetter } = useApplication();
   const { applyJob } = useUser();
   const [selectedCV, setSelectedCV] = useState<string>("");
   const [coverletter, setCoverletter] = useState<string>("");
@@ -73,7 +74,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
         showConfirmButton: false,
       });
 
-      setTimeout(() => { onClose(), setCoverletter(""), setSelectedCV("") }, 1500);
+      setTimeout(() => { onClose(), setCoverletter(""), setSelectedCV("") }, 500);
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -84,6 +85,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
   };
 
   const handleAiToggle = (checked: boolean) => {
+    console.log("Toggle value:", checked);
     setAiSupport(checked);
 
     Swal.fire({
@@ -120,6 +122,22 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
   }, [errorCV]);
 
 
+  useEffect(() => {
+    if (cvs.length > 0) {
+      const firstCV = cvs[0]._id;
+      setSelectedCV(firstCV);
+
+      generateCoverLetter({ cvId: firstCV, jobId: _id });
+    }
+  }, [cvs, _id]);
+
+  useEffect(() => {
+    if (coverLetter) {
+      setCoverletter(coverLetter);
+    }
+  }, [coverLetter]);
+
+
   return (
     <Dialog
       open={open}
@@ -133,7 +151,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
 
       <DialogContent>
         <p>
-          Bạn đang ứng tuyển vào: <b>{jobTitle} - {department} - {_id}</b>
+          Bạn đang ứng tuyển vào: <b>{jobTitle} - {department}</b>
         </p>
 
         {loadingCV ? (
@@ -142,52 +160,60 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
           </div>
         ) : (
           <>
-            {/* Chọn CV */}
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="cv-select-label" color="success">Chọn CV</InputLabel>
-              <Select
-                labelId="cv-select-label"
-                value={selectedCV}
-                onChange={(e) => setSelectedCV(e.target.value)}
-                color="success"
-              >
-                {cvs.length > 0 ? (
-                  cvs.map((cv) => (
-                    <MenuItem key={cv._id} value={cv._id}>
-                      {cv.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>Bạn chưa có CV nào</MenuItem>
-                )}
-              </Select>
-            </FormControl>
-
-            {/* Switch bật AI */}
-            <FormControlLabel
-              sx={{ position: "relative" }}
-              control={
-                <Switch
-                  checked={aiSupport}
-                  onChange={(e) => handleAiToggle(e.target.checked)}
+            <FormGroup>
+              {/* Chọn CV */}
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="cv-select-label" color="success">Chọn CV</InputLabel>
+                <Select
+                  labelId="cv-select-label"
+                  value={selectedCV}
+                  onChange={(e) => setSelectedCV(e.target.value)}
                   color="success"
-                />
-              }
-              label="AI hỗ trợ viết thư giới thiệu"
-            />
+                >
+                  {cvs.length > 0 ? (
+                    cvs.map((cv) => (
+                      <MenuItem key={cv._id} value={cv._id}>
+                        {cv.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>Bạn chưa có CV nào</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
 
-            {/* Thư giới thiệu */}
-            <TextField
-              label="Thư giới thiệu (có thể có hoặc không)"
-              multiline
-              rows={4}
-              fullWidth
-              margin="normal"
-              placeholder="Viết lời nhắn hoặc giới thiệu ngắn gọn..."
-              color="success"
-              value={coverletter}
-              onChange={(e) => setCoverletter(e.target.value)}
-            />
+              {/* Switch bật AI */}
+              <FormControlLabel
+                sx={{ position: 'relative' }}
+                control={
+                  <Switch
+                    checked={aiSupport}
+                    onChange={(_, checked) => handleAiToggle(checked)} // dùng param thứ 2
+                    color="success"
+                  />
+                }
+                label="AI hỗ trợ viết thư giới thiệu"
+              />
+
+              {/* Thư giới thiệu */}
+              <TextField
+                label="Thư giới thiệu (có thể có hoặc không)"
+                multiline
+                rows={4}
+                fullWidth
+                margin="normal"
+                placeholder="Viết lời nhắn hoặc giới thiệu ngắn gọn..."
+                color="success"
+                value={coverletter}
+                onChange={(e) => setCoverletter(e.target.value)}
+                InputProps={{
+                  endAdornment: loading ? (
+                    <CircularProgress size={20} color="success" />
+                  ) : null,
+                }}
+              />
+
+            </FormGroup>
           </>
         )}
       </DialogContent>

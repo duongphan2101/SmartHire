@@ -118,7 +118,7 @@ export const matchAllJobs = async (req, res) => {
     }
 };
 
-// Match 1 Job – nhiều CV
+// Match 1 Job – nhiều CV + lấy thêm user info
 export const matchAllCVs = async (req, res) => {
     try {
         const { job_id } = req.body;
@@ -138,6 +138,7 @@ export const matchAllCVs = async (req, res) => {
 
         const results = await Promise.all(
             cvs.map(async (cv) => {
+                // Embedding cho CV
                 const cvVector = await getEmbedding(formatCVtoText(cv));
 
                 const reqScore = cosineSimilarity(cvVector, reqVector);
@@ -147,9 +148,21 @@ export const matchAllCVs = async (req, res) => {
                 const finalScore = reqScore * 0.5 + skillsScore * 0.3 + descScore * 0.2;
                 const normalizedScore = ((finalScore + 1) / 2) * 100;
 
+                // Gọi user service để lấy thông tin user
+                let user = null;
+                try {
+                    const { data: userData } = await axios.get(
+                        `${process.env.USER_SERVICE_URL}/${cv.user_id}`
+                    );
+                    user = userData;
+                } catch (err) {
+                    console.error(`⚠️ Không lấy được user ${cv.user_id}:`, err.message);
+                }
+
                 return {
                     cvId: cv._id,
-                    // name: cv.name,
+                    userId: cv.user_id,
+                    user,
                     score: normalizedScore,
                 };
             })

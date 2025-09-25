@@ -172,8 +172,8 @@ const About = () => {
                                         />
                                     </div>
                                     <p className="text-2xl" style={{ fontWeight: 'bold' }}>{user?.fullname}</p>
-                                    <span>Full Stack Developer</span>
-                                    <span>IUH, TP.HCM with love!</span>
+                                    {/* <span>Full Stack Developer</span>
+                                    <span>IUH, TP.HCM with love!</span> */}
 
                                 </div>
 

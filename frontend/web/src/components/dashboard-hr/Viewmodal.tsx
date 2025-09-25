@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CoverLetterCell } from "./CoverLetterCell";
 import gray from "../../assets/images/gray.avif";
-import useApplication, { type MatchingResponse } from "../../hook/useApplication";
+import useApplication, { type MatchingCVSResponse, type MatchingResponse } from "../../hook/useApplication";
 
 interface ViewModalProps {
   job: Job;
@@ -26,7 +26,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const [loadingApplicants, setLoadingApplicants] = useState(false);
   const [closing, setClosing] = useState(false);
   const [matchingJobs, setMatchingJobs] = useState<MatchingResponse[]>([]);
-  const [matchingCandidate, setMatchingCandidate] = useState<MatchingResponse[]>([]);
+  const [matchingCandidate, setMatchingCandidate] = useState<MatchingCVSResponse[]>([]);
   const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
 
   const MySwal = withReactContent(Swal);
@@ -93,7 +93,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     }
   }, [applicants, job?._id, renderMatchingCvForJob, renderMatchingCvsForOneJob]);
 
-
   const mergedApplicants = applicants.map((app, index) => ({
     ...app,
     score: matchingJobs[index]?.score ? Number(matchingJobs[index].score) : null,
@@ -101,6 +100,21 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
   const sortedApplicants = [...mergedApplicants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
+  const appliedCvIds = new Set(applicants.map((app) => app.resumeId));
+
+  const mergedCandidates = matchingCandidate
+    .filter((cand) => !appliedCvIds.has(cand.cvId))
+    .map((cand) => {
+      const match = matchingCandidate.find((m) => m.cvId === cand.cvId);
+      return {
+        ...cand,
+        score: match ? Number(match.score) : null,
+      };
+    });
+
+  const sortedCandidates = [...mergedCandidates].sort(
+    (a, b) => (b.score ?? 0) - (a.score ?? 0)
+  );
 
   const handleChange = <K extends keyof Job>(
     field: K,
@@ -526,49 +540,38 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
-
-                <table className="applications-table" style={{marginTop: 20}}>
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="px-4 py-2 text-left">Ứng viên</th>
-                      <th className="px-4 py-2">Trạng thái</th>
-                      <th className="px-4 py-2">Điểm phù hợp</th>
-                      <th className="px-4 py-2">CV</th>
-                      <th className="px-4 py-2">Liên hệ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {applicants
-                      .map((app) => {
-                        const match = matchingCandidate.find((m) => m.cvId === app.resumeId);
-                        return {
-                          ...app,
-                          score: match ? Number(match.score).toFixed(2) : null,
-                        };
-                      })
-                      .sort((a, b) => (b.score || 0) - (a.score || 0))
-                      .map((app) => (
-                        <tr key={app._id} className="">
+                {loadingApplicants ? (
+                  <p>Đang tải ứng viên...</p>
+                ) : sortedCandidates.length === 0 ? (
+                  <p>Chưa có ứng viên phù hợp</p>
+                ) : (
+                  <table className="applications-table" style={{ marginTop: 20 }}>
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="px-4 py-2 text-left">Ứng viên</th>
+                        <th className="px-4 py-2">Điểm phù hợp</th>
+                        <th className="px-4 py-2">CV</th>
+                        <th className="px-4 py-2">Liên hệ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedCandidates.map((app) => (
+                        <tr key={app.userId}>
                           <td className="flex items-center gap-2">
                             <img
-                              src={app.userSnapshot.avatar || gray}
+                              src={app.user?.avatar || gray}
                               alt=""
                               className="candidate-avt"
                             />
-                            {app.userSnapshot.fullname}
-                          </td>
-                          <td>
-                            <span className={`status-badge status-${app.status}`}>
-                              {app.status}
-                            </span>
+                            {app.user?.fullname}
                           </td>
                           <td className="font-bold text-emerald-500">
-                            {app.score ? `${app.score}%` : "-"}
+                            {app.score !== null ? `${app.score.toFixed(2)}%` : "-"}
                           </td>
                           <td>
-                            {app.cvSnapshot?.fileUrls ? (
+                            {app.user?.cv[0].fileUrls ? (
                               <a
-                                href={app.cvSnapshot.fileUrls}
+                                href={app.user?.cv[0].fileUrls}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-blue-600 font-bold"
@@ -580,15 +583,17 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             )}
                           </td>
                           <td>
-                            <button className="btn-contact" onClick={hanldeContact}>Liên hệ</button>
+                            <button className="btn-contact" onClick={hanldeContact}>
+                              Liên hệ
+                            </button>
                           </td>
                         </tr>
                       ))}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                )}
               </div>
             )}
-
 
           </div>
         </div>

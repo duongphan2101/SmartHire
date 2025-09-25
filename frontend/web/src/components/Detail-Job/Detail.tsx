@@ -332,7 +332,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                     <h3 className="content-title">Địa điểm</h3>
                     <p className="py-2">{item.address}</p>
                     <div className="map w-full">
-                        <Map address={item.address} />
+                        <Map address={item.address + ", " + item.location} />
                     </div>
                 </div>
             </div>

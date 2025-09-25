@@ -33,6 +33,11 @@ export interface Job {
   districts?: { name: string }[];
 }
 
+export interface Category {
+  sum: number;
+  data: Job[];
+}
+
 export default function useJob() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [joblatest, setJobLatest] = useState<Job[]>([]);
@@ -115,6 +120,7 @@ export default function useJob() {
       setLoading(false);
     }
   };
+
   const filterJobs = async (
     title?: string,
     location?: string,
@@ -147,11 +153,30 @@ export default function useJob() {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
       return null;
-     } 
+    }
     // finally {
     //   setLoading(false);
     // }
   };
+
+  const categories_sum = async (
+    title?: string,
+  ) => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Category>(`${host}/categories`, {
+        params: { title },
+      });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to filter jobs");
+      return { sum: 0, data: [] };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   //   // search
   // const searchJobs = useCallback(
   //     debounce(async (query: string, callback: (results: Job[]) => void) => {
@@ -184,5 +209,6 @@ export default function useJob() {
     deleteJob,
     filterJobs,
     getJobById,
+    categories_sum
   };
 }
