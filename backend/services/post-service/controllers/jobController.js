@@ -80,7 +80,7 @@ const filterJobs = async (req, res) => {
       filter["districts.name"] = { $regex: district, $options: "i" };
     }
     if (jobType) {
-      filter.jobType = { $regex: jobType, $options: "i" }; // hoặc === nếu muốn khớp tuyệt đối
+      filter.jobType = { $regex: jobType, $options: "i" };
     }
     if (jobLevel) {
       filter.jobLevel = { $regex: jobLevel, $options: "i" };
@@ -97,6 +97,7 @@ const searchJobs = async (req, res) => {
   try {
     const query = req.query.q;
     if (!query) {
+      s
       return res.json(await Job.find());
     }
 
@@ -138,6 +139,28 @@ const updateJob = async (req, res) => {
   }
 };
 
+const categories = async (req, res) => {
+  try {
+    const { title } = req.query;
+
+    const filter = {};
+    if (title) {
+      filter.jobTitle = { $regex: title, $options: "i" };
+    }
+
+    const jobs = await Job.find(filter);
+
+    const response = {
+      sum: jobs.length,
+      data: jobs
+    };
+
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createJob,
   getJobs,
@@ -148,4 +171,5 @@ module.exports = {
   updateJob,
   getJobById,
   filterJobs,
+  categories
 };

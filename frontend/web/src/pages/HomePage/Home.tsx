@@ -39,9 +39,18 @@ const Home: React.FC = () => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [location, setLocation] = useState("");
   const { filterJobs } = useJob();
-  const { joblatest } = useJob();
+  const { joblatest, categories_sum } = useJob();
   const { saveJob, unsaveJob, user, getUser } = useUser();
   const navigate = useNavigate();
+
+  const [backend, setBackend] = useState<number>(0);
+  const [projectmanager, setProjectmanager] = useState<number>(0);
+  const [dataanalyst, setDataanalyst] = useState<number>(0);
+  const [systemadminitrator, setSystemadminitrator] = useState<number>(0);
+  const [qaengineer, setQaengineer] = useState<number>(0);
+  const [devopsengineer, setDevopsengineer] = useState<number>(0);
+  const [frontend, setFrontend] = useState<number>(0);
+  const [fullstack, setFullstack] = useState<number>(0);
 
   const slogans = [
     "cơ hội phát triển!",
@@ -57,6 +66,17 @@ const Home: React.FC = () => {
     if (results.length > 0) {
       navigate(
         `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+      );
+    } else {
+      alert("Không tìm thấy công việc phù hợp");
+    }
+  };
+
+  const handleItem = async (title:string) => {
+    const results = await categories_sum(title);
+    if (results.data.length > 0) {
+      navigate(
+        `/jobdetail/${results.data[0]._id}?title=${encodeURIComponent(title)}`
       );
     } else {
       alert("Không tìm thấy công việc phù hợp");
@@ -90,62 +110,85 @@ const Home: React.FC = () => {
     return () => clearInterval(interval);
   }, [getUser]);
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const back_end = await categories_sum("Backend");
+      setBackend(back_end.sum);
+      const project_manager = await categories_sum("Project");
+      setProjectmanager(project_manager.sum);
+      const data_analyst = await categories_sum("Data");
+      setDataanalyst(data_analyst.sum);
+      const system_minitrator = await categories_sum("System");
+      setSystemadminitrator(system_minitrator.sum);
+      const qa_engineer = await categories_sum("Qa");
+      setQaengineer(qa_engineer.sum);
+      const devops_engineer = await categories_sum("DevOps");
+      setDevopsengineer(devops_engineer.sum);
+      const front_end = await categories_sum("Frontend");
+      setFrontend(front_end.sum);
+      const full_stack = await categories_sum("FullStack");
+      setFullstack(full_stack.sum);
+    };
+    fetchData();
+  }, []);
+
   const categories = [
     {
       id: 1,
       name: "Backend Developer",
       image: IT,
-      posted: 512,
-      url: "/cong-nghe-thong-tin",
+      posted: backend,
+      url: "backend"
     },
     {
       id: 2,
       name: "Project Manager",
       image: Commerce,
-      posted: 351,
-      url: "/kinh-doanh-ban-hang",
+      posted: projectmanager,
+      url: "project"
     },
     {
       id: 3,
       name: "Data Analyst",
       image: Marketing,
-      posted: 621,
-      url: "/marketing",
+      posted: dataanalyst,
+      url: "data"
     },
     {
       id: 4,
       name: "System Administrator",
       image: Finance,
-      posted: 341,
-      url: "/tai-chinh-ke-toan",
+      posted: systemadminitrator,
+      url: "system"
     },
     {
       id: 5,
       name: "QA Engineer",
       image: Engineering,
-      posted: 462,
-      url: "/san-xuat-ky-thuat",
+      posted: qaengineer,
+      url: "qa"
     },
     {
       id: 6,
       name: "DevOps Engineer",
       image: Education,
-      posted: 411,
-      url: "/giao-duc-dao-tao",
+      posted: devopsengineer,
+      url: "devops"
     },
     {
       id: 7,
       name: "Frontend Developer",
       image: HealCare,
-      posted: 48,
-      url: "/cham-soc-suc-khoe",
+      posted: frontend,
+      url: "frontend"
     },
     {
       id: 8,
       name: "FullStack Developer",
       image: Travel,
-      posted: 83,
-      url: "/du-lich-dich-vu",
+      posted: fullstack,
+      url: "fullstack"
     },
   ];
 
@@ -247,7 +290,6 @@ const Home: React.FC = () => {
     );
   };
 
-
   return (
     <>
       <div className="App">
@@ -255,6 +297,7 @@ const Home: React.FC = () => {
         <ChatWithAI />
 
         <div className="containerStyle">
+
           <div className="container-fluid container-fluid_banner">
             <div className="container-banner flex flex-wrap xl:flex-nowrap">
               <div className="container-banner_item w-full xl:w-7/12 p-2 flex flex-col justify-center items-center">
@@ -351,7 +394,7 @@ const Home: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full">
                   {categories.map((item, idx) => (
                     <div className="categories-item bg-transparent">
-                      <a href={item.url}>
+                      <a onClick={() => {handleItem(item.url)}}>
                         <div
                           key={idx}
                           className="item-bg"
@@ -379,8 +422,8 @@ const Home: React.FC = () => {
                               color: "#fff",
                               marginLeft: 10,
                               padding: 5,
-                              paddingLeft: 10,
-                              paddingRight: 10,
+                              paddingLeft: 15,
+                              paddingRight: 15,
                               borderRadius: 10,
                               fontSize: 12,
                             }}

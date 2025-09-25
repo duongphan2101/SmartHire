@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createJob, getJobs, getAllJobs , searchJobs, deleteJob, getLatestJobs,updateJob, getJobById, filterJobs} = require('../controllers/jobController');
+const { createJob, getJobs, getAllJobs , searchJobs, deleteJob, getLatestJobs,updateJob, getJobById, filterJobs, categories} = require('../controllers/jobController');
 
-
+router.get('/categories', categories);
 router.post('/create', createJob);
 router.get('/getAll/:idDepartment', getJobs);
 router.get('/getAll', getAllJobs);

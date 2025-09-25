@@ -8,9 +8,9 @@ import { IoLocationOutline } from "react-icons/io5";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
-import { FaRegEye, FaTrash } from "react-icons/fa6";
+import { FaRegEye } from "react-icons/fa6";
 import Swal from "sweetalert2";
-import "./jobApplied.css";
+import "./JobApplied.css";
 
 const JobApplied: React.FC = () => {
   const { user, getUser, applyJob } = useUser(); // Sử dụng applyJob để cập nhật nếu cần

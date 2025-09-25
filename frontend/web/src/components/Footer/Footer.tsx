@@ -51,15 +51,15 @@ const Footer: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             <ul>
                                 <p className="footer-title font-bold mb-2 ul-title">Về chúng tôi</p>
-                                <li className="footer-li"><a href="/">Câu chuyện</a></li>
-                                <li className="footer-li"><a href="/">Đội ngũ</a></li>
-                                <li className="footer-li"><a href="/">Liên hệ</a></li>
+                                <li className="footer-li"><a href="/intro">Câu chuyện</a></li>
+                                <li className="footer-li"><a href="/intro">Đội ngũ</a></li>
+                                <li className="footer-li"><a href="/intro">Liên hệ</a></li>
                             </ul>
 
                             <ul>
                                 <p className="footer-title  font-bold mb-2 ul-title">Dịch vụ</p>
-                                <li className="footer-li"><a href="/">Tìm việc</a></li>
-                                <li className="footer-li"><a href="/">Quản lí cv</a></li>
+                                <li className="footer-li"><a href="/jobdetail">Tìm việc</a></li>
+                                <li className="footer-li"><a href="/cvs">Quản lí cv</a></li>
                                 <li className="footer-li"><a href="/buildcv">Tạo cv</a></li>
                             </ul>
 

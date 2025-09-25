@@ -264,7 +264,7 @@
     padding: 15px;
     background-color: #fff;
     box-shadow: 0 13px 29px #0000001a;
-    /* border-radius: 10px; */
+    border-radius: 10px;
 }
 
 .categories-item .item-bg,
