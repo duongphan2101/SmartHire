@@ -133,3 +133,49 @@
 .btn-unapply svg {
   font-size: 15px;
 }
+@media (max-width: 768px) {
+  /* Điều chỉnh container và tiêu đề */
+  .job-applied-container {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .job-applied-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  /* Chỉnh sửa card */
+  .job-applied-card {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job-applied-card-top {
+    flex-direction: column; 
+    align-items: center;
+  }
+
+  .job-applied-avt {
+    height: 60px;
+    width: 60px;
+  }
+  .job-title {
+    font-size: 16px;
+  }
+
+  .job-department {
+    font-size: 12px;
+  }
+  .job-details {
+    flex-wrap: wrap; 
+    justify-content: center;
+    font-size: 12px;
+   
+  }
+  .btn-view { 
+    font-size: 13px; 
+    margin-bottom: 10px;
+  }
+}
