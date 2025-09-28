@@ -37,7 +37,8 @@ export default function useAuth() {
   const register = async (
     fullname: string,
     email: string,
-    password: string
+    password: string,
+    role: string
   ): Promise<AuthResponse | void> => {
     try {
       const host = HOSTS.authService;
@@ -48,6 +49,7 @@ export default function useAuth() {
         fullname,
         email,
         password,
+        role
       });
 
       localStorage.setItem("accessToken", res.data.accessToken);

@@ -18,7 +18,6 @@ const Profile: React.FC = () => {
     const { getUser, user, updateUser, updateUserAvatar } = useUser();
     const [userName, setUserName] = useState<string>('');
     const [userEmail, setUserEmail] = useState<string>('');
-    const [userRole, setUserRole] = useState<string>('');
     const [userDob, setUserDob] = useState<string>('');
     const [userPhone, setUserPhone] = useState<string>('');
     const MySwal = withReactContent(Swal);
@@ -44,7 +43,6 @@ const Profile: React.FC = () => {
         if (user) {
             setUserName(user.fullname || "");
             setUserEmail(user.email || "");
-            setUserRole(user.role || "");
             setUserDob(user.dob ? user.dob.split("T")[0] : "");
             setUserPhone(user.phone || "");
         }
@@ -238,7 +236,7 @@ const Profile: React.FC = () => {
                                         <label>Email</label>
                                     </div>
 
-                                    <div className="group">
+                                    {/* <div className="group">
                                         <select
                                             className="input"
                                             value={userRole}
@@ -251,7 +249,7 @@ const Profile: React.FC = () => {
                                         <span className="highlight"></span>
                                         <span className="bar"></span>
                                         <label>Vai trò</label>
-                                    </div>
+                                    </div> */}
 
                                     <div className="group">
                                         <input type="date" className="input" required

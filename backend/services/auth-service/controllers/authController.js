@@ -24,7 +24,7 @@ const generateTokens = (account) => {
 exports.register = async (req, res) => {
   try {
     const host = HOSTS.userService;
-    const { email, password, fullname } = req.body;
+    const { email, password, fullname, role } = req.body;
 
     // 1. Check email tồn tại chưa
     const exist = await Account.findOne({ email });
@@ -37,9 +37,10 @@ exports.register = async (req, res) => {
       fullname,
       email,
       avatar:
-        "https://i.pinimg.com/736x/f5/52/a1/f552a14040107decc9a74a50e5a72423.jpg",
+        "https://res.cloudinary.com/dufwcmob3/image/upload/v1758978702/AVT-Default_ntfvjk.png",
       dob: null,
       phone: null,
+      role
     });
 
     const user_id = userResp.data._id;

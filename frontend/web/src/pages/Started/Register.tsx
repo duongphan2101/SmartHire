@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../../hook/useAuth";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import TermsModal from "../../components/TermsModal/TermsModal";
 
 function Login() {
   const location = useLocation();
@@ -19,14 +20,30 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
-
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
+  const [role, setRole] = useState("");
+
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
   const MySwal = withReactContent(Swal);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleOpen = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // validate trước khi mở modal
+    if (!email || !fullName || !password || !repassword) {
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      return;
+    }
+    if (password !== repassword) {
+      toast.error("Mật khẩu nhập lại không khớp!");
+      return;
+    }
+    setAcceptedTerms(true);
+  };
+
+  const handleSubmit = async () => {
+    // e.preventDefault();
 
     // Regex check
     const emailRegex =
@@ -63,11 +80,11 @@ function Login() {
     }
 
     try {
-      await register(fullName, email, password);
+      await register(fullName, email, password, role);
 
       const result = await MySwal.fire({
         title: "Đăng ký thành công!",
-        text: "Bạn có muốn đăng nhập ngay bằng tài khoản vừa tạo không?",
+        text: "Vui lòng kiểm tra Email để xác nhận tài khoản",
         icon: "success",
         showCancelButton: true,
         confirmButtonText: "Đăng nhập",
@@ -97,23 +114,34 @@ function Login() {
         <div className="tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${
-              location.pathname === "/login" ? "active-tab" : ""
-            }`}
+            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""
+              }`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${
-              location.pathname === "/register" ? "active-tab" : ""
-            }`}
+            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""
+              }`}
           >
             Đăng ký
           </Link>
         </div>
 
         <h2 className="title">Đăng ký</h2>
+
+        {/* Modal */}
+        {acceptedTerms && (
+          <TermsModal
+            onClose={() => setAcceptedTerms(false)}
+            onConfirm={(selectedRole) => {
+              setRole(selectedRole);
+              setAcceptedTerms(false);
+              handleSubmit();
+            }}
+          />
+        )}
+
 
         <div className="social-buttons">
           <button className="social-btn facebook">
@@ -126,12 +154,14 @@ function Login() {
             Đăng ký với Google
           </button>
         </div>
+
         <div className="divider">
           <hr />
           <span>hoặc</span>
           <hr />
         </div>
-        <form className="signup-form" onSubmit={handleSubmit}>
+
+        <form className="signup-form" onSubmit={handleOpen}>
           <div className="input-group">
             <input
               type="text"
@@ -194,6 +224,7 @@ function Login() {
             Đăng ký
           </button>
         </form>
+
         <ToastContainer />
       </div>
     </div>
