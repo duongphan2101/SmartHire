@@ -21,6 +21,7 @@ connectDB();
 
 app.use("/api/forgot-password", require("./routes/forgotPasswordRoutes"));
 app.use("/api/email", require("./routes/verifyRoutes"));
+app.use("/api/email", require("./routes/applicationNotifyRoutes"));
 
 app.listen(PORT, () =>
   console.log(`🚀 Forgot Password service running on port ${PORT}`)

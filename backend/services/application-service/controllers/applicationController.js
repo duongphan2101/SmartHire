@@ -11,7 +11,7 @@ exports.applyJob = async (req, res) => {
     const [jobRes, userRes, cvRes] = await Promise.all([
       axios.get(`${HOSTS.jobService}/${jobId}`),
       axios.get(`${HOSTS.userService}/${userId}`),
-      axios.get(`${HOSTS.cvService}/cv/${Id}`)
+      axios.get(`${HOSTS.cvService}/cv/${Id}`),
     ]);
 
     const job = jobRes.data;
@@ -19,7 +19,9 @@ exports.applyJob = async (req, res) => {
     const cv = cvRes.data;
 
     if (!job || !user || !cv) {
-      return res.status(404).json({ success: false, message: "Job, User hoặc CV không tồn tại" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Job, User hoặc CV không tồn tại" });
     }
 
     // Tạo application kèm snapshot
@@ -42,21 +44,42 @@ exports.applyJob = async (req, res) => {
         avatar: user.avatar,
       },
       cvSnapshot: {
-        fileUrls: cv.fileUrls[0]
+        fileUrls: cv.fileUrls[0],
       },
     });
 
     await application.save();
 
+    try {
+      await axios.post(`${HOSTS.emailService}/api/email/notify`, {
+        user: {
+          email: user.email,
+          fullname: user.fullname,
+        },
+        hr: {
+          email: job.createBy?.email,
+          fullname: job.createBy.fullname,
+        },
+        job: {
+          title: job.jobTitle,
+          location: job.location,
+          salary: job.salary,
+        },
+      });
+    } catch (mailErr) {
+      console.error("Lỗi gửi email:", mailErr.response?.data || mailErr.message);
+    }
+
     res.status(201).json({ success: true, data: application });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: "User already applied this job" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already applied this job" });
     }
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // Get all applications of a job
 exports.getApplicationsByJob = async (req, res) => {
