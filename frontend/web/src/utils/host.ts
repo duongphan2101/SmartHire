@@ -7,5 +7,7 @@ export const HOSTS = {
   jobService: "http://localhost:4444/api/jobs",
   applicationService: "http://localhost:5555/api/applications",
   cvAIService: "http://localhost:8080/api/cvai",
-  matchingService: "http://localhost:6789/api/matching"
+  matchingService: "http://localhost:6789/api/matching",
+  emailService: "http://localhost:5000",
+
 };

@@ -47,9 +47,9 @@ exports.notifyApplication = async (req, res) => {
     await transporter.sendMail(userMailOptions);
     console.log("Email User gửi thành công");
 
-    // Mail cho HR (tùy chọn, chỉ gửi nếu có hr.email)
+    // Mail cho HR (tùy chọn)
     let hrEmailSent = false;
-    if (hr?.email) {
+    if (hr && hr.email) {
       const hrMailOptions = {
         from: process.env.EMAIL_USER,
         to: hr.email,

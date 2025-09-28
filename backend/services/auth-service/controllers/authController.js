@@ -54,7 +54,9 @@ exports.register = async (req, res) => {
     });
 
     // 4. Gửi email xác nhận
-    await axios.post(`${HOSTS.emailService}/send-verify`, {
+    const emailUrl = `${HOSTS.emailService}/api/email/send-verify`; // Cập nhật endpoint
+    console.log("Gửi yêu cầu đến email service:", { url: emailUrl, data: { email, user_id } });
+    await axios.post(emailUrl, {
       email,
       user_id,
     });

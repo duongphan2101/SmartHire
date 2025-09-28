@@ -4,6 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./VerifyEmail.css";
+import { HOSTS } from "../../utils/host";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -11,16 +12,20 @@ export default function VerifyEmail() {
   const token = searchParams.get("token");
   const [status, setStatus] = useState("Đang xác nhận email...");
 
-  useEffect(() => {
+ useEffect(() => {
     if (token) {
+      const verifyUrl = `${HOSTS.emailService}/api/email/verify?token=${token}`;
+      console.log("Gửi yêu cầu xác thực đến:", verifyUrl); // Debug URL
       axios
-        .get(`http://localhost:5000/api/email/verify?token=${token}`)
-        .then(() => {
+        .get(verifyUrl)
+        .then((response) => {
+          console.log("Response từ email service:", response.data);
           setStatus("✅ Xác nhận thành công! Chuyển đến đăng nhập...");
           toast.success("Xác nhận email thành công!");
           setTimeout(() => navigate("/login"), 2000);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error("Lỗi xác thực email:", error.response?.data || error.message);
           setStatus("❌ Xác nhận thất bại hoặc token đã hết hạn.");
           toast.error("Xác nhận thất bại hoặc token đã hết hạn.");
         });

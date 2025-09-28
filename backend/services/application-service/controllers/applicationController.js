@@ -24,6 +24,34 @@ exports.applyJob = async (req, res) => {
         .json({ success: false, message: "Job, User hoặc CV không tồn tại" });
     }
 
+    // Lấy email HR từ userService dựa trên createBy._id và role: "hr"
+    let hrEmail, hrFullname, hrAvatar;
+    if (job.createBy && job.createBy._id) {
+      console.log("Thử lấy thông tin HR từ userService với _id:", job.createBy._id);
+      try {
+        const hrRes = await axios.get(`${HOSTS.userService}/${job.createBy._id}`);
+        const hrData = hrRes.data;
+        console.log("Response từ userService:", hrData);
+        if (hrData.role === "hr" && hrData.email) {
+          hrEmail = hrData.email;
+          hrFullname = hrData.fullname;
+          hrAvatar = hrData.avatar;
+          console.log("Đã lấy được email HR:", hrEmail);
+        } else {
+          console.warn(
+            `User ${job.createBy._id} không phải HR (role: ${hrData.role}) hoặc không có email`
+          );
+          hrEmail = null;
+        }
+      } catch (err) {
+        console.error("Lỗi khi gọi userService:", err.message, err.response?.data);
+        hrEmail = null;
+      }
+    } else {
+      console.warn("Không tìm thấy createBy._id trong job");
+      hrEmail = null;
+    }
+
     // Tạo application kèm snapshot
     const application = new Application({
       jobId,
@@ -50,27 +78,37 @@ exports.applyJob = async (req, res) => {
 
     await application.save();
 
-    try {
-      await axios.post(`${HOSTS.emailService}/api/email/notify`, {
-        user: {
-          email: user.email,
-          fullname: user.fullname,
-        },
-        hr: {
-          email: job.createBy?.email,
-          fullname: job.createBy.fullname,
-        },
-        job: {
-          title: job.jobTitle,
-          location: job.location,
-          salary: job.salary,
-        },
-      });
-    } catch (mailErr) {
-      console.error("Lỗi gửi email:", mailErr.response?.data || mailErr.message);
+    // Gửi email sử dụng hrEmail từ userService
+    let emailStatus = "Sent to user only";
+    if (user.email) {
+      try {
+        const emailPayload = {
+          user: {
+            email: user.email,
+            fullname: user.fullname,
+          },
+          hr: hrEmail ? { email: hrEmail, fullname: hrFullname || "HR" } : null,
+          job: {
+            title: job.jobTitle,
+            location: job.location,
+            salary: job.salary,
+          },
+        };
+        console.log("Payload gửi đến email service trước khi gửi:", emailPayload);
+        const emailResponse = await axios.post(
+          `${HOSTS.emailService}/api/email/notify`,
+          emailPayload
+        );
+        console.log("Response từ email service:", emailResponse.data);
+        emailStatus = hrEmail ? "Sent to both user and HR" : "Sent to user only";
+      } catch (mailErr) {
+        console.error("Lỗi gửi email:", mailErr.response?.data || mailErr.message);
+      }
+    } else {
+      console.warn("Không gửi email do thiếu user.email");
     }
 
-    res.status(201).json({ success: true, data: application });
+    res.status(201).json({ success: true, data: application, emailStatus });
   } catch (error) {
     if (error.code === 11000) {
       return res
