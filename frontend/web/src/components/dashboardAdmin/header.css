@@ -1,0 +1,158 @@
+.admin-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+  border-bottom: 2px solid #e5e7eb;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-logo-container {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.admin-logo-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.admin-app-name {
+  font-weight: 700;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.admin-nav-button:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-nav-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+}
+
+.admin-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.admin-breadcrumb-item {
+  color: #9ca3af;
+}
+
+.admin-breadcrumb-item.current {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.admin-breadcrumb-divider {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-icon-group {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-icon-button {
+  padding: 8px;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-icon-button:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-avatar-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.admin-avatar-dropdown-button {
+  padding: 4px;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-avatar-dropdown-button:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: #4b5563;
+}
+
+.admin-company-avatar,
+.admin-user-avatar {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.admin-avatar-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 5px;
+}
+
+.admin-icon-group {
+  display: flex;
+  margin-left: 15px;
+}
+
+.admin-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  padding: 5px;
+}
+
+.admin-nav-icon {
+  width: 20px;
+  height: 20px;
+  color: #5f6368;
+}

@@ -1,0 +1,46 @@
+.App-Dashboard-Admin {
+  text-align: center;
+  width: 100%;
+  background-color: #fff;
+  height: 100vh;
+  position: relative;
+}
+
+.admin-dashboard-layout-container {
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  height: 100%;
+  margin-top: 110px;
+}
+
+.admin-main-content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-left: 1px solid #e5e7eb;
+}
+
+.admin-main-content-wrapper.admin-expanded {
+  margin-left: 220px;
+  transition: margin-left 0.3s ease;
+}
+
+.admin-main-content-wrapper.admin-collapsed {
+  margin-left: 60px;
+  transition: margin-left 0.3s ease;
+}
+
+.admin-search-wrapper {
+  align-items: center;
+  background-color: #e5e7eb;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.admin-page-content {
+  flex: 1;
+  transition: margin-left 0.3s ease;
+  background-color: rgb(224, 224, 224);;
+}
