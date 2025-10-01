@@ -42,7 +42,9 @@ const CVTemplate2 = forwardRef<HTMLDivElement, CVTemplateProps>(
   ({ cvData, currentLanguage }, ref) => {
     return (
       <div className="cv2-container" ref={ref}>
+        <div style={{height: 20, marginLeft: -20, marginRight: -20, marginTop: -20}} className="bg-gray-900"></div>
         <div className="cv2-header">
+          
           <h1>{cvData.name || (currentLanguage === "vi" ? "Họ và Tên" : "Full Name")}</h1>
           <p className="cv2-intro">{cvData.introduction || (currentLanguage === "vi" ? "Chưa có thông tin" : "No information yet")}</p>
         </div>

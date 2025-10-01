@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
-
+import { IoWalletOutline } from 'react-icons/io5';
 
 interface HRheaderProps {
   breadcrumb: string;
-  setPage: (page: "dashboard" | "about" | "company" | "jobPost") => void;
+  setPage: (page: "dashboard" | "about" | "company" | "jobPost" | "payment") => void;
   companyName: string;
 }
 
 const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [coin, setCoin] = useState<number>(0);
 
   // Load avatar từ localStorage khi component mount
   useEffect(() => {
@@ -21,6 +21,7 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
       const storedAvatar = localStorage.getItem("companyAvatar");
       if (storedAvatar) {
         setCompanyAvatar(storedAvatar);
+        setCoin(21);
       }
     } catch (e) {
       console.error("Error loading avatar from localStorage", e);
@@ -42,21 +43,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
     setPage("about");
   };
 
-  const handleCompanyAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newAvatar = reader.result as string;
-        setCompanyAvatar(newAvatar);
-        localStorage.setItem("companyAvatar", newAvatar);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handlePayment = () => {
+    setPage("payment");
   };
 
   return (
@@ -70,9 +58,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
           {breadcrumb.split(" > ").map((item, index: number, array) => (
             <React.Fragment key={item}>
               <span
-                className={`breadcrumb-item ${
-                  index === array.length - 1 ? "current" : ""
-                }`}
+                className={`breadcrumb-item ${index === array.length - 1 ? "current" : ""
+                  }`}
               >
                 {item}
               </span>
@@ -85,8 +72,9 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
       </div>
 
       <div className="header-right">
-        <span style={{ fontSize: "18px"}}>{companyName}</span>
+        <span style={{ fontSize: "18px" }}>{companyName}</span>
         <div className="icon-group">
+
           <button className="icon-button">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -101,6 +89,12 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
               ></path>
             </svg>
           </button>
+
+          <div className="flex items-center gap-2">
+            <IoWalletOutline size={24} className="cursor-pointer" onClick={handlePayment}/>
+            <span className="cursor-pointer" onClick={handlePayment}>Số dư: {coin} Coin</span>
+          </div>
+
         </div>
 
         <div className="user-avatar" onClick={handleAbout}>

@@ -15,7 +15,7 @@ import "./nav.css";
 interface NavProps {
   setBreadcrumb: (breadcrumb: string) => void;
   setPage: (
-    page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost"
+    page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost" | "payment"
   ) => void;
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
@@ -52,7 +52,7 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
     setBreadcrumb(breadcrumbText);
     setActiveItem(item);
     if (item === "Công ty") setPage("company");
-    else if (item === "Dashboard") setPage("dashboard");
+    else if (item === "Bảng điều khiển") setPage("dashboard");
     else if (item === "Công việc đã đăng") setPage("jobPost");
     else if (item === "Tất cả công việc") setPage("allJobPost");
   };
@@ -81,7 +81,11 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
           className={`nav-item ${activeItem === "Bảng điều khiển" ? "active" : ""}`}
           onClick={() => handleItemClick("Bảng điều khiển", false)}
         >
-          <div className="nav-item-content">
+          <div className="nav-item-content"
+            onClick={(e) => {
+              handleDropdownClick(e, "Bảng điều khiển");
+              handleItemClick("Bảng điều khiển", false);
+            }}>
             <div className="nav-item-text">
               <HiOutlineMenuAlt3 className="nav-item-icon" />
               <span>Bảng điều khiển</span>
@@ -90,9 +94,8 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
         </li>
 
         <li
-          className={`nav-item with-dropdown ${
-            activeItem === "Công việc" ? "active" : ""
-          }`}
+          className={`nav-item with-dropdown ${activeItem === "Công việc" ? "active" : ""
+            }`}
         >
           <div
             className="nav-item-content"
@@ -112,17 +115,15 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
           {isWorkOpen && !isIconMode && (
             <ul className="sub-menu">
               <li
-                className={`sub-menu-item ${
-                  activeItem === "Tất cả công việc" ? "active" : ""
-                }`}
+                className={`sub-menu-item ${activeItem === "Tất cả công việc" ? "active" : ""
+                  }`}
                 onClick={() => handleItemClick("Tất cả công việc", true)}
               >
                 Tất cả công việc
               </li>
               <li
-                className={`sub-menu-item ${
-                  activeItem === "Công việc đã đăng" ? "active" : ""
-                }`}
+                className={`sub-menu-item ${activeItem === "Công việc đã đăng" ? "active" : ""
+                  }`}
                 onClick={() => handleItemClick("Công việc đã đăng", true)}
               >
                 Công việc đã đăng
@@ -149,9 +150,8 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
       <span className="nav-title">Khác</span>
       <ul className="nav-menu">
         <li
-          className={`nav-item ${
-            activeItem === "Học tập & Đào tạo" ? "active" : ""
-          }`}
+          className={`nav-item ${activeItem === "Học tập & Đào tạo" ? "active" : ""
+            }`}
           onClick={() => handleItemClick("Học tập & Đào tạo", false)}
         >
           <div className="nav-item-content">

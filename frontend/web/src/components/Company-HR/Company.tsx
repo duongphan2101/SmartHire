@@ -51,7 +51,7 @@ const Company: React.FC = () => {
   if (error) return <p style={{ padding: 20, color: "red" }}>Lỗi: {error}</p>;
 
   return (
-    <div className="company-profile-container">
+    <div className="company-profile-container shadow-xl">
       <div className="company-profile-header">
         <div className="search-container">
           <input

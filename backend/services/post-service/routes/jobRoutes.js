@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { createJob, getJobs, getAllJobs , searchJobs, deleteJob, getLatestJobs,updateJob, getJobById, filterJobs, categories} = require('../controllers/jobController');
+const { createJob, getJobs, getAllJobs , searchJobs, deleteJob, getLatestJobs,updateJob, getJobById, filterJobs, categories
+    ,getNumJobsByDepartment, getNumJobsByUser
+} = require('../controllers/jobController');
 
 router.get('/categories', categories);
 router.post('/create', createJob);
 router.get('/getAll/:idDepartment', getJobs);
+router.get('/jobByDepartment/:idDepartment', getNumJobsByDepartment);
+router.get('/jobByUser/:idUser', getNumJobsByUser);
 router.get('/getAll', getAllJobs);
 router.get('/getLatest', getLatestJobs);
 router.get('/filter/search', filterJobs);

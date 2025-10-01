@@ -9,13 +9,15 @@ import About from "../../components/About-HR/About-hr";
 import CompanyContent from "../Company/CompanyContent";
 import AllJobPost from "../../components/dashboard-hr/AllJobPost";
 import JobPost from "../../components/dashboard-hr/JobPost";
+import Dashboard_HR from "../../components/Dashboard/Dashboard";
 import useDepartment from "../../hook/useDepartment";
+import Payment from "../../components/Payment/Payment";
 
 export const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breadcrumb, setBreadcrumb] = useState("Dashboard");
   const [page, setPage] = useState<
-    "dashboard" | "about" | "company" | "jobPost" | "allJobPost"
+    "dashboard" | "about" | "company" | "jobPost" | "allJobPost" | "payment"
   >("dashboard");
 
   const { department } = useDepartment();
@@ -41,12 +43,13 @@ export const Dashboard = () => {
             setPage={setPage}
             companyName={companyName}
           />
-          <div className="page-content">
-            {page === "dashboard" && <></>}
+          <div className="page-content bg-gray-50">
+            {page === "dashboard" && <Dashboard_HR />}
             {page === "about" && <About />}
             {page === "company" && <CompanyContent />}
             {page === "allJobPost" && <AllJobPost />}
             {page === "jobPost" && <JobPost />}
+            {page === "payment" && <Payment />}
           </div>
         </div>
       </div>

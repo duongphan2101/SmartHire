@@ -33,7 +33,7 @@ exports.notifyApplication = async (req, res) => {
       });
     }
 
-    console.log("Payload nhận được:", { user, hr, job });
+    // console.log("Payload nhận được:", { user, hr, job });
 
     // Mail cho User (bắt buộc)
     const userMailOptions = {
@@ -43,7 +43,7 @@ exports.notifyApplication = async (req, res) => {
       text: `Xin chào ${user.fullname},\n\nCảm ơn bạn đã ứng tuyển vào vị trí ${job.title} tại ${job.location}.\nMức lương: ${job.salary}\n\nChúng tôi đã nhận được hồ sơ của bạn và sẽ xem xét trong thời gian sớm nhất. Bạn sẽ nhận được thông báo về các bước tiếp theo qua email.\n\nChúc bạn may mắn!`,
     };
 
-    console.log("Gửi email đến User:", userMailOptions);
+    // console.log("Gửi email đến User:", userMailOptions);
     await transporter.sendMail(userMailOptions);
     console.log("Email User gửi thành công");
 

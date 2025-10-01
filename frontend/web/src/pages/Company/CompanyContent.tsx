@@ -15,7 +15,7 @@ const CompanyContent = () => {
   }
 
   return (
-    <div style={{padding: '20px', backgroundColor: '#e0e0e0', height: '100%'}}>
+    <div style={{padding: '20px', height: '100%'}}>
       <Company />
     </div>
   );

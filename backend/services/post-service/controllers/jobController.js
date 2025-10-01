@@ -28,6 +28,38 @@ const getJobs = async (req, res) => {
   }
 };
 
+const getNumJobsByDepartment = async (req, res) => {
+  try {
+    const { idDepartment } = req.params;
+    const jobs = await Job.find({ "department._id": idDepartment }).countDocuments();
+    if (jobs.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Không có job nào cho công ty này", jobs: [] });
+    }
+
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getNumJobsByUser = async (req, res) => {
+  try {
+    const { idUser } = req.params;
+    const jobs = await Job.find({ "createBy._id": idUser }).countDocuments();
+    if (jobs.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Không có job nào!", jobs: [] });
+    }
+
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const getAllJobs = async (req, res) => {
   try {
     const jobs = await Job.find();
@@ -171,5 +203,7 @@ module.exports = {
   updateJob,
   getJobById,
   filterJobs,
-  categories
+  categories,
+  getNumJobsByDepartment,
+  getNumJobsByUser
 };

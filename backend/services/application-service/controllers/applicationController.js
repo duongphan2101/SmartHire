@@ -1,6 +1,7 @@
 const Application = require("../models/Application");
 const { HOSTS } = require("../../host");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 // Apply job với snapshot
 exports.applyJob = async (req, res) => {
@@ -138,6 +139,65 @@ exports.getApplicationsByUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Get num all application
+exports.getNumApplicationByDepartment = async (req, res) => {
+  try {
+    const { departmentId } = req.params;
+
+    const jobRes = await axios.get(
+      `${HOSTS.jobService}/getAll/${departmentId}`
+    );
+
+    const jobs = jobRes.data;
+
+    if (!jobs || jobs.length === 0) {
+      return res.json(0);
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalApplications = await Application.countDocuments({
+      jobId: { $in: jobIds },
+    });
+
+    return res.json(totalApplications);
+  } catch (err) {
+    console.error("Error getNumApplicationByDepartment:", err.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get num all application - by User
+exports.getNumApplicationByDepartmentAndUser = async (req, res) => {
+  try {
+    const { departmentId, userId } = req.params;
+
+    const jobRes = await axios.get(
+      `${HOSTS.jobService}/getAll/${departmentId}`
+    );
+
+    const jobs = jobRes.data;
+
+    if (!jobs || jobs.length === 0) {
+      return res.json(0);
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    // Đếm application theo jobId và userId
+    const totalApplications = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      userId: userId,  // filter thêm user
+    });
+
+    return res.json(totalApplications);
+  } catch (err) {
+    console.error("Error getNumApplicationByDepartmentAndUser:", err.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // Update application status
 exports.updateStatus = async (req, res) => {
