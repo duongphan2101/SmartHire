@@ -80,6 +80,7 @@ function Login() {
     }
 
     try {
+      console.log("Alert role: ", role);
       await register(fullName, email, password, role);
 
       const result = await MySwal.fire({

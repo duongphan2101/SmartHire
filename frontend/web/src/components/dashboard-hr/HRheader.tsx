@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
+import usePayment from "../../hook/usePayment";
 import { IoWalletOutline } from 'react-icons/io5';
 
 interface HRheaderProps {
@@ -13,7 +14,7 @@ interface HRheaderProps {
 const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
-  const [coin, setCoin] = useState<number>(0);
+  const { balance } = usePayment();
 
   // Load avatar từ localStorage khi component mount
   useEffect(() => {
@@ -21,7 +22,6 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
       const storedAvatar = localStorage.getItem("companyAvatar");
       if (storedAvatar) {
         setCompanyAvatar(storedAvatar);
-        setCoin(21);
       }
     } catch (e) {
       console.error("Error loading avatar from localStorage", e);
@@ -91,8 +91,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
           </button>
 
           <div className="flex items-center gap-2">
-            <IoWalletOutline size={24} className="cursor-pointer" onClick={handlePayment}/>
-            <span className="cursor-pointer" onClick={handlePayment}>Số dư: {coin} Coin</span>
+            <IoWalletOutline size={24} className="cursor-pointer" onClick={handlePayment} />
+            <span className="cursor-pointer" onClick={handlePayment}>Số dư: {balance} Coin</span>
           </div>
 
         </div>

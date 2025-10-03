@@ -99,6 +99,7 @@
   width: 80%;
   height: 80%;
   object-fit: contain;
+  padding: 5px;
 }
 
 .btn-view:hover {

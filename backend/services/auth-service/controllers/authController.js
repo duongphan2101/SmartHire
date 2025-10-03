@@ -24,6 +24,7 @@ const generateTokens = (account) => {
 exports.register = async (req, res) => {
   try {
     const host = HOSTS.userService;
+    const host_wallet = HOSTS.walletService;
     const { email, password, fullname, role } = req.body;
 
     // 1. Check email tồn tại chưa
@@ -32,7 +33,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Email đã tồn tại" });
     }
 
-    // 2. Gọi user-service tạo user
+    // 2. Gọi user-service tạo user, goi payment-service tao wallet
     const userResp = await axios.post(`${host}`, {
       fullname,
       email,
@@ -44,6 +45,10 @@ exports.register = async (req, res) => {
     });
 
     const user_id = userResp.data._id;
+
+    await axios.post(`${host_wallet}`, {
+      userId: user_id
+    });
 
     // 3. Hash password + lưu vào Account
     const hashedPwd = await bcrypt.hash(password, 10);

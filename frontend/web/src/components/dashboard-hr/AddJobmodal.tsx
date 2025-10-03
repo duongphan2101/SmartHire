@@ -4,6 +4,7 @@ import { HOSTS } from "../../utils/host";
 import { fetchProvinces, type Province } from "../../utils/provinceApi";
 import useDepartment from "../../hook/useDepartment";
 import useUser from "../../hook/useUser";
+import usePayment from "../../hook/usePayment";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { ToastContainer, toast } from "react-toastify";
@@ -25,6 +26,7 @@ interface AddJobModalProps {
         createBy: {
             id: string;
             fullname: string;
+            email: string;
             avatar?: string;
         };
 
@@ -45,7 +47,7 @@ interface AddJobModalProps {
 const MySwal = withReactContent(Swal);
 
 const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
-    
+
     const [jobTitle, setJobTitle] = useState("");
     const [jobType, setJobType] = useState("");
     const [jobLevel, setJobLevel] = useState("");
@@ -63,6 +65,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
     const [num, setNum] = useState<number | "">("");
     const { department } = useDepartment("user");
     const { getUser, user } = useUser();
+    const { withdraw } = usePayment();
 
     useEffect(() => {
         try {
@@ -181,6 +184,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             createBy: {
                 _id: user?._id,
                 fullname: user?.fullname,
+                email: user?.email,
                 avatar: user?.avatar
             },
             skills: skills.filter((s) => s.trim()),
@@ -212,6 +216,9 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                 ...savedJob,
                 date: new Date(savedJob.createdAt).toLocaleDateString(),
             });
+
+            withdraw(1);
+
             toast.success("Tạo bài đăng thành công");
             onClose();
         } catch (err) {
