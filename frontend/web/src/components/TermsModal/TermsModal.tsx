@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface TermsModalProps {
   onClose: () => void;
@@ -6,7 +6,7 @@ interface TermsModalProps {
 }
 
 const TermsModal: React.FC<TermsModalProps> = ({ onClose, onConfirm }) => {
-  const [selectedRole, setSelectedRole] = useState<"user" | "hr">("user");
+  const [selectedRole, setSelectedRole] = useState<string>("user");
   const [checked, setChecked] = useState(false);
 
   const candidateTerms = `
@@ -90,13 +90,16 @@ Trong trường hợp Nhà tuyển dụng vi phạm điều khoản:
 
   const termsText = selectedRole === "user" ? candidateTerms : hrTerms;
 
-  // useEffect(() => {
-  //   console.log("UseEffect: ", selectedRole);
-  // }, []);
+  useEffect(() => {
+    console.log("UseEffect: ", selectedRole);
+  }, []);
 
-  const setRole = (rolex: "user" | "hr") => {
+  const selectedRoleRef = useRef("user");
+
+  const setRole = (rolex: string) => {
+    selectedRoleRef.current = rolex;
     setSelectedRole(rolex);
-    // console.log("selected: ", selectedRole);
+    console.log("selected (ref):", selectedRoleRef.current);
   };
 
   return (
@@ -219,7 +222,7 @@ Trong trường hợp Nhà tuyển dụng vi phạm điều khoản:
               borderRadius: "6px",
               cursor: checked ? "pointer" : "not-allowed",
             }}
-            onClick={() => onConfirm(selectedRole)}
+            onClick={() => onConfirm(selectedRoleRef.current)}
             disabled={!checked}
           >
             Đồng ý
