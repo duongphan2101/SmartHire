@@ -199,8 +199,8 @@ async function coverLetter(req, res) {
       Yêu cầu: ${(job.requirement || []).join(", ")}
     `;
 
-    console.log("Candidate info:", candidateInfo);
-    console.log("Job info:", jobInfo);
+    // console.log("Candidate info:", candidateInfo);
+    // console.log("Job info:", jobInfo);
 
     // 3. Prompt riêng
     const prompt = `

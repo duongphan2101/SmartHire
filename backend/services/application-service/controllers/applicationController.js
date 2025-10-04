@@ -1,6 +1,7 @@
 const Application = require("../models/Application");
 const { HOSTS } = require("../../host");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 // Apply job với snapshot
 exports.applyJob = async (req, res) => {
@@ -11,7 +12,7 @@ exports.applyJob = async (req, res) => {
     const [jobRes, userRes, cvRes] = await Promise.all([
       axios.get(`${HOSTS.jobService}/${jobId}`),
       axios.get(`${HOSTS.userService}/${userId}`),
-      axios.get(`${HOSTS.cvService}/cv/${Id}`)
+      axios.get(`${HOSTS.cvService}/cv/${Id}`),
     ]);
 
     const job = jobRes.data;
@@ -19,7 +20,37 @@ exports.applyJob = async (req, res) => {
     const cv = cvRes.data;
 
     if (!job || !user || !cv) {
-      return res.status(404).json({ success: false, message: "Job, User hoặc CV không tồn tại" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Job, User hoặc CV không tồn tại" });
+    }
+
+    // Lấy email HR từ userService dựa trên createBy._id và role: "hr"
+    let hrEmail, hrFullname, hrAvatar;
+    if (job.createBy && job.createBy._id) {
+      console.log("Thử lấy thông tin HR từ userService với _id:", job.createBy._id);
+      try {
+        const hrRes = await axios.get(`${HOSTS.userService}/${job.createBy._id}`);
+        const hrData = hrRes.data;
+        console.log("Response từ userService:", hrData);
+        if (hrData.role === "hr" && hrData.email) {
+          hrEmail = hrData.email;
+          hrFullname = hrData.fullname;
+          hrAvatar = hrData.avatar;
+          console.log("Đã lấy được email HR:", hrEmail);
+        } else {
+          console.warn(
+            `User ${job.createBy._id} không phải HR (role: ${hrData.role}) hoặc không có email`
+          );
+          hrEmail = null;
+        }
+      } catch (err) {
+        console.error("Lỗi khi gọi userService:", err.message, err.response?.data);
+        hrEmail = null;
+      }
+    } else {
+      console.warn("Không tìm thấy createBy._id trong job");
+      hrEmail = null;
     }
 
     // Tạo application kèm snapshot
@@ -42,21 +73,52 @@ exports.applyJob = async (req, res) => {
         avatar: user.avatar,
       },
       cvSnapshot: {
-        fileUrls: cv.fileUrls[0]
+        fileUrls: cv.fileUrls[0],
       },
     });
 
     await application.save();
 
-    res.status(201).json({ success: true, data: application });
+    // Gửi email sử dụng hrEmail từ userService
+    let emailStatus = "Sent to user only";
+    if (user.email) {
+      try {
+        const emailPayload = {
+          user: {
+            email: user.email,
+            fullname: user.fullname,
+          },
+          hr: hrEmail ? { email: hrEmail, fullname: hrFullname || "HR" } : null,
+          job: {
+            title: job.jobTitle,
+            location: job.location,
+            salary: job.salary,
+          },
+        };
+        console.log("Payload gửi đến email service trước khi gửi:", emailPayload);
+        const emailResponse = await axios.post(
+          `${HOSTS.emailService}/api/email/notify`,
+          emailPayload
+        );
+        console.log("Response từ email service:", emailResponse.data);
+        emailStatus = hrEmail ? "Sent to both user and HR" : "Sent to user only";
+      } catch (mailErr) {
+        console.error("Lỗi gửi email:", mailErr.response?.data || mailErr.message);
+      }
+    } else {
+      console.warn("Không gửi email do thiếu user.email");
+    }
+
+    res.status(201).json({ success: true, data: application, emailStatus });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: "User already applied this job" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already applied this job" });
     }
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // Get all applications of a job
 exports.getApplicationsByJob = async (req, res) => {
@@ -77,6 +139,65 @@ exports.getApplicationsByUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Get num all application
+exports.getNumApplicationByDepartment = async (req, res) => {
+  try {
+    const { departmentId } = req.params;
+
+    const jobRes = await axios.get(
+      `${HOSTS.jobService}/getAll/${departmentId}`
+    );
+
+    const jobs = jobRes.data;
+
+    if (!jobs || jobs.length === 0) {
+      return res.json(0);
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalApplications = await Application.countDocuments({
+      jobId: { $in: jobIds },
+    });
+
+    return res.json(totalApplications);
+  } catch (err) {
+    console.error("Error getNumApplicationByDepartment:", err.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get num all application - by User
+exports.getNumApplicationByDepartmentAndUser = async (req, res) => {
+  try {
+    const { departmentId, userId } = req.params;
+
+    const jobRes = await axios.get(
+      `${HOSTS.jobService}/getAll/${departmentId}`
+    );
+
+    const jobs = jobRes.data;
+
+    if (!jobs || jobs.length === 0) {
+      return res.json(0);
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    // Đếm application theo jobId và userId
+    const totalApplications = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      userId: userId,  // filter thêm user
+    });
+
+    return res.json(totalApplications);
+  } catch (err) {
+    console.error("Error getNumApplicationByDepartmentAndUser:", err.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // Update application status
 exports.updateStatus = async (req, res) => {

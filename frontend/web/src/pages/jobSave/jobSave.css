@@ -99,6 +99,7 @@
   width: 80%;
   height: 80%;
   object-fit: contain;
+  padding: 5px;
 }
 
 .btn-view:hover {
@@ -138,4 +139,55 @@
 
 .btn-unsave svg {
   font-size: 15px;
+}
+@media (max-width: 768px) {
+  .job-save-container {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .job-save-title {
+    font-size: 24px;
+  }
+
+  .job-save-card {
+    width: 95%; 
+    padding: 12px;
+  }
+
+  .job-save-card-top {
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center;
+    gap: 12px; 
+  }
+
+  .job-save-card-top .flex.gap-2 {
+    margin-top: 12px;
+  }
+
+  .job-save-avt {
+    height: 60px;
+    width: 60px;
+  }
+
+  .job-details {
+    flex-wrap: wrap; 
+    justify-content: center;
+    gap: 12px; 
+    font-size: 12px; 
+    margin-top: 8px;
+  }
+
+  .job-title {
+    font-size: 16px; 
+  }
+
+  .job-department {
+    font-size: 12px; 
+  }
+  .btn-view, .btn-unsave { 
+    font-size: 13px; 
+    
+  }
 }

@@ -37,17 +37,21 @@ export default function useAuth() {
   const register = async (
     fullname: string,
     email: string,
-    password: string
+    password: string,
+    role: string
   ): Promise<AuthResponse | void> => {
     try {
       const host = HOSTS.authService;
       setLoading(true);
       setError(null);
 
+      console.log("ROLE: ", role);
+
       const res = await axios.post<AuthResponse>(`${host}/register`, {
         fullname,
         email,
         password,
+        role
       });
 
       localStorage.setItem("accessToken", res.data.accessToken);

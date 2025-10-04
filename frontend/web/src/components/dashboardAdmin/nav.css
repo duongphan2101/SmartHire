@@ -1,0 +1,229 @@
+.admin-nav-container {
+  width: 220px;
+  background-color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.3s ease, padding 0.3s ease;
+  height: 100%;
+  position: fixed;
+  top: 110px;
+  left: 0;
+}
+
+.admin-nav-container.icon-mode {
+  width: 60px;
+  padding: 10px;
+}
+
+.admin-project-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: padding 0.3s ease;
+}
+
+.admin-nav-container.icon-mode .admin-project-selector {
+  padding: 8px;
+  justify-content: center;
+}
+
+.admin-project-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+}
+
+.admin-project-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  transition: transform 0.3s;
+}
+
+.admin-nav-container.icon-mode .admin-project-icon {
+  margin: 0 auto;
+}
+
+.admin-back-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+/* .admin-back-icon:hover {
+  color: #4b5563;
+} */
+
+.admin-dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  transition: transform 0.3s;
+}
+
+.admin-nav-container.icon-mode .admin-project-name-wrapper span {
+  display: none;
+}
+
+.admin-nav-container.icon-mode .admin-dropdown-arrow {
+  display: none;
+}
+
+.admin-search-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+}
+
+.admin-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.3s;
+}
+
+.admin-nav-container.icon-mode .admin-search-input {
+  display: none;
+}
+
+.admin-nav-container.icon-mode .admin-search-icon {
+  display: none;
+}
+
+.admin-nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-nav-item {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.admin-nav-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+/* .admin-nav-item-content:hover {
+  background-color: #f3f4f6;
+} */
+
+.admin-nav-item-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-nav-item-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+}
+
+.admin-nav-container.icon-mode .admin-nav-item-text {
+  justify-content: center;
+}
+
+.admin-nav-container.icon-mode .admin-nav-item-text span {
+  display: none;
+}
+
+.admin-nav-container.icon-mode .admin-nav-item-content {
+  padding: 8px;
+}
+
+.admin-nav-item.with-dropdown .admin-dropdown-arrow {
+  transform: rotate(0deg);
+}
+
+.admin-nav-item.with-dropdown .admin-dropdown-arrow.open {
+  transform: rotate(90deg);
+}
+
+.admin-nav-container.icon-mode .admin-dropdown-arrow {
+  display: none;
+}
+
+.admin-sub-menu {
+  list-style: none;
+  padding-left: 45px;
+  margin: 5px 0 10px 0;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+.admin-nav-container.icon-mode .admin-sub-menu {
+  display: none;
+}
+
+.admin-sub-menu-item {
+  padding: 8px 0;
+  color: #6b7280;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+/* .admin-sub-menu-item:hover {
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.admin-sub-menu-item.active {
+  color: #4b5563;
+  font-weight: 600;
+} */
+
+.admin-nav-divider {
+  border-bottom: 1px solid #e0e0e0;
+  margin: 15px 0;
+}
+
+.admin-nav-container.icon-mode .admin-nav-divider {
+  display: none;
+}
+
+.admin-nav-title {
+  display: block;
+  padding: 0 15px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.admin-nav-container.icon-mode .admin-nav-title {
+  display: none;
+}

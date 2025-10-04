@@ -384,7 +384,7 @@
     padding: 10px 20px;
     transition: ease .5s;
     border: .5px solid lightgray;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .btn-apply:hover {

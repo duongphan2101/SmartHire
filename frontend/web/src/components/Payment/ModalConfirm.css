@@ -1,0 +1,58 @@
+.modal-panel {
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 35%;
+  height: 100%;
+  overflow-y: auto;
+  transform: translateX(100%);
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.modal-panel.closing {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+.modal-confirm_btn {
+  padding: 10px 20px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.parent-credit_card {
+  overflow: visible;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* .credit-card {
+  border-radius: 10px;
+  border: 2px solid var(--color-emerald-600);
+  padding: 20px;
+  width: 120%;
+  height: 50%;
+  background: white;
+  transform: rotate(90deg);
+  transform-origin: center center;
+  margin-bottom: 40px;
+  margin-top: 0px;
+} */

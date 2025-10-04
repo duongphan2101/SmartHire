@@ -24,7 +24,8 @@ const generateTokens = (account) => {
 exports.register = async (req, res) => {
   try {
     const host = HOSTS.userService;
-    const { email, password, fullname } = req.body;
+    const host_wallet = HOSTS.walletService;
+    const { email, password, fullname, role } = req.body;
 
     // 1. Check email tồn tại chưa
     const exist = await Account.findOne({ email });
@@ -32,17 +33,22 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Email đã tồn tại" });
     }
 
-    // 2. Gọi user-service tạo user
+    // 2. Gọi user-service tạo user, goi payment-service tao wallet
     const userResp = await axios.post(`${host}`, {
       fullname,
       email,
       avatar:
-        "https://i.pinimg.com/736x/f5/52/a1/f552a14040107decc9a74a50e5a72423.jpg",
+        "https://res.cloudinary.com/dufwcmob3/image/upload/v1758978702/AVT-Default_ntfvjk.png",
       dob: null,
       phone: null,
+      role
     });
 
     const user_id = userResp.data._id;
+
+    await axios.post(`${host_wallet}`, {
+      userId: user_id
+    });
 
     // 3. Hash password + lưu vào Account
     const hashedPwd = await bcrypt.hash(password, 10);
@@ -54,7 +60,9 @@ exports.register = async (req, res) => {
     });
 
     // 4. Gửi email xác nhận
-    await axios.post(`${HOSTS.emailService}/send-verify`, {
+    const emailUrl = `${HOSTS.emailService}/api/email/send-verify`; // Cập nhật endpoint
+    console.log("Gửi yêu cầu đến email service:", { url: emailUrl, data: { email, user_id } });
+    await axios.post(emailUrl, {
       email,
       user_id,
     });

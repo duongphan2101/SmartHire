@@ -183,6 +183,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                style={{ paddingLeft: 10 }}
               >
                 <option value="">Chọn vị trí tuyển dụng</option>
                 <option value="frontend">Frontend Developer</option>
@@ -200,6 +201,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                style={{ paddingLeft: 10 }}
               >
                 <option value="">Chọn địa điểm</option>
                 {provinces.map((p) => (
@@ -214,6 +216,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
                 className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                style={{ paddingLeft: 10 }}
               >
                 <option value="">Chọn quận/huyện</option>
                 {districts.map((d) => (
@@ -238,6 +241,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={jobType}
                 onChange={(e) => setJobType(e.target.value)}
+                style={{ paddingLeft: 10 }}
               >
                 <option value="">Hình thức làm việc</option>
                 <option value="Full Time">Full Time</option>
@@ -250,6 +254,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                 className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 value={jobLevel}
                 onChange={(e) => setJobLevel(e.target.value)}
+                style={{ paddingLeft: 10 }}
               >
                 <option value="">Vị trí (Level)</option>
                 <option value="Internship">Internship</option>

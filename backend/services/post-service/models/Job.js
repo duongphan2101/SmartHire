@@ -16,6 +16,7 @@ const JobSchema = new mongoose.Schema(
     createBy: {
       _id: { type: mongoose.Schema.Types.ObjectId, required: true },
       fullname: { type: String, required: true },
+      email: { type: String, required: true },
       avatar: { type: String, required: false },
     },
 

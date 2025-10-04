@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.14.1",
     "@mapbox/mapbox-gl-geocoder": "^5.1.2",
     "@mui/material": "^7.3.2",
+    "@mui/x-charts": "^8.12.0",
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
