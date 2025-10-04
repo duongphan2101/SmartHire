@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(
   {
-    receiverId: { type: String, required: true }, // userId hoặc hrId
+    receiverId: { type: String, required: true }, 
     type: { type: String, enum: ["APPLY", "SYSTEM"], default: "APPLY" },
     title: { type: String, required: true },
     message: { type: String, required: true },

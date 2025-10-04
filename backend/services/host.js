@@ -8,7 +8,7 @@ const HOSTS = {
   cvaiService: "http://localhost:8080/api/cvai",
   forgotPasswordService: "http://localhost:5000/api/forgot-password",
   emailService: "http://localhost:5000",
-  notificationService: "http://localhost:6000/api/notifications"
+  notificationService: "http://localhost:7000/api/notifications"
 };
 
 module.exports = { HOSTS };
