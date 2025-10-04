@@ -90,6 +90,15 @@ Trong trường hợp Nhà tuyển dụng vi phạm điều khoản:
 
   const termsText = selectedRole === "user" ? candidateTerms : hrTerms;
 
+  // useEffect(() => {
+  //   console.log("UseEffect: ", selectedRole);
+  // }, []);
+
+  const setRole = (rolex: "user" | "hr") => {
+    setSelectedRole(rolex);
+    // console.log("selected: ", selectedRole);
+  };
+
   return (
     <div
       style={{
@@ -129,7 +138,7 @@ Trong trường hợp Nhà tuyển dụng vi phạm điều khoản:
           }}
         >
           <button
-            onClick={() => setSelectedRole("user")}
+            onClick={() => { setRole("user") }}
             style={{
               flex: 1,
               padding: "10px",
@@ -144,7 +153,7 @@ Trong trường hợp Nhà tuyển dụng vi phạm điều khoản:
             Ứng viên
           </button>
           <button
-            onClick={() => setSelectedRole("hr")}
+            onClick={() => { setRole("hr") }}
             style={{
               flex: 1,
               padding: "10px",

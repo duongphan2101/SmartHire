@@ -45,6 +45,8 @@ export default function useAuth() {
       setLoading(true);
       setError(null);
 
+      console.log("ROLE: ", role);
+
       const res = await axios.post<AuthResponse>(`${host}/register`, {
         fullname,
         email,

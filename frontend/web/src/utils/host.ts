@@ -9,5 +9,7 @@ export const HOSTS = {
   cvAIService: "http://localhost:8080/api/cvai",
   matchingService: "http://localhost:6789/api/matching",
   emailService: "http://localhost:5000",
+  walletService: "http://localhost:7777/api/wallet",
+  paymentService: "http://localhost:7777/api/payment",
 
 };

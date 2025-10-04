@@ -4,10 +4,16 @@ interface CoinCardProps {
   coins: number;
   title: string;
   description: string[];
+  price: number;
   active?: boolean;
 }
 
-const CoinCard: React.FC<CoinCardProps> = ({ coins, title, description, active }) => {
+const CoinCard: React.FC<CoinCardProps> = ({ coins, title, description, price, active }) => {
+
+  const formatPrice = (cost: number): string => {
+    return cost.toLocaleString("en-US");
+  };
+
   return (
     <div
       className={`group cursor-pointer transform transition-all duration-500 
@@ -16,8 +22,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coins, title, description, active }
     >
       <div
         className={`text-gray-900 rounded-3xl border shadow-2xl duration-700 z-10 relative overflow-hidden
-          ${active 
-            ? "border-green-500/40 shadow-green-500/10 bg-emerald-50" 
+          ${active
+            ? "border-green-500/40 shadow-green-500/10 bg-emerald-50"
             : "border-green-500/20 bg-white hover:border-green-500/40 hover:shadow-green-500/10 hover:shadow-3xl"
           }`}
         style={{ width: "350px", padding: "32px" }}
@@ -39,8 +45,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coins, title, description, active }
               <div className="absolute inset-0 rounded-full border border-green-500/10 animate-pulse delay-500"></div>
               <div
                 className={`rounded-full backdrop-blur-lg border bg-gradient-to-br from-white to-gray-100 shadow-2xl transform transition-all duration-500
-                  ${active 
-                    ? "rotate-12 scale-110 border-green-500/40 shadow-green-500/20" 
+                  ${active
+                    ? "rotate-12 scale-110 border-green-500/40 shadow-green-500/20"
                     : "group-hover:rotate-12 group-hover:scale-110 border-green-500/20 hover:shadow-green-500/20"
                   }`}
                 style={{ padding: "24px" }}
@@ -63,10 +69,15 @@ const CoinCard: React.FC<CoinCardProps> = ({ coins, title, description, active }
             <div className="max-w-xs">
               <p className="font-semibold text-base">{title}</p>
               {description.map((desc, idx) => (
-                <p key={idx} className="text-gray-600 text-sm leading-relaxed">
-                  {desc}
-                </p>
+                <>
+                  <p key={idx} className="text-gray-600 text-sm leading-relaxed">
+                    {desc}
+                  </p>
+                </>
               ))}
+              <span className="font-bold">
+                Giá {formatPrice(price)} VND
+              </span>
             </div>
 
             {/* Line */}
