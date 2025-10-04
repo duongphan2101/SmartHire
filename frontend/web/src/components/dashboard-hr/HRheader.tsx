@@ -17,8 +17,7 @@ interface HRheaderProps {
 const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
-
-  const [coin, setCoin] = useState<number>(0);
+  const { balance } = usePayment();
   const { notifications, setNotifications } = useNotification(user?._id);
   const [openNotify, setOpenNotify] = useState(false);
 
@@ -32,9 +31,6 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   }, [user, setNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const { balance } = usePayment();
-
 
   // Load avatar từ localStorage khi component mount
   useEffect(() => {
