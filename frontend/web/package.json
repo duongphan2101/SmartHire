@@ -33,6 +33,7 @@
     "react-map-gl": "^7.1.9",
     "react-router-dom": "^7.7.1",
     "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.22.4",
     "sweetalert2-react-content": "^5.1.0",
     "tailwindcss": "^4.1.11"

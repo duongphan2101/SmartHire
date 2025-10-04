@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import useNotification from "../../hook/useNotification"; 
 import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
-import { IoWalletOutline } from 'react-icons/io5';
+import { IoWalletOutline } from "react-icons/io5";
 
 interface HRheaderProps {
   breadcrumb: string;
-  setPage: (page: "dashboard" | "about" | "company" | "jobPost" | "payment") => void;
+  setPage: (
+    page: "dashboard" | "about" | "company" | "jobPost" | "payment"
+  ) => void;
   companyName: string;
 }
 
@@ -14,6 +18,19 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
   const [coin, setCoin] = useState<number>(0);
+  const { notifications, setNotifications } = useNotification(user?._id);
+  const [openNotify, setOpenNotify] = useState(false);
+
+   useEffect(() => {
+    if (user?._id) {
+      axios
+        .get(`http://localhost:7000/api/notifications/${user._id}`)
+        .then((res) => setNotifications(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [user, setNotifications]);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   // Load avatar từ localStorage khi component mount
   useEffect(() => {
@@ -58,8 +75,9 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
           {breadcrumb.split(" > ").map((item, index: number, array) => (
             <React.Fragment key={item}>
               <span
-                className={`breadcrumb-item ${index === array.length - 1 ? "current" : ""
-                  }`}
+                className={`breadcrumb-item ${
+                  index === array.length - 1 ? "current" : ""
+                }`}
               >
                 {item}
               </span>
@@ -74,8 +92,10 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
       <div className="header-right">
         <span style={{ fontSize: "18px" }}>{companyName}</span>
         <div className="icon-group">
-
-          <button className="icon-button">
+          <button
+            className="icon-button"
+            onClick={() => setOpenNotify(!openNotify)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -88,13 +108,36 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
                 d="M20 17h2v2H2v-2h2v-7a8 8 0 1 1 16 0v7zm-2 0v-7a6 6 0 1 0-12 0v7h12zm-9 4h6v2H9v-2z"
               ></path>
             </svg>
+             {unreadCount > 0 && <span className="badge-hr">{unreadCount}</span>}
           </button>
-
+          {openNotify && (
+            <div className="notification-list-hr">
+              {notifications.length === 0 ? (
+                <p>Không có thông báo</p>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n._id}
+                    className={`notification-item-hr ${n.isRead ? "read" : "unread"}`}
+                  >
+                    <strong>{n.title}</strong>
+                    <p>{n.message}</p>
+                    <small>{new Date(n.createdAt).toLocaleString()}</small>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2">
-            <IoWalletOutline size={24} className="cursor-pointer" onClick={handlePayment}/>
-            <span className="cursor-pointer" onClick={handlePayment}>Số dư: {coin} Coin</span>
+            <IoWalletOutline
+              size={24}
+              className="cursor-pointer"
+              onClick={handlePayment}
+            />
+            <span className="cursor-pointer" onClick={handlePayment}>
+              Số dư: {coin} Coin
+            </span>
           </div>
-
         </div>
 
         <div className="user-avatar" onClick={handleAbout}>
