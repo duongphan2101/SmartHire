@@ -28,9 +28,14 @@ exports.applyJob = async (req, res) => {
     // Lấy email HR từ userService dựa trên createBy._id và role: "hr"
     let hrEmail, hrFullname, hrAvatar;
     if (job.createBy && job.createBy._id) {
-      console.log("Thử lấy thông tin HR từ userService với _id:", job.createBy._id);
+      console.log(
+        "Thử lấy thông tin HR từ userService với _id:",
+        job.createBy._id
+      );
       try {
-        const hrRes = await axios.get(`${HOSTS.userService}/${job.createBy._id}`);
+        const hrRes = await axios.get(
+          `${HOSTS.userService}/${job.createBy._id}`
+        );
         const hrData = hrRes.data;
         console.log("Response từ userService:", hrData);
         if (hrData.role === "hr" && hrData.email) {
@@ -45,7 +50,11 @@ exports.applyJob = async (req, res) => {
           hrEmail = null;
         }
       } catch (err) {
-        console.error("Lỗi khi gọi userService:", err.message, err.response?.data);
+        console.error(
+          "Lỗi khi gọi userService:",
+          err.message,
+          err.response?.data
+        );
         hrEmail = null;
       }
     } else {
@@ -79,6 +88,30 @@ exports.applyJob = async (req, res) => {
 
     await application.save();
 
+    try {
+      // Gửi cho User (người apply job)
+      await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        receiverId: userId,
+        type: "APPLY",
+        title: "Ứng tuyển thành công",
+        message: `Bạn đã ứng tuyển vào công việc ${job.jobTitle} tại ${job.location}`,
+      });
+
+      // Gửi cho HR (nếu có)
+      if (job.createBy && job.createBy._id) {
+        await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+          receiverId: job.createBy._id, // HR id
+          type: "APPLY",
+          title: "Ứng viên mới",
+          message: `Ứng viên ${user.fullname} đã ứng tuyển vào vị trí ${job.jobTitle}`,
+        });
+      }
+
+      console.log("Notification sent to User & HR");
+    } catch (notifyErr) {
+      console.error("Lỗi gửi notification:", notifyErr.message);
+    }
+
     // Gửi email sử dụng hrEmail từ userService
     let emailStatus = "Sent to user only";
     if (user.email) {
@@ -95,15 +128,23 @@ exports.applyJob = async (req, res) => {
             salary: job.salary,
           },
         };
-        console.log("Payload gửi đến email service trước khi gửi:", emailPayload);
+        console.log(
+          "Payload gửi đến email service trước khi gửi:",
+          emailPayload
+        );
         const emailResponse = await axios.post(
           `${HOSTS.emailService}/api/email/notify`,
           emailPayload
         );
         console.log("Response từ email service:", emailResponse.data);
-        emailStatus = hrEmail ? "Sent to both user and HR" : "Sent to user only";
+        emailStatus = hrEmail
+          ? "Sent to both user and HR"
+          : "Sent to user only";
       } catch (mailErr) {
-        console.error("Lỗi gửi email:", mailErr.response?.data || mailErr.message);
+        console.error(
+          "Lỗi gửi email:",
+          mailErr.response?.data || mailErr.message
+        );
       }
     } else {
       console.warn("Không gửi email do thiếu user.email");
@@ -188,7 +229,7 @@ exports.getNumApplicationByDepartmentAndUser = async (req, res) => {
     // Đếm application theo jobId và userId
     const totalApplications = await Application.countDocuments({
       jobId: { $in: jobIds },
-      userId: userId,  // filter thêm user
+      userId: userId, // filter thêm user
     });
 
     return res.json(totalApplications);
@@ -197,7 +238,6 @@ exports.getNumApplicationByDepartmentAndUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Update application status
 exports.updateStatus = async (req, res) => {

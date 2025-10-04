@@ -169,3 +169,43 @@
   height: 20px;
   color: #5f6368;
 }
+.badge-hr {
+  position: absolute;
+  top: 30px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.notification-list-hr {
+  position: absolute;
+  right: 253px;
+  top: 69px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.notification-item-hr {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item-hr p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.notification-item-hr small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+

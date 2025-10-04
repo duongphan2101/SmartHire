@@ -380,3 +380,64 @@
     z-index: 111111;
   }
 }
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.notification-list {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #2c2c2f;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-family: "Segoe UI", Roboto, sans-serif; 
+}
+
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  line-height: 1.4;
+  color: #f1f1f1;
+}
+
+.notification-item.unread {
+  background: rgba(255,255,255,0.05);
+}
+
+.notification-item.read {
+  background: transparent;
+  color: #ccc; 
+}
+
+.notification-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.notification-item p {
+  font-size: 13px;
+  margin: 0;
+  color: #ddd;
+}
+
+.notification-item small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #999;
+}
