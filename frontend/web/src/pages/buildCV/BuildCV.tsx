@@ -7,6 +7,7 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 
 import useCV from "../../hook/useCV";
+import useUser, {type UserResponse } from "../../hook/useUser";
 
 import CVTemplate from "../../components/template-cv/CVTemplate";
 import CVTemplate2 from "../../components/template-cv/cvtemplate2";
@@ -72,7 +73,8 @@ const BuildCV: React.FC = () => {
   const [originalData, setOriginalData] = useState<CVData>({ ...cvData });
   const cvTemplateRef = useRef<HTMLDivElement>(null);
   const { createCV } = useCV();
-  const [user, setUser] = useState<string>("");
+  const { getUser, user, loadingUser, errorUser } = useUser(); 
+  const [userId, setUserId] = useState<string>("");
   const [openModalSummary, setOpenModalSummary] = useState<boolean>(false);
   const [openModalEx, setOpenModalEx] = useState<boolean>(false);
   const [openModalDesProject, setOpenModalDesProject] = useState<boolean>(false);
@@ -199,13 +201,38 @@ const BuildCV: React.FC = () => {
   };
 
 
-  useEffect(() => {
+useEffect(() => {
+  const fetchUserData = async () => {
     try {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
-        const idToFetch = parsed.user_id ?? parsed._id;
-        setUser(idToFetch);
+        const idToFetch = (parsed.user_id || parsed._id || "").toString();
+        if (!idToFetch) {
+          throw new Error("Không tìm thấy user ID trong localStorage");
+        }
+
+        const userData: UserResponse | void = await getUser(idToFetch);
+        if (userData) {
+          setCvData((prev) => ({
+            ...prev,
+            name: userData.fullname || "",
+            contact: {
+              ...prev.contact,
+              phone: userData.phone || "",
+              email: userData.email || "",
+            },
+          }));
+          setOriginalData((prev) => ({
+            ...prev,
+            name: userData.fullname || "",
+            contact: {
+              ...prev.contact,
+              phone: userData.phone || "",
+              email: userData.email || "",
+            },
+          }));
+        }
       } else {
         Swal.fire({
           icon: "warning",
@@ -239,7 +266,10 @@ const BuildCV: React.FC = () => {
         }
       });
     }
-  }, []);
+  };
+
+  fetchUserData();
+}, [getUser]);
 
   type TemplateKey = "template1" | "template2" | "template3" | "template4" | "template5";
   const templates: Record<TemplateKey, React.ForwardRefExoticComponent<any>> = {
@@ -413,52 +443,54 @@ const BuildCV: React.FC = () => {
     }
   };
 
-  const handleCreateCV = async () => {
-    const element = cvTemplateRef.current;
-    if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
+ const handleCreateCV = async () => {
+  const element = cvTemplateRef.current;
+  if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
 
-    try {
-      window.scrollTo(0, 0);
-      // Hiển thị loading
-      Swal.fire({
-        title: "Đang tạo CV...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
+  try {
+    window.scrollTo(0, 0);
+    Swal.fire({
+      title: "Đang tạo CV...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
 
-      // Tạo PDF
-      const canvas = await html2canvas(element, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      let heightLeft = pdfHeight;
-      let position = 0;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    let heightLeft = pdfHeight;
+    let position = 0;
 
+    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+    heightLeft -= pdf.internal.pageSize.getHeight();
+
+    while (heightLeft >= 0) {
+      position = heightLeft - pdfHeight;
+      pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
       heightLeft -= pdf.internal.pageSize.getHeight();
-
-      while (heightLeft >= 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
-      }
-
-      const pdfBlob = pdf.output("blob");
-
-      const pdfUrl = await uploadPDF(pdfBlob, `cv-${user}_${Date.now()}.pdf`);
-      const userId = user || "";
-
-      await createCV(userId, cvData, pdfUrl);
-
-      Swal.fire("Thành công", "CV đã được tạo!", "success");
-    } catch (error) {
-      console.error("Lỗi khi tạo CV:", error);
-      Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
     }
-  };
+
+    const pdfBlob = pdf.output("blob");
+
+    // Kiểm tra userId
+    if (!userId) {
+      Swal.fire("Lỗi", "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.", "error");
+      return;
+    }
+
+    const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}_${Date.now()}.pdf`);
+    await createCV(userId, cvData, pdfUrl);
+
+    Swal.fire("Thành công", "CV đã được tạo!", "success");
+  } catch (error) {
+    console.error("Lỗi khi tạo CV:", error);
+    Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
+  }
+};
 
   const closeCVAIModalSummary = () => {
     setOpenModalSummary(false);
