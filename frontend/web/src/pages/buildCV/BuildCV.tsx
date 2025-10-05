@@ -7,7 +7,7 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 
 import useCV from "../../hook/useCV";
-import useUser, {type UserResponse } from "../../hook/useUser";
+import useUser, { type UserResponse } from "../../hook/useUser";
 
 import CVTemplate from "../../components/template-cv/CVTemplate";
 import CVTemplate2 from "../../components/template-cv/cvtemplate2";
@@ -17,7 +17,7 @@ import CVTemplate5 from "../../components/template-cv/cvtemplate2";
 
 import "./BuildCV.css";
 
-import { BiSkipPrevious, BiSkipNext } from 'react-icons/bi';
+import { BiSkipPrevious, BiSkipNext } from "react-icons/bi";
 import { uploadPDF } from "../../utils/uploadPDF";
 import Modal_AI_Recomend from "../../components/Modal-AI-Recomend/Modal-AI-Recomend";
 
@@ -55,7 +55,6 @@ interface CVData {
 }
 
 const BuildCV: React.FC = () => {
-
   const [cvData, setCvData] = useState<CVData>({
     name: "",
     introduction: "",
@@ -65,54 +64,131 @@ const BuildCV: React.FC = () => {
     certifications: "",
     activitiesAwards: "",
     contact: { phone: "", email: "", github: "", website: "" },
-    education: [{ university: "", major: "", gpa: "", startYear: "", endYear: "" }],
+    education: [
+      { university: "", major: "", gpa: "", startYear: "", endYear: "" },
+    ],
     projects: [{ projectName: "", projectDescription: "" }],
   });
 
-  const [currentLanguage, setCurrentLanguage] = useState<'vi' | 'en'>('vi');
+  const [currentLanguage, setCurrentLanguage] = useState<"vi" | "en">("vi");
   const [originalData, setOriginalData] = useState<CVData>({ ...cvData });
   const cvTemplateRef = useRef<HTMLDivElement>(null);
   const { createCV } = useCV();
-  const { getUser, user, loadingUser, errorUser } = useUser(); 
+  const { getUser, user, loadingUser, errorUser } = useUser();
   const [userId, setUserId] = useState<string>("");
   const [openModalSummary, setOpenModalSummary] = useState<boolean>(false);
   const [openModalEx, setOpenModalEx] = useState<boolean>(false);
-  const [openModalDesProject, setOpenModalDesProject] = useState<boolean>(false);
+  const [openModalDesProject, setOpenModalDesProject] =
+    useState<boolean>(false);
 
   const professionalSkillOptions = [
     // Frontend
-    "ReactJS", "React Native", "Vue.js", "Angular", "Svelte", "HTML5", "CSS3", "JavaScript", "TypeScript", "Next.js", "Nuxt.js",
+    "ReactJS",
+    "React Native",
+    "Vue.js",
+    "Angular",
+    "Svelte",
+    "HTML5",
+    "CSS3",
+    "JavaScript",
+    "TypeScript",
+    "Next.js",
+    "Nuxt.js",
     // Backend
-    "Node.js", "Express", "NestJS", "Spring Boot", "Java", "Python", "Django", "Flask", "Ruby on Rails", "PHP", "Laravel", "Go",
+    "Node.js",
+    "Express",
+    "NestJS",
+    "Spring Boot",
+    "Java",
+    "Python",
+    "Django",
+    "Flask",
+    "Ruby on Rails",
+    "PHP",
+    "Laravel",
+    "Go",
     // Database
-    "MongoDB", "MySQL", "PostgreSQL", "Redis", "DynamoDB", "Firebase",
+    "MongoDB",
+    "MySQL",
+    "PostgreSQL",
+    "Redis",
+    "DynamoDB",
+    "Firebase",
     // DevOps / Cloud
-    "AWS", "Azure", "GCP", "Docker", "Kubernetes", "Terraform", "CI/CD", "Git", "Linux",
+    "AWS",
+    "Azure",
+    "GCP",
+    "Docker",
+    "Kubernetes",
+    "Terraform",
+    "CI/CD",
+    "Git",
+    "Linux",
     // Mobile
-    "Swift", "Objective-C", "Kotlin", "Flutter",
+    "Swift",
+    "Objective-C",
+    "Kotlin",
+    "Flutter",
     // AI / ML / Data
-    "Python", "TensorFlow", "PyTorch", "Scikit-learn", "Pandas", "NumPy", "Machine Learning", "Deep Learning",
+    "Python",
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "Machine Learning",
+    "Deep Learning",
     // Others
-    "REST API", "GraphQL", "WebSockets", "Microservices", "Unit Testing", "Jest", "Cypress", "Agile", "Scrum"
+    "REST API",
+    "GraphQL",
+    "WebSockets",
+    "Microservices",
+    "Unit Testing",
+    "Jest",
+    "Cypress",
+    "Agile",
+    "Scrum",
   ];
 
   const softSkillOptions = [
-    "Teamwork", "Communication", "Problem Solving", "Critical Thinking", "Leadership",
-    "Time Management", "Adaptability", "Creativity", "Conflict Resolution", "Emotional Intelligence",
-    "Collaboration", "Decision Making", "Analytical Thinking", "Presentation Skills",
-    "Negotiation", "Attention to Detail", "Flexibility", "Motivation", "Work Ethic", "Active Listening",
-    "Networking", "Persuasion", "Stress Management", "Self-Discipline"
+    "Teamwork",
+    "Communication",
+    "Problem Solving",
+    "Critical Thinking",
+    "Leadership",
+    "Time Management",
+    "Adaptability",
+    "Creativity",
+    "Conflict Resolution",
+    "Emotional Intelligence",
+    "Collaboration",
+    "Decision Making",
+    "Analytical Thinking",
+    "Presentation Skills",
+    "Negotiation",
+    "Attention to Detail",
+    "Flexibility",
+    "Motivation",
+    "Work Ethic",
+    "Active Listening",
+    "Networking",
+    "Persuasion",
+    "Stress Management",
+    "Self-Discipline",
   ];
 
-  const [profSkills, setProfSkills] = useState<string[]>(cvData.professionalSkills ? cvData.professionalSkills.split(",") : []);
-  const [softSkills, setSoftSkills] = useState<string[]>(cvData.softSkills ? cvData.softSkills.split(",") : []);
+  const [profSkills, setProfSkills] = useState<string[]>(
+    cvData.professionalSkills ? cvData.professionalSkills.split(",") : []
+  );
+  const [softSkills, setSoftSkills] = useState<string[]>(
+    cvData.softSkills ? cvData.softSkills.split(",") : []
+  );
   const [profInput, setProfInput] = useState("");
   const [softInput, setSoftInput] = useState("");
   const [filteredProfSkills, setFilteredProfSkills] = useState<string[]>([]);
   const [filteredSoftSkills, setFilteredSoftSkills] = useState<string[]>([]);
   const [showProfSuggestion, setShowProfSuggestion] = useState(false);
   const [showSoftSuggestion, setShowSoftSuggestion] = useState(false);
-
 
   // Focus
   const handleProfFocus = () => setShowProfSuggestion(true);
@@ -126,13 +202,21 @@ const BuildCV: React.FC = () => {
   const handleProfInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setProfInput(value);
-    setFilteredProfSkills(professionalSkillOptions.filter(opt => opt.toLowerCase().includes(value.toLowerCase())));
+    setFilteredProfSkills(
+      professionalSkillOptions.filter((opt) =>
+        opt.toLowerCase().includes(value.toLowerCase())
+      )
+    );
   };
 
   const handleSoftInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSoftInput(value);
-    setFilteredSoftSkills(softSkillOptions.filter(opt => opt.toLowerCase().includes(value.toLowerCase())));
+    setFilteredSoftSkills(
+      softSkillOptions.filter((opt) =>
+        opt.toLowerCase().includes(value.toLowerCase())
+      )
+    );
   };
 
   const addProfSkill = (skill: string) => {
@@ -171,7 +255,10 @@ const BuildCV: React.FC = () => {
     if (!profSkills.includes(skill)) {
       const newSkills = [...profSkills, skill];
       setProfSkills(newSkills);
-      setCvData(prev => ({ ...prev, professionalSkills: newSkills.join(",") }));
+      setCvData((prev) => ({
+        ...prev,
+        professionalSkills: newSkills.join(","),
+      }));
     }
     setProfInput("");
     setShowProfSuggestion(false);
@@ -181,7 +268,7 @@ const BuildCV: React.FC = () => {
     if (!softSkills.includes(skill)) {
       const newSkills = [...softSkills, skill];
       setSoftSkills(newSkills);
-      setCvData(prev => ({ ...prev, softSkills: newSkills.join(",") }));
+      setCvData((prev) => ({ ...prev, softSkills: newSkills.join(",") }));
     }
     setSoftInput("");
     setShowSoftSuggestion(false);
@@ -189,55 +276,71 @@ const BuildCV: React.FC = () => {
 
   // Remove skill
   const handleRemoveProfSkill = (skill: string) => {
-    const newSkills = profSkills.filter(s => s !== skill);
+    const newSkills = profSkills.filter((s) => s !== skill);
     setProfSkills(newSkills);
-    setCvData(prev => ({ ...prev, professionalSkills: newSkills.join(",") }));
+    setCvData((prev) => ({ ...prev, professionalSkills: newSkills.join(",") }));
   };
 
   const handleRemoveSoftSkill = (skill: string) => {
-    const newSkills = softSkills.filter(s => s !== skill);
+    const newSkills = softSkills.filter((s) => s !== skill);
     setSoftSkills(newSkills);
-    setCvData(prev => ({ ...prev, softSkills: newSkills.join(",") }));
+    setCvData((prev) => ({ ...prev, softSkills: newSkills.join(",") }));
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          const idToFetch = (parsed.user_id || parsed._id || "").toString();
+          if (!idToFetch) {
+            throw new Error("Không tìm thấy user ID trong localStorage");
+          }
 
-useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsed = JSON.parse(storedUser);
-        const idToFetch = (parsed.user_id || parsed._id || "").toString();
-        if (!idToFetch) {
-          throw new Error("Không tìm thấy user ID trong localStorage");
+          const userData: UserResponse | void = await getUser(idToFetch);
+          if (userData) {
+            setCvData((prev) => ({
+              ...prev,
+              name: userData.fullname || "",
+              contact: {
+                ...prev.contact,
+                phone: userData.phone || "",
+                email: userData.email || "",
+              },
+            }));
+            setOriginalData((prev) => ({
+              ...prev,
+              name: userData.fullname || "",
+              contact: {
+                ...prev.contact,
+                phone: userData.phone || "",
+                email: userData.email || "",
+              },
+            }));
+          }
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "Bạn cần đăng nhập",
+            text: "Vui lòng đăng nhập để tiếp tục!",
+            showCancelButton: true,
+            confirmButtonText: "Đăng nhập",
+            cancelButtonText: "Hủy",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = "/login";
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+              window.location.href = "/home";
+            }
+          });
         }
-
-        const userData: UserResponse | void = await getUser(idToFetch);
-        if (userData) {
-          setCvData((prev) => ({
-            ...prev,
-            name: userData.fullname || "",
-            contact: {
-              ...prev.contact,
-              phone: userData.phone || "",
-              email: userData.email || "",
-            },
-          }));
-          setOriginalData((prev) => ({
-            ...prev,
-            name: userData.fullname || "",
-            contact: {
-              ...prev.contact,
-              phone: userData.phone || "",
-              email: userData.email || "",
-            },
-          }));
-        }
-      } else {
+      } catch (e) {
+        console.error("Invalid user data in localStorage", e);
         Swal.fire({
-          icon: "warning",
-          title: "Bạn cần đăng nhập",
-          text: "Vui lòng đăng nhập để tiếp tục!",
+          icon: "error",
+          title: "Lỗi dữ liệu",
+          text: "Thông tin đăng nhập không hợp lệ. Vui lòng đăng nhập lại!",
           showCancelButton: true,
           confirmButtonText: "Đăng nhập",
           cancelButtonText: "Hủy",
@@ -249,29 +352,17 @@ useEffect(() => {
           }
         });
       }
-    } catch (e) {
-      console.error("Invalid user data in localStorage", e);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi dữ liệu",
-        text: "Thông tin đăng nhập không hợp lệ. Vui lòng đăng nhập lại!",
-        showCancelButton: true,
-        confirmButtonText: "Đăng nhập",
-        cancelButtonText: "Hủy",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/login";
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          window.location.href = "/home";
-        }
-      });
-    }
-  };
+    };
 
-  fetchUserData();
-}, [getUser]);
+    fetchUserData();
+  }, [getUser]);
 
-  type TemplateKey = "template1" | "template2" | "template3" | "template4" | "template5";
+  type TemplateKey =
+    | "template1"
+    | "template2"
+    | "template3"
+    | "template4"
+    | "template5";
   const templates: Record<TemplateKey, React.ForwardRefExoticComponent<any>> = {
     template1: CVTemplate,
     template2: CVTemplate2,
@@ -280,7 +371,8 @@ useEffect(() => {
     template5: CVTemplate5,
   };
 
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>('template1');
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<TemplateKey>("template1");
   const templateKeys = Object.keys(templates) as TemplateKey[];
   const CurrentTemplate = templates[selectedTemplate];
 
@@ -322,22 +414,33 @@ useEffect(() => {
   const handleAddEducation = () => {
     setCvData((prev) => ({
       ...prev,
-      education: [...prev.education, { university: "", major: "", gpa: "", startYear: "", endYear: "" }],
+      education: [
+        ...prev.education,
+        { university: "", major: "", gpa: "", startYear: "", endYear: "" },
+      ],
     }));
     setOriginalData((prev) => ({
       ...prev,
-      education: [...prev.education, { university: "", major: "", gpa: "", startYear: "", endYear: "" }],
+      education: [
+        ...prev.education,
+        { university: "", major: "", gpa: "", startYear: "", endYear: "" },
+      ],
     }));
   };
 
   const handleRemoveEducation = (index: number) => {
     const newEducation = cvData.education.filter((_, i) => i !== index);
     setCvData((prev) => ({ ...prev, education: newEducation }));
-    const newOriginalEducation = originalData.education.filter((_, i) => i !== index);
+    const newOriginalEducation = originalData.education.filter(
+      (_, i) => i !== index
+    );
     setOriginalData((prev) => ({ ...prev, education: newOriginalEducation }));
   };
 
-  const handleProjectChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleProjectChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     const newProjects = cvData.projects.map((project, i) =>
       i === index ? { ...project, [name]: value } : project
@@ -363,7 +466,9 @@ useEffect(() => {
   const handleRemoveProject = (index: number) => {
     const newProjects = cvData.projects.filter((_, i) => i !== index);
     setCvData((prev) => ({ ...prev, projects: newProjects }));
-    const newOriginalProjects = originalData.projects.filter((_, i) => i !== index);
+    const newOriginalProjects = originalData.projects.filter(
+      (_, i) => i !== index
+    );
     setOriginalData((prev) => ({ ...prev, projects: newOriginalProjects }));
   };
 
@@ -372,17 +477,17 @@ useEffect(() => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setCvData(prev => {
+    setCvData((prev) => {
       const newEducation = [...prev.education];
       newEducation[index][name as keyof Education] = value;
       return { ...prev, education: newEducation };
     });
   };
 
-  const handleTranslate = async (targetLang: 'vi' | 'en') => {
-    if (targetLang === 'vi') {
+  const handleTranslate = async (targetLang: "vi" | "en") => {
+    if (targetLang === "vi") {
       setCvData(originalData);
-      setCurrentLanguage('vi');
+      setCurrentLanguage("vi");
       return;
     }
 
@@ -399,21 +504,33 @@ useEffect(() => {
             source: "vi",
             target: "en",
             format: "text",
-            api_key: ""
+            api_key: "",
           }),
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         });
         const result = await res.json();
         return result.translatedText;
       };
 
       translatedData.name = await translateText(dataToTranslate.name);
-      translatedData.introduction = await translateText(dataToTranslate.introduction);
-      translatedData.professionalSkills = await translateText(dataToTranslate.professionalSkills);
-      translatedData.softSkills = await translateText(dataToTranslate.softSkills);
-      translatedData.experience = await translateText(dataToTranslate.experience);
-      translatedData.certifications = await translateText(dataToTranslate.certifications);
-      translatedData.activitiesAwards = await translateText(dataToTranslate.activitiesAwards);
+      translatedData.introduction = await translateText(
+        dataToTranslate.introduction
+      );
+      translatedData.professionalSkills = await translateText(
+        dataToTranslate.professionalSkills
+      );
+      translatedData.softSkills = await translateText(
+        dataToTranslate.softSkills
+      );
+      translatedData.experience = await translateText(
+        dataToTranslate.experience
+      );
+      translatedData.certifications = await translateText(
+        dataToTranslate.certifications
+      );
+      translatedData.activitiesAwards = await translateText(
+        dataToTranslate.activitiesAwards
+      );
 
       translatedData.contact = { ...dataToTranslate.contact };
 
@@ -443,54 +560,62 @@ useEffect(() => {
     }
   };
 
- const handleCreateCV = async () => {
-  const element = cvTemplateRef.current;
-  if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF.", "error");
+  const handleCreateCV = async () => {
+    const element = cvTemplateRef.current;
+    if (!element)
+      return Swal.fire(
+        "Lỗi",
+        "Không tìm thấy nội dung CV để tạo PDF.",
+        "error"
+      );
 
-  try {
-    window.scrollTo(0, 0);
-    Swal.fire({
-      title: "Đang tạo CV...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
+    try {
+      window.scrollTo(0, 0);
+      Swal.fire({
+        title: "Đang tạo CV...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    let heightLeft = pdfHeight;
-    let position = 0;
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      let heightLeft = pdfHeight;
+      let position = 0;
 
-    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
-
-    while (heightLeft >= 0) {
-      position = heightLeft - pdfHeight;
-      pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
       heightLeft -= pdf.internal.pageSize.getHeight();
+
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+      }
+
+      const pdfBlob = pdf.output("blob");
+
+      if (!userId) {
+        Swal.fire(
+          "Lỗi",
+          "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.",
+          "error"
+        );
+        return;
+      }
+
+      const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}_${Date.now()}.pdf`);
+      await createCV(userId, cvData, pdfUrl);
+
+      Swal.fire("Thành công", "CV đã được tạo!", "success");
+    } catch (error) {
+      console.error("Lỗi khi tạo CV:", error);
+      Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
     }
-
-    const pdfBlob = pdf.output("blob");
-
-    // Kiểm tra userId
-    if (!userId) {
-      Swal.fire("Lỗi", "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.", "error");
-      return;
-    }
-
-    const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}_${Date.now()}.pdf`);
-    await createCV(userId, cvData, pdfUrl);
-
-    Swal.fire("Thành công", "CV đã được tạo!", "success");
-  } catch (error) {
-    console.error("Lỗi khi tạo CV:", error);
-    Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
-  }
-};
+  };
 
   const closeCVAIModalSummary = () => {
     setOpenModalSummary(false);
@@ -517,14 +642,16 @@ useEffect(() => {
   };
 
   return (
-    <div className="App" style={{ backgroundColor: '#e5e7eb' }}>
+    <div className="App" style={{ backgroundColor: "#e5e7eb" }}>
       <Header />
       <div className="cv-builder">
         {/* --- Template rendering with selector --- */}
         <div className="rendering-template">
-
           <div className="template-box">
-            <button className="btn-template btn-template-prev" onClick={handlePrevTemplate}>
+            <button
+              className="btn-template btn-template-prev"
+              onClick={handlePrevTemplate}
+            >
               <BiSkipPrevious size={20} />
             </button>
             <ul className="flex gap-3">
@@ -539,7 +666,9 @@ useEffect(() => {
                   return (
                     <li
                       key={key}
-                      className={`btn-template ${selectedTemplate === key ? "active" : ""}`}
+                      className={`btn-template ${
+                        selectedTemplate === key ? "active" : ""
+                      }`}
                       onClick={() => handleSelectTemplate(key)}
                     >
                       {index + 1}
@@ -563,18 +692,28 @@ useEffect(() => {
               })}
             </ul>
 
-            <button className="btn-template btn-template-next" onClick={handleNextTemplate}>
+            <button
+              className="btn-template btn-template-next"
+              onClick={handleNextTemplate}
+            >
               <BiSkipNext size={20} />
             </button>
           </div>
 
-          <CurrentTemplate ref={cvTemplateRef} cvData={cvData} currentLanguage={currentLanguage} />
-
+          <CurrentTemplate
+            ref={cvTemplateRef}
+            cvData={cvData}
+            currentLanguage={currentLanguage}
+          />
         </div>
 
         {/* --- Form input section --- */}
         <div className="cv-input">
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Thông Tin Cá Nhân" : "Personal Information"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi"
+              ? "Thông Tin Cá Nhân"
+              : "Personal Information"}
+          </h3>
           <div className="input-row">
             <div className="input-group">
               <div className="input-container">
@@ -589,7 +728,7 @@ useEffect(() => {
                   placeholder=" "
                 />
                 <label className="label" htmlFor="name">
-                  {currentLanguage === 'vi' ? "Họ Tên" : "Full Name"}
+                  {currentLanguage === "vi" ? "Họ Tên" : "Full Name"}
                 </label>
                 <div className="underline"></div>
               </div>
@@ -606,7 +745,7 @@ useEffect(() => {
                   onChange={handleContactChange}
                 />
                 <label className="label" htmlFor="phone">
-                  {currentLanguage === 'vi' ? "Số điện thoại" : "Phone"}
+                  {currentLanguage === "vi" ? "Số điện thoại" : "Phone"}
                 </label>
                 <div className="underline"></div>
               </div>
@@ -667,9 +806,12 @@ useEffect(() => {
               </div>
             </div>
           </div>
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Giới Thiệu & Mục Tiêu Nghề Nghiệp" : "Introduction & Career Objective"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi"
+              ? "Giới Thiệu & Mục Tiêu Nghề Nghiệp"
+              : "Introduction & Career Objective"}
+          </h3>
           <div className="input-group-full-width">
-
             {openModalSummary && (
               <div className="box-ai-recomend">
                 <Modal_AI_Recomend
@@ -677,7 +819,10 @@ useEffect(() => {
                   onClose={closeCVAIModalSummary}
                   type="Summary"
                   onApply={(suggestion) => {
-                    setCvData((prev) => ({ ...prev, introduction: suggestion }));
+                    setCvData((prev) => ({
+                      ...prev,
+                      introduction: suggestion,
+                    }));
                   }}
                 />
               </div>
@@ -692,30 +837,37 @@ useEffect(() => {
                 onChange={handleChange}
                 id="introduction"
                 rows={4}
-              // onFocus={turnOnRecomendSummary}
-              // onBlur={closeCVAIModalSummary}
+                // onFocus={turnOnRecomendSummary}
+                // onBlur={closeCVAIModalSummary}
               />
               <label className="label" htmlFor="introduction">
-                {currentLanguage === 'vi' ? "Giới thiệu & Mục tiêu nghề nghiệp" : "Introduction & Career Objective"}
+                {currentLanguage === "vi"
+                  ? "Giới thiệu & Mục tiêu nghề nghiệp"
+                  : "Introduction & Career Objective"}
               </label>
               {/* <div className="underline"></div> */}
               <div className="flex justify-end" style={{ paddingTop: 10 }}>
-                <button className="text-white btn-suggest bg-emerald-600" onClick={turnOnRecomendSummary}>
+                <button
+                  className="text-white btn-suggest bg-emerald-600"
+                  onClick={turnOnRecomendSummary}
+                >
                   Gợi ý
                 </button>
               </div>
-
             </div>
           </div>
 
           {/* Skill */}
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Kỹ Năng" : "Skills"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi" ? "Kỹ Năng" : "Skills"}
+          </h3>
           <div className="input-container" style={{ position: "relative" }}>
             {/* <label>Professional Skills</label> */}
             <div className="multi-input">
-              {profSkills.map(skill => (
+              {profSkills.map((skill) => (
                 <span className="tag" key={skill}>
-                  {skill} <span onClick={() => handleRemoveProfSkill(skill)}>x</span>
+                  {skill}{" "}
+                  <span onClick={() => handleRemoveProfSkill(skill)}>x</span>
                 </span>
               ))}
               <input
@@ -731,8 +883,13 @@ useEffect(() => {
 
             {showProfSuggestion && filteredProfSkills.length > 0 && (
               <ul className="suggestion-list">
-                {filteredProfSkills.map(skill => (
-                  <li key={skill} onMouseDown={() => handleSelectProfSkill(skill)}>{skill}</li>
+                {filteredProfSkills.map((skill) => (
+                  <li
+                    key={skill}
+                    onMouseDown={() => handleSelectProfSkill(skill)}
+                  >
+                    {skill}
+                  </li>
                 ))}
               </ul>
             )}
@@ -741,9 +898,10 @@ useEffect(() => {
           <div className="input-container" style={{ position: "relative" }}>
             {/* <label>Soft Skills</label> */}
             <div className="multi-input">
-              {softSkills.map(skill => (
+              {softSkills.map((skill) => (
                 <span className="tag" key={skill}>
-                  {skill} <span onClick={() => handleRemoveSoftSkill(skill)}>x</span>
+                  {skill}{" "}
+                  <span onClick={() => handleRemoveSoftSkill(skill)}>x</span>
                 </span>
               ))}
               <input
@@ -759,15 +917,22 @@ useEffect(() => {
 
             {showSoftSuggestion && filteredSoftSkills.length > 0 && (
               <ul className="suggestion-list">
-                {filteredSoftSkills.map(skill => (
-                  <li key={skill} onMouseDown={() => handleSelectSoftSkill(skill)}>{skill}</li>
+                {filteredSoftSkills.map((skill) => (
+                  <li
+                    key={skill}
+                    onMouseDown={() => handleSelectSoftSkill(skill)}
+                  >
+                    {skill}
+                  </li>
                 ))}
               </ul>
             )}
           </div>
 
           {/* Hoc van */}
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Học Vấn" : "Education"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi" ? "Học Vấn" : "Education"}
+          </h3>
           {cvData.education.map((edu, index) => (
             <div key={index} className="dynamic-input-group">
               <div className="input-group">
@@ -783,7 +948,7 @@ useEffect(() => {
                     placeholder=" "
                   />
                   <label className="label" htmlFor={`university-${index}`}>
-                    {currentLanguage === 'vi' ? "Trường đại học" : "University"}
+                    {currentLanguage === "vi" ? "Trường đại học" : "University"}
                   </label>
                   <div className="underline"></div>
                 </div>
@@ -801,7 +966,7 @@ useEffect(() => {
                     placeholder=" "
                   />
                   <label className="label" htmlFor={`major-${index}`}>
-                    {currentLanguage === 'vi' ? "Chuyên ngành" : "Major"}
+                    {currentLanguage === "vi" ? "Chuyên ngành" : "Major"}
                   </label>
                   <div className="underline"></div>
                 </div>
@@ -880,7 +1045,7 @@ useEffect(() => {
                   onClick={() => handleRemoveEducation(index)}
                   className="remove-btn"
                 >
-                  {currentLanguage === 'vi' ? "Xóa" : "Remove"}
+                  {currentLanguage === "vi" ? "Xóa" : "Remove"}
                 </button>
               )}
             </div>
@@ -890,13 +1055,14 @@ useEffect(() => {
             onClick={handleAddEducation}
             className="add-btn"
           >
-            {currentLanguage === 'vi' ? "Thêm Học Vấn" : "Add Education"}
+            {currentLanguage === "vi" ? "Thêm Học Vấn" : "Add Education"}
           </button>
 
           {/* Kinh nghiem */}
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Kinh Nghiệm" : "Experience"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi" ? "Kinh Nghiệm" : "Experience"}
+          </h3>
           <div className="input-group-full-width">
-
             {openModalEx && (
               <div className="box-ai-recomend">
                 <Modal_AI_Recomend
@@ -921,11 +1087,16 @@ useEffect(() => {
                 rows={4}
               />
               <label className="label" htmlFor="experience">
-                {currentLanguage === 'vi' ? "Kinh nghiệm làm việc" : "Work Experience"}
+                {currentLanguage === "vi"
+                  ? "Kinh nghiệm làm việc"
+                  : "Work Experience"}
               </label>
               {/* <div className="underline"></div> */}
               <div className="flex justify-end" style={{ paddingTop: 10 }}>
-                <button className="text-white btn-suggest bg-emerald-600" onClick={turnOnRecomendEx}>
+                <button
+                  className="text-white btn-suggest bg-emerald-600"
+                  onClick={turnOnRecomendEx}
+                >
                   Gợi ý
                 </button>
               </div>
@@ -933,7 +1104,9 @@ useEffect(() => {
           </div>
 
           {/* Du an */}
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Dự Án" : "Projects"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi" ? "Dự Án" : "Projects"}
+          </h3>
           {cvData.projects.map((project, index) => (
             <div key={index} className="dynamic-input-group">
               <div className="input-group-full-width">
@@ -949,13 +1122,12 @@ useEffect(() => {
                     placeholder=" "
                   />
                   <label className="label" htmlFor={`projectName-${index}`}>
-                    {currentLanguage === 'vi' ? "Tên dự án" : "Project Name"}
+                    {currentLanguage === "vi" ? "Tên dự án" : "Project Name"}
                   </label>
                   <div className="underline"></div>
                 </div>
               </div>
               <div className="input-group-full-width">
-
                 {openModalDesProject && (
                   <div className="box-ai-recomend">
                     <Modal_AI_Recomend
@@ -965,7 +1137,12 @@ useEffect(() => {
                       onApply={(suggestion) => {
                         setCvData((prev) => ({
                           ...prev,
-                          projects: [{ projectName: prev.projects[0]?.projectName || "", projectDescription: suggestion }]
+                          projects: [
+                            {
+                              projectName: prev.projects[0]?.projectName || "",
+                              projectDescription: suggestion,
+                            },
+                          ],
                         }));
                       }}
                     />
@@ -986,11 +1163,16 @@ useEffect(() => {
                     className="label"
                     htmlFor={`projectDescription-${index}`}
                   >
-                    {currentLanguage === 'vi' ? "Mô tả dự án" : "Project Description"}
+                    {currentLanguage === "vi"
+                      ? "Mô tả dự án"
+                      : "Project Description"}
                   </label>
                   {/* <div className="underline"></div> */}
                   <div className="flex justify-end" style={{ paddingTop: 10 }}>
-                    <button className="text-white btn-suggest bg-emerald-600" onClick={turnOnRecomendDesProject}>
+                    <button
+                      className="text-white btn-suggest bg-emerald-600"
+                      onClick={turnOnRecomendDesProject}
+                    >
                       Gợi ý
                     </button>
                   </div>
@@ -1002,17 +1184,21 @@ useEffect(() => {
                   onClick={() => handleRemoveProject(index)}
                   className="remove-btn"
                 >
-                  {currentLanguage === 'vi' ? "Xóa" : "Remove"}
+                  {currentLanguage === "vi" ? "Xóa" : "Remove"}
                 </button>
               )}
             </div>
           ))}
           <button type="button" onClick={handleAddProject} className="add-btn">
-            {currentLanguage === 'vi' ? "Thêm Dự Án" : "Add Project"}
+            {currentLanguage === "vi" ? "Thêm Dự Án" : "Add Project"}
           </button>
 
           {/* Chung chi */}
-          <h3 className="section-title">{currentLanguage === 'vi' ? "Chứng Chỉ và Giải Thưởng" : "Certifications and Awards"}</h3>
+          <h3 className="section-title">
+            {currentLanguage === "vi"
+              ? "Chứng Chỉ và Giải Thưởng"
+              : "Certifications and Awards"}
+          </h3>
           <div className="input-group-full-width">
             <div className="input-container">
               <textarea
@@ -1026,7 +1212,7 @@ useEffect(() => {
                 placeholder=" "
               />
               <label className="label" htmlFor="certifications">
-                {currentLanguage === 'vi' ? "Chứng chỉ" : "Certifications"}
+                {currentLanguage === "vi" ? "Chứng chỉ" : "Certifications"}
               </label>
               <div className="underline"></div>
             </div>
@@ -1044,7 +1230,9 @@ useEffect(() => {
                 placeholder=" "
               />
               <label className="label" htmlFor="activitiesAwards">
-                {currentLanguage === 'vi' ? "Hoạt động / Giải thưởng" : "Activities / Awards"}
+                {currentLanguage === "vi"
+                  ? "Hoạt động / Giải thưởng"
+                  : "Activities / Awards"}
               </label>
               <div className="underline"></div>
             </div>
@@ -1052,15 +1240,24 @@ useEffect(() => {
 
           <div className="cv-controls">
             <button onClick={handleCreateCV}>Tạo CV</button>
-            <button style={{ background: "#484747ff" }} onClick={() => handleTranslate('en')}>Tiếng Anh</button>
-            <button style={{ background: "#484747ff" }} onClick={() => handleTranslate('vi')}>Tiếng Việt</button>
+            <button
+              style={{ background: "#484747ff" }}
+              onClick={() => handleTranslate("en")}
+            >
+              Tiếng Anh
+            </button>
+            <button
+              style={{ background: "#484747ff" }}
+              onClick={() => handleTranslate("vi")}
+            >
+              Tiếng Việt
+            </button>
           </div>
         </div>
-
       </div>
       <ChatWithAI />
       <Footer />
-    </div >
+    </div>
   );
 };
 

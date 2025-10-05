@@ -5,6 +5,7 @@ const { createJob, getJobs, getAllJobs , searchJobs, deleteJob, getLatestJobs,up
 } = require('../controllers/jobController');
 
 router.get('/categories', categories);
+router.get('/search', searchJobs);
 router.post('/create', createJob);
 router.get('/getAll/:idDepartment', getJobs);
 router.get('/jobByDepartment/:idDepartment', getNumJobsByDepartment);
@@ -13,7 +14,6 @@ router.get('/getAll', getAllJobs);
 router.get('/getLatest', getLatestJobs);
 router.get('/filter/search', filterJobs);
 router.get('/:id', getJobById);
-router.get('/search', searchJobs);
 router.delete('/:id', deleteJob);
 router.put('/:id', updateJob); 
 

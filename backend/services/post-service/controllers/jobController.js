@@ -127,24 +127,28 @@ const filterJobs = async (req, res) => {
 
 const searchJobs = async (req, res) => {
   try {
-    const query = req.query.q;
-    if (!query) {
-      s
-      return res.json(await Job.find());
+    const { q } = req.query;
+    if (!q || q.trim() === "") {
+      return res.status(200).json([]);
     }
 
     const jobs = await Job.find({
       $or: [
-        { jobTitle: { $regex: query, $options: "i" } },
-        { skills: { $regex: query, $options: "i" } },
+        { jobTitle: { $regex: q, $options: "i" } },
+        { "createBy.fullname": { $regex: q, $options: "i" } },
       ],
-    });
+    })
+      .populate("createBy", "fullname avatar")
+      .populate("department", "name avatar")
+      .sort({ createdAt: -1 });
 
-    res.json(jobs);
+    res.status(200).json(jobs);
   } catch (err) {
+    console.error("❌ searchJobs error:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
 
 const deleteJob = async (req, res) => {
   try {
