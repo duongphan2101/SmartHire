@@ -75,6 +75,7 @@ export const matchDepartmentJobs = async (req, res) => {
 export const matchAllJobs = async (req, res) => {
     try {
         const { cv_id } = req.body;
+        console.log("CV: ",cv_id);
         if (!cv_id) {
             return res.status(400).json({ error: "cv_id are required" });
         }
