@@ -78,8 +78,7 @@ const BuildCV: React.FC = () => {
   const [userId, setUserId] = useState<string>("");
   const [openModalSummary, setOpenModalSummary] = useState<boolean>(false);
   const [openModalEx, setOpenModalEx] = useState<boolean>(false);
-  const [openModalDesProject, setOpenModalDesProject] =
-    useState<boolean>(false);
+  const [openModalDesProject, setOpenModalDesProject] = useState<boolean>(false);
 
   const professionalSkillOptions = [
     // Frontend

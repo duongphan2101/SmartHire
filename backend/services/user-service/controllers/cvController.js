@@ -5,7 +5,10 @@ const User = require("../models/User");
 exports.createCV = async (req, res) => {
   try {
     const { userId, cvData, pdfUrl } = req.body;
+
     // console.log(req.body);
+    // console.log("DATA: ", cvData.name);
+
     if (!userId || !cvData || !pdfUrl) return res.status(400).json({ error: "Missing data" });
 
     const cv = await CV.create({

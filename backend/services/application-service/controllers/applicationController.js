@@ -89,30 +89,30 @@ exports.applyJob = async (req, res) => {
     await application.save();
 
     try {
-  const userNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
-    receiverId: userId,
-    type: "APPLY",
-    title: "Ứng tuyển thành công",
-    message: `Bạn đã ứng tuyển vào công việc ${job.jobTitle} tại ${job.location}`,
-  });
-  console.log("User notification response:", userNotificationRes.data);
+      const userNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        receiverId: userId,
+        type: "APPLY",
+        title: "Ứng tuyển thành công",
+        message: `Bạn đã ứng tuyển vào công việc ${job.jobTitle} tại ${job.location}`,
+      });
+      //console.log("User notification response:", userNotificationRes.data);
 
-  if (job.createBy && job.createBy._id) {
-    const hrNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
-      receiverId: job.createBy._id,
-      type: "APPLY",
-      title: "Ứng viên mới",
-      message: `Ứng viên ${user.fullname} đã ứng tuyển vào vị trí ${job.jobTitle}`,
-    });
-    console.log("HR notification response:", hrNotificationRes.data);
-  }
-} catch (notifyErr) {
-  console.error("Lỗi gửi notification:", {
-    message: notifyErr.message,
-    response: notifyErr.response?.data,
-    status: notifyErr.response?.status,
-  });
-}
+      if (job.createBy && job.createBy._id) {
+        const hrNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+          receiverId: job.createBy._id,
+          type: "APPLY",
+          title: "Ứng viên mới",
+          message: `Ứng viên ${user.fullname} đã ứng tuyển vào vị trí ${job.jobTitle}`,
+        });
+        //console.log("HR notification response:", hrNotificationRes.data);
+      }
+    } catch (notifyErr) {
+      console.error("Lỗi gửi notification:", {
+        message: notifyErr.message,
+        response: notifyErr.response?.data,
+        status: notifyErr.response?.status,
+      });
+    }
 
     // Gửi email sử dụng hrEmail từ userService
     let emailStatus = "Sent to user only";
@@ -130,15 +130,15 @@ exports.applyJob = async (req, res) => {
             salary: job.salary,
           },
         };
-        console.log(
-          "Payload gửi đến email service trước khi gửi:",
-          emailPayload
-        );
+        // console.log(
+        //   "Payload gửi đến email service trước khi gửi:",
+        //   emailPayload
+        // );
         const emailResponse = await axios.post(
           `${HOSTS.emailService}/api/email/notify`,
           emailPayload
         );
-        console.log("Response từ email service:", emailResponse.data);
+        // console.log("Response từ email service:", emailResponse.data);
         emailStatus = hrEmail
           ? "Sent to both user and HR"
           : "Sent to user only";
