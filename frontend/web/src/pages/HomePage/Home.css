@@ -244,6 +244,14 @@
         align-items: center;
     }
 
+    .box-icon_icon {
+        font-size: 14px;
+    }
+
+    .box-icon {
+        padding: 10px;
+    }
+
 }
 
 .container-categories,
@@ -272,7 +280,7 @@
     transition: transform 1s ease;
 }
 
-.categories-film {
+/* .categories-film {
     position: absolute;
     display: flex;
     opacity: .6;
@@ -283,11 +291,10 @@
     text-align: center;
     right: 0;
     bottom: 0;
-    /* background-image: linear-gradient(90deg, #FCAA04 0%, #00B04D 100%); */
     background-image: linear-gradient(90deg, #000 0%, #000 100%);
     transition: opacity 1s ease, transform 1s ease;
     border-radius: 10px;
-}
+} */
 
 .categories-icon {
     opacity: 0;
@@ -307,25 +314,25 @@
 }
 
 .item-bottom {
-    padding: 40px 0px;
+    /* padding: 40px 0px; */
     display: flex;
     justify-content: flex-start;
-    background-color: white;
     flex-direction: column;
-
     /* box-shadow: 0 13px 29px #0000001a; */
 }
 
 .item-title {
-    font-weight: 550;
-    font-size: 16px;
+    font-weight: 900;
+    font-size: 20px;
     text-transform: uppercase;
     text-align: left;
+    color: white
 }
 
 .item-posted {
     text-align: left;
     color: var(--color-gray-500);
+    padding: 15px 0;
 }
 
 .item-bg {
@@ -335,17 +342,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* margin: -15px; */
 }
 
-.item-bg:hover .categories-film {
-    opacity: 0;
-    visibility: visible;
+.item-bg:hover {
+    filter: brightness(0.9);
+    transform: scale(1.03);
 }
 
-.item-bg:hover .categories-icon {
-    opacity: 1;
-    visibility: visible;
-}
 
 .lasted-item {
     /* border: .1px solid lightgray; */
@@ -567,59 +571,59 @@
     opacity: 1;
 } */
 
-/* From Uiverse.io by adamgiebl */ 
+/* From Uiverse.io by adamgiebl */
 .cssbuttons-io-button {
-  background: var(--color-emerald-600);
-  color: white;
-  font-family: inherit;
-  padding: 0.35em;
-  padding-left: 1.2em;
-  font-size: 17px;
-  font-weight: 500;
-  border-radius: 0.9em;
-  border: none;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  box-shadow: inset 0 0 1.6em -0.6em var(--color-emerald-600);
-  overflow: hidden;
-  position: relative;
-  height: 2.8em;
-  padding-right: 3.3em;
-  cursor: pointer;
+    background: var(--color-emerald-600);
+    color: white;
+    font-family: inherit;
+    padding: 0.35em;
+    padding-left: 1.2em;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 0.9em;
+    border: none;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    box-shadow: inset 0 0 1.6em -0.6em var(--color-emerald-600);
+    overflow: hidden;
+    position: relative;
+    height: 2.8em;
+    padding-right: 3.3em;
+    cursor: pointer;
 }
 
 .cssbuttons-io-button .icon {
-  background: white;
-  margin-left: 1em;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.2em;
-  width: 2.2em;
-  border-radius: 0.7em;
-  box-shadow: 0.1em 0.1em 0.6em 0.2em var(--color-emerald-600);
-  right: 0.3em;
-  transition: all 0.5s;
+    background: white;
+    margin-left: 1em;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.2em;
+    width: 2.2em;
+    border-radius: 0.7em;
+    box-shadow: 0.1em 0.1em 0.6em 0.2em var(--color-emerald-600);
+    right: 0.3em;
+    transition: all 0.5s;
 }
 
 .cssbuttons-io-button:hover .icon {
-  width: calc(100% - 0.6em);
-  background-color: var(--color-emerald-600);
+    width: calc(100% - 0.6em);
+    background-color: var(--color-emerald-600);
 }
 
 .cssbuttons-io-button .icon svg {
-  width: 1.1em;
-  transition: transform 0.5s;
-  color: var(--color-emerald-600);
+    width: 1.1em;
+    transition: transform 0.5s;
+    color: var(--color-emerald-600);
 }
 
 .cssbuttons-io-button:hover .icon svg {
-  transform: translateX(0.1em);
-  color: white;
+    transform: translateX(0.1em);
+    color: white;
 }
 
 .cssbuttons-io-button:active .icon {
-  transform: scale(0.95);
+    transform: scale(0.95);
 }

@@ -394,19 +394,21 @@
 .notification-list {
   position: absolute;
   right: 0;
-  top: 30px;
+  top: 50px;
   width: 320px;
   max-height: 400px;
   overflow-y: auto;
-  background: #2c2c2f;
+  background: #313233;
   border-radius: 8px;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  font-family: "Segoe UI", Roboto, sans-serif; 
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  cursor: pointer;
 }
 
 .notification-item {
-  padding: 12px;
+  padding: 18px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   line-height: 1.4;
   color: #f1f1f1;
@@ -427,12 +429,14 @@
   font-weight: 600;
   margin-bottom: 4px;
   color: #fff;
+  text-align: start !important;
 }
 
 .notification-item p {
-  font-size: 13px;
+  font-size: 12px;
   margin: 0;
   color: #ddd;
+  text-align: start;
 }
 
 .notification-item small {
@@ -440,4 +444,5 @@
   margin-top: 6px;
   font-size: 12px;
   color: #999;
+   text-align: start;
 }

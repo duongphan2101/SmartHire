@@ -27,6 +27,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import BuildCvs from "./pages/BuildCVs/BuildCvs";
 
 function App() {
   return (
@@ -45,7 +46,7 @@ function App() {
 
         <Route path="/home" element={<Home />} />
         <Route path="/intro" element={<Intro />} />
-        <Route path="/buildcv" element={<BuildCV />} />
+        <Route path="/buildcv" element={<BuildCvs />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/jobdetail" element={<JobDetails />} />
         <Route path="/jobdetail/:id" element={<JobDetails />} />

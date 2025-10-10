@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useNotification from "../../hook/useNotification";
+import { type Notification } from "../../hook/useNotification";
 import "./Header.css";
 import useUser from "../../hook/useUser";
 import { FaRegBell } from "react-icons/fa";
@@ -13,6 +14,7 @@ import {
 import { FaRegBookmark } from "react-icons/fa6";
 import { PiReadCvLogo } from "react-icons/pi";
 import { FaRegCheckSquare } from "react-icons/fa";
+import NotificationModal from "../NotificationModal/NotificationModal";
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,6 +23,32 @@ const Header: React.FC = () => {
 
   const { notifications, setNotifications } = useNotification(user?._id);
   const [openNotify, setOpenNotify] = useState(false);
+
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleNotificationClick = async (n: Notification) => {
+    // 👈 Khai báo type cho n
+    try {
+      if (!n.isRead) {
+        await axios.patch(
+          `http://localhost:7000/api/notifications/${n._id}/read`
+        );
+
+        setNotifications((prev) =>
+          prev.map((item) =>
+            item._id === n._id ? { ...item, isRead: true } : item
+          )
+        );
+      }
+
+      setSelectedNotification(n);
+      setOpenModal(true);
+    } catch (err) {
+      console.error("Lỗi khi mark as read:", err);
+    }
+  };
 
   useEffect(() => {
     if (user?._id) {
@@ -125,12 +153,17 @@ const Header: React.FC = () => {
                       notifications.map((n) => (
                         <div
                           key={n._id}
-                          className={`notification-item ${
+                          onClick={() => handleNotificationClick(n)}
+                          className={`notification-item-hr ${
                             n.isRead ? "read" : "unread"
                           }`}
                         >
                           <strong>{n.title}</strong>
-                          <p>{n.message}</p>
+                          <p className="notification-preview-hr">
+                            {n.message.length > 90
+                              ? n.message.slice(0, 90) + "..."
+                              : n.message}
+                          </p>
                           <small>
                             {new Date(n.createdAt).toLocaleString()}
                           </small>
@@ -138,6 +171,12 @@ const Header: React.FC = () => {
                       ))
                     )}
                   </div>
+                )}
+                {openModal && (
+                  <NotificationModal
+                    notification={selectedNotification}
+                    onClose={() => setOpenModal(false)}
+                  />
                 )}
               </div>
               <div className="user-mess user-info-item">

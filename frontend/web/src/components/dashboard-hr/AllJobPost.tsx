@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./AllJobPost.css";
 import AddJobModal from "../dashboard-hr/AddJobmodal";
 import ViewModal from "../dashboard-hr/Viewmodal";
@@ -15,6 +15,8 @@ const AllJobPost = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [viewJob, setViewJob] = useState<any | null>(null);
 
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
   const handleAddClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
@@ -22,22 +24,30 @@ const AllJobPost = () => {
     await refetch();
   };
 
-  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
 
-    if (value.trim() === "") {
-      setSearchResults([]);
-      return;
+    // Hủy timeout cũ trước khi tạo cái mới (tránh spam API)
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
     }
 
-    try {
-      const res = await fetch(`${HOSTS.jobService}/search?q=${value}`);
-      const data = await res.json();
-      setSearchResults(data);
-    } catch (err) {
-      console.error("Error searching jobs:", err);
-    }
+    // Chờ 400ms sau khi ngừng gõ mới gọi API
+    searchTimeout.current = setTimeout(async () => {
+      if (value.trim() === "") {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${HOSTS.jobService}/search?q=${value}`);
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (err) {
+        console.error("Error searching jobs:", err);
+      }
+    }, 400);
   };
 
   if (loading) return <div>Đang tải...</div>;

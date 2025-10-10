@@ -11,22 +11,13 @@ import withReactContent from "sweetalert2-react-content";
 import imageBanner from "../../assets/images/banner-21.png";
 import cv_banner from "../../assets/images/man_with_bent_arm.png";
 
-import IT from "../../assets/images/IT.jpg";
-import Commerce from "../../assets/images/commerce.jpg";
-import Marketing from "../../assets/images/marketting.jpg";
-import Finance from "../../assets/images/finance.webp";
-import Engineering from "../../assets/images/engineering.webp";
-import Education from "../../assets/images/education.jpg";
-import HealCare from "../../assets/images/healcare.jpg";
-import Travel from "../../assets/images/travel.jpg";
-
 import { IoLocationOutline } from "react-icons/io5";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { FaArrowRight } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
+import { FaServer, FaProjectDiagram, FaChartLine, FaNetworkWired, FaBug, FaCloud, FaCode, FaLaptopCode } from "react-icons/fa";
 
 import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
@@ -72,7 +63,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleItem = async (title:string) => {
+  const handleItem = async (title: string) => {
     const results = await categories_sum(title);
     if (results.data.length > 0) {
       navigate(
@@ -132,65 +123,6 @@ const Home: React.FC = () => {
     };
     fetchData();
   }, []);
-
-  const categories = [
-    {
-      id: 1,
-      name: "Backend Developer",
-      image: IT,
-      posted: backend,
-      url: "backend"
-    },
-    {
-      id: 2,
-      name: "Project Manager",
-      image: Commerce,
-      posted: projectmanager,
-      url: "project"
-    },
-    {
-      id: 3,
-      name: "Data Analyst",
-      image: Marketing,
-      posted: dataanalyst,
-      url: "data"
-    },
-    {
-      id: 4,
-      name: "System Administrator",
-      image: Finance,
-      posted: systemadminitrator,
-      url: "system"
-    },
-    {
-      id: 5,
-      name: "QA Engineer",
-      image: Engineering,
-      posted: qaengineer,
-      url: "qa"
-    },
-    {
-      id: 6,
-      name: "DevOps Engineer",
-      image: Education,
-      posted: devopsengineer,
-      url: "devops"
-    },
-    {
-      id: 7,
-      name: "Frontend Developer",
-      image: HealCare,
-      posted: frontend,
-      url: "frontend"
-    },
-    {
-      id: 8,
-      name: "FullStack Developer",
-      image: Travel,
-      posted: fullstack,
-      url: "fullstack"
-    },
-  ];
 
   const [lastestJobs, setLastestJobs] = useState<any[]>([]);
 
@@ -289,6 +221,100 @@ const Home: React.FC = () => {
       `/jobdetail/${id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
     );
   };
+
+  const categories = [
+    {
+      id: 1,
+      name: "Backend Developer",
+      description: "Xây dựng logic và hệ thống phía server, xử lý dữ liệu và API.",
+      icon: <FaServer className="box-icon_icon" size={100} color="#fff" />,
+      color: "#A7C7E7",
+      posted: backend,
+      url: "backend",
+    },
+    {
+      id: 2,
+      name: "Project Manager",
+      description: "Quản lý dự án, lập kế hoạch, phân công và giám sát tiến độ.",
+      icon: <FaProjectDiagram className="box-icon_icon" size={100} color="#fff" />,
+      color: "#F7C5CC",
+      posted: projectmanager,
+      url: "project",
+    },
+    {
+      id: 3,
+      name: "Data Analyst",
+      description: "Phân tích dữ liệu, tạo báo cáo giúp đưa ra quyết định chiến lược.",
+      icon: <FaChartLine className="box-icon_icon" size={100} color="#fff" />,
+      color: "#B5EAD7",
+      posted: dataanalyst,
+      url: "data",
+    },
+    {
+      id: 4,
+      name: "System Administrator",
+      description: "Quản lý, bảo trì hệ thống mạng, máy chủ và bảo mật hạ tầng IT.",
+      icon: <FaNetworkWired className="box-icon_icon" size={100} color="#fff" />,
+      color: "#FFDAC1",
+      posted: systemadminitrator,
+      url: "system",
+    },
+    {
+      id: 5,
+      name: "QA Engineer",
+      description: "Kiểm thử phần mềm, phát hiện lỗi và đảm bảo chất lượng sản phẩm.",
+      icon: <FaBug className="box-icon_icon" size={100} color="#fff" />,
+      color: "#E993B6",
+      posted: qaengineer,
+      url: "qa",
+    },
+    {
+      id: 6,
+      name: "DevOps Engineer",
+      description: "Tự động hóa quy trình CI/CD, triển khai và giám sát hệ thống.",
+      icon: <FaCloud className="box-icon_icon" size={100} color="#fff" />,
+      color: "#CBAACB",
+      posted: devopsengineer,
+      url: "devops",
+    },
+    {
+      id: 7,
+      name: "Frontend Developer",
+      description: "Thiết kế giao diện web, tối ưu trải nghiệm người dùng (UI/UX).",
+      icon: <FaCode className="box-icon_icon" size={100} color="#fff" />,
+      color: "#FFB7B2",
+      posted: frontend,
+      url: "frontend",
+    },
+    {
+      id: 8,
+      name: "FullStack Developer",
+      description: "Phát triển cả frontend và backend, xử lý toàn bộ luồng ứng dụng.",
+      icon: <FaLaptopCode className="box-icon_icon" size={100} color="#fff" />,
+      color: "#F4E1D2",
+      posted: fullstack,
+      url: "fullstack",
+    },
+  ];
+
+  function darkenColor(color: string, percent: number) {
+    const num = parseInt(color.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) - amt;
+    const G = ((num >> 8) & 0x00ff) - amt;
+    const B = (num & 0x0000ff) - amt;
+    return (
+      "#" +
+      (
+        0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255)
+      )
+        .toString(16)
+        .slice(1)
+    );
+  }
 
   return (
     <>
@@ -393,47 +419,54 @@ const Home: React.FC = () => {
               <div className="w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full">
                   {categories.map((item, idx) => (
-                    <div className="categories-item bg-transparent">
-                      <a onClick={() => {handleItem(item.url)}}>
-                        <div
-                          key={idx}
-                          className="item-bg"
+                    <>
+                      <a onClick={() => handleItem(item.url)} className="shadow-2xl bg-transparent cursor-pointer relative"
+                        style={{ borderRadius: "10px", overflow: 'hidden' }}>
+                        <div key={idx} className="categories-item bg-transparent"
                           style={{
-                            backgroundImage: `url(${item.image})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
+                            backgroundColor: item.color,
+                            transition: "all 0.3s ease",
+                            borderRadius: "10px",
+                            height: "280px",
                           }}
                         >
-                          <div className="categories-film"></div>
-                          <FaArrowRight
-                            size={34}
-                            color="#fff"
-                            className="categories-icon"
-                          />
-                        </div>
-                      </a>
-                      <div className="bg-white item-bottom">
-                        <span className="item-title ">{item.name}</span>
-                        <span className="item-posted">
-                          Bài đăng:
-                          <span
-                            className="bg-emerald-500"
+                          <div className="item-bottom">
+                            <span className="item-title">{item.name}</span>
+                            <p className="text-gray-500 text-sm text-left" style={{ marginTop: 10 }}>{item.description}</p>
+                            <span className="item-posted">
+                              Bài đăng:
+                              <span
+                                className="bg-emerald-500"
+                                style={{
+                                  color: "#fff",
+                                  marginLeft: 10,
+                                  padding: "5px 15px",
+                                  borderRadius: 10,
+                                  fontSize: 12,
+                                  zIndex: 1
+                                }}
+                              >
+                                {item.posted}
+                              </span>
+                            </span>
+                          </div>
+
+                          <div className="absolute -right-7 -bottom-7 box-icon"
                             style={{
-                              color: "#fff",
-                              marginLeft: 10,
-                              padding: 5,
-                              paddingLeft: 15,
-                              paddingRight: 15,
-                              borderRadius: 10,
-                              fontSize: 12,
+                              backgroundColor: darkenColor(item.color, 5),
+                              padding: 40,
+                              borderRadius: "50%",
+                              zIndex: 0
                             }}
                           >
-                            {item.posted}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
+                            {item.icon}
+                          </div>
+
+                        </div>
+                      </a>
+                    </>
                   ))}
+
                 </div>
               </div>
             </div>

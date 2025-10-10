@@ -170,8 +170,8 @@ async function coverLetter(req, res) {
     const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
     const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
 
-    console.log("Fetching CV from:", `${CV_SERVICE_URL}/cv/${cvId}`);
-    console.log("Fetching Job from:", `${JOB_SERVICE_URL}/${jobId}`);
+    // console.log("Fetching CV from:", `${CV_SERVICE_URL}/cv/${cvId}`);
+    // console.log("Fetching Job from:", `${JOB_SERVICE_URL}/${jobId}`);
 
     // 1. Fetch CV + Job song song
     const [cvRes, jobRes] = await Promise.all([

@@ -1,0 +1,260 @@
+@media print {
+    .cv-editor-control {
+        display: none !important;
+    }
+
+    .input-cv-value {
+        border: none !important;
+        border-bottom: none !important;
+        background-color: transparent !important;
+    }
+
+    .cv-container {
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+}
+
+.cv-container {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    line-height: 1.4;
+    color: #333;
+    font-size: 14px;
+}
+
+.contact-info {
+    width: 100%;
+}
+
+.input-cv-value {
+    width: auto;
+    border: none;
+    outline: none;
+    padding: 3px;
+    font-weight: normal;
+    flex-grow: 0;
+}
+
+.input-cv-value:focus {
+    border: 1px solid #059669;
+}
+
+.input-cv-value:placeholder-shown {
+    color: #666;
+}
+
+.cv-header {
+    margin-bottom: 20px;
+}
+
+.cv-header-inputname {
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 100%;
+    margin-bottom: 5px;
+    border: none;
+    outline: none;
+    padding: 0;
+    text-align: center;
+}
+
+.cv-header input.title {
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0;
+    color: #555;
+    text-align: center;
+}
+
+.contact-info p {
+    margin: 5px 0;
+    display: flex;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.suggestion-list {
+    position: absolute;
+    top: 25px;
+    height: fit-content;
+    max-height: 350px;
+}
+
+/* --- Tiêu đề Section (H2) --- */
+section h2 {
+    font-size: 18px;
+    text-transform: uppercase;
+    margin: 25px 0 10px 0;
+    padding-bottom: 3px;
+    text-align: left;
+}
+
+/* --- Đường kẻ ngang --- */
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+/* --- Vùng nội dung dài (Textarea) và Danh sách --- */
+.cv-textarea {
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.cv-textarea:placeholder-shown {
+    color: #666;
+}
+
+.cv-textarea:focus {
+    border: 1px solid #059669;
+    outline: none;
+}
+
+.summary p,
+.activities ul {
+    margin: 5px 0;
+}
+
+/* --- Dự án & Học vấn --- */
+.job-entry,
+.education-entry {
+    margin-bottom: 15px;
+}
+
+.job-entry {
+    padding-left: 0;
+    border-left: 0;
+}
+
+.job-entry input.project-title{
+    font-weight: bold;
+    font-size: 14px;
+    display: inline-block;
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+
+.company-date a input {
+    font-style: italic;
+    color: #007bff;
+    width: auto;
+    max-width: 90%;
+}
+
+.skills-list input {
+    border: none;
+    outline: none;
+    padding: 0;
+    margin-left: 5px;
+    background-color: transparent;
+    flex: 1;
+}
+
+.tag:hover .tag-remove{
+    display: block;
+}
+
+.tag-remove{
+    display: none;
+}
+
+.contact-info_item {
+    width: fit-content;
+    position: relative;
+    /* background-color: #059669; */
+}
+
+.contact-info_item:focus-within .cv-del-control {
+    display: block;
+}
+
+.cv-del-control {
+    height: 13px;
+    width: 13px;
+    background-color: var(--color-red-400);
+    border-radius: 50%;
+    color: #fff;
+    display: none;
+    margin-top: -10px;
+    margin-left: 5px;
+}
+
+.cv-section-draggable-wrapper {
+    position: relative;
+    border: 1px dashed transparent;
+    transition: border-color 0.2s;
+    height: auto;
+}
+
+.cv-section-draggable-wrapper:hover {
+    border-color: #ddd;
+}
+
+.cv-section-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 25px;
+    background-color: #e0e0e0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.cv-section-draggable-wrapper:hover .cv-section-controls,
+.cv-section-draggable-wrapper.is-dragging .cv-section-controls {
+    opacity: 1;
+}
+
+.drag-handle {
+    cursor: grab;
+    font-size: 0.8em;
+    color: #555;
+    padding: 0 5px;
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+
+/* Nút điều khiển */
+.cv-editor-control {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.cv-editor-control:hover {
+    background: #f0f0f0;
+}
+
+.contact-info .cv-editor-control {
+    opacity: 1;
+    position: static;
+    margin-left: 10px;
+}

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-interface Notification {
+export interface Notification {
   _id: string;
   receiverId: string;
   type: string;
