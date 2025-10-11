@@ -1,21 +1,23 @@
 import React, { useState, forwardRef, useRef, useEffect } from 'react';
 import './SeniorCVTemplate.css';
+import Modal_AI_Recomend from '../../Modal-AI-Recomend/Modal-AI-Recomend';
 
+// --- INTERFACE DEFINITIONS ---
 export interface CvSection {
     id: string;
     title: string;
-    componentKey: 'SUMMARY' | 'PROJECTS' | 'EDUCATION' | 'SKILLS' | 'ACTIVITIES';
+    componentKey: 'SUMMARY' | 'PROJECTS' | 'EDUCATION' | 'SKILLS' | 'ACTIVITIES' | 'EXPERIENCE';
     isRemovable: boolean;
     isVisible: boolean;
 }
 
-const defaultCvSections: CvSection[] = [
-    { id: 'summary', title: 'Mục tiêu Nghề nghiệp', componentKey: 'SUMMARY', isRemovable: true, isVisible: true },
-    { id: 'projects', title: 'Dự án', componentKey: 'PROJECTS', isRemovable: true, isVisible: true },
-    { id: 'education', title: 'Học vấn', componentKey: 'EDUCATION', isRemovable: true, isVisible: true },
-    { id: 'skills', title: 'Kỹ năng Chuyên môn', componentKey: 'SKILLS', isRemovable: true, isVisible: true },
-    { id: 'activities', title: 'Kinh nghiệm Khác', componentKey: 'ACTIVITIES', isRemovable: true, isVisible: true },
-];
+interface Experience {
+    jobTitle: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+}
 
 interface CustomSettings {
     color: string;
@@ -47,7 +49,7 @@ interface CVData {
     introduction: string;
     professionalSkills: string;
     softSkills: string;
-    experience: string;
+    experience: Experience[];
     certifications: string;
     activitiesAwards: string;
     contact: ContactInfo;
@@ -61,11 +63,61 @@ interface FreshInternCVTemplateProps {
     updateCvData: (field: keyof CVData, value: any) => void;
 }
 
+const defaultCvSections: CvSection[] = [
+    { id: 'summary', title: 'Mục tiêu Nghề nghiệp', componentKey: 'SUMMARY', isRemovable: true, isVisible: true },
+    { id: 'experience', title: 'Kinh nghiệm Làm việc', componentKey: 'EXPERIENCE', isRemovable: true, isVisible: false },
+    { id: 'projects', title: 'Dự án', componentKey: 'PROJECTS', isRemovable: true, isVisible: true },
+    { id: 'education', title: 'Học vấn', componentKey: 'EDUCATION', isRemovable: true, isVisible: true },
+    { id: 'skills', title: 'Kỹ năng Chuyên môn', componentKey: 'SKILLS', isRemovable: true, isVisible: true },
+    { id: 'activities', title: 'Kinh nghiệm Khác', componentKey: 'ACTIVITIES', isRemovable: true, isVisible: true },
+];
+
+interface AutosizeTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}
+
+const AutosizeTextArea: React.FC<AutosizeTextAreaProps> = ({ value, onChange, placeholder, ...props }) => {
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        const element = textAreaRef.current;
+        if (element) {
+            element.style.height = '0px';
+            element.style.height = element.scrollHeight + 'px';
+        }
+    }, [value]);
+
+    return (
+        <textarea
+            ref={textAreaRef}
+            className="cv-textarea"
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            {...props}
+        />
+    );
+};
+
+
 const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplateProps>(({ settings, cvData, updateCvData }, ref) => {
 
+    const sanitizeColor = (color: string): string => {
+        if (/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
+            return color;
+        }
+        if (color.includes('oklch') || color.includes('lch')) {
+            return '#059669';
+        }
+        return color || '#059669';
+    };
+
+    const safeColor = sanitizeColor(settings.color);
+
     const cvStyle = { fontFamily: settings.fontFamily };
-    const headerStyle = { color: settings.color };
-    const h1BorderStyle = { borderBottom: `3px solid ${settings.color}`, paddingBottom: '5px', color: `${settings.color}` };
+    const headerStyle = { color: safeColor };
+    const h1BorderStyle = { color: safeColor };
 
     const [jobTitle, setJobTitle] = useState<string>("");
     const [showEmail, setShowEmail] = useState(true);
@@ -169,8 +221,34 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         "Self-Discipline",
     ];
 
-    const [profSkills, setProfSkills] = useState<string[]>([]);
-    const [softSkills, setSoftSkills] = useState<string[]>([]);
+    const [openModalSummary, setOpenModalSummary] = useState<boolean>(false);
+    const [openModalEx, setOpenModalEx] = useState<boolean>(false);
+    const [openModalDesProject, setOpenModalDesProject] = useState<boolean>(false);
+
+    const closeCVAIModalSummary = () => {
+        setOpenModalSummary(false);
+    };
+
+    const turnOnRecomendSummary = () => {
+        setOpenModalSummary(true);
+    };
+
+    const closeCVAIModalEx = () => {
+        setOpenModalEx(false);
+    };
+
+    const turnOnRecomendEx = () => {
+        setOpenModalEx(true);
+    };
+
+    const closeCVAIModalDesProject = () => {
+        setOpenModalDesProject(false);
+    };
+
+    const turnOnRecomendDesProject = () => {
+        setOpenModalDesProject(true);
+    };
+
     const [profInput, setProfInput] = useState("");
     const [softInput, setSoftInput] = useState("");
     const [filteredProfSkills, setFilteredProfSkills] = useState<string[]>([]);
@@ -178,12 +256,10 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
     const [showProfSuggestion, setShowProfSuggestion] = useState(false);
     const [showSoftSuggestion, setShowSoftSuggestion] = useState(false);
 
-    const skillsArray = (skillsString: string) => {
+    const skillsArray = (skillsString: string): string[] => {
         try {
-            // Giả định lưu dưới dạng JSON String Array
             return skillsString ? JSON.parse(skillsString) : [];
         } catch {
-            // Trường hợp lỗi parse hoặc lưu dưới dạng chuỗi 'skill1, skill2'
             return skillsString.split(',').map(s => s.trim()).filter(s => s.length > 0);
         }
     };
@@ -223,88 +299,39 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         updateSkills(newSkills, 'softSkills');
     };
 
-
-    // Focus
     const handleProfFocus = () => setShowProfSuggestion(true);
     const handleSoftFocus = () => setShowSoftSuggestion(true);
+    const handleProfBlur = () => setTimeout(() => setShowProfSuggestion(false), 200);
+    const handleSoftBlur = () => setTimeout(() => setShowSoftSuggestion(false), 200);
 
-    // Blur
-    const handleProfBlur = () => setShowProfSuggestion(false);
-    const handleSoftBlur = () => setShowSoftSuggestion(false);
-
-    // Input change
     const handleProfInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setProfInput(value);
-        setFilteredProfSkills(
-            professionalSkillOptions.filter((opt) =>
-                opt.toLowerCase().includes(value.toLowerCase())
-            )
-        );
+        setFilteredProfSkills(professionalSkillOptions.filter((opt) => opt.toLowerCase().includes(value.toLowerCase())));
     };
-
     const handleSoftInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSoftInput(value);
-        setFilteredSoftSkills(
-            softSkillOptions.filter((opt) =>
-                opt.toLowerCase().includes(value.toLowerCase())
-            )
-        );
+        setFilteredSoftSkills(softSkillOptions.filter((opt) => opt.toLowerCase().includes(value.toLowerCase())));
     };
-
-    // const addProfSkill = (skill: string) => {
-    //     if (!profSkills.includes(skill)) {
-    //         setProfSkills([...profSkills, skill]);
-    //     }
-    //     setProfInput("");
-    //     setFilteredProfSkills([]);
-    // };
-
-    // const addSoftSkill = (skill: string) => {
-    //     if (!softSkills.includes(skill)) {
-    //         setSoftSkills([...softSkills, skill]);
-    //     }
-    //     setSoftInput("");
-    //     setFilteredSoftSkills([]);
-    // };
-
-    // handle Enter key
     const handleProfKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && profInput.trim() !== "") {
             addProfSkill(profInput.trim());
             e.preventDefault();
         }
     };
-
     const handleSoftKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && softInput.trim() !== "") {
             addSoftSkill(softInput.trim());
             e.preventDefault();
         }
     };
-
-    // Select skill
     const handleSelectProfSkill = (skill: string) => {
-        if (!profSkills.includes(skill)) {
-            const newSkills = [...profSkills, skill];
-            setProfSkills(newSkills);
-            // setCvData((prev) => ({
-            //     ...prev,
-            //     professionalSkills: newSkills.join(","),
-            // }));
-        }
-        setProfInput("");
+        addProfSkill(skill);
         setShowProfSuggestion(false);
     };
-
     const handleSelectSoftSkill = (skill: string) => {
-        if (!softSkills.includes(skill)) {
-            const newSkills = [...softSkills, skill];
-            setSoftSkills(newSkills);
-            // setCvData((prev) => ({ ...prev, softSkills: newSkills.join(",") }));
-        }
-        setSoftInput("");
+        addSoftSkill(skill);
         setShowSoftSuggestion(false);
     };
 
@@ -333,7 +360,6 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
 
         if (draggedIndex === -1 || droppedIndex === -1) return;
 
-        // Di chuyển item
         const [draggedItem] = newSections.splice(draggedIndex, 1);
         newSections.splice(droppedIndex, 0, draggedItem);
 
@@ -349,169 +375,345 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         setCvSections(prev => prev.map(s => s.id === id ? { ...s, isVisible: true } : s));
     };
 
-    const updateProjectField = (index: number, field: keyof Project, value: string) => {
-        const updatedProjects = [...cvData.projects];
-
-        updatedProjects[index] = {
-            ...updatedProjects[index],
-            [field]: value
-        };
-
-        updateCvData('projects', updatedProjects);
-    };
-
-    const updateEducationField = (index: number, field: keyof Education, value: string) => {
-        const updatedEducation = [...cvData.education];
-
-        updatedEducation[index] = {
-            ...updatedEducation[index],
-            [field]: value
-        };
-
-        updateCvData('education', updatedEducation);
-    };
-
+    // Contact
     const updateContactField = (field: keyof ContactInfo, value: string) => {
-        const updatedContact = {
-            ...cvData.contact,
-            [field]: value
-        };
-
+        const updatedContact = { ...cvData.contact, [field]: value };
         updateCvData('contact', updatedContact);
     };
 
+    // Project
+    const updateProjectField = (index: number, field: keyof Project, value: string) => {
+        const updatedProjects = Array.isArray(cvData.projects) ? [...cvData.projects] : [];
+        if (!updatedProjects[index]) return;
+        updatedProjects[index] = { ...updatedProjects[index], [field]: value };
+        updateCvData('projects', updatedProjects);
+    };
+
+    const addProject = () => {
+        const newProject: Project = { projectName: 'Dự án mới', projectDescription: '' };
+        const projects = Array.isArray(cvData.projects) ? cvData.projects : [];
+        updateCvData('projects', [...projects, newProject]);
+    };
+
+    const removeProject = (index: number) => {
+        const updatedProjects = Array.isArray(cvData.projects) ? cvData.projects.filter((_, i) => i !== index) : [];
+        updateCvData('projects', updatedProjects);
+    };
+
+    // Education
+    const updateEducationField = (index: number, field: keyof Education, value: string) => {
+        const updatedEducation = Array.isArray(cvData.education) ? [...cvData.education] : [];
+        if (!updatedEducation[index]) return;
+        updatedEducation[index] = { ...updatedEducation[index], [field]: value };
+        updateCvData('education', updatedEducation);
+    };
+
+    const addEducation = () => {
+        const newEducation: Education = { university: 'Trường Đại Học Mới', major: '', gpa: '', startYear: '', endYear: '' };
+        const education = Array.isArray(cvData.education) ? cvData.education : [];
+        updateCvData('education', [...education, newEducation]);
+    };
+
+    const removeEducation = (index: number) => {
+        const updatedEducation = Array.isArray(cvData.education) ? cvData.education.filter((_, i) => i !== index) : [];
+        updateCvData('education', updatedEducation);
+    };
+
+    // Experience
+    const updateExperienceField = (index: number, field: keyof Experience, value: string) => {
+        const updatedExperience = Array.isArray(cvData.experience) ? [...cvData.experience] : [];
+        if (!updatedExperience[index]) return;
+        updatedExperience[index] = { ...updatedExperience[index], [field]: value };
+        updateCvData('experience', updatedExperience);
+    };
+
+    const addExperience = () => {
+        const newExperience: Experience = { jobTitle: 'Vị trí mới', company: 'Tên Công ty', startDate: '', endDate: '', description: '' };
+        const experience = Array.isArray(cvData.experience) ? cvData.experience : [];
+        updateCvData('experience', [...experience, newExperience]);
+    };
+
+    const removeExperience = (index: number) => {
+        const updatedExperience = Array.isArray(cvData.experience) ? cvData.experience.filter((_, i) => i !== index) : [];
+        updateCvData('experience', updatedExperience);
+    };
+
+    const updateFieldInArray = <T,>(arrayName: keyof CVData, index: number, field: keyof T, value: string) => {
+        const array = (cvData[arrayName] as T[] || []).slice();
+        if (array[index]) {
+            array[index] = { ...array[index], [field]: value };
+            updateCvData(arrayName, array);
+        }
+    };
+    const addToArray = <T,>(arrayName: keyof CVData, newItem: T) => {
+        updateCvData(arrayName, [...(cvData[arrayName] as T[] || []), newItem]);
+    };
+    const removeFromArray = (arrayName: keyof CVData, index: number) => {
+        updateCvData(arrayName, (cvData[arrayName] as any[] || []).filter((_, i) => i !== index));
+    };
+
+    const renderProjectEntry = (project: Project, index: number) => {
+        return (
+            <div key={index} className="job-entry border-l-4 p-2 pl-4 relative group my-2">
+                <input type="text"
+                    className="project-title input-cv-value font-bold"
+                    value={project.projectName || ''}
+                    onChange={(e) => updateProjectField(index, 'projectName', e.target.value)}
+                    placeholder="Tên Đồ Án / Dự án cá nhân" />
+
+                {openModalDesProject && (
+                    <div className="box-ai-recomend">
+                        {
+                            <Modal_AI_Recomend
+                                content={project.projectDescription}
+                                onClose={closeCVAIModalDesProject}
+                                type="ProjectDescription"
+                                onApply={(suggestion) => {
+                                    updateFieldInArray('projects', index, 'projectDescription', suggestion);
+                                    closeCVAIModalDesProject();
+                                }}
+                            />
+                        }
+                    </div>
+                )}
+
+                <AutosizeTextArea
+                    value={project.projectDescription || ''}
+                    onChange={(e) => updateProjectField(index, 'projectDescription', e.target.value)}
+                    placeholder='* Xây dựng một ứng dụng [Loại ứng dụng] bằng [Công nghệ chính A].\n* Định lượng kết quả: Dự án xử lý [X] bản ghi/giảm [Y]% thời gian xử lý.'
+                />
+                {/* <div
+                    className='cv-editor-control cv-del-control absolute top-0 right-0 opacity-0 group-hover:opacity-100'
+                    onClick={() => removeProject(index)}
+                    title="Xóa dự án này"
+                >
+                    X
+                </div> */}
+                <button className='cv-editor-control' onClick={() => removeFromArray('projects', index)}>Xóa</button>
+            </div>
+        );
+    };
+
+    const renderEducationEntry = (education: Education, index: number) => {
+        return (
+            <div key={index} className="education-entry flex flex-col gap-1.5 p-2 pl-4 relative group my-2">
+                <div className='flex items-center gap-2.5'>
+                    <span><strong>Trường Đại Học:</strong></span>
+                    <input type="text"
+                        className='input-cv-value flex-1 font-bold'
+                        value={education.university}
+                        onChange={(e) => updateEducationField(index, 'university', e.target.value)}
+                        placeholder="Tên Trường Đại Học" />
+                </div>
+                <div className='flex items-center gap-2.5'>
+                    <span><strong>Chuyên ngành:</strong></span>
+                    <input type="text"
+                        className='input-cv-value flex-1'
+                        value={education.major}
+                        onChange={(e) => updateEducationField(index, 'major', e.target.value)}
+                        placeholder="Tên chuyên ngành" />
+                </div>
+                <div className="company-date flex items-center gap-2.5">
+                    <span><strong>Thời gian:</strong></span>
+                    <input type="text"
+                        className='input-cv-value flex-1'
+                        value={`${education.startYear || ''} - ${education.endYear || ''}`}
+                        onChange={(e) => {
+                            const [start = '', end = ''] = e.target.value.split('-').map(s => s.trim());
+                            updateEducationField(index, 'startYear', start);
+                            updateEducationField(index, 'endYear', end);
+                        }}
+                        placeholder="Năm bắt đầu - Năm tốt nghiệp" />
+                </div>
+                <div className='flex items-center gap-2.5'>
+                    <span><strong>GPA:</strong></span>
+                    <input type="text"
+                        className='input-cv-value flex-1'
+                        value={education.gpa}
+                        onChange={(e) => updateEducationField(index, 'gpa', e.target.value)}
+                        placeholder=".../4" />
+                </div>
+                <div
+                    className='cv-editor-control cv-del-control absolute top-0 right-0 opacity-0 group-hover:opacity-100'
+                    onClick={() => removeEducation(index)}
+                    title="Xóa mục học vấn này"
+                >
+                    X
+                </div>
+            </div>
+        );
+    };
+
+    const renderExperienceEntry = (exp: Experience, index: number) => {
+        return (
+            <div key={index} className="job-entry border-l-4 p-2 pl-4 border-gray-300 relative group my-2">
+                <div className='flex items-baseline gap-2.5'>
+                    <input type="text"
+                        className='input-cv-value flex-1 font-bold'
+                        value={exp.jobTitle || ''}
+                        onChange={(e) => updateExperienceField(index, 'jobTitle', e.target.value)}
+                        placeholder="Vị trí/Chức danh" />
+                    <span>tại</span>
+                    <input type="text"
+                        className='input-cv-value flex-1'
+                        value={exp.company || ''}
+                        onChange={(e) => updateExperienceField(index, 'company', e.target.value)}
+                        placeholder="Tên Công ty/Tổ chức" />
+                </div>
+                <div className="company-date flex items-baseline gap-2.5 text-sm italic">
+                    <input type="text"
+                        className='input-cv-value'
+                        value={`${exp.startDate || ''} - ${exp.endDate || ''}`}
+                        onChange={(e) => {
+                            const [start = '', end = ''] = e.target.value.split('-').map(s => s.trim());
+                            updateExperienceField(index, 'startDate', start);
+                            updateExperienceField(index, 'endDate', end);
+                        }}
+                        placeholder="Thời gian: MM/YYYY - Hiện tại/MM/YYYY" />
+                </div>
+
+                {openModalEx && (
+                    <div className="box-ai-recomend">
+                        {
+                            <Modal_AI_Recomend
+                                content={exp.description}
+                                onClose={closeCVAIModalEx}
+                                type="Experience"
+                                onApply={(suggestion) => {
+                                    updateFieldInArray('experience', index, 'description', suggestion);
+                                    closeCVAIModalEx();
+                                }}
+                            />
+                        }
+                    </div>
+                )}
+
+                <AutosizeTextArea // Sử dụng component Autosize đã sửa
+                    value={exp.description || ''}
+                    onChange={(e) => updateExperienceField(index, 'description', e.target.value)}
+                    placeholder='* Mô tả nhiệm vụ chính, tập trung vào kết quả đạt được.\n* Sử dụng con số (nếu có): Tối ưu hóa [X] quy trình/giảm [Y]% lỗi.'
+                />
+                {/* <div
+                    className='cv-editor-control cv-del-control absolute top-0 right-0 opacity-0 group-hover:opacity-100'
+                    onClick={() => removeExperience(index)}
+                    title="Xóa kinh nghiệm này"
+                >
+                    X
+                </div> */}
+                <button className='cv-editor-control' onClick={() => removeFromArray('experience', index)}>Xóa</button>
+            </div>
+        );
+    };
+
+
     const renderSectionComponent = (key: CvSection['componentKey']) => {
+        const experiences = Array.isArray(cvData.experience) ? cvData.experience : [];
+        const projects = Array.isArray(cvData.projects) ? cvData.projects : [];
+        const education = Array.isArray(cvData.education) ? cvData.education : [];
+
         switch (key) {
             case 'SUMMARY':
-                const summaryRef = useRef<HTMLTextAreaElement>(null);
-
-                useEffect(() => {
-                    const element = summaryRef.current;
-                    if (element) {
-                        element.style.height = '0px';
-                        element.style.height = element.scrollHeight + 'px';
-                    }
-                }, [cvData.introduction]);
-
                 return (
                     <section className="summary">
-                        <h2 style={headerStyle}>MỤC TIÊU NGHỀ NGHIỆP</h2>
-                        <textarea
-                            ref={summaryRef}
-                            className="cv-textarea"
+                        <div className='flex justify-between box-head'>
+                            <h2 style={headerStyle}>MỤC TIÊU NGHỀ NGHIỆP</h2>
+                            <div className="ai-suggestion-btn" onClick={turnOnRecomendSummary} title="Gợi ý nội dung bằng AI">
+                                ✨ Gợi ý AI
+                            </div>
+                            {openModalSummary && (
+                                <div className="box-ai-recomend">
+                                    {
+                                        <Modal_AI_Recomend
+                                            content={cvData.introduction}
+                                            onClose={closeCVAIModalSummary}
+                                            type="Summary"
+                                            onApply={(suggestion) => {
+                                                updateCvData('introduction', suggestion);
+                                                closeCVAIModalSummary();
+                                            }}
+                                        />
+                                    }
+                                </div>
+                            )}
+                        </div>
+                        <AutosizeTextArea
                             value={cvData.introduction}
                             onChange={(e) => updateCvData('introduction', e.target.value)}
-                            // rows={4}
-                            placeholder='Sinh viên năm cuối/Mới tốt nghiệp chuyên ngành [Tên ngành] với GPA cao (nếu có). Đam mê và có kinh nghiệm thực hành với [Công nghệ Chính] qua các dự án. Sẵn sàng học hỏi, có tinh thần trách nhiệm cao, tìm kiếm cơ hội Intern/Fresher để áp dụng kiến thức và phát triển kỹ năng chuyên môn.'
+                            placeholder='Sinh viên năm cuối/Mới tốt nghiệp chuyên ngành... tìm kiếm cơ hội Intern/Fresher.'
                         />
                     </section>
                 );
-            case 'PROJECTS':
 
-                const currentProject = cvData.projects[0];
-                const projectRef = useRef<HTMLTextAreaElement>(null);
-
-                useEffect(() => {
-                    const element = projectRef.current;
-                    if (element) {
-                        element.style.height = '0px';
-                        element.style.height = element.scrollHeight + 'px';
-                    }
-                }, [cvData.projects[0]]);
-
+            case 'EXPERIENCE':
                 return (
-                    <section className="projects">
-                        <h2 style={headerStyle}>DỰ ÁN</h2>
-                        <div className="job-entry">
-                            <input type="text"
-                                className="project-title input-cv-value"
-                                value={currentProject?.projectName || ''}
-                                onChange={(e) => updateProjectField(0, 'projectName', e.target.value)}
-                                placeholder="Tên Đồ Án" />
-                            <textarea
-                                ref={projectRef}
-                                className="cv-textarea"
-                                value={currentProject?.projectDescription || ''}
-                                onChange={(e) => updateProjectField(0, 'projectDescription', e.target.value)}
-                                placeholder='Xây dựng một ứng dụng [Loại ứng dụng] bằng [Công nghệ chính A] và [Công nghệ chính B].\nĐịnh lượng kết quả: Dự án xử lý [X] bản ghi/giảm [Y]% thời gian xử lý.\nÁp dụng [Khái niệm kỹ thuật phức tạp: ví dụ: CI/CD, OOP, Microservices cơ bản].'
-                            />
+                    <section className="experience">
+                        <div className='flex justify-between box-head'>
+                            <h2 style={headerStyle}>KINH NGHIỆM LÀM VIỆC</h2>
+                            <div className="ai-suggestion-btn" onClick={turnOnRecomendEx} title="Gợi ý nội dung bằng AI">
+                                ✨ Gợi ý AI
+                            </div>
                         </div>
+                        {experiences.map(renderExperienceEntry)}
+                        <button className='cv-editor-control cv-add-control' onClick={addExperience}>+ Thêm Kinh nghiệm</button>
                     </section>
                 );
+
+            case 'PROJECTS':
+                return (
+                    <section className="projects">
+                        <div className='flex justify-between box-head'>
+                            <h2 style={headerStyle}>DỰ ÁN</h2>
+                            <div className="ai-suggestion-btn" onClick={turnOnRecomendDesProject} title="Gợi ý nội dung bằng AI">
+                                ✨ Gợi ý AI
+                            </div>
+                        </div>
+                        {projects.map(renderProjectEntry)}
+                        <button className='cv-editor-control cv-add-control' onClick={addProject}>+ Thêm Dự án</button>
+                    </section>
+                );
+
             case 'EDUCATION':
-
-                const currentEducation = cvData.education[0];
-                // const time = currentEducation.startYear + " - " + currentEducation.endYear;
-
                 return (
                     <section className="education">
                         <h2 style={headerStyle}>HỌC VẤN</h2>
-                        <div className="education-entry flex flex-col gap-1.5">
-                            <div className='flex items-center gap-2.5'>
-                                <span><strong>Trường Đại Học:</strong></span>
-                                <input type="text"
-                                    className='input-cv-value flex-1'
-                                    value={currentEducation.university}
-                                    onChange={(e) => updateEducationField(0, 'university', e.target.value)}
-                                    placeholder="Tên Trường Đại Học" />
-                            </div>
-                            <div className='flex items-center gap-2.5'>
-                                <span><strong>Chuyên ngành:</strong></span>
-                                <input type="text"
-                                    className='input-cv-value flex-1'
-                                    value={currentEducation.major}
-                                    onChange={(e) => updateEducationField(0, 'major', e.target.value)}
-                                    placeholder="Tên chuyên ngành" />
-                            </div>
-                            <div className="company-date flex items-center gap-2.5">
-                                <span><strong>Thời gian:</strong></span>
-                                <input type="text"
-                                    className='input-cv-value flex-1'
-                                    value={currentEducation.endYear}
-                                    onChange={(e) => updateEducationField(0, 'endYear', e.target.value)}
-                                    placeholder="Năm bắt đầu - Năm tốt nghiệp" />
-                            </div>
-                            <div className='flex items-center gap-2.5'>
-                                <span><strong>GPA:</strong></span>
-                                <input type="text"
-                                    className='input-cv-value flex-1'
-                                    value={currentEducation.gpa}
-                                    onChange={(e) => updateEducationField(0, 'gpa', e.target.value)}
-                                    placeholder="../4" />
-                            </div>
-                        </div>
+                        {education.map(renderEducationEntry)}
+                        <button className='cv-editor-control cv-add-control' onClick={addEducation}>+ Thêm Học vấn</button>
                     </section>
                 );
+
             case 'SKILLS':
                 return (
                     <section className="skills">
                         <h2 style={headerStyle}>KỸ NĂNG CHUYÊN MÔN</h2>
                         <div className="skills-list flex flex-col gap-1.5">
-                            <div className='flex items-center gap-1'>
-                                <span><strong>Kỹ năng chuyên môn:</strong></span>
-                                <div className='flex gap-1 flex-1 relative'>
-                                    {profSkills.map((skill) => (
-                                        <span className="tag" key={skill} style={{ backgroundColor: `${settings.color}` }}>
+                            {/* Kỹ năng chuyên môn */}
+                            <div className='flex items-baseline gap-1 skill-line'>
+                                <span><strong>Chuyên môn:</strong></span>
+                                <div className='flex gap-1 flex-wrap flex-1 relative'>
+                                    {currentProfSkills.map((skill: string) => (
+                                        <span className="tag" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal' }} >
                                             {skill}{" "}
                                             <span className='tag-remove' onClick={() => handleRemoveProfSkill(skill)}>x</span>
                                         </span>
                                     ))}
                                     <input
                                         type="text"
-                                        className='input-cv-value flex-1'
+                                        className='input-cv-value flex-1 min-w-[150px]'
                                         value={profInput}
                                         onChange={handleProfInputChange}
                                         onFocus={handleProfFocus}
                                         onBlur={handleProfBlur}
                                         onKeyDown={handleProfKeyDown}
-                                        placeholder="Thêm kỹ năng chuyên môn..."
                                     />
                                     {showProfSuggestion && filteredProfSkills.length > 0 && (
-                                        <ul className="suggestion-list">
+                                        <ul className="suggestion-list absolute z-10 w-full max-h-40 overflow-y-auto mt-8"
+                                            style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db' }}
+                                        >
                                             {filteredProfSkills.map((skill) => (
                                                 <li
                                                     key={skill}
                                                     onMouseDown={() => handleSelectProfSkill(skill)}
+                                                    className="p-1 cursor-pointer"
                                                 >
                                                     {skill}
                                                 </li>
@@ -520,30 +722,33 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                                     )}
                                 </div>
                             </div>
-                            <div className='flex items-center gap-1'>
+                            {/* Kỹ năng mềm */}
+                            <div className='flex items-baseline gap-1 skill-line'>
                                 <span><strong>Kỹ năng mềm:</strong></span>
-                                <div className='flex gap-1 flex-1 relative'>
-                                    {softSkills.map((skill) => (
-                                        <span className="tag" key={skill}>
+                                <div className='flex gap-1 flex-wrap flex-1 relative'>
+                                    {currentSoftSkills.map((skill: string) => (
+                                        <span className="tag" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal' }} >
                                             {skill}{" "}
-                                            <span onClick={() => handleRemoveSoftSkill(skill)}>x</span>
+                                            <span className='tag-remove' onClick={() => handleRemoveSoftSkill(skill)}>x</span>
                                         </span>
                                     ))}
                                     <input type="text"
-                                        className='input-cv-value'
+                                        className='input-cv-value flex-1 min-w-[150px]'
                                         value={softInput}
                                         onChange={handleSoftInputChange}
                                         onFocus={handleSoftFocus}
                                         onBlur={handleSoftBlur}
                                         onKeyDown={handleSoftKeyDown}
-                                        placeholder="Thêm kỹ năng mềm..."
                                     />
                                     {showSoftSuggestion && filteredSoftSkills.length > 0 && (
-                                        <ul className="suggestion-list">
+                                        <ul className="suggestion-list absolute z-10 w-full max-h-40 overflow-y-auto mt-8"
+                                            style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db' }}
+                                        >
                                             {filteredSoftSkills.map((skill) => (
                                                 <li
                                                     key={skill}
                                                     onMouseDown={() => handleSelectSoftSkill(skill)}
+                                                    className="p-1 cursor-pointer"
                                                 >
                                                     {skill}
                                                 </li>
@@ -555,27 +760,15 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         </div>
                     </section>
                 );
+
             case 'ACTIVITIES':
-                const activitiesRef = useRef<HTMLTextAreaElement>(null);
-
-                useEffect(() => {
-                    const element = activitiesRef.current;
-                    if (element) {
-                        element.style.height = '0px';
-                        element.style.height = element.scrollHeight + 'px';
-                    }
-                }, [cvData.activitiesAwards]);
-
                 return (
                     <section className="activities">
                         <h2 style={headerStyle}>KINH NGHIỆM KHÁC (HOẠT ĐỘNG & THÀNH TÍCH)</h2>
-                        <textarea
-                            ref={activitiesRef}
-                            className="cv-textarea"
+                        <AutosizeTextArea // Sử dụng AutosizeTextArea
                             value={cvData.activitiesAwards}
                             onChange={(e) => updateCvData('activitiesAwards', e.target.value)}
-                            // rows={5}
-                            placeholder='* Thực tập ngắn hạn/Freelance: [Tên công ty/dự án] - [Nhiệm vụ chính]. (Nếu có bất kỳ kinh nghiệm nào dù ngắn).\n* Giải thưởng: [Tên giải thưởng] trong cuộc thi lập trình [Tên cuộc thi] năm [Năm].\n* Chứng chỉ: Chứng chỉ [Tên chứng chỉ] từ [Nguồn, ví dụ: Coursera, AWS].'
+                            placeholder='* Thực tập ngắn hạn/Freelance: [Tên công ty/dự án].\n* Giải thưởng: [Tên giải thưởng] trong cuộc thi lập trình [Tên cuộc thi].\n* Chứng chỉ: Chứng chỉ [Tên chứng chỉ].'
                         />
                     </section>
                 );
@@ -585,119 +778,8 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
     };
 
     return (
-        <div className="cv-container" style={cvStyle} ref={ref}>
-            {/* 1. HEADER & CONTACT (GIỮ CỐ ĐỊNH, KHÔNG KÉO THẢ) */}
-            <header className="cv-header">
-                <input className='cv-header-inputname input-cv-value'
-                    style={h1BorderStyle}
-                    value={cvData.name}
-                    onChange={(e) => updateCvData('name', e.target.value)}
-                    placeholder="HỌ VÀ TÊN"
-                />
-                <input className="title input-cv-value"
-                    value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                    placeholder="VỊ TRÍ ỨNG TUYỂN (Fresher / Intern / Apprentice)"
-                />
-            </header>
-
-            <section className="contact-info flex gap-3 flex-wrap">
-                {/* EMAIL */}
-                {showEmail && (
-                    <div className='flex items-center contact-info_item'><strong>Email:</strong>
-                        <input className='input-cv-value'
-                            type="text"
-                            // ĐỌC TỪ PROPS
-                            value={cvData.contact.email}
-                            // GỌI HANDLER MỚI
-                            onChange={(e) => updateContactField('email', e.target.value)}
-                            placeholder="email@example.com" />
-                        <button className='cv-editor-control cv-del-control' onClick={() => setShowEmail(false)}>Ẩn</button>
-                    </div>
-                )}
-                {!showEmail && <button className='cv-editor-control cv-add-control' onClick={() => setShowEmail(true)}>+ Email</button>}
-
-                {/* SỐ ĐIỆN THOẠI (PHONE) */}
-                {showPhone && (
-                    <div className='flex items-center contact-info_item'><strong>Số điện thoại:</strong>
-                        <input className='input-cv-value'
-                            type="text"
-                            // ĐỌC TỪ PROPS
-                            value={cvData.contact.phone}
-                            // GỌI HANDLER MỚI
-                            onChange={(e) => updateContactField('phone', e.target.value)}
-                            placeholder="(84) [Số điện thoại]" />
-                        <button className='cv-editor-control cv-del-control' onClick={() => setShowPhone(false)}>Ẩn</button>
-                    </div>
-                )}
-                {!showPhone && <button className='cv-editor-control cv-add-control' onClick={() => setShowPhone(true)}>+ SĐT</button>}
-
-                {/* LINKEDIN */}
-                {showLinkedln && (
-                    <div className='flex items-center contact-info_item'><strong>LinkedIn:</strong>
-                        <input className='input-cv-value'
-                            type="text"
-                            // ĐỌC TỪ PROPS
-                            value={cvData.contact.website} // Giả định bạn dùng 'website' cho LinkedIn nếu không có trường riêng
-                            // GỌI HANDLER MỚI
-                            onChange={(e) => updateContactField('website', e.target.value)}
-                            placeholder="linkedin.com/in/..." />
-                        <button className='cv-editor-control cv-del-control' onClick={() => setShowLinkedln(false)}>Ẩn</button>
-                    </div>
-                )}
-                {!showLinkedln && <button className='cv-editor-control cv-add-control' onClick={() => setShowLinkedln(true)}>+ Linkedln</button>}
-
-                {/* GITHUB */}
-                {showGithub && (
-                    <div className='flex items-center contact-info_item'><strong>GitHub/Portfolio:</strong>
-                        <input className='input-cv-value'
-                            type="text"
-                            // ĐỌC TỪ PROPS
-                            value={cvData.contact.github}
-                            // GỌI HANDLER MỚI
-                            onChange={(e) => updateContactField('github', e.target.value)}
-                            placeholder="github.com/..." />
-                        <button className='cv-editor-control cv-del-control' onClick={() => setShowGithub(false)}>Ẩn</button>
-                    </div>
-                )}
-                {!showGithub && <button className='cv-editor-control cv-add-control' onClick={() => setShowGithub(true)}>+ GitHub</button>}
-            </section>
-
-            {/* 2. LẶP QUA CÁC SECTION CÓ THỂ KÉO THẢ */}
-            {cvSections.map((section) => (
-                section.isVisible ? (
-                    <div
-                        key={section.id}
-                        data-id={section.id}
-                        draggable={section.isRemovable}
-                        onDragStart={(e) => handleDragStart(e, section.id)}
-                        onDrop={(e) => handleDrop(e, section.id)}
-                        onDragOver={handleDragOver}
-                        className={`cv-section-draggable-wrapper ${draggedItemId === section.id ? 'is-dragging' : ''}`}
-                    >
-                        {/* TOOLBAR ĐIỀU KHIỂN */}
-                        <div className="cv-section-controls">
-                            {section.isRemovable && <span className="drag-handle" style={{ cursor: 'grab' }}>:: KÉO ::</span>}
-
-                            {section.isRemovable && (
-                                <button
-                                    className='cv-editor-control cv-del-control'
-                                    onClick={() => handleRemoveSection(section.id)}
-                                    title={`Ẩn mục ${section.title}`}
-                                >
-                                    Xóa/Ẩn
-                                </button>
-                            )}
-                        </div>
-
-                        {/* NỘI DUNG SECTION */}
-                        {renderSectionComponent(section.componentKey)}
-                    </div>
-                ) : null
-            ))}
-
-            {/* 3. KHU VỰC THÊM MỤC (Các mục đã bị ẩn) */}
-            <div className="add-section-ui flex gap-2 flex-wrap p-2 border-t mt-4">
+        <>
+            <div className="add-section-ui flex gap-2 flex-wrap shadow-2xl rounded-sm" style={{ marginBottom: 15, padding: 15, backgroundColor: '#fff' }}>
                 <strong>Thêm các mục đã ẩn:</strong>
                 {defaultCvSections.filter(s => !cvSections.find(cs => cs.id === s.id && cs.isVisible))
                     .map(hiddenSection => (
@@ -711,7 +793,110 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     ))}
             </div>
 
-        </div>
+            <div className="cv-container" style={cvStyle} ref={ref}>
+                {/* 1. HEADER & CONTACT (GIỮ CỐ ĐỊNH, KHÔNG KÉO THẢ) */}
+                <header className="cv-header">
+                    <input className='cv-header-inputname input-cv-value'
+                        style={h1BorderStyle}
+                        value={cvData.name}
+                        onChange={(e) => updateCvData('name', e.target.value)}
+                        placeholder="HỌ VÀ TÊN"
+                    />
+
+                    <hr style={{
+                        border: 'none',
+                        height: '2px',
+                        backgroundColor: safeColor
+                    }} />
+
+                    <input className="title input-cv-value"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="VỊ TRÍ ỨNG TUYỂN (Fresher / Intern / Apprentice)"
+                    />
+                </header>
+
+                <section className="contact-info flex gap-3 flex-wrap">
+                    {showEmail &&
+                        (<div className='flex items-baseline gap-0.5 contact-info_item'>
+                            <strong>Email:</strong>
+                            <input className='input-cv-value'
+                                type="text" value={cvData.contact.email}
+                                onChange={(e) => updateContactField('email', e.target.value)}
+                                placeholder="email@example.com"
+                            />
+                            <button className='cv-editor-control cv-del-control' onClick={() => setShowEmail(false)}>Ẩn</button>
+                        </div>
+                        )}
+                    {!showEmail && <button className='cv-editor-control cv-add-control' onClick={() => setShowEmail(true)}>+ Email</button>}
+                    {showPhone &&
+                        (<div className='flex items-baseline gap-0.5 contact-info_item'>
+                            <strong>Số điện thoại:</strong>
+                            <input className='input-cv-value'
+                                type="text" value={cvData.contact.phone}
+                                onChange={(e) => updateContactField('phone', e.target.value)}
+                                placeholder="(84) [Số điện thoại]" />
+                            <button className='cv-editor-control cv-del-control' onClick={() => setShowPhone(false)}>Ẩn</button>
+                        </div>
+                        )}
+                    {!showPhone && <button className='cv-editor-control cv-add-control' onClick={() => setShowPhone(true)}>+ SĐT</button>}
+                    {showLinkedln &&
+                        (<div className='flex items-baseline gap-0.5 contact-info_item'>
+                            <strong>LinkedIn:</strong>
+                            <input className='input-cv-value' type="text" value={cvData.contact.website}
+                                onChange={(e) => updateContactField('website', e.target.value)} placeholder="linkedin.com/in/..." />
+                            <button className='cv-editor-control cv-del-control' onClick={() => setShowLinkedln(false)}>Ẩn</button>
+                        </div>
+                        )}
+                    {!showLinkedln && <button className='cv-editor-control cv-add-control' onClick={() => setShowLinkedln(true)}>+ Linkedln</button>}
+                    {showGithub &&
+                        (<div className='flex items-baseline gap-0.5 contact-info_item'>
+                            <strong>GitHub/Portfolio:</strong>
+                            <input className='input-cv-value' type="text" value={cvData.contact.github}
+                                onChange={(e) => updateContactField('github', e.target.value)} placeholder="github.com/..." />
+                            <button className='cv-editor-control cv-del-control' onClick={() => setShowGithub(false)}>Ẩn</button>
+                        </div>
+                        )}
+                    {!showGithub && <button className='cv-editor-control cv-add-control' onClick={() => setShowGithub(true)}>+ GitHub</button>}
+                </section>
+
+                {/* 2. LẶP QUA CÁC SECTION CÓ THỂ KÉO THẢ */}
+                {cvSections.map((section) => (
+                    section.isVisible ? (
+                        <div
+                            key={section.id}
+                            data-id={section.id}
+                            draggable={section.isRemovable}
+                            onDragStart={(e) => handleDragStart(e, section.id)}
+                            onDrop={(e) => handleDrop(e, section.id)}
+                            onDragOver={handleDragOver}
+                            className={`cv-section-draggable-wrapper ${draggedItemId === section.id ? 'is-dragging p-2' : ''}`}
+                            style={draggedItemId === section.id ? { border: '1px dashed #9ca3af' } : {}}
+                        >
+                            {/* TOOLBAR ĐIỀU KHIỂN ĐÃ SỬA LỖI */}
+                            <div className="cv-section-controls">
+                                {section.isRemovable && (
+                                    <>
+                                        {/* Drag Handle */}
+                                        <span className="drag-handle" style={{ cursor: 'grab' }}>:: KÉO ::</span>
+                                        {/* Nút Xóa/Ẩn */}
+                                        <div
+                                            className='sections-controls_del'
+                                            onClick={() => handleRemoveSection(section.id)}
+                                        >
+                                            Xóa
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* NỘI DUNG SECTION */}
+                            {renderSectionComponent(section.componentKey)}
+                        </div>
+                    ) : null
+                ))}
+            </div>
+        </>
     );
 }
 );

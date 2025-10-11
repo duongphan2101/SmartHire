@@ -14,6 +14,14 @@ const educationSchema = new mongoose.Schema({
   year: { type: String },
 });
 
+const experienceSchma = new mongoose.Schema({
+  jobTitle: { type: String },
+  company: { type: String },
+  startDate: { type: String },
+  endDate: { type: String },
+  description: { type: String },
+});
+
 const projectSchema = new mongoose.Schema({
   projectName: { type: String },
   projectDescription: { type: String },
@@ -22,12 +30,12 @@ const projectSchema = new mongoose.Schema({
 const cvSchema = new mongoose.Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    
+
     name: { type: String, required: true },
     introduction: { type: String },
     professionalSkills: { type: String },
     softSkills: { type: String },
-    experience: { type: String },
+    experience: [experienceSchma],
     certifications: { type: String },
     activitiesAwards: { type: String },
 

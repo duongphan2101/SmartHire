@@ -1,19 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./BuildCvs.css";
 
-import TemplateFresher from "../../components/Templates/Template-1/SeniorCVTemplate";
 import SettingsModal from "../../components/Templates/Model-settings/SettingModal";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
-import useUser from "../../hook/useUser";
+import useUser, { type UserResponse } from "../../hook/useUser";
+import Swal from "sweetalert2";
+import FreshInternCVTemplate from "../../components/Templates/Template-1/SeniorCVTemplate";
+import TwoColumnCVTemplate from "../../components/Templates/Template-2/TwoColumnCVTemplate";
+import ModernCenteredCVTemplate from "../../components/Templates/Template-3/ModernCenteredCVTemplate";
 
-type TemplateKey = 'senior' | 'fresher';
+type TemplateKey = 'twocolumns' | 'fresher' | 'modern';
 
 interface ContactInfo {
     phone: string;
     email: string;
     github: string;
     website: string;
+}
+
+interface Experience {
+    jobTitle: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
 }
 
 interface Education {
@@ -32,9 +43,9 @@ interface Project {
 interface CVData {
     name: string;
     introduction: string;
+    experience: Experience[];
     professionalSkills: string;
     softSkills: string;
-    experience: string;
     certifications: string;
     activitiesAwards: string;
     contact: ContactInfo;
@@ -53,7 +64,7 @@ const DEFAULT_CV_DATA: CVData = {
     introduction: "",
     professionalSkills: "",
     softSkills: "",
-    experience: "",
+    experience: [{ company: "", description: "", endDate: "", jobTitle: "", startDate: "" },],
     certifications: "",
     activitiesAwards: "",
     contact: { phone: "", email: "", github: "", website: "" },
@@ -66,7 +77,7 @@ const DEFAULT_CV_DATA: CVData = {
 const BuildCvs: React.FC = () => {
     const [currentTemplate, setCurrentTemplate] = useState<TemplateKey>('fresher');
     const { getUser, user } = useUser();
-    
+
     const [cvData, setCvData] = useState<CVData>(DEFAULT_CV_DATA);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -75,20 +86,75 @@ const BuildCvs: React.FC = () => {
         fontFamily: 'Arial',
         cvData: cvData
     });
-
+    const [, setOriginalData] = useState<CVData>({ ...cvData });
     const cvTemplateRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        try {
-            const storedUser = localStorage.getItem("user");
-            if (storedUser) {
-                const parsed = JSON.parse(storedUser);
-                const idToFetch = parsed.user_id ?? parsed._id;
-                getUser(idToFetch);
+        const fetchUserData = async () => {
+            try {
+                const storedUser = localStorage.getItem("user");
+                if (storedUser) {
+                    const parsed = JSON.parse(storedUser);
+                    const idToFetch = parsed.user_id ?? parsed._id;
+                    getUser(idToFetch);
+
+                    const userData: UserResponse | void = await getUser(idToFetch);
+                    if (userData) {
+                        setCvData((prev) => ({
+                            ...prev,
+                            name: userData.fullname || "",
+                            contact: {
+                                ...prev.contact,
+                                phone: userData.phone || "",
+                                email: userData.email || "",
+                            },
+                        }));
+                        setOriginalData((prev) => ({
+                            ...prev,
+                            name: userData.fullname || "",
+                            contact: {
+                                ...prev.contact,
+                                phone: userData.phone || "",
+                                email: userData.email || "",
+                            },
+                        }));
+                    }
+                } else {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Bạn cần đăng nhập",
+                        text: "Vui lòng đăng nhập để tiếp tục!",
+                        showCancelButton: true,
+                        confirmButtonText: "Đăng nhập",
+                        cancelButtonText: "Hủy",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/login";
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = "/home";
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Invalid user data in localStorage", e);
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi dữ liệu",
+                    text: "Thông tin đăng nhập không hợp lệ. Vui lòng đăng nhập lại!",
+                    showCancelButton: true,
+                    confirmButtonText: "Đăng nhập",
+                    cancelButtonText: "Hủy",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/login";
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.location.href = "/home";
+                    }
+                });
             }
-        } catch (e) {
-            console.error("Invalid user data in localStorage", e);
-        }
+        };
+
+        fetchUserData();
     }, [getUser]);
 
     useEffect(() => {
@@ -98,11 +164,11 @@ const BuildCvs: React.FC = () => {
                 name: user.fullname || "",
                 contact: {
                     ...DEFAULT_CV_DATA.contact,
-                    phone: user.phone || "", 
+                    phone: user.phone || "",
                     email: user.email || "",
                 }
             };
-            
+
             setCvData(initialData);
             setCustomSettings(prevSettings => ({
                 ...prevSettings,
@@ -129,7 +195,7 @@ const BuildCvs: React.FC = () => {
         };
 
         setCvData(updatedData);
-        
+
         // Đảm bảo customSettings luôn đồng bộ
         setCustomSettings(prevSettings => ({
             ...prevSettings,
@@ -138,14 +204,23 @@ const BuildCvs: React.FC = () => {
     };
 
     const renderTemplateComponent = () => {
-        return (
-            <TemplateFresher 
-                ref={cvTemplateRef} 
-                settings={customSettings} 
-                cvData={cvData} 
-                updateCvData={updateCvData} 
-            />
-        );
+        const commonProps = {
+            ref: cvTemplateRef,
+            settings: customSettings,
+            cvData: cvData,
+            updateCvData: updateCvData,
+        };
+
+        switch (currentTemplate) {
+            case 'fresher':
+                return <FreshInternCVTemplate {...commonProps} />;
+            case 'twocolumns':
+                return <TwoColumnCVTemplate {...commonProps} />;
+            case 'modern':
+                return <ModernCenteredCVTemplate {...commonProps} />;
+            default:
+                return <FreshInternCVTemplate {...commonProps} />;
+        }
     };
 
     const contentClasses = `buildcv-content ${isModalOpen ? 'modal-open' : ''}`;
