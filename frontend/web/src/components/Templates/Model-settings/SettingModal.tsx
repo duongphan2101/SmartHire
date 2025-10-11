@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import './SettingModal.css';
 import useCV from "../../../hook/useCV";
 import Swal from 'sweetalert2';
-import html2canvas from 'html2canvas';
+// import * as domToImage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 import useUser from '../../../hook/useUser';
 import { uploadPDF } from '../../../utils/uploadPDF';
+import html2canvas from 'html2canvas';
 
 interface ContactInfo {
     phone: string;
@@ -22,6 +23,14 @@ interface Education {
     endYear: string;
 }
 
+interface Experience {
+    jobTitle: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+}
+
 interface Project {
     projectName: string;
     projectDescription: string;
@@ -32,7 +41,7 @@ interface CVData {
     introduction: string;
     professionalSkills: string;
     softSkills: string;
-    experience: string;
+    experience: Experience[];
     certifications: string;
     activitiesAwards: string;
     contact: ContactInfo;
@@ -49,8 +58,8 @@ interface CustomSettings {
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    currentTemplate: 'senior' | 'fresher';
-    onTemplateChange: (template: 'senior' | 'fresher') => void;
+    currentTemplate: 'twocolumns' | 'fresher' | 'modern';
+    onTemplateChange: (template: 'twocolumns' | 'fresher' | 'modern') => void;
     customSettings: CustomSettings;
     onSettingsChange: (settings: Partial<CustomSettings>) => void;
     cvTemplateRef: React.RefObject<HTMLDivElement | null>;
@@ -67,7 +76,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     const { createCV } = useCV();
     const [userId, setUserId] = useState<string>("");
     const { getUser } = useUser();
-    
+
     useEffect(() => {
         try {
             const storedUser = localStorage.getItem("user");
@@ -83,23 +92,77 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     }, [getUser]);
 
     const handleCreateCV = async () => {
-        const element = cvTemplateRef.current; 
+        const element = cvTemplateRef.current;
         if (!element)
-            return Swal.fire(
-                "Lỗi",
-                "Không tìm thấy nội dung CV để tạo PDF. Vui lòng đảm bảo Template CV có ref={cvTemplateRef}.",
-                "error"
-            );
+            return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF. Vui lòng đảm bảo Template CV có ref={cvTemplateRef}.", "error");
+
+        Swal.fire({
+            title: "Đang tạo CV...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+        });
 
         try {
             window.scrollTo(0, 0);
-            Swal.fire({
-                title: "Đang tạo CV...",
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                logging: true,
+                ignoreElements: (node) => {
+                    return node.classList && (node.classList.contains('cv-editor-control') ||
+                        node.classList.contains('drag-handle') ||
+                        node.classList.contains('add-section-ui'));
+                },
+                useCORS: true,
+
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight,
+                onclone: (document) => {
+                    const clonedDoc = document.documentElement;
+
+                    // 1. Replace all INPUTS with SPANS
+                    clonedDoc.querySelectorAll('input[type="text"]').forEach(input => {
+                        const span = document.createElement('span');
+                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
+                        span.textContent = value;
+                        span.className = input.className; // Copy classes
+                        span.setAttribute('style', input.getAttribute('style') || '');
+
+                        const computedStyle = window.getComputedStyle(input);
+
+                        span.style.display = 'inline-block';
+                        span.style.width = computedStyle.width;
+
+                        // Copy other important styles
+                        span.style.fontSize = computedStyle.fontSize;
+                        span.style.fontWeight = computedStyle.fontWeight;
+                        span.style.fontStyle = computedStyle.fontStyle;
+                        span.style.color = computedStyle.color;
+                        span.style.textAlign = computedStyle.textAlign;
+
+                        input.parentNode?.replaceChild(span, input);
+                    });
+
+                    // 2. Replace all TEXTAREAS with DIVS (this logic remains the same)
+                    clonedDoc.querySelectorAll('textarea').forEach(textarea => {
+                        const div = document.createElement('div');
+                        const value = (textarea as HTMLTextAreaElement).value || (textarea as HTMLTextAreaElement).placeholder;
+                        div.innerHTML = value.replace(/\n/g, '<br/>');
+                        div.className = textarea.className;
+                        div.setAttribute('style', textarea.getAttribute('style') || '');
+
+                        const computedStyle = window.getComputedStyle(textarea);
+                        div.style.fontSize = computedStyle.fontSize;
+                        div.style.lineHeight = computedStyle.lineHeight;
+                        div.style.color = computedStyle.color;
+
+                        textarea.parentNode?.replaceChild(div, textarea);
+                    });
+                },
             });
 
-            const canvas = await html2canvas(element, { scale: 2 });
             const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("p", "mm", "a4");
             const imgProps = pdf.getImageProperties(imgData);
@@ -121,21 +184,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             const pdfBlob = pdf.output("blob");
 
             if (!userId) {
-                Swal.fire(
-                    "Lỗi",
-                    "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.",
-                    "error"
-                );
-                return;
+                Swal.close();
+                return Swal.fire("Lỗi", "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.", "error");
             }
 
-            const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}_${Date.now()}.pdf`);
+            const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}-${Date.now()}.pdf`);
             await createCV(userId, cvData, pdfUrl);
 
             Swal.fire("Thành công", "CV đã được tạo!", "success");
+
         } catch (error) {
             console.error("Lỗi khi tạo CV:", error);
-            Swal.fire("Lỗi", "Đã xảy ra lỗi khi tạo CV. Vui lòng thử lại.", "error");
+            Swal.close();
+
+            let errorMessage = "Đã xảy ra lỗi không xác định. Vui lòng xem console để biết chi tiết.";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === 'string') {
+                errorMessage = error;
+            }
+
+            if (errorMessage.includes("oklch") || errorMessage.includes("parse color")) {
+                errorMessage = "LỖI PARSING CSS! Hãy chuyển sang DOM-TO-IMAGE-MORE hoặc kiểm tra lại file CSS gốc.";
+            }
+
+            Swal.fire("Lỗi", `Đã xảy ra lỗi khi tạo CV. Chi tiết: ${errorMessage}`, "error");
         }
     };
 
@@ -161,11 +235,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         Fresher/Intern
                     </button>
                     <button
-                        onClick={() => onTemplateChange('senior')}
-                        className={currentTemplate === 'senior' ? 'active' : ''}
+                        onClick={() => onTemplateChange('twocolumns')}
+                        className={currentTemplate === 'twocolumns' ? 'active' : ''}
                         style={{ marginBottom: 5 }}
                     >
-                        Senior/Kinh nghiệm
+                        Two Columns
+                    </button>
+                    <button
+                        onClick={() => onTemplateChange('modern')}
+                        className={currentTemplate === 'modern' ? 'active' : ''}
+                        style={{ marginBottom: 5 }}
+                    >
+                        Modern
                     </button>
                 </div>
             </div>

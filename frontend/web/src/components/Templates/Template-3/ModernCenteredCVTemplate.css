@@ -1,0 +1,110 @@
+.cv-container-modern {
+    width: 210mm;
+    min-height: 297mm;
+    margin: auto;
+    padding: 40px;
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+/* Header styles */
+.cv-header-modern {
+    text-align: center;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid;
+}
+.cv-header-modern .name-input {
+    font-size: 40px;
+    font-weight: bold;
+    border: none;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    font: inherit;
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.cv-header-modern .job-title-input {
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+    border: none;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    font: inherit;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+.cv-header-modern input:focus {
+    outline: none;
+    background: #f8f8f8;
+}
+.contact-info-modern {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+.contact-info-modern input {
+    border: none;
+    background: transparent;
+    text-align: center;
+    font: inherit;
+    font-size: 14px;
+}
+.contact-info-modern input:focus {
+    outline: none;
+    border-bottom: 1px dashed;
+}
+.summary-modern {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    text-align: center;
+    font-style: italic;
+    color: #444;
+    line-height: 1.6;
+    resize: none;
+}
+.summary-modern:focus {
+    outline: none;
+    background: #f8f8f8;
+}
+
+/* Body styles */
+.cv-body-modern h2 {
+    font-size: 18px;
+    text-transform: uppercase;
+    margin: 0 0 15px 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid;
+    display: inline-block;
+}
+.grid-2-col-modern {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 20px;
+}
+.cv-textarea-modern {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+}
+.cv-textarea-modern:focus {
+     outline: none;
+    background: #f8f8f8;
+}

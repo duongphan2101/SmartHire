@@ -1,23 +1,56 @@
 @media print {
-    .cv-editor-control {
+
+    .cv-editor-control,
+    .add-section-ui,
+    .drag-handle,
+    .sections-controls_del {
         display: none !important;
     }
 
-    .input-cv-value {
+    .input-cv-value,
+    .cv-textarea,
+    .job-entry,
+    .education-entry,
+    .contact-info_item input {
         border: none !important;
-        border-bottom: none !important;
+        border-left: none !important;
+        box-shadow: none !important;
+        outline: none !important;
         background-color: transparent !important;
+        padding: 0 !important;
+    }
+
+    .contact-info {
+        gap: 0 !important;
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .contact-info_item {
+        min-width: 200px !important;
+        padding: 0 !important;
+        margin-right: 20px !important;
     }
 
     .cv-container {
+        width: 210mm !important;
+        height: auto !important;
+        min-height: 297mm !important;
         box-shadow: none !important;
-        padding: 0 !important;
+        margin: 0 !important;
+        padding: 20px !important;
     }
 }
+
+/* :root {
+    --safe-primary-color: #059669;
+    --safe-red-color: #dc2626;
+} */
 
 .cv-container {
     width: 210mm;
     min-height: 297mm;
+    height: auto;
     margin: 0 auto;
     padding: 30px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -27,21 +60,29 @@
     font-size: 14px;
 }
 
+.add-section-ui {
+    display: flex;
+    width: 210mm;
+    margin: auto;
+}
+
 .contact-info {
     width: 100%;
 }
 
 .input-cv-value {
     width: auto;
-    border: none;
-    outline: none;
-    padding: 3px;
+    border: none !important;
+    outline: none !important;
+    padding: 0 !important;
     font-weight: normal;
     flex-grow: 0;
-}
+    vertical-align: baseline !important;
 
-.input-cv-value:focus {
-    border: 1px solid #059669;
+    font-weight: normal;
+    flex: 1;
+    line-height: 1.5;
+    text-align: left;
 }
 
 .input-cv-value:placeholder-shown {
@@ -95,7 +136,7 @@
 section h2 {
     font-size: 18px;
     text-transform: uppercase;
-    margin: 25px 0 10px 0;
+    margin: 0 0 10px 0;
     padding-bottom: 3px;
     text-align: left;
 }
@@ -107,7 +148,6 @@ hr {
     margin: 15px 0;
 }
 
-/* --- Vùng nội dung dài (Textarea) và Danh sách --- */
 .cv-textarea {
     width: 100%;
     resize: vertical;
@@ -115,20 +155,31 @@ hr {
     font-family: inherit;
     font-size: 14px;
     line-height: 1.5;
+
+    border: none !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+    text-align: left;
 }
 
 .cv-textarea:placeholder-shown {
     color: #666;
 }
 
+.input-cv-value:focus,
 .cv-textarea:focus {
-    border: 1px solid #059669;
-    outline: none;
+    border: 1px solid #059669 !important;
+    outline: none !important;
+    padding: 0 5px !important;
 }
 
 .summary p,
 .activities ul {
     margin: 5px 0;
+}
+
+.education-entry {
+    border-left: none;
 }
 
 /* --- Dự án & Học vấn --- */
@@ -142,7 +193,7 @@ hr {
     border-left: 0;
 }
 
-.job-entry input.project-title{
+.job-entry input.project-title {
     font-weight: bold;
     font-size: 14px;
     display: inline-block;
@@ -168,18 +219,42 @@ hr {
     flex: 1;
 }
 
-.tag:hover .tag-remove{
+.box-ai-recomend {
+    position: absolute;
+    top: -250px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.box-head:hover .ai-suggestion-btn {
+    display: block;
+    font-weight: bold;
+}
+
+.ai-suggestion-btn {
+    display: none;
+    cursor: pointer;
+    padding-right: 10px;
+}
+
+.tag {
+    border-radius: 0;
+    font-weight: normal;
+}
+
+.tag:hover .tag-remove {
     display: block;
 }
 
-.tag-remove{
+.tag-remove {
     display: none;
 }
 
 .contact-info_item {
-    width: fit-content;
+    width: auto;
     position: relative;
-    /* background-color: #059669; */
 }
 
 .contact-info_item:focus-within .cv-del-control {
@@ -189,7 +264,7 @@ hr {
 .cv-del-control {
     height: 13px;
     width: 13px;
-    background-color: var(--color-red-400);
+    background-color: #b91c1c;
     border-radius: 50%;
     color: #fff;
     display: none;
@@ -204,10 +279,14 @@ hr {
     height: auto;
 }
 
-.cv-section-draggable-wrapper:hover {
+.cv-section-draggable-wrapper:hover,
+.cv-section-draggable-wrapper.is-dragging {
     border-color: #ddd;
+    padding-top: 30px;
+    margin-top: -30px;
 }
 
+/* --- Thanh điều khiển Section --- */
 .cv-section-controls {
     position: absolute;
     top: 0;
@@ -222,7 +301,7 @@ hr {
     padding: 0 10px;
     opacity: 0;
     transition: opacity 0.2s;
-    z-index: 10;
+    z-index: 100;
 }
 
 .cv-section-draggable-wrapper:hover .cv-section-controls,
@@ -239,7 +318,7 @@ hr {
     border-radius: 3px;
 }
 
-/* Nút điều khiển */
+/* Nút điều khiển chung */
 .cv-editor-control {
     cursor: pointer;
     border: 1px solid #ccc;
@@ -257,4 +336,25 @@ hr {
     opacity: 1;
     position: static;
     margin-left: 10px;
+}
+
+.sections-controls_del {
+    color: #000;
+    border: none;
+    font-weight: bold;
+    padding: 3px;
+}
+
+.sections-controls_del:hover {
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+.experience,
+.projects,
+.education,
+.skills,
+.summary,
+.activities {
+    margin-top: 15px;
 }

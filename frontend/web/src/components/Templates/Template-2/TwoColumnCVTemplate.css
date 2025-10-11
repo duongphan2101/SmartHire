@@ -1,0 +1,46 @@
+.cv-container-twocolumn {
+    width: 210mm;
+    min-height: 297mm;
+    margin: auto;
+    display: flex;
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+.cv-sidebar-twocolumn {
+    width: 35%;
+    padding: 30px;
+    color: #333;
+    box-sizing: border-box;
+}
+.cv-main-twocolumn {
+    width: 65%;
+    padding: 30px;
+    box-sizing: border-box;
+}
+.cv-sidebar-twocolumn h2, .cv-main-twocolumn h2 {
+    font-size: 16px;
+    text-transform: uppercase;
+    border-bottom: 2px solid;
+    padding-bottom: 5px;
+    margin: 0 0 15px 0;
+}
+/* Sidebar styles */
+.contact-item { margin-bottom: 10px; }
+.contact-item strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.contact-item input { width: 100%; border: none; background: transparent; font: inherit; padding: 2px 0; }
+.contact-item input:focus { outline: none; border-bottom: 1px dashed; }
+.sidebar-entry { margin-bottom: 15px; }
+.sidebar-entry-title { font-weight: bold; width: 100%; border: none; background: transparent; font: inherit; }
+.sidebar-entry-subtitle { width: 100%; border: none; background: transparent; font: inherit; font-style: italic; }
+.cv-textarea-twocolumn { width: 100%; border: none; background: transparent; font: inherit; padding: 2px 0; line-height: 1.5; resize: none; }
+.cv-textarea-twocolumn:focus { outline: none; background: #f8f8f8; }
+
+/* Main content styles */
+.cv-header-twocolumn { margin-bottom: 30px; }
+.cv-header-twocolumn .name-input { font-size: 36px; font-weight: bold; text-transform: uppercase; border: none; width: 100%; background: transparent; font: inherit; }
+.cv-header-twocolumn .job-title-input { font-size: 18px; font-weight: 500; color: #555; border: none; width: 100%; background: transparent; font: inherit; margin-top: 5px; }
+
+.main-entry { margin-bottom: 20px; }
+.entry-header { display: flex; justify-content: space-between; align-items: baseline; }
+.entry-title { font-size: 16px; font-weight: bold; border: none; background: transparent; font: inherit; }
+.entry-subtitle { font-style: italic; border: none; background: transparent; font: inherit; }
