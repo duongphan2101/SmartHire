@@ -160,8 +160,8 @@ const Header: React.FC = () => {
                         >
                           <strong>{n.title}</strong>
                           <p className="notification-preview-hr">
-                            {n.message.length > 90
-                              ? n.message.slice(0, 90) + "..."
+                            {n.message.length > 70
+                              ? n.message.slice(0, 70) + "..."
                               : n.message}
                           </p>
                           <small>
