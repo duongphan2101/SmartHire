@@ -1,0 +1,128 @@
+.terms-admin-container {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 28px 32px;
+  margin: 20px auto;
+  max-width: 96%;
+  color: #1f2937;
+  animation: fadeIn 0.4s ease;
+}
+
+.terms-admin-header {
+  border-bottom: 2px solid #10b981;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.terms-admin-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #065f46;
+  margin-bottom: 4px;
+}
+
+.terms-admin-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.terms-admin-content {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-height: 600px;
+  overflow-y: auto;
+  line-height: 1.7;
+  font-size: 15px;
+  position: relative;
+}
+
+.terms-admin-text {
+  white-space: pre-wrap;
+  text-align: justify;
+  font-family: "Inter", system-ui, sans-serif;
+  color: #374151;
+}
+
+.terms-admin-loading {
+  color: #10b981;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Khu vực nút hành động cho admin */
+.terms-admin-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.terms-admin-actions button {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background-color: #00906A;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-save {
+  background-color: #00906A;
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: #076346;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.terms-admin-editor {
+  width: 100%;
+  min-height: 400px;
+  padding: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+}
+
+.btn-cancel {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #dc2626;
+}

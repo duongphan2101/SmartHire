@@ -213,6 +213,9 @@ const Header: React.FC = () => {
                     <a className="user-dropdown-item" href="/applyted">
                       Công việc đã ứng tuyển
                     </a>
+                    <a className="user-dropdown-item" href="/termUser">
+                      Điều khoản người dùng
+                    </a>
                     <a className="user-dropdown-item" href="/setting">
                       Cài đặt
                     </a>

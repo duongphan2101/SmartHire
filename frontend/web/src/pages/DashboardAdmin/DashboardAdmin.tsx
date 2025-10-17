@@ -3,12 +3,22 @@ import "./DashboardAdmin.css";
 import AdminHeader from "../../components/dashboardAdmin/header";
 import AdminNav from "../../components/dashboardAdmin/nav";
 import CompanyList from "../../components/dashboardAdmin/CompanyList";
+import HRterms from "../../components/dashboardAdmin/HRterms";
+import UserTerms from "../../components/dashboardAdmin/UserTerms";
+
+
+
 
 export const DashboardAdmin = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [breadcrumb, setBreadcrumb] = useState("Bảng điều khiển");
   const [page, setPage] = useState<
-    "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms"
+    | "dashboard"
+    | "manageUsers"
+    | "manageHR"
+    | "company"
+    | "userTerms"
+    | "hrTerms"
   >("dashboard");
 
   const adminName = "Administrator";
@@ -37,8 +47,8 @@ export const DashboardAdmin = () => {
             {page === "dashboard" && <div>📊 Bảng điều khiển</div>}
             {page === "manageUsers" && <div>👤 HR</div>}
             {page === "company" && <CompanyList />}
-            {page === "userTerms" && <div>📜 Điều khoản người dùng</div>}
-            {page === "hrTerms" && <div>📜 Điều khoản HR</div>}
+            {page === "userTerms" && <UserTerms />}
+            {page === "hrTerms" && <HRterms />}
           </div>
         </div>
       </div>
