@@ -41,8 +41,10 @@ function Login() {
       if (result) {
         if (result.user.role === "hr") {
           navigate("/dashboard");
-        } else {
+        }else if (result.user.role === "user") {
           navigate("/home");
+        }else {
+          navigate("/admin/dashboard");
         }
       }
     } catch (err: any) {

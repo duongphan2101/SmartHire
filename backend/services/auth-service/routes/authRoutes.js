@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { register, login, refresh, loginWithFacebook, loginWithGoogle, updatePassword,verifyAccount } = require("../controllers/authController");
+const { register, login, refresh, loginWithFacebook, loginWithGoogle, updatePassword,verifyAccount, hashedPwd } = require("../controllers/authController");
 
 router.post("/register", register);
+router.post("/hashed", hashedPwd);
 router.post("/login", login);
 router.post("/refresh", refresh);
 router.post("/login/google", loginWithGoogle);

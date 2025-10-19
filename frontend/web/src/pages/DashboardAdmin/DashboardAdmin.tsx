@@ -5,9 +5,7 @@ import AdminNav from "../../components/dashboardAdmin/nav";
 import CompanyList from "../../components/dashboardAdmin/CompanyList";
 import HRterms from "../../components/dashboardAdmin/HRterms";
 import UserTerms from "../../components/dashboardAdmin/UserTerms";
-
-
-
+import About from "../../components/About-HR/About-hr";
 
 export const DashboardAdmin = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -19,9 +17,10 @@ export const DashboardAdmin = () => {
     | "company"
     | "userTerms"
     | "hrTerms"
+    | "about"
   >("dashboard");
 
-  const adminName = "Administrator";
+  const adminName = "ADMIN";
 
   return (
     <div className="App-Dashboard-Admin">
@@ -49,6 +48,7 @@ export const DashboardAdmin = () => {
             {page === "company" && <CompanyList />}
             {page === "userTerms" && <UserTerms />}
             {page === "hrTerms" && <HRterms />}
+            {page === "about" && <About />}
           </div>
         </div>
       </div>

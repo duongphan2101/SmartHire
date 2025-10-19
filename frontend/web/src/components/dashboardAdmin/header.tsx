@@ -6,7 +6,7 @@ import useUser from "../../hook/useUser";
 interface AdminHeaderProps {
   breadcrumb: string;
   setPage: (
-    page: "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms"
+    page: "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms" | "about"
   ) => void;
   adminName: string;
 }
@@ -38,13 +38,13 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumb, setPage, adminNam
     }
   }, [getUser]);
 
-  const handleUserTerms = () => {
-    setPage("userTerms");
-  };
+  // const handleUserTerms = () => {
+  //   setPage("userTerms");
+  // };
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
+  // const handleAvatarClick = () => {
+  //   fileInputRef.current?.click();
+  // };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -59,6 +59,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumb, setPage, adminNam
     }
   };
 
+  const handleAbout = () => setPage("about");
+
   return (
     <div className="admin-main-header">
       <div className="admin-header-left">
@@ -70,9 +72,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumb, setPage, adminNam
           {breadcrumb.split(" > ").map((item, index: number, array) => (
             <React.Fragment key={item}>
               <span
-                className={`admin-breadcrumb-item ${
-                  index === array.length - 1 ? "current" : ""
-                }`}
+                className={`admin-breadcrumb-item ${index === array.length - 1 ? "current" : ""
+                  }`}
               >
                 {item}
               </span>
@@ -103,7 +104,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumb, setPage, adminNam
           </button>
         </div>
 
-        <div className="admin-user-avatar" onClick={handleUserTerms}>
+        <div className="admin-user-avatar" onClick={handleAbout}>
           <img
             src={adminAvatar || user?.avatar}
             alt="Admin Avatar"
