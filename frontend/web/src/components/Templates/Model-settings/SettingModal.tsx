@@ -52,6 +52,7 @@ interface CVData {
 interface CustomSettings {
     color: string;
     fontFamily: string;
+    lang: string;
     cvData: CVData;
 }
 
@@ -106,7 +107,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             window.scrollTo(0, 0);
 
             const canvas = await html2canvas(element, {
-                scale: 2,
+                scale: 1,
                 logging: true,
                 ignoreElements: (node) => {
                     return node.classList && (node.classList.contains('cv-editor-control') ||
@@ -286,8 +287,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="setting-item">
                     <span>Ngôn ngữ:</span>
                     <select
-                        value={customSettings.fontFamily}
-                        onChange={(e) => onSettingsChange({ fontFamily: e.target.value })}
+                        value={customSettings.lang}
+                        onChange={(e) => onSettingsChange({ lang: e.target.value })}
                     >
                         <option value="vn">Tiếng Việt 🇻🇳</option>
                         <option value="en">English 🇺🇲</option>
@@ -296,10 +297,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Phần 4:*/}
-            <div className="setting-group">
-                <div className="setting-item">
+            <div className="flex items-center justify-end">
                     <button className='bg-emerald-600 btn-create-cv' onClick={handleCreateCV}>Tạo CV</button>
-                </div>
             </div>
 
 

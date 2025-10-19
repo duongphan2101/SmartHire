@@ -66,23 +66,16 @@
     margin: auto;
 }
 
-.contact-info {
-    width: 100%;
+.input-cv-value {
+    width: 180px
 }
 
-.input-cv-value {
+.input-year {
     width: auto;
-    border: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    font-weight: normal;
-    flex-grow: 0;
-    vertical-align: baseline !important;
+}
 
-    font-weight: normal;
-    flex: 1;
-    line-height: 1.5;
-    text-align: left;
+.input-phone {
+    width: 100px;
 }
 
 .input-cv-value:placeholder-shown {
@@ -116,13 +109,6 @@
     padding: 0;
     color: #555;
     text-align: center;
-}
-
-.contact-info p {
-    margin: 5px 0;
-    display: flex;
-    gap: 10px;
-    font-size: 16px;
 }
 
 .suggestion-list {
@@ -246,10 +232,13 @@ hr {
 
 .tag:hover .tag-remove {
     display: block;
+    cursor: pointer;
 }
 
 .tag-remove {
     display: none;
+    font-weight: bold;
+    color: red;
 }
 
 .contact-info_item {

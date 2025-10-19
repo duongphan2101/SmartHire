@@ -29,13 +29,13 @@ export default function useNotification(userId?: string) {
 
     // Join room theo userId
     newSocket.on("connect", () => {
-      console.log("✅ Connected to socket:", newSocket.id);
+      // console.log("✅ Connected to socket:", newSocket.id);
       newSocket.emit("join", userId);
     });
 
     // Lắng nghe thông báo từ server
     newSocket.on("new-notification", (notification: Notification) => {
-      console.log("📩 Nhận thông báo:", notification);
+      // console.log("📩 Nhận thông báo:", notification);
       setNotifications((prev) => [notification, ...prev]);
     });
 

@@ -56,6 +56,7 @@ interface CVData {
 interface CustomSettings {
     color: string;
     fontFamily: string;
+    lang: string;
     cvData: CVData;
 }
 
@@ -84,6 +85,7 @@ const BuildCvs: React.FC = () => {
     const [customSettings, setCustomSettings] = useState<CustomSettings>({
         color: '#059669',
         fontFamily: 'Arial',
+        lang: 'vn',
         cvData: cvData
     });
     const [, setOriginalData] = useState<CVData>({ ...cvData });

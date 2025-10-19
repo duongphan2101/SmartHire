@@ -5,7 +5,6 @@ import Home from "./pages/HomePage/Home";
 import Login from "./pages/Started/Login";
 import Register from "./pages/Started/Register";
 import Intro from "./pages/Introduction/Intro";
-import BuildCV from "./pages/buildCV/BuildCV";
 import Profile from "./pages/Profile/Profile";
 import JobDetails from "./pages/JobDetail/JobDetail";
 import { Dashboard } from "./pages/Dashboard/Dashboard";

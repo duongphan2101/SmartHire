@@ -96,9 +96,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
           {breadcrumb.split(" > ").map((item, index: number, array) => (
             <React.Fragment key={item}>
               <span
-                className={`breadcrumb-item ${
-                  index === array.length - 1 ? "current" : ""
-                }`}
+                className={`breadcrumb-item ${index === array.length - 1 ? "current" : ""
+                  }`}
               >
                 {item}
               </span>
@@ -142,9 +141,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
                   <div
                     key={n._id}
                     onClick={() => handleNotificationClick(n)}
-                    className={`notification-item-hr ${
-                      n.isRead ? "read" : "unread"
-                    }`}
+                    className={`notification-item-hr ${n.isRead ? "read" : "unread"
+                      }`}
                   >
                     <strong>{n.title}</strong>
                     <p className="notification-preview-hr">
