@@ -160,8 +160,8 @@ const Header: React.FC = () => {
                         >
                           <strong>{n.title}</strong>
                           <p className="notification-preview-hr">
-                            {n.message.length > 90
-                              ? n.message.slice(0, 90) + "..."
+                            {n.message.length > 70
+                              ? n.message.slice(0, 70) + "..."
                               : n.message}
                           </p>
                           <small>
@@ -212,6 +212,9 @@ const Header: React.FC = () => {
                     </a>
                     <a className="user-dropdown-item" href="/applyted">
                       Công việc đã ứng tuyển
+                    </a>
+                    <a className="user-dropdown-item" href="/termUser">
+                      Điều khoản người dùng
                     </a>
                     <a className="user-dropdown-item" href="/setting">
                       Cài đặt

@@ -1,6 +1,7 @@
 const HOSTS = {
   userService: "http://localhost:2222/api/users",
   cvService: "http://localhost:2222/api/cvs",
+  termsService: "http://localhost:2222/api/terms",
   authService: "http://localhost:1111/api/auth",
   companyService: "http://localhost:4444/api/departments",
   jobService: "http://localhost:4444/api/jobs",

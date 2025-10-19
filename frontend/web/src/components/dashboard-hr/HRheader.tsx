@@ -18,7 +18,7 @@ interface HRheaderProps {
 
 const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
   const { getUser, user } = useUser();
-  const [companyAvatar, setCompanyAvatar] = useState<string | null>(null);
+  const [, setCompanyAvatar] = useState<string | null>(null);
   const { balance } = usePayment();
   const { notifications, setNotifications } = useNotification(user?._id);
   const [openNotify, setOpenNotify] = useState(false);
@@ -148,8 +148,8 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
                   >
                     <strong>{n.title}</strong>
                     <p className="notification-preview-hr">
-                      {n.message.length > 90
-                        ? n.message.slice(0, 90) + "..."
+                      {n.message.length > 70
+                        ? n.message.slice(0, 70) + "..."
                         : n.message}
                     </p>
 

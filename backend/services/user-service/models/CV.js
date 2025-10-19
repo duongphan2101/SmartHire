@@ -43,7 +43,6 @@ const cvSchema = new mongoose.Schema(
     education: [educationSchema],
     projects: [projectSchema],
 
-    // optional: fileUrls nếu muốn lưu CV file
     fileUrls: [{ type: String }],
     status: { type: String, enum: ["draft", "active", "archived"], default: "active" },
   },

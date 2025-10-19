@@ -432,11 +432,11 @@
   text-align: start !important;
 }
 
-.notification-item p {
-  font-size: 12px;
-  margin: 0;
+.notification-item-hr .notification-preview-hr {
+  font-size: 16px;
+  margin-top: 10px;
   color: #ddd;
-  text-align: start;
+  text-align: justify;
 }
 
 .notification-item small {

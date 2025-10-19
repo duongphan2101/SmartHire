@@ -16,5 +16,6 @@ connectDB();
 // Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/cvs", require("./routes/cvRoutes"));
+app.use("/api/terms", require("./routes/termsRoutes"))
 
 app.listen(PORT, () => console.log(`🚀 User service running on port ${PORT}`));
