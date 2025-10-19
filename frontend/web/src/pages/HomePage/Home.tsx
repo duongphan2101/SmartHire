@@ -59,7 +59,11 @@ const Home: React.FC = () => {
         `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
       );
     } else {
-      alert("Không tìm thấy công việc phù hợp");
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Không có công việc phù hợp",
+      });
     }
   };
 
