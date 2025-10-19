@@ -20,6 +20,7 @@ import { ForgotPasswordPage } from "./pages/forgotPassword/ForgotPasswordPage";
 import { OtpPage } from "./pages/forgotPassword/OtpPage";
 import { ResetPasswordPage } from "./pages/forgotPassword/ResetPasswordPage";
 import VerifyEmail from "./pages/forgotPassword/VerifyEmail";
+import TermUser from "./pages/Terms/TermUser";
 
 import {
   BrowserRouter as Router,
@@ -53,6 +54,8 @@ function App() {
         <Route path="/cvs" element={<Cvs />} />
         <Route path="/liked" element={<JobSave />} />
         <Route path="/applyted" element={<JobApplied />} />
+        <Route path="/termuser" element={<TermUser />} />
+
 
         <Route
           element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}

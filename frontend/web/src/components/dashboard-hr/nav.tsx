@@ -15,7 +15,7 @@ import "./nav.css";
 interface NavProps {
   setBreadcrumb: (breadcrumb: string) => void;
   setPage: (
-    page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost" | "payment"
+    page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost" | "payment" | "termHr"
   ) => void;
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
@@ -55,6 +55,8 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
     else if (item === "Bảng điều khiển") setPage("dashboard");
     else if (item === "Công việc đã đăng") setPage("jobPost");
     else if (item === "Tất cả công việc") setPage("allJobPost");
+    else if (item === "Điều khoản HR") setPage("termHr");
+
   };
 
   return (
@@ -150,15 +152,14 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
       <span className="nav-title">Khác</span>
       <ul className="nav-menu">
         <li
-          className={`nav-item ${activeItem === "Học tập & Đào tạo" ? "active" : ""
-            }`}
-          onClick={() => handleItemClick("Học tập & Đào tạo", false)}
+          className={`nav-item ${activeItem === "Điều khoản HR" ? "active" : ""}`}
+          onClick={() => handleItemClick("Điều khoản HR", false)}
         >
           <div className="nav-item-content">
-            <div className="nav-item-text">
-              <HiOutlineUser className="nav-item-icon" />
-              <span style={{ fontSize: "15px" }}>Học tập & Đào tạo</span>
-            </div>
+            <HiOutlineUser className="nav-item-icon" />
+            <span style={{ fontSize: "15px" }}>
+              Điều khoản nhà tuyển dụng
+            </span>
           </div>
         </li>
 
