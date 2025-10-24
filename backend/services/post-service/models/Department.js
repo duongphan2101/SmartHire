@@ -26,7 +26,14 @@ const DepartmentSchema = new mongoose.Schema({
       type: String,
       required: true
     }
-  ]
+  ],
+  status: {
+        type: String,
+        enum: ['Active', 'Suspended', 'Archived'], 
+        default: 'Active',
+        required: true,
+    }
+
 });
 
 const Department = mongoose.model('Department', DepartmentSchema, 'departments');

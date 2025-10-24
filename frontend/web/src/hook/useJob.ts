@@ -91,20 +91,21 @@ export default function useJob() {
   };
 
   // create
-  const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
+const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     try {
-      setLoading(true);
-      const res = await axios.post<Job>(`${host}/create`, payload);
-      setJobs((prev) => [...prev, res.data]);
-      return res.data;
+        setLoading(true);
+        const res = await axios.post<Job>(`${host}/create`, payload);
+        setJobs((prev) => [...prev, res.data]);
+        return res.data;
     } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to create job");
-      throw err;
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        const errorMessage = axiosErr.response?.data?.message || "Lỗi không xác định khi tạo Job.";
+        setError(errorMessage);
+        setLoading(false); 
+        throw new Error(errorMessage); 
     } finally {
-      setLoading(false);
     }
-  };
+};
 
   // delete
   const deleteJob = async (id: string) => {
