@@ -400,7 +400,7 @@
 
 .lasted-tech-item {
     padding: 5px 10px;
-    background-color: lightgray;
+    background-color: var(--color-gray-100);
     font-size: 13px;
     transition: ease .5s;
     color: gray;

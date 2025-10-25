@@ -246,7 +246,9 @@ const Dashboard = () => {
 
                     </div>
 
-                    <div className="dashboard-body_main flex gap-5">
+                    <div className="dashboard-body_main flex gap-5"
+                        style={{marginTop: 20}}
+                    >
 
                         <div className="body-main_left w-[65%] shadow-xl rounded-xl">
                             <BarChart />

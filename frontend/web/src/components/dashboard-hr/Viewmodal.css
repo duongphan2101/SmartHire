@@ -242,6 +242,7 @@
 
 .tab-content-enter {
   animation: slideInRight 0.3s forwards;
+  z-index: 999;
 }
 
 .tab-content-exit {
@@ -305,6 +306,12 @@
   color: #991b1b;
 }
 
+.status-contacted {
+  background-color: var(--color-emerald-300);
+  color: var(--color-emerald-800);
+}
+
+
 .candidate-name {
   max-width: 200px;       /* giới hạn chiều ngang */
   white-space: nowrap;     /* 1 dòng */
@@ -324,7 +331,18 @@
 .btn-contact {
   background-color: var(--color-emerald-600);
   color: white;
-  padding: 6px 12px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.btn-mess {
+  background-color: var(--color-blue-500);
+  color: white;
+  padding: 8px 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;

@@ -28,21 +28,21 @@ exports.applyJob = async (req, res) => {
     // Lấy email HR từ userService dựa trên createBy._id và role: "hr"
     let hrEmail, hrFullname, hrAvatar;
     if (job.createBy && job.createBy._id) {
-      console.log(
-        "Thử lấy thông tin HR từ userService với _id:",
-        job.createBy._id
-      );
+      // console.log(
+      //   "Thử lấy thông tin HR từ userService với _id:",
+      //   job.createBy._id
+      // );
       try {
         const hrRes = await axios.get(
           `${HOSTS.userService}/${job.createBy._id}`
         );
         const hrData = hrRes.data;
-        console.log("Response từ userService:", hrData);
+        // console.log("Response từ userService:", hrData);
         if (hrData.role === "hr" && hrData.email) {
           hrEmail = hrData.email;
           hrFullname = hrData.fullname;
           hrAvatar = hrData.avatar;
-          console.log("Đã lấy được email HR:", hrEmail);
+          // console.log("Đã lấy được email HR:", hrEmail);
         } else {
           console.warn(
             `User ${job.createBy._id} không phải HR (role: ${hrData.role}) hoặc không có email`
@@ -89,7 +89,7 @@ exports.applyJob = async (req, res) => {
     await application.save();
 
     try {
-      const userNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+      await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
         receiverId: userId,
         type: "APPLY",
         title: "Ứng tuyển thành công",
@@ -98,7 +98,7 @@ exports.applyJob = async (req, res) => {
       //console.log("User notification response:", userNotificationRes.data);
 
       if (job.createBy && job.createBy._id) {
-        const hrNotificationRes = await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
           receiverId: job.createBy._id,
           type: "APPLY",
           title: "Ứng viên mới",

@@ -154,12 +154,13 @@ const Header: React.FC = () => {
                         <div
                           key={n._id}
                           onClick={() => handleNotificationClick(n)}
-                          className={`notification-item-hr ${
-                            n.isRead ? "read" : "unread"
-                          }`}
+                          className={`notification-item-hr ${n.isRead ? "read" : "unread"
+                            }`}
                         >
                           <strong>{n.title}</strong>
-                          <p className="notification-preview-hr">
+                          <p className="notification-preview-hr text-white"
+                            style={{ color: 'white' }}
+                          >
                             {n.message.length > 70
                               ? n.message.slice(0, 70) + "..."
                               : n.message}

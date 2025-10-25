@@ -1,6 +1,7 @@
-// hook/useNotification.ts
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+import axios, { AxiosError } from "axios";
+import { HOSTS } from "../utils/host";
 
 export interface Notification {
   _id: string;
@@ -12,30 +13,65 @@ export interface Notification {
   createdAt: string;
 }
 
+type CreateNotificationPayload = Pick<
+  Notification,
+  "receiverId" | "type" | "title" | "message"
+>;
+
+type ApiError = {
+  message?: string;
+};
+
+const NOTIFICATION_API_HOST =
+  HOSTS.notificationService || "http://localhost:7000/api/notifications";
+const SOCKET_HOST = HOSTS.socket || "http://localhost:7000";
+
 export default function useNotification(userId?: string) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleError = (err: unknown, defaultMessage: string) => {
+    const axiosErr = err as AxiosError<ApiError>;
+    const message = axiosErr.response?.data?.message || defaultMessage;
+    setError(message);
+    throw new Error(message);
+  };
+
+  const fetchNotifications = useCallback(async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get<Notification[]>(
+        `${NOTIFICATION_API_HOST}/receiver/${id}`
+      );
+      setNotifications(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+      setError("Không thể tải thông báo cũ");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ Quan trọng: để Socket.IO tự chọn transport
-    const newSocket = io("http://localhost:7000", {
+    fetchNotifications(userId);
+
+    const newSocket = io(SOCKET_HOST, {
       withCredentials: true,
-      transports: ["websocket", "polling"], // để socket.io tự fallback
+      transports: ["websocket", "polling"],
     });
 
     setSocket(newSocket);
 
-    // Join room theo userId
     newSocket.on("connect", () => {
-      // console.log("✅ Connected to socket:", newSocket.id);
       newSocket.emit("join", userId);
     });
 
-    // Lắng nghe thông báo từ server
     newSocket.on("new-notification", (notification: Notification) => {
-      // console.log("📩 Nhận thông báo:", notification);
       setNotifications((prev) => [notification, ...prev]);
     });
 
@@ -46,7 +82,29 @@ export default function useNotification(userId?: string) {
     return () => {
       newSocket.disconnect();
     };
-  }, [userId]);
+  }, [userId, fetchNotifications]);
 
-  return { notifications, setNotifications, socket };
+  const createNotification = async (data: CreateNotificationPayload) => {
+    try {
+      const res = await axios.post<Notification>(
+        `${NOTIFICATION_API_HOST}/`,
+        data
+      );
+
+      return res.data;
+    } catch (err) {
+
+      return handleError(err, "Không thể tạo thông báo");
+    }
+  };
+
+  return {
+    notifications,
+    setNotifications,
+    socket,
+    createNotification,
+    loading,
+    error,
+    fetchNotifications,
+  };
 }

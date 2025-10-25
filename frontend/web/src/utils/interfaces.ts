@@ -46,3 +46,46 @@ export interface CustomSettings {
 }
 
 export type TemplateName = 'fresh' | 'twoColumn' | 'modernCentered';
+
+export interface Interview {
+    _id: string;
+    chatRoomId: string;
+    hrId: string;
+    candidateId: string;
+    jobId: string;
+    scheduledAt: Date | string;
+    location: string;
+    mode: 'online' | 'offline';
+    status: 'pending' | 'confirmed' | 'rejected' | 'completed';
+    note: string;
+}
+
+export interface Job {
+  _id: string;
+  jobTitle: string;
+  jobType: string;
+  jobLevel: string;
+  department: {
+    _id: string;
+    name: string;
+    avatar?: string;
+  };
+  createBy: {
+    _id: string;
+    fullname: string;
+    avatar?: string;
+  };
+  requirement: string[];
+  skills: string[];
+  benefits: string[];
+  salary: string;
+  location: string;
+  address: string;
+  workingHours: string;
+  jobDescription: string[];
+  experience: string;
+  endDate: string;
+  num: number;
+  createdAt: string;
+  districts?: { name: string }[];
+}
