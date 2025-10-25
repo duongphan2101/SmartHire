@@ -53,7 +53,7 @@ interface CustomSettings {
     color: string;
     fontFamily: string;
     lang: string;
-    cvData: CVData;
+    // cvData: CVData;
 }
 
 interface SettingsModalProps {
@@ -64,15 +64,16 @@ interface SettingsModalProps {
     customSettings: CustomSettings;
     onSettingsChange: (settings: Partial<CustomSettings>) => void;
     cvTemplateRef: React.RefObject<HTMLDivElement | null>;
+    cvData: CVData;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
     isOpen, onClose,
     currentTemplate, onTemplateChange,
     customSettings, onSettingsChange,
-    cvTemplateRef
+    cvTemplateRef, cvData
 }) => {
-    const { cvData } = customSettings;
+    // const { cvData } = customSettings;
     const sidebarClasses = `settings-sidebar ${isOpen ? 'is-open' : 'is-open'}`;
     const { createCV } = useCV();
     const [userId, setUserId] = useState<string>("");
@@ -107,7 +108,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             window.scrollTo(0, 0);
 
             const canvas = await html2canvas(element, {
-                scale: 1,
+                scale: 2,
                 logging: true,
                 ignoreElements: (node) => {
                     return node.classList && (node.classList.contains('cv-editor-control') ||
@@ -146,6 +147,50 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         input.parentNode?.replaceChild(span, input);
                     });
 
+                    clonedDoc.querySelectorAll('input[type="month"]').forEach(input => {
+                        const span = document.createElement('span');
+                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
+                        span.textContent = value;
+                        span.className = input.className; // Copy classes
+                        span.setAttribute('style', input.getAttribute('style') || '');
+
+                        const computedStyle = window.getComputedStyle(input);
+
+                        span.style.display = 'inline-block';
+                        span.style.width = computedStyle.width;
+
+                        // Copy other important styles
+                        span.style.fontSize = computedStyle.fontSize;
+                        span.style.fontWeight = computedStyle.fontWeight;
+                        span.style.fontStyle = computedStyle.fontStyle;
+                        span.style.color = computedStyle.color;
+                        span.style.textAlign = computedStyle.textAlign;
+
+                        input.parentNode?.replaceChild(span, input);
+                    });
+
+                    clonedDoc.querySelectorAll('input[type="number"]').forEach(input => {
+                        const span = document.createElement('span');
+                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
+                        span.textContent = value;
+                        span.className = input.className; // Copy classes
+                        span.setAttribute('style', input.getAttribute('style') || '');
+
+                        const computedStyle = window.getComputedStyle(input);
+
+                        span.style.display = 'inline-block';
+                        span.style.width = computedStyle.width;
+
+                        // Copy other important styles
+                        span.style.fontSize = computedStyle.fontSize;
+                        span.style.fontWeight = computedStyle.fontWeight;
+                        span.style.fontStyle = computedStyle.fontStyle;
+                        span.style.color = computedStyle.color;
+                        span.style.textAlign = computedStyle.textAlign;
+
+                        input.parentNode?.replaceChild(span, input);
+                    });
+
                     // 2. Replace all TEXTAREAS with DIVS (this logic remains the same)
                     clonedDoc.querySelectorAll('textarea').forEach(textarea => {
                         const div = document.createElement('div');
@@ -161,6 +206,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
                         textarea.parentNode?.replaceChild(div, textarea);
                     });
+
                 },
             });
 
@@ -298,7 +344,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* Phần 4:*/}
             <div className="flex items-center justify-end">
-                    <button className='bg-emerald-600 btn-create-cv' onClick={handleCreateCV}>Tạo CV</button>
+                <button className='bg-emerald-600 btn-create-cv' onClick={handleCreateCV}>Tạo CV</button>
             </div>
 
 

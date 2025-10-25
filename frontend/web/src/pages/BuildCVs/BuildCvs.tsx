@@ -57,7 +57,7 @@ interface CustomSettings {
     color: string;
     fontFamily: string;
     lang: string;
-    cvData: CVData;
+    // cvData: CVData;
 }
 
 const DEFAULT_CV_DATA: CVData = {
@@ -86,9 +86,9 @@ const BuildCvs: React.FC = () => {
         color: '#059669',
         fontFamily: 'Arial',
         lang: 'vn',
-        cvData: cvData
+        // cvData: cvData
     });
-    const [, setOriginalData] = useState<CVData>({ ...cvData });
+    // const [, setOriginalData] = useState<CVData>({ ...cvData });
     const cvTemplateRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -111,15 +111,15 @@ const BuildCvs: React.FC = () => {
                                 email: userData.email || "",
                             },
                         }));
-                        setOriginalData((prev) => ({
-                            ...prev,
-                            name: userData.fullname || "",
-                            contact: {
-                                ...prev.contact,
-                                phone: userData.phone || "",
-                                email: userData.email || "",
-                            },
-                        }));
+                        // setOriginalData((prev) => ({
+                        //     ...prev,
+                        //     name: userData.fullname || "",
+                        //     contact: {
+                        //         ...prev.contact,
+                        //         phone: userData.phone || "",
+                        //         email: userData.email || "",
+                        //     },
+                        // }));
                     }
                 } else {
                     Swal.fire({
@@ -172,10 +172,10 @@ const BuildCvs: React.FC = () => {
             };
 
             setCvData(initialData);
-            setCustomSettings(prevSettings => ({
-                ...prevSettings,
-                cvData: initialData
-            }));
+            // setCustomSettings(prevSettings => ({
+            //     ...prevSettings,
+            //     cvData: initialData
+            // }));
         }
     }, [user]);
 
@@ -199,10 +199,10 @@ const BuildCvs: React.FC = () => {
         setCvData(updatedData);
 
         // Đảm bảo customSettings luôn đồng bộ
-        setCustomSettings(prevSettings => ({
-            ...prevSettings,
-            cvData: updatedData
-        }));
+        // setCustomSettings(prevSettings => ({
+        //     ...prevSettings,
+        //     cvData: updatedData
+        // }));
     };
 
     const renderTemplateComponent = () => {
@@ -249,6 +249,7 @@ const BuildCvs: React.FC = () => {
                         customSettings={customSettings}
                         onSettingsChange={handleSettingsChange}
                         cvTemplateRef={cvTemplateRef}
+                        cvData={cvData}
                     />
                 </div>
 

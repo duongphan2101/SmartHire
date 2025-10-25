@@ -40,6 +40,7 @@ const JobDetails: React.FC<DetailProps> = () => {
   const [location, setLocation] = useState(queryParams.get("location") || "");
   const [jobType, setJobType] = useState(queryParams.get("jobType") || "");
   const [jobLevel, setJobLevel] = useState(queryParams.get("jobLevel") || "");
+  const [experience, setExperience] = useState(queryParams.get("experience") || "");
   const [district, setDistrict] = useState("");
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -59,6 +60,7 @@ const JobDetails: React.FC<DetailProps> = () => {
 
   useEffect(() => {
     if (id) fetchJob(id);
+    window.scrollTo(0, 0);
   }, [id]);
 
   // Load danh sách tỉnh/thành (có cả quận/huyện trong depth=2)
@@ -118,13 +120,15 @@ const JobDetails: React.FC<DetailProps> = () => {
         location,
         district,
         jobType,
-        jobLevel
+        jobLevel,
+        experience
       );
 
       if (results.length > 0) {
         setRelatedJobs(results);
         navigate(
-          `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`
+          `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}&experience=${experience}`,
+          { replace: true }
         );
       } else {
         setRelatedJobs([]);
@@ -135,6 +139,7 @@ const JobDetails: React.FC<DetailProps> = () => {
         else if (jobTitle) message = "Không có công việc phù hợp với vị trí này";
         else if (jobType) message = "Không có công việc với hình thức này";
         else if (jobLevel) message = "Không có công việc với level này";
+        else if (experience) message = "Không có công việc với kinh nghiệm này";
 
         Swal.fire({
           icon: "info",
@@ -163,7 +168,7 @@ const JobDetails: React.FC<DetailProps> = () => {
     if (jobData) setJob(jobData);
     setLoadingJob(false);
     navigate(
-      `/jobdetail/${id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}`,
+      `/jobdetail/${id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}&experience=${experience}`,
       { replace: true }
     );
   };
@@ -256,13 +261,29 @@ const JobDetails: React.FC<DetailProps> = () => {
                 onChange={(e) => setJobLevel(e.target.value)}
                 style={{ paddingLeft: 10 }}
               >
-                <option value="">Vị trí (Level)</option>
+                <option value="">Vị trí</option>
                 <option value="Internship">Internship</option>
                 <option value="Fresher">Fresher</option>
                 <option value="Junior">Junior</option>
                 <option value="Mid-level">Mid-level</option>
                 <option value="Senior">Senior</option>
                 <option value="Lead">Lead</option>
+              </select>
+
+              <select
+                className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+                style={{ paddingLeft: 10 }}
+              >
+                <option value="">Kinh nghiệm làm việc</option>
+                <option value="none">Không yêu cầu</option>
+                <option value="lt1">Kinh nghiệm dưới 1 năm</option>
+                <option value="1-3">Kinh nghiệm 1 - 3 năm</option>
+                <option value="3-5">Kinh nghiệm 3 - 5 năm</option>
+                <option value="5-7">Kinh nghiệm 5 - 7 năm</option>
+                <option value="7-10">Kinh nghiệm 7 - 10 năm</option>
+                <option value="gt10">Kinh nghiệm trên 10 năm</option>
               </select>
             </div>
 
@@ -293,7 +314,7 @@ const JobDetails: React.FC<DetailProps> = () => {
                           onClick={() => handlerJobItem(item._id.toString())}
                         >
                           <div
-                            className="bg-gray-200"
+                            className="bg-gray-100"
                             style={{ borderRadius: 5, padding: 5 }}
                           >
                             <img
