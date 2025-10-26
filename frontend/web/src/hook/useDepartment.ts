@@ -106,25 +106,19 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   };
   
-  // --- 3. BỔ SUNG HÀM updateDepartmentStatus ---
-  const updateDepartmentStatus = async (id: string, newStatus: DepartmentStatus) => {
-      try {
-          // PUT /api/departments/status/:id
-          const res = await axios.put<DepartmentData>(`${host}/status/${id}`, { status: newStatus });
-          
-          // Cập nhật state cục bộ sau khi thành công
-          setDepartments(prev => 
-              prev.map(dept => dept._id === id ? res.data : dept)
-          );
-          
-          // Nếu đang xem mode="user" và department đó bị cập nhật
-          if (department && department._id === id) {
-              setDepartment(res.data);
-          }
-      } catch (err) {
-          throw err;
-      }
-  };
+
+ const updateDepartmentStatus = async (id: string, newStatus: DepartmentStatus) => {
+    try {
+        setLoading(true); 
+        await axios.put(`${host}/status/${id}`, { status: newStatus }); 
+        await fetchData(); 
+        
+    } catch (err) {
+     
+        setLoading(false);
+        throw err;
+    }
+};
 
 
   return { 
@@ -135,6 +129,6 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     refetch: fetchData, 
     createDepartment, 
     deleteDepartment,
-    updateDepartmentStatus // THÊM HÀM MỚI VÀO RETURN
+    updateDepartmentStatus
   };
 }
