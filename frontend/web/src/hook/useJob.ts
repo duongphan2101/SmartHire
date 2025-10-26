@@ -127,12 +127,13 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     location?: string,
     district?: string,
     jobType?: string,
-    jobLevel?: string
+    jobLevel?: string,
+    experience?: string
   ) => {
     try {
       setLoading(true);
       const res = await axios.get<Job[]>(`${host}/filter/search`, {
-        params: { title, location, district, jobType, jobLevel },
+        params: { title, location, district, jobType, jobLevel, experience },
       });
       return res.data;
     } catch (err) {
@@ -144,7 +145,6 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     }
   };
 
-  // ✅ get job by id (cho trang JobDetail)
   const getJobById = async (id: string) => {
     try {
       // setLoading(true);

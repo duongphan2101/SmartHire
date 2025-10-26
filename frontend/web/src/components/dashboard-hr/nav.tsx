@@ -27,16 +27,16 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
   const [activeItem, setActiveItem] = useState("Dashboard");
 
   // Xử lý sự kiện khi nhấn vào biểu tượng menu
-  const handleMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsIconMode(true);
-  };
+  // const handleMenuClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   setIsIconMode(true);
+  // };
 
-  const handleBackClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsIconMode(false);
-    setIsWorkOpen(false);
-  };
+  // const handleBackClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   setIsIconMode(false);
+  //   setIsWorkOpen(false);
+  // };
 
   const handleDropdownClick = (e: React.MouseEvent, menu: string) => {
     e.stopPropagation();
@@ -156,10 +156,12 @@ const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
           onClick={() => handleItemClick("Điều khoản HR", false)}
         >
           <div className="nav-item-content">
-            <HiOutlineUser className="nav-item-icon" />
-            <span style={{ fontSize: "15px" }}>
-              Điều khoản nhà tuyển dụng
-            </span>
+            <div className="nav-item-text">
+              <HiOutlineUser className="nav-item-icon" />
+              <span style={{ fontSize: "15px" }}>
+                Điều khoản
+              </span>
+            </div>
           </div>
         </li>
 

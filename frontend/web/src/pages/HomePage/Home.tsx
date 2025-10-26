@@ -601,7 +601,7 @@ const Home: React.FC = () => {
                             } 
                                                     ${item.isSaved
                               ? "bg-emerald-600 text-white"
-                              : "text-gray-500 bg-gray-200"
+                              : "text-gray-500 bg-gray-100"
                             }`}
                           style={{ padding: 5, borderRadius: 5 }}
                           onClick={() => toggleSave(item._id)}

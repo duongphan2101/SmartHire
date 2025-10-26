@@ -122,7 +122,7 @@ const getJobById = async (req, res) => {
 
 const filterJobs = async (req, res) => {
   try {
-    const { title, location, district, jobType, jobLevel } = req.query;
+    const { title, location, district, jobType, jobLevel, experience } = req.query;
 
     const filter = {};
     if (title) {
@@ -139,6 +139,9 @@ const filterJobs = async (req, res) => {
     }
     if (jobLevel) {
       filter.jobLevel = { $regex: jobLevel, $options: "i" };
+    }
+    if (experience) {
+      filter.experience = { $regex: experience, $options: "i" };
     }
 
     const jobs = await Job.find(filter);

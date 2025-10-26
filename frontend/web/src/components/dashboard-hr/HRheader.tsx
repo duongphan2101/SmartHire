@@ -144,14 +144,14 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
                     className={`notification-item-hr ${n.isRead ? "read" : "unread"
                       }`}
                   >
-                    <strong>{n.title}</strong>
-                    <p className="notification-preview-hr">
+                    <strong className="text-left">{n.title}</strong>
+                    <p className="notification-preview-hr text-black">
                       {n.message.length > 70
                         ? n.message.slice(0, 70) + "..."
                         : n.message}
                     </p>
 
-                    <small>
+                    <small className="text-right">
                       {new Date(n.createdAt).toLocaleString("vi-VN")}
                     </small>
                   </div>

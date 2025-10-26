@@ -8,8 +8,10 @@ export const HOSTS = {
   applicationService: "http://localhost:5555/api/applications",
   cvAIService: "http://localhost:8080/api/cvai",
   matchingService: "http://localhost:6789/api/matching",
-  emailService: "http://localhost:5000",
+  emailService: "http://localhost:5000/api/email",
   walletService: "http://localhost:7777/api/wallet",
   paymentService: "http://localhost:7777/api/payment",
-
+  interviewService: "http://localhost:1000/api/interviews",
+  notificationService: "http://localhost:7000/api/notifications",
+  socket: "http://localhost:7000",
 };

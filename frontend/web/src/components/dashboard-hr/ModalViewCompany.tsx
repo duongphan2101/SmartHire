@@ -79,7 +79,9 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
 
   return (
     <div className="modal-overlay" onClick={() => setSelectedDepartment(null)}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content"
+        style={{width: '70%'}}
+      onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Chỉnh sửa công ty</h2>
         </div>

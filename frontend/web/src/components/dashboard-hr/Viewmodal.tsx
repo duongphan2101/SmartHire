@@ -8,6 +8,10 @@ import withReactContent from "sweetalert2-react-content";
 import { CoverLetterCell } from "./CoverLetterCell";
 import gray from "../../assets/images/gray.avif";
 import useApplication, { type MatchingCVSResponse, type MatchingResponse } from "../../hook/useApplication";
+import ModalContactCandidate from "./ModalContactCandidate";
+
+import { AiOutlineMessage } from 'react-icons/ai';
+import { BsTelephone } from 'react-icons/bs';
 
 interface ViewModalProps {
   job: Job;
@@ -28,6 +32,8 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const [matchingJobs, setMatchingJobs] = useState<MatchingResponse[]>([]);
   const [matchingCandidate, setMatchingCandidate] = useState<MatchingCVSResponse[]>([]);
   const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
+  const [cvIdSelected, setCvIdSelected] = useState<string>("");
+  const [openModalConfirm, setOpenModalConfirm] = useState(false);
 
   const MySwal = withReactContent(Swal);
 
@@ -116,6 +122,8 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     (a, b) => (b.score ?? 0) - (a.score ?? 0)
   );
 
+  // console.log('sortedCandidates: ', sortedCandidates);
+
   const handleChange = <K extends keyof Job>(
     field: K,
     value: Job[K]
@@ -192,7 +200,19 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     }
   };
 
-  const hanldeContact = () => {
+  const [candidateId, setCandidateId] = useState<string>("");
+
+  const hanldeContact = (canId: any, cvId: any) => {
+    setOpenModalConfirm(true);
+    setCandidateId(canId);
+    setCvIdSelected(cvId);
+  }
+
+  const updateStatusCV = () => {
+    handleUpdateStatus(cvIdSelected, "contacted");
+  };
+
+  const hanldeMess = () => {
     MySwal.fire({
       icon: "info",
       title: "Chức năng đang phát triển",
@@ -200,6 +220,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     });
   }
 
+  const handleCloseConfirm = () => {
+    setOpenModalConfirm(false);
+  }
 
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
@@ -225,7 +248,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
               className={`tab-btn ${activeTab === "info" ? "active" : ""}`}
               onClick={() => setActiveTab("info")}
             >
-              Thông tin Job
+              Thông tin công việc
             </button>
             <button
               className={`tab-btn ${activeTab === "applicants" ? "active" : ""}`}
@@ -243,6 +266,15 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
           {/* Tab content */}
           <div className="view-modal-body h-full">
+
+            {openModalConfirm && (
+              <ModalContactCandidate
+                job={job}
+                candidate_id={candidateId}
+                close={handleCloseConfirm}
+                updateStatus={updateStatusCV}
+              />
+            )}
 
             {activeTab === "info" && (
               <div className="tab-content tab-content-enter">
@@ -472,7 +504,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                   <p>Chưa có ai ứng tuyển</p>
                 ) : (
                   <div className="inline-block min-w-full align-middle">
-
                     <div className="table-wrapper">
                       <p className="text-left font-bold" style={{ paddingBottom: 10 }}>Tổng số ứng viên: {applicants.length}</p>
                       <table className="applications-table">
@@ -483,6 +514,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             <th>Trạng thái</th>
                             <th>Độ phù hợp</th>
                             <th>CV</th>
+                            <th>Trao đổi</th>
                             <th>Liên hệ</th>
                           </tr>
                         </thead>
@@ -524,7 +556,11 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                               </td>
 
                               <td>
-                                <button className="btn-contact" onClick={hanldeContact}>Liên hệ</button>
+                                <button className="btn-mess" onClick={() => { hanldeMess() }}><AiOutlineMessage size={18} /></button>
+                              </td>
+
+                              <td>
+                                <button className="btn-contact" onClick={() => { hanldeContact(app.userId, app._id) }}><BsTelephone size={18} /></button>
                               </td>
                             </tr>
                           ))}
@@ -583,7 +619,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             )}
                           </td>
                           <td>
-                            <button className="btn-contact" onClick={hanldeContact}>
+                            <button className="btn-contact" onClick={() => { hanldeContact(app.userId, "") }}>
                               Liên hệ
                             </button>
                           </td>

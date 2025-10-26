@@ -34,7 +34,7 @@ const ChatWithAI: React.FC = () => {
       </button>
 
       {isChatOpen && (
-        <div className="chat-box">
+        <div className="chat-box flex flex-col justify-between">
           <div className="chat-box-header">
             <span>SmartHire AI</span>
             <button className="close-btn" onClick={toggleChat}>×</button>
@@ -42,17 +42,33 @@ const ChatWithAI: React.FC = () => {
 
           <div className="chat-box-body" ref={chatBodyRef}>
             {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`message ${msg.sender === "user" ? "message-user" : "message-ai"}`}
-              >
-                {msg.text}
+              <div key={index} className={`message ${msg.sender === "user" ? "message-user" : "message-ai"}`}>
+                {msg.text && <div>{msg.text}</div>}
+                {msg.jobs && msg.jobs.length > 0 && (
+                  <div className="chatbot-job-list">
+                    {msg.jobs.map((job) => (
+                      <div key={job.id} className="chatbot-job-item" onClick={() => window.open(`/jobdetail/${job.id}`, "_blank")}>
+                        <strong>{job.title}</strong>
+                        <p>{job.location}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
-            {loading && <div className="message message-ai">...</div>}
+            {loading && (
+              <div className="message message-ai">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="chat-box-bottom flex justify-between">
+          <div className="chat-box-bottom flex items-center justify-between">
+
             <input
               placeholder="Nhập nội dung ... "
               className="inputMessage"
@@ -63,6 +79,7 @@ const ChatWithAI: React.FC = () => {
             <button className="btn-send" onClick={handleSend}>
               <BsFillSendFill size={24} color="#10b981" />
             </button>
+
           </div>
         </div>
       )}

@@ -225,7 +225,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
     const headerStyle = { color: safeColor, fontFamily: settings.fontFamily, fontWeight: 'bold' };
     const h1BorderStyle = { color: safeColor, fontFamily: settings.fontFamily };
 
-    const [jobTitle, setJobTitle] = useState<string>("");
+    // const [jobTitle, setJobTitle] = useState<string>("");
     const [showEmail, setShowEmail] = useState(true);
     const [showPhone, setShowPhone] = useState(true);
     const [showLinkedln, setShowLinkedln] = useState(true);
@@ -594,7 +594,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                 <div className='flex items-center gap-2.5'>
                     <span><strong style={{ fontFamily: settings.fontFamily }}>{T.PHRASES.UNIVERSITY}</strong></span>
                     <input type="text"
-                        className='input-cv-value flex-1 font-bold'
+                        className='input-cv-value flex-1'
                         style={{ fontFamily: settings.fontFamily }}
                         value={education.university}
                         onChange={(e) => updateEducationField(index, 'university', e.target.value)}
@@ -613,7 +613,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     <span><strong style={{ fontFamily: settings.fontFamily }}>{T.PHRASES.TIME}</strong></span>
                     <div className='flex items-center gap-3.5'>
                         <input type="number"
-                            style={{ fontFamily: settings.fontFamily }}
+                            style={{ fontFamily: settings.fontFamily, width: 'fit-content' }}
                             className='input-cv-value input-year'
                             value={education.startYear}
                             onChange={(e) => {
@@ -625,7 +625,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         />
                         <span> - </span>
                         <input type="number"
-                            style={{ fontFamily: settings.fontFamily }}
+                            style={{ fontFamily: settings.fontFamily, width: 'fit-content' }}
                             className='input-cv-value input-year'
                             value={education.endYear}
                             onChange={(e) => {
@@ -654,8 +654,8 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
 
     const renderExperienceEntry = (exp: Experience, index: number) => {
         return (
-            <div key={index} className="job-entry border-l-4 border-gray-300 relative group">
-                <div className='flex items-baseline gap-2.5'>
+            <div key={index} className="job-entry border-l-4 relative group">
+                <div className='flex items-center gap-2.5'>
                     <input type="text"
                         style={{ fontFamily: settings.fontFamily }}
                         className='input-cv-value flex-1 font-bold'
@@ -670,15 +670,23 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         onChange={(e) => updateExperienceField(index, 'company', e.target.value)}
                         placeholder={T.PHRASES.COMPANY_PLACEHOLDER} />
                 </div>
-                <div className="company-date flex items-baseline gap-2.5 text-sm italic">
-                    <input type="text"
+                <div className="company-date flex items-center gap-2.5 text-sm italic">
+                    <input type="month"
                         style={{ fontFamily: settings.fontFamily }}
                         className='input-cv-value'
                         value={exp.startDate}
                         onChange={(e) => {
-                            const [start = '', end = ''] = e.target.value.split('-').map(s => s.trim());
-                            updateExperienceField(index, 'startDate', start);
-                            updateExperienceField(index, 'endDate', end);
+                            updateExperienceField(index, 'startDate', e.target.value);
+                        }}
+                        placeholder={T.PHRASES.TIME_PLACEHOLDER}
+                    />
+                    <span> - </span>
+                    <input type="month"
+                        style={{ fontFamily: settings.fontFamily }}
+                        className='input-cv-value'
+                        value={exp.endDate}
+                        onChange={(e) => {
+                            updateExperienceField(index, 'endDate', e.target.value);
                         }}
                         placeholder={T.PHRASES.TIME_PLACEHOLDER}
                     />
@@ -700,7 +708,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     </div>
                 )}
 
-                <AutosizeTextArea // Sử dụng component Autosize đã sửa
+                <AutosizeTextArea
                     value={exp.description || ''}
                     onChange={(e) => updateExperienceField(index, 'description', e.target.value)}
                     placeholder={T.PHRASES.EXP_DESC_PLACEHOLDER}
@@ -832,7 +840,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                                 <span><strong style={{ fontFamily: settings.fontFamily }}>{T.PHRASES.SOFT_SKILLS}</strong></span>
                                 <div className='flex gap-2 flex-wrap flex-1 relative'>
                                     {currentSoftSkills.map((skill: string) => (
-                                        <span className="tag" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
+                                        <span className="tag flex items-center gap-1" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
                                             {skill}{" "}
                                             <span className='tag-remove' onClick={() => handleRemoveSoftSkill(skill)}>x</span>
                                         </span>
@@ -915,21 +923,22 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         backgroundColor: safeColor
                     }} />
 
-                    <input className="title input-cv-value"
+                    {/* <input className="title input-cv-value"
                         value={jobTitle}
                         onChange={(e) => setJobTitle(e.target.value)}
                         placeholder={T.PHRASES.JOB_TITLE}
                         style={{ fontFamily: settings.fontFamily }}
-                    />
+                    /> */}
                 </header>
 
                 <section className="contact-info flex gap-5 flex-wrap">
                     {/* EMAIL */}
                     {showEmail &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <MdAlternateEmail size={18} color={settings.color}/>
+                            <MdAlternateEmail size={18} color={settings.color} />
+                            {/* <strong>Email:</strong> */}
                             <input className='input-cv-value input-email'
-                                style={{ fontFamily: settings.fontFamily, width: 'fit-content', minWidth: '170px' }} 
+                                style={{ fontFamily: settings.fontFamily, width: 'fit-content', minWidth: '170px' }}
                                 type="text" value={cvData.contact.email}
                                 onChange={(e) => updateContactField('email', e.target.value)}
                                 placeholder="email@example.com"
@@ -942,7 +951,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* SỐ ĐIỆN THOẠI */}
                     {showPhone &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <FaPhoneAlt color={settings.color} size={14}/>
+                            <FaPhoneAlt color={settings.color} size={14} />
                             <input className='input-cv-value input-phone'
                                 style={{ fontFamily: settings.fontFamily }}
                                 type="text" value={cvData.contact.phone}
@@ -955,7 +964,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
 
                     {/* LINKEDIN (sử dụng website trong data) */}
                     {showLinkedln &&
-                        (<div className='flex items-baseline gap-1 contact-info_item'>
+                        (<div className='flex items-center gap-1 contact-info_item'>
                             <FaLink color={settings.color} size={16} />
                             <input className='input-cv-value'
                                 type="text"
@@ -970,7 +979,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
 
                     {/* GITHUB/PORTFOLIO */}
                     {showGithub &&
-                        (<div className='flex items-baseline gap-0.5 contact-info_item'>
+                        (<div className='flex items-center gap-0.5 contact-info_item'>
                             <FaLink color={settings.color} size={16} />
                             <input className='input-cv-value'
                                 type="text"
