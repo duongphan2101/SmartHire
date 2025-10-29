@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Login.css";
-import { FaFacebook } from "react-icons/fa";
+// import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -119,10 +119,10 @@ function Login() {
         </div>
 
         <div className="social-buttons">
-          <button className="social-btn facebook" onClick={loginWithFacebook}>
+          {/* <button className="social-btn facebook" onClick={loginWithFacebook}>
             <FaFacebook size={20} color="#197ce6" />
             Đăng nhập với Facebook
-          </button>
+          </button> */}
 
           <button className="social-btn google" onClick={loginWithGoogle}>
             <FcGoogle size={20} />

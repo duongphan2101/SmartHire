@@ -1,8 +1,31 @@
 const Job = require("../models/Job");
+const Department = require("../models/Department");
 
 const createJob = async (req, res) => {
   try {
     const jobData = req.body;
+    const departmentId = jobData.department?._id;
+
+    if (!departmentId) {
+      return res.status(400).json({ message: "Thiếu ID công ty để đăng tin." });
+    }
+    const department = await Department.findById(departmentId);
+
+    if (!department) {
+      return res.status(404).json({ message: "Công ty không tồn tại." });
+    }
+    if (department.status !== 'Active') {
+      const statusMap = {
+        'Suspended': 'tạm khóa',
+        'Archived': 'lưu trữ'
+      };
+      const statusVi = statusMap[department.status] || 'không hoạt động';
+      return res.status(403).json({
+        message: `Lỗi: Công ty hiện đang ở trạng thái ${statusVi}. HR không thể đăng tin tuyển dụng.`
+      });
+    }
+    // ---------------------------------------------------
+
     const job = new Job(jobData);
     const savedJob = await job.save();
     res.status(201).json(savedJob);

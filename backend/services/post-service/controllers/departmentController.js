@@ -96,6 +96,28 @@ const searchDepartments = async (req, res) => {
   }
 };
 
+const updateDepartmentStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        if (!['Active', 'Suspended', 'Archived'].includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+
+        const updated = await Department.findByIdAndUpdate(
+            id,
+            { status: status },
+            { new: true, runValidators: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Department not found" });
+        }
+        res.json({ message: `Department status updated to ${status}`, department: updated });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 module.exports = {
   getDepartments,
   getDepartmentbyId,
@@ -104,4 +126,5 @@ module.exports = {
   updateDepartment,
   deleteDepartment,
   searchDepartments,
+  updateDepartmentStatus
 };
