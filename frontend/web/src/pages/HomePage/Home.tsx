@@ -368,6 +368,8 @@ const Home: React.FC = () => {
                     <option value="sysAdmin">System Administrator</option>
                     <option value="QA">QA Engineer</option>
                     <option value="DevEng">DevOps Engineer</option>
+                    <option value="Legal Specialist">Legal Specialistr</option>
+                    <option value="Admin Intern">Admin Intern</option>
                   </select>
 
                   {/* Combobox Địa điểm */}
