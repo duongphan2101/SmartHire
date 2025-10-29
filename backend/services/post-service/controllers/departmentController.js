@@ -11,12 +11,26 @@ const getDepartments = async (req, res) => {
   }
 };
 
+// @desc    Get all departments
+// @route   GET /api/department
+const getDepartmentbyId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const department = await Department.findOne({ _id: new mongoose.Types.ObjectId(id) });
+    res.json(department);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // @desc    Find department by userId (HR)
 // @route   GET /api/department/user/:userId
 const findDepartmentByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const department = await Department.findOne({ employees: userId.toString() });
+    const department = await Department.findOne({
+      employees: userId.toString(),
+    });
 
     if (!department) {
       return res.json({ message: "User chưa thuộc công ty nào" });
@@ -27,7 +41,6 @@ const findDepartmentByUserId = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // thêm
 const createDepartment = async (req, res) => {
@@ -40,11 +53,13 @@ const createDepartment = async (req, res) => {
   }
 };
 
-// Cập nhật 
+// Cập nhật
 const updateDepartment = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await Department.findByIdAndUpdate(id, req.body, { new: true });
+    const updated = await Department.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     if (!updated) {
       return res.status(404).json({ message: "Department not found" });
     }
@@ -54,7 +69,7 @@ const updateDepartment = async (req, res) => {
   }
 };
 
-// Xóa 
+// Xóa
 const deleteDepartment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,7 +88,7 @@ const searchDepartments = async (req, res) => {
   try {
     const { keyword } = req.query;
     const departments = await Department.find({
-      name: { $regex: keyword, $options: "i" }
+      name: { $regex: keyword, $options: "i" },
     });
     res.json(departments);
   } catch (err) {
@@ -83,9 +98,10 @@ const searchDepartments = async (req, res) => {
 
 module.exports = {
   getDepartments,
+  getDepartmentbyId,
   findDepartmentByUserId,
   createDepartment,
   updateDepartment,
   deleteDepartment,
-  searchDepartments
+  searchDepartments,
 };

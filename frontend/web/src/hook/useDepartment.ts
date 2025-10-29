@@ -24,6 +24,7 @@ interface UseDepartmentReturn {
   refetch: () => void;
   createDepartment: (data: Omit<DepartmentData, "_id"> & { employees: string[] }) => Promise<void>;
   deleteDepartment: (id: string) => Promise<void>;
+  getDepartmentById: (id: string) => Promise<void>;
 }
 
 export default function useDepartment(mode: "user" | "all" = "user"): UseDepartmentReturn {
@@ -79,7 +80,6 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     fetchData();
   }, [fetchData]);
 
-
   const createDepartment = async (data: Omit<DepartmentData, "_id"> & { employees: string[] }) => {
     try {
       await axios.post(`${HOSTS.companyService}/create`, data);
@@ -88,7 +88,6 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
       throw err;
     }
   };
-
 
   const deleteDepartment = async (id: string) => {
     try {
@@ -99,5 +98,32 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   };
 
-  return { department, departments, loading, error, refetch: fetchData, createDepartment, deleteDepartment };
+  const getDepartmentById = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const host = HOSTS.companyService;
+      const res = await axios.get<DepartmentData>(`${host}/${id}`);
+      setDepartment(res.data || null);
+
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.message || "Failed to fetch department by ID");
+      setDepartment(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    department,
+    departments,
+    loading,
+    error,
+    refetch: fetchData,
+    createDepartment,
+    deleteDepartment,
+    getDepartmentById
+  };
 }

@@ -201,7 +201,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                         <span className="text-left title-job">{item.jobTitle}</span>
                         <a
                             className="text-left text-gray-600"
-                            href={`/department/${item.department._id}`}
+                            href={`/companydetail/${item.department._id}`}
                             style={{ fontSize: 18 }}
                         >
                             <span className="department-item-name">{item.department.name}</span>

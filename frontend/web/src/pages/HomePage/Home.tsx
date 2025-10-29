@@ -455,7 +455,7 @@ const Home: React.FC = () => {
                             </span>
                           </div>
 
-                          <div className="absolute -right-7 -bottom-7 box-icon"
+                          <div className="absolute box-icon-category -right-7 -bottom-7 box-icon"
                             style={{
                               backgroundColor: darkenColor(item.color, 5),
                               padding: 40,

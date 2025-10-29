@@ -291,8 +291,8 @@ const JobDetails: React.FC<DetailProps> = () => {
               <div className="lg:col-span-3 md:col-span-3">
                 <div className="head-card head-left gap-5">
                   <div className="head-left-top flex w-full">
-                    <p>Có liên quan</p>
-                    <button className="btn-filter flex items-center">
+                    <p className="font-bold">Có liên quan</p>
+                    <button className="btn-filter flex items-center font-bold">
                       <BsFilter />
                       Bộ lọc
                     </button>

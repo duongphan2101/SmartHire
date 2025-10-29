@@ -28,8 +28,53 @@ import {
   Navigate,
 } from "react-router-dom";
 import BuildCvs from "./pages/BuildCVs/BuildCvs";
+import type { Job } from "./hook/useJob";
+import type { UserResponse } from "./hook/useUser";
+import type { Department } from "./utils/interfaces";
+import Detail_Company from "./components/Detail-Company/Detail_Company";
 
 function App() {
+
+  const dummyItem: Job = {
+    _id: "",
+    jobTitle: "",
+    jobType: "",
+    jobLevel: "",
+    department: { _id: "", name: "" },
+    createBy: { _id: "", fullname: "" },
+    requirement: [],
+    skills: [],
+    benefits: [],
+    salary: "",
+    location: "",
+    address: "",
+    workingHours: "",
+    jobDescription: [],
+    experience: "",
+    endDate: "",
+    num: 0,
+    createdAt: "",
+  };
+
+  const dummyCompany: Department = {
+    _id: "",
+    name: "",
+    address: "",
+    avatar: "",
+    description: "",
+    website: "",
+  };
+
+  const dummySaveJob = async (userId: string, jobId: string): Promise<UserResponse | void> => {
+    const mess = `${userId}${jobId}`;
+    return mess as unknown as UserResponse;
+  };
+
+  const dummyUnsaveJob = async (userId: string, jobId: string): Promise<UserResponse | void> => {
+    const mess = `${userId}${jobId}`;
+    return mess as unknown as UserResponse;
+  };
+
   return (
     <Router>
       <Routes>
@@ -48,8 +93,9 @@ function App() {
         <Route path="/intro" element={<Intro />} />
         <Route path="/buildcv" element={<BuildCvs />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/jobdetail" element={<JobDetails />} />
-        <Route path="/jobdetail/:id" element={<JobDetails />} />
+        {/* <Route path="/jobdetail" element={<JobDetails item={item} saveJob={} />} /> */}
+        <Route path="/jobdetail/:id" element={<JobDetails item={dummyItem} saveJob={dummySaveJob} unsaveJob={dummyUnsaveJob} />} />
+        <Route path="/companydetail/:id" element={<Detail_Company />} />
         <Route path="/cvs" element={<Cvs />} />
         <Route path="/liked" element={<JobSave />} />
         <Route path="/applyted" element={<JobApplied />} />
@@ -61,10 +107,10 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
-    
-          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
 
-        
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+
+
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>

@@ -1,0 +1,36 @@
+.detail-company-container {
+    height: 100%;
+    width: 100%;
+}
+
+.detail-company-body {
+    max-width: 1600px;
+    width: 1600px;
+    /* padding: 0 20px; */
+    padding-top: 120px;
+    margin: 0 auto;
+
+    height: 50vh;
+    margin-bottom: 50px;
+}
+
+.company-logo-box {
+    position: relative;
+    background-color: #fff;
+    padding: 10px;
+    height: 200px;
+    /* width: 200px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+}
+
+.company-logo {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    margin: 0;
+    /* object-fit: contain; */
+}

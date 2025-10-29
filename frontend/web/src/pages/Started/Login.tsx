@@ -41,9 +41,9 @@ function Login() {
       if (result) {
         if (result.user.role === "hr") {
           navigate("/dashboard");
-        }else if (result.user.role === "user") {
+        } else if (result.user.role === "user") {
           navigate("/home");
-        }else {
+        } else {
           navigate("/admin/dashboard");
         }
       }
@@ -58,17 +58,15 @@ function Login() {
         <div className="tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${
-              location.pathname === "/login" ? "active-tab" : ""
-            }`}
+            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""
+              }`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${
-              location.pathname === "/register" ? "active-tab" : ""
-            }`}
+            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""
+              }`}
           >
             Đăng ký
           </Link>
@@ -109,11 +107,11 @@ function Login() {
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
-            <div style={{ textAlign: "right", width: "100%", marginTop: "10px" }}>
+        <div style={{ textAlign: "right", width: "100%", marginTop: "10px" }}>
           <Link to="/forgot-password" className="forgot-password-link">
             Quên mật khẩu ?
           </Link>
-            </div>
+        </div>
         <div className="divider">
           <hr />
           <span>hoặc</span>
