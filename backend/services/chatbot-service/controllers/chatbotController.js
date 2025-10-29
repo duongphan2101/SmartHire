@@ -51,6 +51,7 @@ async function chatWithBot(req, res) {
     // B1: Thử để model tự phân tích query JSON
     const aiResponse = await client.chat.completions.create({
       model: "deepseek-ai/DeepSeek-V3.2-Exp:novita",
+      //model: "openai/gpt-oss-20b:nscale",
       messages: [
         {
           role: "system",

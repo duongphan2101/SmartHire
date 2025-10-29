@@ -176,7 +176,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                         marginBottom: "16px",
                     }}
                 >
-                    Liên hệ ứng viên {candidate_id} – công việc {job._id}
+                    Liên hệ ứng viên công việc {job.jobTitle}
                 </h2>
             </div>
 

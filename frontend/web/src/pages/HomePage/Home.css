@@ -252,6 +252,11 @@
         padding: 10px;
     }
 
+    /* .box-icon-category {
+        height: 135px;
+        width: 135px;
+    } */
+
 }
 
 .container-categories,
@@ -280,22 +285,6 @@
     transition: transform 1s ease;
 }
 
-/* .categories-film {
-    position: absolute;
-    display: flex;
-    opacity: .6;
-    top: 0;
-    left: 0;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    right: 0;
-    bottom: 0;
-    background-image: linear-gradient(90deg, #000 0%, #000 100%);
-    transition: opacity 1s ease, transform 1s ease;
-    border-radius: 10px;
-} */
-
 .categories-icon {
     opacity: 0;
     transition: opacity 1s ease;
@@ -304,10 +293,6 @@
 .categories-item:hover .item-bg {
     transform: translateX(10px);
 }
-
-/* .categories-item:hover .item-bottom {
-    transform: translateX(10px);
-} */
 
 .categories-item:hover .item-bg {
     transform: scale(1.02);
@@ -505,73 +490,6 @@
     z-index: 5;
 }
 
-/* .button {
-    all: unset;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 0.6em 2em;
-    border: var(--color-emerald-600) solid 0.15em;
-    border-radius: 0.5em;
-    color: var(--color-emerald-600);
-    font-size: 1.2em;
-    font-weight: 600;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 300ms ease;
-    user-select: none;
-    width: 200px;
-    box-shadow: 0 4px 8px rgba(5, 150, 105, 0.25);
-}
-
-.button p {
-    z-index: 1;
-    position: relative;
-}
-
-.button:hover {
-    color: white;
-    border-color: var(--color-emerald-600);
-}
-
-.button:active {
-    transform: scale(0.96);
-}
-
-.button::after,
-.button::before {
-    content: "";
-    position: absolute;
-    width: 9em;
-    aspect-ratio: 1;
-    background: var(--color-emerald-600);
-    opacity: 0.6;
-    border-radius: 50%;
-    transition: transform 500ms ease, opacity 300ms ease;
-}
-
-.button::before {
-    left: 0;
-    transform: translateX(-8em);
-}
-
-.button::after {
-    right: 0;
-    transform: translateX(8em);
-}
-
-.button:hover::before {
-    transform: translateX(-1em);
-    opacity: 1;
-}
-
-.button:hover::after {
-    transform: translateX(1em);
-    opacity: 1;
-} */
-
-/* From Uiverse.io by adamgiebl */
 .cssbuttons-io-button {
     background: var(--color-emerald-600);
     color: white;

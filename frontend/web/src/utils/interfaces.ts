@@ -89,3 +89,12 @@ export interface Job {
   createdAt: string;
   districts?: { name: string }[];
 }
+
+export interface Department {
+  _id: string;
+  name: string;
+  address: string;
+  avatar: string;
+  description: string;
+  website: string;
+}
