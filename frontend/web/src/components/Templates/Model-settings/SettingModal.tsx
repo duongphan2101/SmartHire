@@ -143,6 +143,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         span.style.fontStyle = computedStyle.fontStyle;
                         span.style.color = computedStyle.color;
                         span.style.textAlign = computedStyle.textAlign;
+                        span.style.width = computedStyle.width;
 
                         input.parentNode?.replaceChild(span, input);
                     });
