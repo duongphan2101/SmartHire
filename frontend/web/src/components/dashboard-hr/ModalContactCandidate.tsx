@@ -27,6 +27,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
 
     const [time, setTime] = useState<Dayjs | null>(null);
     const [note, setNote] = useState<string>("");
+    const [mode, setMode] = useState<'offline' | 'online'>('offline');
     const [location, setLocation] = useState<string>(job.address || "");
     const { createInterview, loading, error, clearError } = useInterview();
     const { sendInterviewInvite } = useEmailService();
@@ -87,7 +88,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
             jobId: job._id,
             scheduledAt: time.toString(),
             location: location,
-            mode: "offline",
+            mode: mode,
             note: note,
         };
 
@@ -194,6 +195,21 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 </div>
 
                 <div className="w-full flex flex-col gap-0.5 text-left">
+                    <span className="text-gray-400">
+                        Hình thức
+                    </span>
+                    <select
+                        className="w-full h-12 focus:ring-2 focus:ring-emerald-500 rounded-md border border-solid border-slate-300"
+                        style={{ paddingLeft: 15 }}
+                        value={mode}
+                        onChange={(e) => setMode(e.target.value as 'offline' | 'online')}
+                    >
+                        <option value="offline">Offline</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <div className="w-full flex flex-col gap-0.5 text-left">
                     <TextField
                         id="outlined-basic"
                         label="Chọn địa điểm phỏng vấn"
@@ -205,7 +221,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 </div>
 
                 <div className="w-full flex flex-col gap-0.5 text-left">
-                    <span >
+                    <span className="text-gray-400">
                         Ghi chú
                     </span>
                     <TextareaAutosize
