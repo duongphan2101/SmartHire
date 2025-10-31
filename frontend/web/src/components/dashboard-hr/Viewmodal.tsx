@@ -224,6 +224,14 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     setOpenModalConfirm(false);
   }
 
+  const statusMap = {
+    pending: "Đang chờ duyệt",
+    reviewed: "Đã xem xét",
+    accepted: "Đã chấp nhận",
+    rejected: "Đã từ chối",
+    contacted: "Đã liên hệ",
+  };
+
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
       <div className={`view-modal ${closing ? "close" : ""}`}>
@@ -531,7 +539,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
                               <td>
                                 <span className={`status-badge status-${app.status}`}>
-                                  {app.status}
+                                  {statusMap[app.status as keyof typeof statusMap] || app.status}
                                 </span>
                               </td>
 

@@ -278,7 +278,7 @@ const JobDetails: React.FC = () => {
                       (item) => (
                         <div
                           key={item._id}
-                          className="job-item flex items-center gap-5 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition"
+                          className="job-item flex items-center gap-5 cursor-pointer hover:bg-gray-100 transition"
                           onClick={() => handlerJobItem(item._id.toString())}
                         >
                           <img
@@ -293,8 +293,8 @@ const JobDetails: React.FC = () => {
                             </span>
                           </div>
                           <div className="flex flex-col gap-1 text-right flex-1/4 text-xs text-gray-600">
-                            <span>{item.jobLevel}</span>
-                            <span>{item.jobType}</span>
+                            <span className="text-sm">{item.jobLevel}</span>
+                            <span className="text-sm">{item.jobType}</span>
                           </div>
                         </div>
                       )
