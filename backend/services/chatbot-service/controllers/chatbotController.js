@@ -1,11 +1,7 @@
 require("dotenv").config();
-const OpenAI = require("openai");
 const axios = require("axios");
-
-const client = new OpenAI({
-  baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_TOKEN,
-});
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const ai = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
 
@@ -48,35 +44,35 @@ async function chatWithBot(req, res) {
   try {
     const { message } = req.body;
 
-    // B1: Thử để model tự phân tích query JSON
-    const aiResponse = await client.chat.completions.create({
-      model: "deepseek-ai/DeepSeek-V3.2-Exp:novita",
-      //model: "openai/gpt-oss-20b:nscale",
-      messages: [
+    const model = ai.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: `
+        Bạn là SmartHire Chatbot – trợ lý AI giúp người dùng tìm việc.
+        Nếu người dùng đang hỏi về tìm việc, hãy phân tích và trả về JSON dạng:
         {
-          role: "system",
-          content: `
-            Bạn là SmartHire Chatbot – trợ lý AI giúp người dùng tìm việc.
-            Nếu người dùng đang hỏi về tìm việc, hãy phân tích và trả về JSON dạng:
-            {
-              "title": "...",
-              "location": "...",
-              "jobType": "...",
-              "jobLevel": "...",
-              "experience": "..."
-            }
-            Còn nếu người dùng chỉ trò chuyện thông thường, chỉ cần trả lời tự nhiên.
-            Khi có JSON, in thêm dòng:
-            QUERY_JSON_START
-            { ... }
-            QUERY_JSON_END
-          `,
-        },
-        { role: "user", content: message },
-      ],
+          "title": "...",
+          "location": "...",
+          "jobType": "...",
+          "jobLevel": "...",
+          "experience": "..."
+        }
+        (Lưu ý: chỉ trả về các trường có thông tin, nếu không có thì bỏ qua trường đó).
+        Còn nếu người dùng chỉ trò chuyện thông thường, chỉ cần trả lời tự nhiên.
+        Khi có JSON, in thêm dòng:
+        QUERY_JSON_START
+        { ... }
+        QUERY_JSON_END
+      `,
     });
 
-    const content = aiResponse.choices[0].message.content || "";
+    const chat = model.startChat({
+      history: [],
+    });
+
+    const aiResult = await chat.sendMessage(message);
+    const aiResponse = aiResult.response;
+    const content = aiResponse.text() || "";
+
     let query = null;
 
     const match = content.match(/QUERY_JSON_START([\s\S]*?)QUERY_JSON_END/);
@@ -118,7 +114,9 @@ async function chatWithBot(req, res) {
       });
     }
 
-    const reply = content.replace(/QUERY_JSON_START[\s\S]*?QUERY_JSON_END/, "").trim();
+    const reply = content
+      .replace(/QUERY_JSON_START[\s\S]*?QUERY_JSON_END/, "")
+      .trim();
     return res.json({ reply });
   } catch (err) {
     console.error("Chatbot error:", err.message || err);

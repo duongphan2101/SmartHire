@@ -150,9 +150,9 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 left: 0,
                 bottom: 0,
                 width: "100%",
-                height: "55%",
+                height: "60%",
                 // backgroundColor: "#10B981",
-                // backgroundColor: "#FDFDF7",
+                backgroundColor: "#FFF",
                 boxShadow: "0 -4px 10px rgba(0,0,0,0.2)",
                 borderTopLeftRadius: "15px",
                 borderTopRightRadius: "15px",
@@ -161,7 +161,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                     animationClass === "slide-in" ? "translateY(0)" : "translateY(100%)",
                 padding: "24px",
                 color: "#000",
-                zIndex: 99999,
+                zIndex: 3000,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -200,11 +200,11 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                     </span>
                     <select
                         className="w-full h-12 focus:ring-2 focus:ring-emerald-500 rounded-md border border-solid border-slate-300"
-                        style={{ paddingLeft: 15 }}
+                        style={{ paddingLeft: 15, paddingRight: 15 }}
                         value={mode}
                         onChange={(e) => setMode(e.target.value as 'offline' | 'online')}
                     >
-                        <option value="offline">Offline</option>
+                        <option value="offline">Offline (Trực tiếp)</option>
                         <option value="online">Online</option>
                     </select>
                 </div>

@@ -21,6 +21,7 @@ import { FaServer, FaProjectDiagram, FaChartLine, FaNetworkWired, FaBug, FaCloud
 
 import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
+import useApplication from "../../hook/useApplication";
 import { useNavigate } from "react-router-dom";
 const MySwal = withReactContent(Swal);
 
@@ -42,6 +43,12 @@ const Home: React.FC = () => {
   const [devopsengineer, setDevopsengineer] = useState<number>(0);
   const [frontend, setFrontend] = useState<number>(0);
   const [fullstack, setFullstack] = useState<number>(0);
+
+  const [activeTab, setActiveTab] = useState<'latest' | 'recommended'>('latest');
+  const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
+  const { renderMatchingJob } = useApplication();
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+
 
   const slogans = [
     "cơ hội phát triển!",
@@ -320,6 +327,52 @@ const Home: React.FC = () => {
     );
   }
 
+  useEffect(() => {
+    if (activeTab !== "recommended" || !user || !user.cv) {
+      setRecommendedJobs([]);
+      return;
+    }
+
+    setIsLoadingRecommended(true);
+    const firstCv = user.cv[0];
+    const cid =
+      typeof firstCv === "string"
+        ? firstCv
+        : (firstCv as { _id?: string })._id ?? (firstCv as unknown as string);
+
+    if (!cid) {
+      console.warn("No CV id found");
+      setRecommendedJobs([]);
+      setIsLoadingRecommended(false);
+      return;
+    }
+
+    renderMatchingJob({ cv_id: cid })
+      .then((res) => {
+        if (res && Array.isArray(res)) {
+          const mappedRecommended = res.map((item: any) => ({
+            ...item,
+            job: {
+              ...item.job,
+              isSaved: user ? user.liked.includes(item.job._id) : false,
+              animateSave: false,
+            },
+          }));
+          setRecommendedJobs(mappedRecommended);
+        } else {
+          console.warn("API response is not an array.");
+          setRecommendedJobs([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching recommended jobs:", err);
+        setRecommendedJobs([]);
+      })
+      .finally(() => {
+        setIsLoadingRecommended(false);
+      });
+  }, [activeTab, user, renderMatchingJob]);
+
   return (
     <>
       <div className="App">
@@ -491,140 +544,307 @@ const Home: React.FC = () => {
                   Cơ Hội Không Thể Bỏ Lỡ
                 </p>
                 <p className="text-gray-600">
-                  Chúng tôi vừa thêm những cơ hội nghề nghiệp chất lượng dành
-                  cho bạn.
+                  Chúng tôi vừa thêm những cơ hội nghề nghiệp chất lượng dành cho bạn.
                 </p>
               </div>
               <div className="w-full">
-                <div className="fillter-type flex items-center justify-center">
-                  <ul className="fillter-type_ul flex">
-                    <li className="type-ul_li active">
-                      <a href="/">Mới nhất</a>
-                    </li>
-                    {/* <li className='type-ul_li'><a href="/">Full Time</a></li>
-                                        <li className='type-ul_li'><a href="/">Part Time</a></li>
-                                        <li className='type-ul_li'><a href="/">Remote</a></li> */}
-                  </ul>
+                <div className="flex items-center justify-center mb-8">
+                  <div className="flex rounded-lg">
+                    <button
+                      className={`tab-btn ${activeTab === "latest" ? "active" : ""}`}
+                      onClick={() => setActiveTab("latest")}
+                    >
+                      Mới nhất
+                    </button>
+                    <button
+                      className={`tab-btn ${activeTab === "recommended" ? "active" : ""
+                        }`}
+                      onClick={() => setActiveTab("recommended")}
+                    >
+                      Phù hợp với bạn
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
-                  {lastestJobs.map((item) => (
-                    <div className="lasted-item flex flex-col">
-                      <div className="lasted-item_top flex justify-between">
-                        <div className="item-top_left flex justify-around">
-                          <img
-                            src={item.department.avatar}
-                            className="lasted-item_image"
-                          />
-                        </div>
-
-                        <div className="item-top_center flex flex-col flex-1 text-left">
-                          <p
-                            className="lasted-item-nameJob"
-                            style={{ fontSize: 16, fontWeight: "bold" }}
-                          >
-                            {item.jobTitle}
-                          </p>
-
-                          <div
-                            style={{
-                              fontSize: 16,
-                              paddingTop: 5,
-                              paddingBottom: 10,
-                            }}
-                            className="lasted-item-department flex gap-4"
-                          >
-                            <p className="text-gray-800">
-                              {item.department.name}
-                            </p>
-                            <span className="text-gray-600">
-                              {getTimeAgo(item.createdAt!, item.updatedAt!)}
-                            </span>
+                {activeTab === "latest" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                    {lastestJobs.map((item) => (
+                      <div key={item._id} className="lasted-item flex flex-col">
+                        <div className="lasted-item_top flex justify-between">
+                          <div className="item-top_left flex justify-around">
+                            <img
+                              src={item.department.avatar}
+                              className="lasted-item_image"
+                            />
                           </div>
-
-                          <div className="flex gap-3 lasted-techs flex-wrap">
-                            {item.skills.slice(0, 3).map((i: string, index: number) => (
-                              <div key={index} className="lasted-tech-item">
-                                {i.length > 10 ? i.slice(0, 10) + "..." : i}
-                              </div>
-                            ))}
-                            {item.skills.length > 3 && (
-                              <div className="lasted-tech-item">...</div>
+                          <div className="item-top_center flex flex-col flex-1 text-left">
+                            <p
+                              className="lasted-item-nameJob"
+                              style={{ fontSize: 16, fontWeight: "bold" }}
+                            >
+                              {item.jobTitle}
+                            </p>
+                            <div
+                              style={{
+                                fontSize: 16,
+                                paddingTop: 5,
+                                paddingBottom: 10,
+                              }}
+                              className="lasted-item-department flex gap-4"
+                            >
+                              <p className="text-gray-800">{item.department.name}</p>
+                              <span className="text-gray-600">
+                                {getTimeAgo(item.createdAt!, item.updatedAt!)}
+                              </span>
+                            </div>
+                            <div className="flex gap-3 lasted-techs flex-wrap">
+                              {item.skills.slice(0, 3).map((i: string, index: number) => (
+                                <div key={index} className="lasted-tech-item">
+                                  {i.length > 10 ? i.slice(0, 10) + "..." : i}
+                                </div>
+                              ))}
+                              {item.skills.length > 3 && (
+                                <div className="lasted-tech-item">...</div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="item-top_right">
+                            <button
+                              className="btn-apply"
+                              onClick={() => hanldeView(item._id)}
+                            >
+                              <FaRegEye />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="lasted-item_bottom gap-2">
+                          <ul className="flex gap-6 flex-1">
+                            <li
+                              className="bottom-li flex gap-3 items-center"
+                              style={{ fontSize: 13 }}
+                            >
+                              <IoLocationOutline color="#059669" /> {item.location}
+                            </li>
+                            <li
+                              className="bottom-li flex gap-3 items-center"
+                              style={{ fontSize: 13 }}
+                            >
+                              <FaRegMoneyBillAlt color="#059669" /> {item.salary}
+                            </li>
+                            <li
+                              className="bottom-li flex gap-3 items-center"
+                              style={{ fontSize: 13 }}
+                            >
+                              <AiOutlineClockCircle color="#059669" />
+                              {item.jobType}
+                            </li>
+                            <li
+                              className="bottom-li flex gap-3 items-center"
+                              style={{ fontSize: 13 }}
+                            >
+                              <RiContrastDrop2Line color="#059669" />
+                              {item.jobLevel}
+                            </li>
+                          </ul>
+                          <div
+                            className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 ${item.animateSave ? "scale-125" : "scale-100"
+                              } ${item.isSaved
+                                ? "bg-emerald-600 text-white"
+                                : "text-gray-500 bg-gray-100"
+                              }`}
+                            style={{ padding: 5, borderRadius: 5 }}
+                            onClick={() => toggleSave(item._id)}
+                          >
+                            <span
+                              style={{ fontSize: 12 }}
+                              className={`${item.isSaved ? "text-white" : "text-gray-500"
+                                }`}
+                            >
+                              {item.isSaved ? "Đã lưu" : "Lưu bài đăng"}
+                            </span>
+                            {item.isSaved ? (
+                              <FaBookmark color="#fff" size={14} />
+                            ) : (
+                              <FaRegBookmark color="gray" size={14} />
                             )}
                           </div>
-
-                        </div>
-
-                        <div className="item-top_right">
-                          <button
-                            className="btn-apply"
-                            onClick={() => hanldeView(item._id)}
-                          >
-                            <FaRegEye />
-                          </button>
                         </div>
                       </div>
-                      <div className="lasted-item_bottom gap-2">
-                        <ul className="flex gap-6 flex-1">
-                          <li
-                            className="bottom-li flex gap-3 items-center"
-                            style={{ fontSize: 13 }}
-                          >
-                            <IoLocationOutline color="#059669" />{" "}
-                            {item.location}
-                          </li>
-                          <li
-                            className="bottom-li flex gap-3 items-center"
-                            style={{ fontSize: 13 }}
-                          >
-                            <FaRegMoneyBillAlt color="#059669" /> {item.salary}
-                          </li>
-                          <li
-                            className="bottom-li flex gap-3 items-center"
-                            style={{ fontSize: 13 }}
-                          >
-                            <AiOutlineClockCircle color="#059669" />
-                            {item.jobType}
-                          </li>
-                          <li
-                            className="bottom-li flex gap-3 items-center"
-                            style={{ fontSize: 13 }}
-                          >
-                            <RiContrastDrop2Line color="#059669" />
-                            {item.jobLevel}
-                          </li>
-                        </ul>
+                    ))}
+                  </div>
+                )}
 
-                        <div
-                          className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 
-                                                    ${item.animateSave
-                              ? "scale-125"
-                              : "scale-100"
-                            } 
-                                                    ${item.isSaved
-                              ? "bg-emerald-600 text-white"
-                              : "text-gray-500 bg-gray-100"
-                            }`}
-                          style={{ padding: 5, borderRadius: 5 }}
-                          onClick={() => toggleSave(item._id)}
-                        >
-                          <span
-                            style={{ fontSize: 12 }}
-                            className={`${item.isSaved ? "text-white" : "text-gray-500"
-                              }`}
-                          >
-                            {item.isSaved ? "Đã lưu" : "Lưu bài đăng"}
-                          </span>
-                          {item.isSaved ? (
-                            <FaBookmark color="#fff" size={14} />
-                          ) : (
-                            <FaRegBookmark color="gray" size={14} />
-                          )}
+                {activeTab === 'recommended' && (
+                  <>
+                    {isLoadingRecommended ? (
+                      <div className="relative w-full" style={{ paddingTop: 100 }}>
+                        <div className="banter-loader">
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
+                          <div className="banter-loader__box"></div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ) : recommendedJobs.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                        {recommendedJobs.slice(0, 10).map((item) => (
+                          <div key={item.job._id} className="lasted-item flex flex-col gap-2">
+
+                            <div className="lasted-item_top flex justify-between">
+                              <div className="item-top_left flex justify-around">
+                                <img
+                                  src={item.job.department.avatar}
+                                  className="lasted-item_image"
+                                />
+                              </div>
+                              <div className="item-top_center flex flex-col flex-1 text-left">
+                                <p
+                                  className="lasted-item-nameJob"
+                                  style={{ fontSize: 16, fontWeight: "bold" }}
+                                >
+                                  {item.job.jobTitle}
+                                </p>
+                                <div
+                                  style={{
+                                    fontSize: 16,
+                                    paddingTop: 5,
+                                    paddingBottom: 10,
+                                  }}
+                                  className="lasted-item-department flex gap-4"
+                                >
+                                  <p className="text-gray-800">{item.job.department.name}</p>
+                                  <span className="text-gray-600">
+                                    {getTimeAgo(item.job.createdAt!, item.job.updatedAt!)}
+                                  </span>
+                                </div>
+                                <div className="flex gap-3 lasted-techs flex-wrap">
+                                  {item.job.skills
+                                    .slice(0, 3)
+                                    .map((i: string, index: number) => (
+                                      <div key={index} className="lasted-tech-item">
+                                        {i.length > 10 ? i.slice(0, 10) + "..." : i}
+                                      </div>
+                                    ))}
+                                  {item.job.skills.length > 3 && (
+                                    <div className="lasted-tech-item">...</div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="item-top_right">
+                                <button
+                                  className="btn-apply"
+                                  onClick={() => hanldeView(item.job._id)}
+                                >
+                                  <FaRegEye />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="lasted-item_bottom gap-2">
+
+                              <ul className="flex gap-6 flex-1">
+                                <li
+                                  className="bottom-li flex gap-3 items-center"
+                                  style={{ fontSize: 13 }}
+                                >
+                                  <IoLocationOutline color="#059669" /> {item.job.location}
+                                </li>
+                                {/* <li
+                                  className="bottom-li flex gap-3 items-center"
+                                  style={{ fontSize: 13 }}
+                                >
+                                  <FaRegMoneyBillAlt color="#059669" /> {item.job.salary}
+                                </li>
+                                <li
+                                  className="bottom-li flex gap-3 items-center"
+                                  style={{ fontSize: 13 }}
+                                >
+                                  <AiOutlineClockCircle color="#059669" />
+                                  {item.job.jobType}
+                                </li> */}
+                                <li
+                                  className="bottom-li flex gap-3 items-center"
+                                  style={{ fontSize: 13 }}
+                                >
+                                  <RiContrastDrop2Line color="#059669" />
+                                  {item.job.jobLevel}
+                                </li>
+                              </ul>
+
+                              <div className="flex items-center gap-3">
+
+                                <div className="relative group">
+
+                                  <div className="flex items-center gap-1 cursor-help rounded-md text-gray-400 text-sm">
+                                    Độ phù hợp:
+                                    <span className="font-bold text-emerald-600 text-lg leading-none">
+                                      {item.finalScore}%
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-600">
+                                      <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+
+                                  {/* Tooltip nội dung lý do phù hợp */}
+                                  <div className="absolute z-10 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 
+                                    p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg
+                                    opacity-0 group-hover:opacity-100 transition-all duration-300
+                                    pointer-events-none group-hover:pointer-events-auto
+                                    transform scale-95 group-hover:scale-100"
+                                    style={{ padding: 10 }}
+                                  >
+                                    <p className="font-bold mb-1 border-b border-b-gray-600 pb-1">Lý do phù hợp:</p>
+                                    <p className="text-gray-200 text-justify">{item.reason}</p>
+
+                                    {/* Mũi tên của Tooltip */}
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0
+                                      border-l-8 border-l-transparent
+                                      border-r-8 border-r-transparent
+                                      border-t-8 border-t-gray-900"></div>
+                                  </div>
+                                </div>
+
+                                <div
+                                  className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 ${item.animateSave ? "scale-125" : "scale-100"
+                                    } ${item.job.isSaved
+                                      ? "bg-emerald-600 text-white"
+                                      : "text-gray-500 bg-gray-100"
+                                    }`}
+                                  style={{ padding: 5, borderRadius: 5 }}
+                                  onClick={() => toggleSave(item.job._id)}
+                                >
+                                  <span
+                                    style={{ fontSize: 12 }}
+                                    className={`${item.job.isSaved ? "text-white" : "text-gray-500"
+                                      }`}
+                                  >
+                                    {item.job.isSaved ? "Đã lưu" : "Lưu bài đăng"}
+                                  </span>
+                                  {item.job.isSaved ? (
+                                    <FaBookmark color="#fff" size={14} />
+                                  ) : (
+                                    <FaRegBookmark color="gray" size={14} />
+                                  )}
+                                </div>
+
+                              </div>
+                            </div>
+
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="w-full text-center text-gray-600">
+                        Chưa có công việc nào phù hợp với bạn.
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
