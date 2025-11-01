@@ -16,6 +16,44 @@ router.get("/count", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+router.get("/stats/salary", async (req, res) => {
+  try {
+    const stats = await Job.aggregate([
+      {
+        $group: {
+          _id: "$salary",
+          totalJobs: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔥 API 2: Ngành nghề hot (Top 5)
+router.get("/stats/hot-industry", async (req, res) => {
+  try {
+    const stats = await Job.aggregate([
+      {
+        $group: {
+          _id: "$department.name",
+          totalJobs: { $sum: 1 }
+        }
+      },
+      { $sort: { totalJobs: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/categories', categories);
 router.get('/search', searchJobs);
 router.post('/create', createJob);

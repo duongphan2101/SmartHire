@@ -3,12 +3,19 @@ import "../dashboardAdmin/DashboardAdmin.css";
 import { FaAccusoft, FaForumbee } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
+import SalaryJobChart from "./SalaryJobChart";
+import HotIndustryChart from "./HotIndustryChart";
 import useDashboardAdmin from "../../hook/useDashboardAdmin";
+import useDashboardCharts from "../../hook/useDashboardCharts";
 
 const DashboardAdmin = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+ const { salaryStats, industryStats, fetchChartData } = useDashboardCharts();
 
+  useEffect(() => {
+    fetchChartData();
+  }, []);
   const { totalJobs, totalCompanies, totalPosts, fetchCounts } =
     useDashboardAdmin();
 
@@ -211,7 +218,14 @@ const DashboardAdmin = () => {
             </div>
           </div>
         </div>
+        
       </div>
+       <div className="grid grid-cols-2 gap-6 mt-5">
+      <SalaryJobChart data={salaryStats} />
+      <HotIndustryChart data={industryStats} />
+    </div>
+
+
     </div>
   );
 };
