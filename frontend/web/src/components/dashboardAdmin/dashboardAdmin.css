@@ -1,0 +1,26 @@
+.admin-app-dashboard {
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-gray-50);
+    padding: 10px;
+}
+
+.admin-wrapper-dashboard {
+    padding: 5px;
+}
+
+.admin-wrapper-dashboard_head {
+    padding: 10px 15px;
+}
+
+.admin-body-head_card {
+    height: 140px;
+    padding: 10px;
+    display: flex;
+    border-radius: 10px;
+}
+
+.admin-tool-card {
+    z-index: 9999999;
+    padding: 10px;
+}
