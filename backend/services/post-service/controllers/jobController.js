@@ -222,6 +222,49 @@ const categories = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+const getSalaryStats = async (req, res) => {
+  try {
+    const stats = await Job.aggregate([
+      {
+        $project: {
+          createdAt: 1,
+          salaryNumber: {
+            $avg: {
+              $map: {
+                input: {
+                  $split: [
+                    {
+                      $replaceAll: {
+                        input: { $replaceAll: { input: "$salary", find: " ", replace: "" } },
+                        find: "triệu",
+                        replace: ""
+                      }
+                    },
+                    "-"
+                  ]
+                },
+                as: "val",
+                in: { $toDouble: "$$val" }
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          avgSalary: { $avg: "$salaryNumber" },
+          totalJobs: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 module.exports = {
   createJob,
@@ -235,5 +278,6 @@ module.exports = {
   filterJobs,
   categories,
   getNumJobsByDepartment,
-  getNumJobsByUser
+  getNumJobsByUser,
+  getSalaryStats
 };

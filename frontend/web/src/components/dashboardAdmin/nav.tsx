@@ -99,7 +99,7 @@ const AdminNav: React.FC<AdminNavProps> = ({
           <div className="admin-nav-item-content">
             <div className="admin-nav-item-text">
               <HiOutlineBriefcase className="admin-nav-item-icon" />
-              <span>HR</span>
+              <span>Nhà tuyển dụng</span>
             </div>
           </div>
         </li>
@@ -156,7 +156,7 @@ const AdminNav: React.FC<AdminNavProps> = ({
                 }`}
                 onClick={() => handleItemClick("Điều khoản HR", true)}
               >
-                Điều khoản HR
+                Điều khoản nhà tuyển dụng
               </li>
             </ul>
           )}
