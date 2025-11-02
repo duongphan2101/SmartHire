@@ -1,9 +1,9 @@
 import React, { useState, forwardRef, useRef, useEffect } from 'react';
 import './SeniorCVTemplate.css';
 import Modal_AI_Recomend from '../../Modal-AI-Recomend/Modal-AI-Recomend';
-import { MdAlternateEmail } from 'react-icons/md';
-import { FaPhoneAlt } from 'react-icons/fa';
-import { FaLink } from 'react-icons/fa6';
+// import { MdAlternateEmail } from 'react-icons/md';
+// import { FaPhoneAlt } from 'react-icons/fa';
+// import { FaLink } from 'react-icons/fa6';
 
 export interface CvSection {
     id: string;
@@ -96,7 +96,8 @@ const translations = {
             JOB_TITLE_PLACEHOLDER: 'Vị trí/Chức danh',
             COMPANY_PLACEHOLDER: 'Tên Công ty/Tổ chức',
             AT: 'tại',
-            TIME_PLACEHOLDER: 'Thời gian: MM/YYYY - Hiện tại/MM/YYYY',
+            TIME_PLACEHOLDER_START: 'Thời gian: MM/YYYY',
+            TIME_PLACEHOLDER_END: 'Hiện tại: /MM/YYYY',
             EXP_DESC_PLACEHOLDER: '* Mô tả nhiệm vụ chính, tập trung vào kết quả đạt được.\n* Sử dụng con số (nếu có): Tối ưu hóa [X] quy trình/giảm [Y]% lỗi.',
             PROJECT_NAME_PLACEHOLDER: 'Tên Đồ Án / Dự án cá nhân',
             PROJ_DESC_PLACEHOLDER: '* Xây dựng một ứng dụng [Loại ứng dụng] bằng [Công nghệ chính A].\n* Định lượng kết quả: Dự án xử lý [X] bản ghi/giảm [Y]% thời gian xử lý.',
@@ -144,7 +145,8 @@ const translations = {
             JOB_TITLE_PLACEHOLDER: 'Position/Title',
             COMPANY_PLACEHOLDER: 'Company/Organization Name',
             AT: 'at',
-            TIME_PLACEHOLDER: 'Time: MM/YYYY - Present/MM/YYYY',
+            TIME_PLACEHOLDER_START: 'Time: MM/YYYY',
+            TIME_PLACEHOLDER_END: 'Present: MM/YYYY',
             EXP_DESC_PLACEHOLDER: '* Describe primary duties, focusing on results achieved.\n* Use metrics (if applicable): Optimized [X] processes/reduced [Y]% errors.',
             PROJECT_NAME_PLACEHOLDER: 'Project/Personal Project Name',
             PROJ_DESC_PLACEHOLDER: '* Built a [Type of application] using [Main Technology A].\n* Quantified result: Project processed [X] records/reduced [Y]% processing time.',
@@ -202,7 +204,6 @@ const AutosizeTextArea: React.FC<AutosizeTextAreaProps> = ({ value, onChange, pl
         />
     );
 };
-
 
 const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplateProps>(({ settings, cvData, updateCvData }, ref) => {
 
@@ -658,7 +659,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                 <div className='flex items-center gap-2.5'>
                     <input type="text"
                         style={{ fontFamily: settings.fontFamily }}
-                        className='input-cv-value flex-1 font-bold'
+                        className='input-cv-value font-bold'
                         value={exp.jobTitle || ''}
                         onChange={(e) => updateExperienceField(index, 'jobTitle', e.target.value)}
                         placeholder={T.PHRASES.JOB_TITLE_PLACEHOLDER} />
@@ -678,7 +679,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         onChange={(e) => {
                             updateExperienceField(index, 'startDate', e.target.value);
                         }}
-                        placeholder={T.PHRASES.TIME_PLACEHOLDER}
+                        placeholder={T.PHRASES.TIME_PLACEHOLDER_START}
                     />
                     <span> - </span>
                     <input type="month"
@@ -688,7 +689,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                         onChange={(e) => {
                             updateExperienceField(index, 'endDate', e.target.value);
                         }}
-                        placeholder={T.PHRASES.TIME_PLACEHOLDER}
+                        placeholder={T.PHRASES.TIME_PLACEHOLDER_END}
                     />
                 </div>
 
@@ -935,7 +936,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* EMAIL */}
                     {showEmail &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <MdAlternateEmail size={18} color={settings.color} />
+                            {/* <MdAlternateEmail size={18} color={settings.color} /> */}
                             {/* <strong>Email:</strong> */}
                             <input className='input-cv-value input-email'
                                 style={{ fontFamily: settings.fontFamily, width: 'fit-content', minWidth: '170px' }}
@@ -951,7 +952,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* SỐ ĐIỆN THOẠI */}
                     {showPhone &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <FaPhoneAlt color={settings.color} size={14} />
+                            {/* <FaPhoneAlt color={settings.color} size={14} /> */}
                             <input className='input-cv-value input-phone'
                                 style={{ fontFamily: settings.fontFamily }}
                                 type="text" value={cvData.contact.phone}
@@ -965,7 +966,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* LINKEDIN (sử dụng website trong data) */}
                     {showLinkedln &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <FaLink color={settings.color} size={16} />
+                            {/* <FaLink color={settings.color} size={16} /> */}
                             <input className='input-cv-value'
                                 type="text"
                                 value={cvData.contact.website}
@@ -980,7 +981,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* GITHUB/PORTFOLIO */}
                     {showGithub &&
                         (<div className='flex items-center gap-0.5 contact-info_item'>
-                            <FaLink color={settings.color} size={16} />
+                            {/* <FaLink color={settings.color} size={16} /> */}
                             <input className='input-cv-value'
                                 type="text"
                                 value={cvData.contact.github}

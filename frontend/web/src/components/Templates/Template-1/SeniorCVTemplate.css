@@ -67,7 +67,7 @@
 }
 
 .input-cv-value {
-    width: 180px
+    width: fit-content;
 }
 
 .input-year {

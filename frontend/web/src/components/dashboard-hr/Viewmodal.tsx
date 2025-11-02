@@ -34,7 +34,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
   const [cvIdSelected, setCvIdSelected] = useState<string>("");
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
-
+  const [loadingScores, setLoadingScores] = useState(false);
   const MySwal = withReactContent(Swal);
 
   // fetch ứng viên khi chuyển tab
@@ -63,6 +63,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
   useEffect(() => {
     const fetchMatchingOne = async () => {
+      setLoadingScores(true);
       try {
         const results: MatchingResponse[] = await Promise.all(
           applicants.map(async (applicant) => {
@@ -77,6 +78,8 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
         setMatchingJobs(results);
       } catch (err) {
         console.error("❌ MatchingOne error:", err);
+      } finally {
+        setLoadingScores(false);
       }
     };
 
@@ -101,7 +104,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
   const mergedApplicants = applicants.map((app, index) => ({
     ...app,
-    score: matchingJobs[index]?.score ? Number(matchingJobs[index].score) : null,
+    score: matchingJobs[index]?.finalScore ? Number(matchingJobs[index].finalScore) : null,
   }));
 
   const sortedApplicants = [...mergedApplicants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
@@ -114,15 +117,13 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
       const match = matchingCandidate.find((m) => m.cvId === cand.cvId);
       return {
         ...cand,
-        score: match ? Number(match.score) : null,
+        score: match ? Number(match.finalScore) : null,
       };
     });
 
   const sortedCandidates = [...mergedCandidates].sort(
     (a, b) => (b.score ?? 0) - (a.score ?? 0)
   );
-
-  // console.log('sortedCandidates: ', sortedCandidates);
 
   const handleChange = <K extends keyof Job>(
     field: K,
@@ -223,6 +224,14 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const handleCloseConfirm = () => {
     setOpenModalConfirm(false);
   }
+
+  const statusMap = {
+    pending: "Đang chờ duyệt",
+    reviewed: "Đã xem xét",
+    accepted: "Đã chấp nhận",
+    rejected: "Đã từ chối",
+    contacted: "Đã liên hệ",
+  };
 
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
@@ -531,12 +540,18 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
                               <td>
                                 <span className={`status-badge status-${app.status}`}>
-                                  {app.status}
+                                  {statusMap[app.status as keyof typeof statusMap] || app.status}
                                 </span>
                               </td>
 
                               <td className="font-bold text-emerald-500">
-                                {app.score !== null ? `${app.score.toFixed(2)}%` : "-"}
+                                {loadingScores ? (
+                                  <div className="small-loader"></div>
+                                ) : app.score !== null ? (
+                                  `${app.score.toFixed(2)}%`
+                                ) : (
+                                  "-"
+                                )}
                               </td>
 
                               <td>
@@ -577,9 +592,15 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
                 {loadingApplicants ? (
-                  <p>Đang tải ứng viên...</p>
+                  <div className="loading-container">
+                    <div className="loader"></div>
+                    <p>Đang tải ...</p>
+                  </div>
                 ) : sortedCandidates.length === 0 ? (
-                  <p>Chưa có ứng viên phù hợp</p>
+                  <div className="loading-container">
+                    <div className="loader"></div>
+                    <p>Đang tải ...</p>
+                  </div>
                 ) : (
                   <table className="applications-table" style={{ marginTop: 20 }}>
                     <thead>

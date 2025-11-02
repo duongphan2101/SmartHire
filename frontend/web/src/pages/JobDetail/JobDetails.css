@@ -52,7 +52,7 @@
 }
 
 .job-item {
-    padding: 10px 0;
+    padding: 10px 5px;
     border-bottom: 1px solid var(--color-gray-300);
     cursor: pointer;
 }

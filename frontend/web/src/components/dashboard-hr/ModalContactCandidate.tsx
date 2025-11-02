@@ -27,6 +27,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
 
     const [time, setTime] = useState<Dayjs | null>(null);
     const [note, setNote] = useState<string>("");
+    const [mode, setMode] = useState<'offline' | 'online'>('offline');
     const [location, setLocation] = useState<string>(job.address || "");
     const { createInterview, loading, error, clearError } = useInterview();
     const { sendInterviewInvite } = useEmailService();
@@ -87,7 +88,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
             jobId: job._id,
             scheduledAt: time.toString(),
             location: location,
-            mode: "offline",
+            mode: mode,
             note: note,
         };
 
@@ -149,9 +150,9 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 left: 0,
                 bottom: 0,
                 width: "100%",
-                height: "55%",
+                height: "60%",
                 // backgroundColor: "#10B981",
-                // backgroundColor: "#FDFDF7",
+                backgroundColor: "#FFF",
                 boxShadow: "0 -4px 10px rgba(0,0,0,0.2)",
                 borderTopLeftRadius: "15px",
                 borderTopRightRadius: "15px",
@@ -160,7 +161,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                     animationClass === "slide-in" ? "translateY(0)" : "translateY(100%)",
                 padding: "24px",
                 color: "#000",
-                zIndex: 99999,
+                zIndex: 3000,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -194,6 +195,21 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 </div>
 
                 <div className="w-full flex flex-col gap-0.5 text-left">
+                    <span className="text-gray-400">
+                        Hình thức
+                    </span>
+                    <select
+                        className="w-full h-12 focus:ring-2 focus:ring-emerald-500 rounded-md border border-solid border-slate-300"
+                        style={{ paddingLeft: 15, paddingRight: 15 }}
+                        value={mode}
+                        onChange={(e) => setMode(e.target.value as 'offline' | 'online')}
+                    >
+                        <option value="offline">Offline (Trực tiếp)</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <div className="w-full flex flex-col gap-0.5 text-left">
                     <TextField
                         id="outlined-basic"
                         label="Chọn địa điểm phỏng vấn"
@@ -205,7 +221,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 </div>
 
                 <div className="w-full flex flex-col gap-0.5 text-left">
-                    <span >
+                    <span className="text-gray-400">
                         Ghi chú
                     </span>
                     <TextareaAutosize
