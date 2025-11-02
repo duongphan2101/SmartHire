@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 import useDepartment from "./useDepartment";
@@ -32,7 +32,6 @@ export interface Job {
   createdAt: string;
   districts?: { name: string }[];
 }
-
 export interface Category {
   sum: number;
   data: Job[];
@@ -47,14 +46,8 @@ export default function useJob() {
 
   const host = HOSTS.jobService;
 
-  useEffect(() => {
-    if (department && department._id) {
-      refetch();
-    }
-  }, [department]);
-
   // fetch all
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     if (!department) {
       setJobs([]);
       setError("Bạn chưa thuộc công ty nào");
@@ -72,10 +65,10 @@ export default function useJob() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [host, department]);
 
   // fetch all
-  const latest = async () => {
+  const latest = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get<Job[]>(`${host}/getLatest`);
@@ -88,27 +81,45 @@ export default function useJob() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [host]);
+
+  useEffect(() => {
+    if (department && department._id) {
+      refetch();
+    }
+  }, [department, refetch]);
+
+  const getJobByDepartmentId = useCallback(async (id: string) => {
+    try {
+      const idDepartment = id;
+      const res = await axios.get<Job[]>(`${host}/getAll/${idDepartment}`);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
+      return [];
+    }
+  }, [host]);
 
   // create
-const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
+  const createJob = useCallback(async (payload: Omit<Job, "_id" | "createdAt">) => {
     try {
-        setLoading(true);
-        const res = await axios.post<Job>(`${host}/create`, payload);
-        setJobs((prev) => [...prev, res.data]);
-        return res.data;
+      setLoading(true);
+      const res = await axios.post<Job>(`${host}/create`, payload);
+      setJobs((prev) => [...prev, res.data]);
+      return res.data;
     } catch (err) {
-        const axiosErr = err as AxiosError<{ message?: string }>;
-        const errorMessage = axiosErr.response?.data?.message || "Lỗi không xác định khi tạo Job.";
-        setError(errorMessage);
-        setLoading(false); 
-        throw new Error(errorMessage); 
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      const errorMessage = axiosErr.response?.data?.message || "Lỗi không xác định khi tạo Job.";
+      setError(errorMessage);
+      setLoading(false);
+      throw new Error(errorMessage);
     } finally {
     }
-};
+  }, [host]);
 
   // delete
-  const deleteJob = async (id: string) => {
+  const deleteJob = useCallback(async (id: string) => {
     try {
       setLoading(true);
       await axios.delete(`${host}/${id}`);
@@ -120,9 +131,9 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [host]);
 
-  const filterJobs = async (
+  const filterJobs = useCallback(async (
     title?: string,
     location?: string,
     district?: string,
@@ -143,9 +154,9 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [host]);
 
-  const getJobById = async (id: string) => {
+  const getJobById = useCallback(async (id: string) => {
     try {
       // setLoading(true);
       const res = await axios.get<Job>(`${host}/${id}`);
@@ -155,12 +166,9 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
       setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
       return null;
     }
-    // finally {
-    //   setLoading(false);
-    // }
-  };
+  }, [host]);
 
-  const categories_sum = async (
+  const categories_sum = useCallback(async ( 
     title?: string,
   ) => {
     try {
@@ -176,29 +184,13 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [host]);
 
-  //   // search
-  // const searchJobs = useCallback(
-  //     debounce(async (query: string, callback: (results: Job[]) => void) => {
-  //       try {
-  //         setLoading(true);
-  //         const res = await axios.get<Job[]>(`${host}/search?q=${query}`);
-  //         callback(res.data);
-  //       } catch (err) {
-  //         console.error("Search error:", err);
-  //         callback([]);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     }, 300),
-  //     []
-  //   );
 
   useEffect(() => {
     refetch();
     latest();
-  }, []);
+  }, [refetch, latest]);
 
   return {
     jobs,
@@ -210,6 +202,7 @@ const createJob = async (payload: Omit<Job, "_id" | "createdAt">) => {
     deleteJob,
     filterJobs,
     getJobById,
-    categories_sum
+    categories_sum,
+    getJobByDepartmentId
   };
 }

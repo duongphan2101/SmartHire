@@ -254,19 +254,19 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
           {/* Tabs */}
           <div className="tab-header flex gap-4" style={{ padding: 5 }}>
             <button
-              className={`tab-btn ${activeTab === "info" ? "active" : ""}`}
+              className={`tab-btn-hr ${activeTab === "info" ? "active" : ""}`}
               onClick={() => setActiveTab("info")}
             >
               Thông tin công việc
             </button>
             <button
-              className={`tab-btn ${activeTab === "applicants" ? "active" : ""}`}
+              className={`tab-btn-hr ${activeTab === "applicants" ? "active" : ""}`}
               onClick={() => setActiveTab("applicants")}
             >
               Ứng viên ứng tuyển
             </button>
             <button
-              className={`tab-btn ${activeTab === "candidates" ? "active" : ""}`}
+              className={`tab-btn-hr ${activeTab === "candidates" ? "active" : ""}`}
               onClick={() => setActiveTab("candidates")}
             >
               Ứng viên phù hợp

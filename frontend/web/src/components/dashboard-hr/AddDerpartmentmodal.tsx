@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { uploadToCloudinary } from "../../utils/cloudinary";
 import useUser from "../../hook/useUser";
+import type { DepartmentStatus } from "../../hook/useDepartment";
 
 interface AddDerpartmentmodalProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface AddDerpartmentmodalProps {
     website: string;
     avatar: string;
     employees: string[];
+    status: DepartmentStatus;
   }) => void;
 }
 
@@ -27,7 +29,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
   const [website, setWebsite] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+  const [status, setStatus] = useState<DepartmentStatus>('Active');
   const { getUser, user, loadingUser, errorUser } = useUser();
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
         const userId = parsed.user_id ?? parsed._id;
+        setStatus('Active');
         if (userId) {
           await getUser(userId);
         }
@@ -75,7 +78,6 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
       const userId = user?._id || "";
 
       const employees = userId ? [userId] : [];
-
       const payload = {
         name,
         address,
@@ -83,6 +85,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
         website,
         avatar: avatarUrl,
         employees,
+        status,
       };
 
       onSave(payload);
@@ -156,7 +159,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                 </label>
                 <div className="underline"></div>
               </div>
-              
+
               {previewUrl && (
                 <img
                   src={previewUrl}
