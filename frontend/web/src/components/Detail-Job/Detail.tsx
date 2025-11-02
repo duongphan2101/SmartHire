@@ -204,7 +204,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                             href={`/companydetail/${item.department._id}`}
                             style={{ fontSize: 18 }}
                         >
-                            <span className="department-item-name">{item.department.name}</span>
+                            <span className="department-item-name hover:text-emerald-700">{item.department.name}</span>
                         </a>
                     </div>
 

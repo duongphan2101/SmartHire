@@ -4,23 +4,13 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { HOSTS } from "../../utils/host";
 import { uploadToCloudinary } from "../../utils/cloudinary";
+import type { DepartmentData } from "../../hook/useDepartment";
 
 const MySwal = withReactContent(Swal);
 
-interface DepartmentData {
-  _id: string;
-  name: string;
-  address: string;
-  description: string;
-  website: string;
-  avatar: string;
-}
-
 interface ModalViewCompanyProps {
   selectedDepartment: DepartmentData | null;
-  setSelectedDepartment: React.Dispatch<
-    React.SetStateAction<DepartmentData | null>
-  >;
+  setSelectedDepartment: React.Dispatch<React.SetStateAction<DepartmentData | null>>;
   onUpdated: () => void;
 }
 

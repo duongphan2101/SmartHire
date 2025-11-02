@@ -1,6 +1,7 @@
-import axios from "axios";
+// services/geminiService.js
+const axios = require("axios");
 
-export const getGeminiMatch = async (cvText, jobText) => {
+const getGeminiMatch = async (cvText, jobText) => {
   const prompt = `
 Bạn là một chuyên gia tuyển dụng. 
 So sánh ứng viên (CV) với yêu cầu công việc bên dưới.
@@ -44,3 +45,5 @@ ${jobText}
     return { score: 50, reason: "Gemini API fallback", strengths: [], weaknesses: [] };
   }
 };
+
+module.exports = { getGeminiMatch };
