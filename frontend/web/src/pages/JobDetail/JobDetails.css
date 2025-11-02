@@ -23,7 +23,7 @@
 
 .head-card {
     background-color: white;
-    border-radius: 5px;
+    border-radius: 16px;
     padding: 15px;
     display: flex;
     flex-wrap: wrap;

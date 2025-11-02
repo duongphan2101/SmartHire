@@ -14,7 +14,6 @@ const Company: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
   const { department, loading, error, createDepartment, deleteDepartment, refetch } = useDepartment("user");
 
   const handleDelete = async (id: string) => {
@@ -80,10 +79,10 @@ const Company: React.FC = () => {
               <div className="company-details">
                 <h3>{department.name}</h3>
                 <p>
-                  <strong>Address:</strong> {department.address}
+                  <strong>Địa chỉ:</strong> {department.address}
                 </p>
                 <p className="company-des">
-                  <strong>Description:</strong> {department.description}
+                  <strong>Mô tả:</strong> {department.description}
                 </p>
                 <p>
                   <strong>Website:</strong>{" "}
