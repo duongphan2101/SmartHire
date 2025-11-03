@@ -106,7 +106,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
           <form onSubmit={handleSubmit}>
             {/* Thông tin chung */}
             <div className="section-container">
-              <h3>Thông tin chung</h3>
+              {/* <h3>Thông tin chung</h3> */}
               <div className="input-container">
                 <input
                   required
@@ -187,7 +187,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
               </div>
             </div>
 
-            <button type="submit" className="submit-button">
+            <button type="submit" className="submit-addCompany-button">
               Thêm
             </button>
           </form>

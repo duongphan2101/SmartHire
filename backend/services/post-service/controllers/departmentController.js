@@ -1,5 +1,66 @@
 const Department = require("../models/Department");
+const DepartmentInvite = require("../models/DepartmentInvite");
 const mongoose = require("mongoose");
+
+
+const createDepartmentInvite = async (req, res) => {
+  try {
+    const { departmentId, createdBy } = req.body;
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const invite = new DepartmentInvite({ code, departmentId, createdBy });
+    await invite.save();
+
+    res.status(201).json({
+      message: "Tạo mã mời thành công",
+      code,
+      expiresAt: invite.expiresAt,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+const joinDepartment = async (req, res) => {
+  try {
+    const { code, userId } = req.body;
+
+    const invite = await DepartmentInvite.findOne({ code });
+    if (!invite) return res.status(400).json({ message: "Mã mời không hợp lệ" });
+
+    if (invite.status !== "active" || invite.expiresAt < Date.now())
+      return res.status(400).json({ message: "Mã mời đã hết hạn hoặc bị vô hiệu hóa" });
+
+    if (invite.usedBy.includes(userId))
+      return res.status(400).json({ message: "Bạn đã dùng mã này rồi" });
+
+    if (invite.usedBy.length >= invite.maxUses)
+      return res.status(400).json({ message: "Mã mời đã đạt giới hạn" });
+
+    const department = await Department.findById(invite.departmentId);
+    if (!department)
+      return res.status(404).json({ message: "Không tìm thấy phòng ban" });
+
+    if (department.employees.includes(userId))
+      return res.status(400).json({ message: "Bạn đã thuộc phòng ban này" });
+
+    department.employees.push(userId);
+    await department.save();
+
+    invite.usedBy.push(userId);
+    await invite.save();
+
+    res.json({
+      message: "Gia nhập phòng ban thành công",
+      departmentId: invite.departmentId,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
 // @desc    Get all departments
 // @route   GET /api/department
 const getDepartments = async (req, res) => {
@@ -97,27 +158,28 @@ const searchDepartments = async (req, res) => {
 };
 
 const updateDepartmentStatus = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-        if (!['Active', 'Suspended', 'Archived'].includes(status)) {
-            return res.status(400).json({ message: "Invalid status value" });
-        }
-
-        const updated = await Department.findByIdAndUpdate(
-            id,
-            { status: status },
-            { new: true, runValidators: true }
-        );
-
-        if (!updated) {
-            return res.status(404).json({ message: "Department not found" });
-        }
-        res.json({ message: `Department status updated to ${status}`, department: updated });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!['Active', 'Suspended', 'Archived'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
     }
+
+    const updated = await Department.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Department not found" });
+    }
+    res.json({ message: `Department status updated to ${status}`, department: updated });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
+
 module.exports = {
   getDepartments,
   getDepartmentbyId,
@@ -126,5 +188,7 @@ module.exports = {
   updateDepartment,
   deleteDepartment,
   searchDepartments,
-  updateDepartmentStatus
+  updateDepartmentStatus,
+  joinDepartment,
+  createDepartmentInvite
 };

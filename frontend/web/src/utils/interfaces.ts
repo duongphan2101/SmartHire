@@ -1,63 +1,63 @@
 export interface ContactInfo {
-    phone: string;
-    email: string;
-    github: string;
-    website: string;
+  phone: string;
+  email: string;
+  github: string;
+  website: string;
 }
 
 export interface Education {
-    university: string;
-    major: string;
-    gpa: string;
-    startYear: string;
-    endYear: string;
+  university: string;
+  major: string;
+  gpa: string;
+  startYear: string;
+  endYear: string;
 }
 
 export interface Experience {
-    jobTitle: string;
-    company: string;
-    startDate: string;
-    endDate: string;
-    description: string;
+  jobTitle: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  description: string;
 }
 
 export interface Project {
-    projectName: string;
-    projectDescription: string;
+  projectName: string;
+  projectDescription: string;
 }
 
 export interface CVData {
-    name: string;
-    jobTitle: string;
-    introduction: string;
-    professionalSkills: string;
-    softSkills: string;
-    experience: Experience[];
-    certifications: string;
-    activitiesAwards: string;
-    contact: ContactInfo;
-    education: Education[];
-    projects: Project[];
+  name: string;
+  jobTitle: string;
+  introduction: string;
+  professionalSkills: string;
+  softSkills: string;
+  experience: Experience[];
+  certifications: string;
+  activitiesAwards: string;
+  contact: ContactInfo;
+  education: Education[];
+  projects: Project[];
 }
 
 export interface CustomSettings {
-    color: string;
-    fontFamily: string;
+  color: string;
+  fontFamily: string;
 }
 
 export type TemplateName = 'fresh' | 'twoColumn' | 'modernCentered';
 
 export interface Interview {
-    _id: string;
-    chatRoomId: string;
-    hrId: string;
-    candidateId: string;
-    jobId: string;
-    scheduledAt: Date | string;
-    location: string;
-    mode: 'online' | 'offline';
-    status: 'pending' | 'confirmed' | 'rejected' | 'completed';
-    note: string;
+  _id: string;
+  chatRoomId: string;
+  hrId: string;
+  candidateId: string;
+  jobId: string;
+  scheduledAt: Date | string;
+  location: string;
+  mode: 'online' | 'offline';
+  status: 'pending' | 'confirmed' | 'rejected' | 'completed';
+  note: string;
 }
 
 export interface Job {
@@ -97,4 +97,24 @@ export interface Department {
   avatar: string;
   description: string;
   website: string;
+}
+
+export interface JoinCodeData {
+  message: string;
+  code: string
+  expiresAt: Date | string;
+}
+
+export interface JoinResponse {
+  message: string;
+  departmentId: string;
+}
+
+export interface InviteData {
+  _id: string;
+  code: string;
+  departmentId: string;
+  createdBy: string;
+  createdAt: string;
+  expiresAt: string;
 }

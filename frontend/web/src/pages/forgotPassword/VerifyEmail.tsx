@@ -14,8 +14,8 @@ export default function VerifyEmail() {
 
  useEffect(() => {
     if (token) {
-      const verifyUrl = `${HOSTS.emailService}/api/email/verify?token=${token}`;
-      console.log("Gửi yêu cầu xác thực đến:", verifyUrl); // Debug URL
+      const verifyUrl = `${HOSTS.emailService}/verify?token=${token}`;
+      //console.log("Gửi yêu cầu xác thực đến:", verifyUrl); // Debug URL
       axios
         .get(verifyUrl)
         .then((response) => {

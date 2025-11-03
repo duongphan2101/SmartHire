@@ -67,12 +67,12 @@ exports.register = async (req, res) => {
       email,
       user_id,
       password: hashedPwd,
-      isVerified: false, s
+      isVerified: false,
     });
 
     // 4. Gửi email xác nhận
     const emailUrl = `${HOSTS.emailService}/api/email/send-verify`; // Cập nhật endpoint
-    console.log("Gửi yêu cầu đến email service:", { url: emailUrl, data: { email, user_id } });
+    //console.log("Gửi yêu cầu đến email service:", { url: emailUrl, data: { email, user_id } });
     await axios.post(emailUrl, {
       email,
       user_id,
