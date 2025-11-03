@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Register.css";
 // import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -22,7 +22,7 @@ function Login() {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
-  const [role, setRole] = useState("");
+  const [, setRole] = useState("");
 
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
@@ -42,7 +42,7 @@ function Login() {
     setAcceptedTerms(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (roleFromModal: string) => {
     // e.preventDefault();
 
     // Regex check
@@ -80,8 +80,8 @@ function Login() {
     }
 
     try {
-      console.log("Alert role: ", role);
-      await register(fullName, email, password, role);
+      //console.log("Alert role: ", roleFromModal);
+      await register(fullName, email, password, roleFromModal);
 
       const result = await MySwal.fire({
         title: "Đăng ký thành công!",
@@ -93,7 +93,7 @@ function Login() {
       });
 
       if (result.isConfirmed) {
-        window.location.href = "/home";
+        window.location.href = "/login";
       } else {
         logout();
         setEmail("");
@@ -138,7 +138,7 @@ function Login() {
             onConfirm={(selectedRole) => {
               setRole(selectedRole);
               setAcceptedTerms(false);
-              handleSubmit();
+              handleSubmit(selectedRole);
             }}
           />
         )}

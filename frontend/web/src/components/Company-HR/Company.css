@@ -131,7 +131,7 @@
 }
 
 .company-actions .view-btn,
-.company-actions .delete-btn {
+.company-actions .joincode-btn {
     padding: 6px 12px;
     border: none;
     border-radius: 6px;
@@ -143,11 +143,28 @@
 }
 
 .company-actions .view-btn {
-    background: #0a9c45;
+    background: #059669;
     color: #fff;
 }
 
-.company-actions .delete-btn {
-    background: #dc3545;
+.company-actions .joincode-btn {
+    background: var(--color-blue-400);
     color: #fff;
+}
+
+.company-box-btn {
+    display: flex;
+    padding: 15px 25px;
+    gap: 10px;
+    color: white;
+    align-items: center;
+    border-radius: 20px;
+}
+
+.add-com-button {
+    background-color: #059669;
+}
+
+.join-com-button {
+    background-color: var(--color-blue-400);
 }

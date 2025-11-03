@@ -122,7 +122,7 @@ const JobPost = () => {
 
     if (loading) return <div>Đang tải...</div>;
     // Hiển thị lỗi từ useJob
-    if (error) return <div className="text-2xl" style={{ padding: 20 }}>{error}</div>;
+    if (error) return <div className="text-2xl" style={{ padding: 20 }}>Không có bài đăng tuyển dụng nào!</div>;
 
     // Sử dụng jobs đã lọc thay vì allJobs
     const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
