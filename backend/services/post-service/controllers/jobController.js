@@ -222,6 +222,7 @@ const categories = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 const getSalaryStats = async (req, res) => {
   try {
     const stats = await Job.aggregate([

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./AddJobmodal.css";
 import { HOSTS } from "../../utils/host";
-import { fetchProvinces, type Province } from "../../utils/provinceApi";
+import { fetchProvinces_V2, type Province } from "../../utils/provinceApi";
 import useDepartment from "../../hook/useDepartment";
 import useUser from "../../hook/useUser";
 import usePayment from "../../hook/usePayment";
+import useApplication from "../../hook/useApplication";
+import useEmail from "../../hook/useEmail";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { ToastContainer, toast } from "react-toastify";
@@ -65,6 +67,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
     const [num, setNum] = useState<number | "">("");
     const { department } = useDepartment("user");
     const { getUser, user } = useUser();
+    const { renderMatchingCvsForOneJob } = useApplication();
+    const { sendJobRecommendationEmails } = useEmail();
     const { withdraw } = usePayment();
 
     useEffect(() => {
@@ -79,7 +83,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             console.error("Invalid user data in localStorage", e);
         }
 
-        fetchProvinces().then(setProvinces);
+        // fetchProvinces().then(setProvinces);
+        fetchProvinces_V2().then(setProvinces);
     }, [getUser]);
 
     // Thêm / xóa / sửa mô tả
@@ -218,6 +223,25 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             });
 
             withdraw(1);
+            const listCandidate = await renderMatchingCvsForOneJob({ job_id: savedJob._id });
+            // console.log("LIST top 5: ", listCandidate.slice(0, 5));
+            // console.log("LIST FULL: ", listCandidate);
+
+            await sendJobRecommendationEmails(
+                {
+                    fullname: user?.fullname || "",
+                    email: user?.email || "",
+                    companyName: department.name,
+                },
+                {
+                    _id: savedJob._id,
+                    title: savedJob.jobTitle,
+                    description: savedJob.jobDescription,
+                    location: savedJob.location,
+                    salary: savedJob.salary,
+                },
+                listCandidate.slice(0, 5)
+            );
 
             toast.success("Tạo bài đăng thành công");
             onClose();

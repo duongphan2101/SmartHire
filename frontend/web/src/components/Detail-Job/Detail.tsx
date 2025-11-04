@@ -54,23 +54,36 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
     const { getUser: fetchUser, user: currentUser } = useUser();
     const [applyted, setApplyted] = useState<boolean>(false);
 
-    // Lấy user từ localStorage
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             const parsedUser = JSON.parse(storedUser);
             const idToFetch = parsedUser.user_id ?? parsedUser._id;
             setUser(parsedUser);
-            if (parsedUser.liked?.includes(item._id)) {
-                setSaved(true);
-            }
+            // if (parsedUser.liked?.includes(item._id)) {
+            //     setSaved(true);
+            // }
             fetchUser(idToFetch);
         }
-    }, [item._id]);
+    }, [item._id, fetchUser]);
 
     useEffect(() => {
-        if (currentUser && Array.isArray(currentUser.applyted)) {
-            setApplyted(currentUser.applyted.includes(item._id));
+        if (currentUser) {
+            if (Array.isArray(currentUser.applyted)) {
+                setApplyted(currentUser.applyted.includes(item._id));
+            } else {
+                setApplyted(false);
+            }
+
+            if (Array.isArray(currentUser.liked)) {
+                setSaved(currentUser.liked.includes(item._id));
+            } else {
+                setSaved(false);
+            }
+
+        } else {
+            setApplyted(false);
+            setSaved(false);
         }
     }, [currentUser, item._id]);
 

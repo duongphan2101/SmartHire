@@ -30,6 +30,14 @@ type ApiError = {
   message?: string;
 };
 
+interface EmailJobMatching {
+  _id: string;
+  title: string;
+  description?: string[];
+  location?: string;
+  salary?: string;
+}
+
 export default function useEmailService() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,13 +64,52 @@ export default function useEmailService() {
     setLoading(true);
     setError(null);
     try {
-      
-        console.log("Gửi email với payload:", payload);
-        console.log(`${host}/interview`)
+
+      console.log("Gửi email với payload:", payload);
+      console.log(`${host}/interview`)
       const res = await axios.post(`${host}/interview`, payload);
       return res.data;
     } catch (err) {
       return handleError(err, "Failed to send interview email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+  * Gửi email thông báo job phù hợp nhất cho top 5 ứng viên
+  * @param hr Thông tin HR đăng job
+  * @param job Thông tin job mới đăng
+  * @param matchedUsers Danh sách ứng viên từ API matching (đã slice top 5)
+  */
+  const sendJobRecommendationEmails = async (
+    hr: EmailHR,
+    job: EmailJobMatching,
+    candidates: any[]
+  ) => {
+    if (!candidates || candidates.length === 0) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const payload = {
+        hr,
+        job,
+        candidates: candidates.map((c) => ({
+          fullname: c.user.fullname,
+          email: c.user.email,
+          finalScore: c.finalScore,
+          reason: c.reason,
+        })),
+      };
+
+      console.log("📤 Sending job recommendation emails:", payload);
+
+      const res = await axios.post(`${host}/notify-job-tracking-email`, payload);
+      return res.data;
+    } catch (err) {
+      return handleError(err, "Failed to send job recommendation emails");
     } finally {
       setLoading(false);
     }
@@ -75,5 +122,6 @@ export default function useEmailService() {
     // Functions
     sendInterviewInvite,
     clearError,
+    sendJobRecommendationEmails
   };
 }

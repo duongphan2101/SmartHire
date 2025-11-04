@@ -118,3 +118,7 @@ export interface InviteData {
   createdAt: string;
   expiresAt: string;
 }
+
+export interface EmailNotifyJob {
+  
+}
