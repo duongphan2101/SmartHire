@@ -4,7 +4,7 @@ import "./Home.css";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
-import { fetchProvinces, type Province } from "../../utils/provinceApi";
+import { fetchProvinces_V2, type Province } from "../../utils/provinceApi";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -49,6 +49,8 @@ const Home: React.FC = () => {
   const { renderMatchingJob } = useApplication();
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
 
+  const [fitJobNotify, setFitJobNotify] = useState<string>("Chưa có công việc nào phù hợp với bạn.");
+
 
   const slogans = [
     "cơ hội phát triển!",
@@ -81,13 +83,17 @@ const Home: React.FC = () => {
         `/jobdetail/${results.data[0]._id}?title=${encodeURIComponent(title)}`
       );
     } else {
-      alert("Không tìm thấy công việc phù hợp");
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Không có công việc phù hợp",
+      });
     }
   };
 
   useEffect(() => {
     document.title = "S m a r t H i r e - Trang chủ";
-    fetchProvinces().then(setProvinces);
+    fetchProvinces_V2().then(setProvinces);
     let index = 0;
     const interval = setInterval(() => {
       setAnimate(false);
@@ -328,12 +334,23 @@ const Home: React.FC = () => {
   }
 
   useEffect(() => {
-    if (activeTab !== "recommended" || !user || !user.cv) {
+    if (activeTab !== "recommended") {
       setRecommendedJobs([]);
       return;
     }
-
     setIsLoadingRecommended(true);
+    if (!user) {
+      setRecommendedJobs([]);
+      setIsLoadingRecommended(false);
+      return;
+    }
+    if (!user.cv || user.cv.length === 0) {
+      setRecommendedJobs([]);
+      setIsLoadingRecommended(false);
+      setFitJobNotify("Bạn cần tạo hoặc tải CV lên để nhận gợi ý việc làm.");
+      return;
+    }
+
     const firstCv = user.cv[0];
     const cid =
       typeof firstCv === "string"
@@ -346,7 +363,6 @@ const Home: React.FC = () => {
       setIsLoadingRecommended(false);
       return;
     }
-
     renderMatchingJob({ cv_id: cid })
       .then((res) => {
         if (res && Array.isArray(res)) {
@@ -354,6 +370,7 @@ const Home: React.FC = () => {
             ...item,
             job: {
               ...item.job,
+
               isSaved: user ? user.liked.includes(item.job._id) : false,
               animateSave: false,
             },
@@ -840,7 +857,7 @@ const Home: React.FC = () => {
                       </div>
                     ) : (
                       <p className="w-full text-center text-gray-600">
-                        Chưa có công việc nào phù hợp với bạn.
+                        {fitJobNotify}
                       </p>
                     )}
                   </>
