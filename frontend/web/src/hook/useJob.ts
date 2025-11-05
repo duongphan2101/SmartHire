@@ -4,6 +4,7 @@ import { HOSTS } from "../utils/host";
 import useDepartment from "./useDepartment";
 
 export interface Job {
+  updatedAt: string | undefined;
   _id: string;
   jobTitle: string;
   jobType: string;

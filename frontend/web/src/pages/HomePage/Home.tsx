@@ -634,8 +634,8 @@ const Home: React.FC = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="lasted-item_bottom gap-2">
-                          <ul className="flex gap-6 flex-1">
+                        <div className="lasted-item_bottom items-center gap-2">
+                          <ul className="flex gap-6 flex-1" style={{marginTop: 15}}>
                             <li
                               className="bottom-li flex gap-3 items-center"
                               style={{ fontSize: 13 }}

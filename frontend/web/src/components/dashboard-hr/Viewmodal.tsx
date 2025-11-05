@@ -154,7 +154,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
         MySwal.fire({
           icon: "success",
           title: "Thành công!",
-          text: "Cập nhật job thành công.",
+          text: "Cập nhật công việc thành công.",
         });
         onUpdated?.();
         onClose();
