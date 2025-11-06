@@ -1,5 +1,5 @@
 // models/Interview.js
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const InterviewSchema = new mongoose.Schema(
   {
@@ -49,4 +49,4 @@ const InterviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Interview", InterviewSchema);
+module.exports = mongoose.model("Interview", InterviewSchema);

@@ -8,9 +8,14 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String, default: "" },
     role: { type: String, enum: ["user", "hr", "admin"], default: "user" },
     phone: { type: String, default: null },
-    liked: { type: [String], default: [] },      // danh sách id job/user đã like
-    applyted: { type: [String], default: [] },   // danh sách job đã apply
-    cv: [{ type: mongoose.Schema.Types.ObjectId, ref: "CV" }] // list CV id
+    liked: { type: [String], default: [] },
+    applyted: { type: [String], default: [] },
+    cv: [{ type: mongoose.Schema.Types.ObjectId, ref: "CV" }],
+    status: {
+      type: String,
+      enum: ["active", "inactive", "banned"],
+      default: "active",
+    },
   },
   { timestamps: true }
 );

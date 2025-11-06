@@ -24,7 +24,7 @@ const AllJobPost = () => {
     await refetch();
   };
 
-   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -88,14 +88,27 @@ const AllJobPost = () => {
       <div className="all-job-cards">
         {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
           <div className="all-job-card" key={job._id}>
-            <div className="all-job-card-header">
-              <h3 className="font-bold">{job.jobTitle}</h3>
-              {/* <button
-                className="all-close-card-button"
-                onClick={() => handleRemoveJob(job._id)}
-              >
-                ×
-              </button> */}
+            <div className="job-card-header flex items-center">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold">{job.jobTitle}</h3>
+
+                {job.status !== "active" && (
+                  <span
+                    className={`badge-jobStatus ${job.status === "expired"
+                      ? "bg-red-100 text-red-600"
+                      : job.status === "banned"
+                        ? "bg-gray-200 text-gray-600"
+                        : "bg-yellow-100 text-yellow-700"
+                      }`}
+                  >
+                    {job.status === "expired"
+                      ? "Hết hạn"
+                      : job.status === "banned"
+                        ? "Tạm khóa"
+                        : job.status}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="all-job-body">
               <div className="flex items-center justify-between">

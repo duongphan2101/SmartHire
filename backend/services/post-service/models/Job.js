@@ -34,6 +34,13 @@ const JobSchema = new mongoose.Schema(
     endDate: { type: Date, required: false },
     num: { type: Number, required: false },
 
+    status: {
+      type: String,
+      enum: ["active", "expired", "banned"],
+      default: "active",
+    },
+
+
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

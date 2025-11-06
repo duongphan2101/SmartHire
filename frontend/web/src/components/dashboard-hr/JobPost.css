@@ -81,6 +81,15 @@
   color: #666;
 }
 
+.badge-jobStatus {
+  padding: 5px 10px;
+  text-align: center;
+  margin-right: 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  width: 80px;
+}
+
 .close-card-button {
   background: none;
   border: none;

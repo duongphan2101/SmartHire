@@ -1,7 +1,8 @@
-import axios from "axios";
-import { getEmbedding } from "../services/embeddingService.js";
-import cosineSimilarity from "../utils/cosineSim.js";
-import { getGeminiMatch } from "../services/geminiService.js";
+// services/matchingService.js
+const axios = require("axios");
+const { getEmbedding } = require("../services/embeddingService");
+const cosineSimilarity = require("../utils/cosineSim");
+const { getGeminiMatch } = require("../services/geminiService");
 
 const formatCVtoText = (cv) => `
 ${cv.name || ""}
@@ -26,7 +27,7 @@ Lương: ${job.salary || ""}
 `.replace(/\s+/g, " ").trim();
 
 // 🔹 1️⃣ Match CV với tất cả Job
-export const matchAllJobs = async (req, res) => {
+const matchAllJobs = async (req, res) => {
   try {
     const { cv_id } = req.body;
     if (!cv_id) return res.status(400).json({ error: "cv_id is required" });
@@ -42,14 +43,11 @@ export const matchAllJobs = async (req, res) => {
     const results = await Promise.all(
       jobs.map(async (job) => {
         const jobText = formatJobToText(job);
-
         const jobVector = await getEmbedding(jobText);
         const cosineScore = cosineSimilarity(cvVector, jobVector);
         const normalizedCosine = ((cosineScore + 1) / 2) * 100;
 
         const gemini = await getGeminiMatch(cvText, jobText);
-
-        // Trộn điểm: embedding (70%) + AI reasoning (30%)
         const finalScore = (normalizedCosine * 0.7 + gemini.score * 0.3).toFixed(2);
 
         return {
@@ -73,26 +71,23 @@ export const matchAllJobs = async (req, res) => {
 };
 
 // 🔹 1️⃣ Match CV với tất cả Job, lọc theo department
-export const matchDepartmentJobs = async (req, res) => {
+const matchDepartmentJobs = async (req, res) => {
   try {
     const { department_id, cv_id } = req.body;
     if (!department_id || !cv_id) {
       return res.status(400).json({ error: "department_id and cv_id are required" });
     }
 
-    // 🧩 Lấy CV từ CV service
     const { data: cv } = await axios.get(`${process.env.CV_SERVICE_URL}/cv/${cv_id}`);
     if (!cv) return res.status(404).json({ error: "CV not found" });
 
     const cvText = formatCVtoText(cv);
     const cvVector = await getEmbedding(cvText);
 
-    // 🧩 Lấy job thuộc department_id
     const { data: jobs } = await axios.get(`${process.env.JOB_SERVICE_URL}/getAll/${department_id}`);
     if (!jobs || jobs.length === 0)
       return res.status(404).json({ error: "No jobs found in this department" });
 
-    // 🔹 So khớp từng job
     const results = await Promise.all(
       jobs.map(async (job) => {
         const jobText = `
@@ -102,15 +97,11 @@ export const matchDepartmentJobs = async (req, res) => {
         Mô tả: ${job.jobDescription?.join(". ") || ""}.
         `.trim();
 
-        // ⚙️ Embedding score
         const jobVector = await getEmbedding(jobText);
         const cosineScore = cosineSimilarity(cvVector, jobVector);
         const normalizedCosine = ((cosineScore + 1) / 2) * 100;
 
-        // 🧠 Gemini score
         const gemini = await getGeminiMatch(cvText, jobText);
-
-        // 🎯 Final mix (70% embedding + 30% AI)
         const finalScore = (normalizedCosine * 0.7 + gemini.score * 0.3).toFixed(2);
 
         return {
@@ -137,7 +128,7 @@ export const matchDepartmentJobs = async (req, res) => {
 };
 
 // 🔹 2️⃣ Match 1 CV với 1 Job
-export const matchOne = async (req, res) => {
+const matchOne = async (req, res) => {
   try {
     const { job_id, cv_id } = req.body;
     if (!job_id || !cv_id)
@@ -177,7 +168,7 @@ export const matchOne = async (req, res) => {
 };
 
 // 🔹 3️⃣ Match 1 Job với tất cả CV
-export const matchAllCVs = async (req, res) => {
+const matchAllCVs = async (req, res) => {
   try {
     const { job_id } = req.body;
     if (!job_id) return res.status(400).json({ error: "job_id is required" });
@@ -203,9 +194,7 @@ export const matchAllCVs = async (req, res) => {
 
         let user = null;
         try {
-          const { data: userData } = await axios.get(
-            `${process.env.USER_SERVICE_URL}/${cv.user_id}`
-          );
+          const { data: userData } = await axios.get(`${process.env.USER_SERVICE_URL}/${cv.user_id}`);
           user = userData;
         } catch {
           user = null;
@@ -228,4 +217,11 @@ export const matchAllCVs = async (req, res) => {
     console.error("❌ Matching error:", err);
     res.status(500).json({ error: "Error matching CVs" });
   }
+};
+
+module.exports = {
+  matchAllJobs,
+  matchDepartmentJobs,
+  matchOne,
+  matchAllCVs,
 };

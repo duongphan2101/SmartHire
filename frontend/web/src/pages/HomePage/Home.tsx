@@ -51,7 +51,6 @@ const Home: React.FC = () => {
 
   const [fitJobNotify, setFitJobNotify] = useState<string>("Chưa có công việc nào phù hợp với bạn.");
 
-
   const slogans = [
     "cơ hội phát triển!",
     "nhà tuyển dụng hàng đầu!",
@@ -117,7 +116,6 @@ const Home: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [getUser]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -709,7 +707,7 @@ const Home: React.FC = () => {
                       </div>
                     ) : recommendedJobs.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
-                        {recommendedJobs.slice(0, 10).map((item) => (
+                        {recommendedJobs.filter(item => item.job.status === "active").slice(0, 10).map((item) => (
                           <div key={item.job._id} className="lasted-item flex flex-col gap-2">
 
                             <div className="lasted-item_top flex justify-between">

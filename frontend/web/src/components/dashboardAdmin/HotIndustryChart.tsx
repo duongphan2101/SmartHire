@@ -13,7 +13,7 @@ const HotIndustryChart = ({ data }: { data: IndustryData[] }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-xl p-4">
-      <h2 className="font-semibold text-lg mb-3">Ngành nghề tuyển dụng hot</h2>
+      <h2 className="font-semibold text-lg mb-3">Công ty hot</h2>
 
       <ResponsiveContainer width="100%" height={560}>
         <BarChart data={formattedData}>

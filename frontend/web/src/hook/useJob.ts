@@ -31,6 +31,7 @@ export interface Job {
   endDate: string;
   num: number;
   createdAt: string;
+  status: string;
   districts?: { name: string }[];
 }
 export interface Category {
@@ -186,7 +187,6 @@ export default function useJob() {
       setLoading(false);
     }
   }, [host]);
-
 
   useEffect(() => {
     refetch();

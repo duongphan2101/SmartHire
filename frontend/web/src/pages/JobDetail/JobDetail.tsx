@@ -10,6 +10,7 @@ import useJob, { type Job } from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
 import { fetchDistrictsByProvinceId, fetchProvinces_V2 } from "../../utils/provinceApi";
+import { Pagination } from "antd";
 
 interface District {
   code: number;
@@ -22,11 +23,15 @@ interface Province {
   districts: District[];
 }
 
+// Hằng số cho phân trang
+const JOBS_PER_PAGE = 6;
+
 const JobDetails: React.FC = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
   const [loadingJob, setLoadingJob] = useState(false);
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [job, setJob] = useState<Job | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -104,6 +109,7 @@ const JobDetails: React.FC = () => {
 
       if (results && results.length > 0) {
         setRelatedJobs(results);
+        setCurrentPage(1); // Reset trang về 1 khi tìm kiếm mới
 
         // Chỉ chuyển trang nếu người dùng bấm nút Tìm kiếm
         if (!auto) {
@@ -156,6 +162,21 @@ const JobDetails: React.FC = () => {
     );
   };
 
+  // Logic phân trang
+  const indexOfLastJob = currentPage * JOBS_PER_PAGE;
+  const indexOfFirstJob = indexOfLastJob - JOBS_PER_PAGE;
+  // Lấy dữ liệu công việc hiện tại (dùng relatedJobs vì đây là danh sách bên trái)
+  const activeJobs = relatedJobs.filter(job => job.status === "active").reverse();
+  const currentRelatedJobs = activeJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  // Hàm chuyển trang
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Tùy chọn: Cuộn lên đầu danh sách khi chuyển trang
+    document.querySelector('.head-left-main')?.scrollTo(0, 0);
+  };
+
+
   return (
     <div className="App-JobDetail">
       <Header />
@@ -163,7 +184,6 @@ const JobDetails: React.FC = () => {
 
       <div className="content bg-gray-50">
         <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
-
           {/* HÀNG 1: nameJob + location */}
           <div className="content-main-header bg-white w-full flex gap-5 flex-col xl:flex-row">
             <select
@@ -268,17 +288,17 @@ const JobDetails: React.FC = () => {
               <div className="head-card head-left gap-5">
                 <div className="head-left-top flex w-full justify-between">
                   <p className="font-semibold">Kết quả tìm kiếm</p>
-                  <button className="btn-filter flex items-center text-gray-600">
+                  {/* <button className="btn-filter flex items-center text-gray-600">
                     <BsFilter className="mr-1" />
                     Bộ lọc
-                  </button>
+                  </button> */}
                 </div>
 
                 <div className="head-left-main flex flex-col w-full">
                   {loadingRelated ? (
                     <p className="text-gray-500">Đang tải công việc...</p>
                   ) : (
-                    (relatedJobs.length > 0 ? relatedJobs : joblatest || []).map(
+                    (currentRelatedJobs.length > 0 ? currentRelatedJobs : []).map( // Dùng currentRelatedJobs (đã được phân trang)
                       (item) => (
                         <div
                           key={item._id}
@@ -305,6 +325,20 @@ const JobDetails: React.FC = () => {
                     )
                   )}
                 </div>
+
+                {/* PHẦN PHÂN TRANG */}
+                {(relatedJobs.length > JOBS_PER_PAGE) && (
+                  <div style={{ marginTop: '16px', textAlign: 'center' }} className="flex justify-center items-center">
+                    <Pagination
+                      current={currentPage}
+                      total={relatedJobs.length}
+                      pageSize={JOBS_PER_PAGE}
+                      onChange={handlePageChange}
+                      hideOnSinglePage={true}
+                    />
+                  </div>
+                )}
+
               </div>
             </div>
 

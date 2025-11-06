@@ -1,5 +1,11 @@
-import express from "express";
-import { matchAllJobs, matchAllCVs, matchDepartmentJobs, matchOne } from "../controllers/matchController.js";
+// routes/matchRoutes.js
+const express = require("express");
+const {
+  matchAllJobs,
+  matchDepartmentJobs,
+  matchOne,
+  matchAllCVs
+} = require("../controllers/matchController");
 
 const router = express.Router();
 
@@ -12,4 +18,4 @@ router.post("/match-cvs", matchAllCVs);
 // Match 1 CV – 1 Job
 router.post("/match-one", matchOne);
 
-export default router;
+module.exports = router;

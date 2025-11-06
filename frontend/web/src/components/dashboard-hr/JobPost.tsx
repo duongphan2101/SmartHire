@@ -159,15 +159,37 @@ const JobPost = () => {
             <div className="job-cards">
                 {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
                     <div className="job-card" key={job._id}>
-                        <div className="job-card-header">
-                            <h3 className="font-bold">{job.jobTitle}</h3>
+
+                        <div className="job-card-header flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold">{job.jobTitle}</h3>
+
+                                {job.status !== "active" && (
+                                    <span
+                                        className={`badge-jobStatus ${job.status === "expired"
+                                            ? "bg-red-100 text-red-600"
+                                            : job.status === "banned"
+                                                ? "bg-gray-200 text-gray-600"
+                                                : "bg-yellow-100 text-yellow-700"
+                                            }`}
+                                    >
+                                        {job.status === "expired"
+                                            ? "Hết hạn"
+                                            : job.status === "banned"
+                                                ? "Tạm khóa"
+                                                : job.status}
+                                    </span>
+                                )}
+                            </div>
+
                             <button
-                                className="close-card-button"
+                                className="close-card-button text-lg font-bold text-gray-500 hover:text-black"
                                 onClick={() => handleRemoveJob(job._id)}
                             >
                                 ×
                             </button>
                         </div>
+
                         <div className="job-body">
                             <div className="flex items-center justify-between">
                                 <span className="job-date" style={{ marginTop: 0 }}>
