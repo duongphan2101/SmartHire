@@ -1,18 +1,30 @@
-import dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import matchRoutes from "./routes/matchRoutes.js";
-import { initEmbedding } from "./services/embeddingService.js";
+// server.js
+const dotenv = require("dotenv");
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const matchRoutes = require("./routes/matchRoutes");
+const { initEmbedding } = require("./services/embeddingService");
+
+// Load env
+dotenv.config();
+
+const app = express();
 
 // Middleware
-const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-dotenv.config();
-await initEmbedding();
 
-app.use("/api/matching", matchRoutes);
+// Khởi tạo embedding
+initEmbedding().then(() => {
+  console.log("✅ Embedding service initialized");
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`🚀 Matching service running on port ${PORT}`));
+  // Routes
+  app.use("/api/matching", matchRoutes);
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Matching service running on port ${PORT}`));
+}).catch(err => {
+  console.error("❌ Failed to initialize embedding:", err);
+  process.exit(1);
+});

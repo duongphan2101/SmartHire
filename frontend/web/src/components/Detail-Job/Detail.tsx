@@ -10,36 +10,38 @@ import { RiMoneyDollarBoxFill } from "react-icons/ri";
 import { MdApartment } from "react-icons/md";
 import { AiFillClockCircle } from "react-icons/ai";
 import { BiSolidTimer } from "react-icons/bi";
+import { FaBusinessTime } from 'react-icons/fa';
 
 import useUser, { type UserResponse } from "../../hook/useUser";
 
 import Swal from "sweetalert2";
+import type { Job } from "../../hook/useJob";
 
-interface Department {
-    _id: string;
-    name: string;
-    avatar?: string;
-}
+// interface Department {
+//     _id: string;
+//     name: string;
+//     avatar?: string;
+// }
 
-interface Job {
-    _id: string;
-    jobTitle: string;
-    department: Department;
-    jobDescription: string[] | string;
-    jobLevel: string;
-    jobType: string;
-    requirement: string[] | string;
-    skills: string[] | string;
-    benefits: string[] | string;
-    salary: string;
-    location: string;
-    workingHours: string;
-    address: string;
-    experience: string;
-    isSaved?: boolean;
-    createAt?: string;
-    updatedAt?: string;
-}
+// interface Job {
+//     _id: string;
+//     jobTitle: string;
+//     department: Department;
+//     jobDescription: string[] | string;
+//     jobLevel: string;
+//     jobType: string;
+//     requirement: string[] | string;
+//     skills: string[] | string;
+//     benefits: string[] | string;
+//     salary: string;
+//     location: string;
+//     workingHours: string;
+//     address: string;
+//     experience: string;
+//     isSaved?: boolean;
+//     createAt?: string;
+//     updatedAt?: string;
+// }
 
 interface DetailProps {
     item: Job;
@@ -192,6 +194,29 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
         gt10: "Trên 10 năm"
     };
 
+    const endDate = new Date(item.endDate);
+    const today = new Date();
+
+    const day = String(endDate.getDate()).padStart(2, '0');
+    const month = String(endDate.getMonth() + 1).padStart(2, '0');
+    const year = endDate.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endDateMidnight = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+    const diffTime = endDateMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let expiryMessage = '';
+    if (diffDays === 0) {
+        expiryMessage = '(hết hạn hôm nay)';
+    } else if (diffDays < 0) {
+        expiryMessage = `(đã hết hạn ${Math.abs(diffDays)} ngày)`;
+    } else {
+        expiryMessage = `(còn ${diffDays} ngày sẽ hết hạn)`;
+    }
+
     return (
         <div className="detail-container w-full">
             <div className="page-picture">
@@ -310,9 +335,11 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                                         </span>
                                         <span className="text-black flex items-center gap-2">
                                             <AiFillClockCircle color="green" /> chỉnh sửa{" "}
-                                            {getTimeAgo(item.createAt!, item.updatedAt!)}
+                                            {getTimeAgo(item.createdAt!, item.updatedAt!)}
                                         </span>
-
+                                        <span className="department-item-name">
+                                            <FaBusinessTime color="green" /> {formattedDate} {expiryMessage}
+                                        </span>
                                         <div className="flex gap-5 items-center flex-wrap pt-2">
 
                                             <button

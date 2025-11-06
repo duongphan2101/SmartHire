@@ -4,6 +4,8 @@ const connectDB = require("./config/db");
 const departmentRoutes = require("./routes/departmentRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const cors = require("cors");
+// const jobScheduler = require("./utils/jobScheduler");
+require("./utils/jobScheduler");
 
 const app = express();
 

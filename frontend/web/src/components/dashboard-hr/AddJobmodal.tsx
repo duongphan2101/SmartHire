@@ -43,6 +43,7 @@ interface AddJobModalProps {
         date: string;
         endDate: string;
         num: number;
+        status: string;
     }) => void;
 }
 
@@ -177,6 +178,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             });
             return;
         }
+        const status = "active";
         const payload = {
             jobTitle,
             jobType,
@@ -203,6 +205,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             jobDescription: jobDescriptions.filter((d) => d.trim()),
             endDate,
             num,
+            status
         };
 
         // console.log("PAYLOAD: ", payload);

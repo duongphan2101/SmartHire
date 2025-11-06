@@ -1,10 +1,10 @@
 // controllers/interviewController.js
-import Interview from "../models/Interview.js";
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
+const Interview = require("../models/Interview");
 
 // @desc    Tạo một cuộc phỏng vấn mới
 // @route   POST /api/interviews
-export const createInterview = async (req, res) => {
+const createInterview = async (req, res) => {
   try {
     const newInterview = new Interview(req.body);
     const savedInterview = await newInterview.save();
@@ -16,7 +16,7 @@ export const createInterview = async (req, res) => {
 
 // @desc    Lấy tất cả cuộc phỏng vấn
 // @route   GET /api/interviews
-export const getAllInterviews = async (req, res) => {
+const getAllInterviews = async (req, res) => {
   try {
     const interviews = await Interview.find()
       // .populate("hrId", "name email")
@@ -30,13 +30,13 @@ export const getAllInterviews = async (req, res) => {
 
 // @desc    Lấy một cuộc phỏng vấn bằng ID
 // @route   GET /api/interviews/:id
-export const getInterviewById = async (req, res) => {
+const getInterviewById = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "Interview not found" });
     }
-    
+
     const interview = await Interview.findById(id)
       .populate("hrId", "name email")
       .populate("candidateId", "name email")
@@ -53,7 +53,7 @@ export const getInterviewById = async (req, res) => {
 
 // @desc    Cập nhật một cuộc phỏng vấn
 // @route   PUT /api/interviews/:id
-export const updateInterview = async (req, res) => {
+const updateInterview = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -63,7 +63,7 @@ export const updateInterview = async (req, res) => {
     const updatedInterview = await Interview.findByIdAndUpdate(
       id,
       req.body,
-      { new: true, runValidators: true } // new: true trả về bản ghi đã cập nhật
+      { new: true, runValidators: true }
     );
 
     if (!updatedInterview) {
@@ -77,7 +77,7 @@ export const updateInterview = async (req, res) => {
 
 // @desc    Xóa một cuộc phỏng vấn
 // @route   DELETE /api/interviews/:id
-export const deleteInterview = async (req, res) => {
+const deleteInterview = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -93,4 +93,13 @@ export const deleteInterview = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// Export tất cả controllers
+module.exports = {
+  createInterview,
+  getAllInterviews,
+  getInterviewById,
+  updateInterview,
+  deleteInterview,
 };

@@ -7,12 +7,15 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { CoverLetterCell } from "./CoverLetterCell";
 import gray from "../../assets/images/gray.avif";
-import useApplication, { type MatchingCVSResponse, type MatchingResponse } from "../../hook/useApplication";
+import useApplication, {
+  type MatchingCVSResponse,
+  type MatchingResponse,
+} from "../../hook/useApplication";
 import ModalContactCandidate from "./ModalContactCandidate";
 
-import { AiOutlineMessage } from 'react-icons/ai';
-import { BsTelephone } from 'react-icons/bs';
-
+import { AiOutlineMessage } from "react-icons/ai";
+import { BsTelephone } from "react-icons/bs";
+import usePayment from "../../hook/usePayment";
 interface ViewModalProps {
   job: Job;
   onClose: () => void;
@@ -32,6 +35,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const [matchingJobs, setMatchingJobs] = useState<MatchingResponse[]>([]);
   const [matchingCandidate, setMatchingCandidate] = useState<MatchingCVSResponse[]>([]);
   const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
+  const { withdraw } = usePayment();
   const [cvIdSelected, setCvIdSelected] = useState<string>("");
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
   const [loadingScores, setLoadingScores] = useState(false);
@@ -104,10 +108,14 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
   const mergedApplicants = applicants.map((app, index) => ({
     ...app,
-    score: matchingJobs[index]?.finalScore ? Number(matchingJobs[index].finalScore) : null,
+    score: matchingJobs[index]?.finalScore
+      ? Number(matchingJobs[index].finalScore)
+      : null,
   }));
 
-  const sortedApplicants = [...mergedApplicants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const sortedApplicants = [...mergedApplicants].sort(
+    (a, b) => (b.score ?? 0) - (a.score ?? 0)
+  );
 
   const appliedCvIds = new Set(applicants.map((app) => app.resumeId));
 
@@ -125,10 +133,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     (a, b) => (b.score ?? 0) - (a.score ?? 0)
   );
 
-  const handleChange = <K extends keyof Job>(
-    field: K,
-    value: Job[K]
-  ) => {
+  const handleChange = <K extends keyof Job>(field: K, value: Job[K]) => {
     setEditedJob((prev: Job) => ({
       ...prev,
       [field]: value,
@@ -146,21 +151,47 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
         return;
       }
       setLoading(true);
-      const res = await axios.put(
-        `${HOSTS.jobService}/${editedJob._id}`,
-        editedJob
-      );
-      if (res.status === 200) {
-        MySwal.fire({
-          icon: "success",
-          title: "Thành công!",
-          text: "Cập nhật job thành công.",
-        });
-        onUpdated?.();
-        onClose();
+
+      if (job.status === "expired") {
+        const dataToSave = { ...editedJob, status: "active" };
+        const res = await axios.put(
+          `${HOSTS.jobService}/${editedJob._id}`,
+          dataToSave
+        );
+
+        if (res.status === 200) {
+          MySwal.fire({
+            icon: "success",
+            title: "Thành công!",
+            text: "Gia hạn công việc thành công.",
+          });
+          await withdraw(1);
+
+
+          onUpdated?.();
+          onClose();
+        }
+
+      } else {
+        const dataToSave = { ...editedJob };
+        const res = await axios.put(
+          `${HOSTS.jobService}/${editedJob._id}`,
+          dataToSave
+        );
+
+        if (res.status === 200) {
+          MySwal.fire({
+            icon: "success",
+            title: "Thành công!",
+            text: "Cập nhật công việc thành công.",
+          });
+          onUpdated?.();
+          onClose();
+        }
       }
+
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error("Update/Withdraw failed:", error);
       MySwal.fire({
         icon: "error",
         title: "Lỗi",
@@ -196,6 +227,10 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     try {
       const res = await updateStatus({ id, status: newStatus });
       console.log("✅ Updated:", res.data);
+      // Cập nhật lại state_applicants sau khi update
+      setApplicants(prev =>
+        prev.map(app => app._id === id ? { ...app, status: newStatus } : app)
+      );
     } catch (err) {
       console.error("❌ Update failed:", err);
     }
@@ -207,10 +242,12 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     setOpenModalConfirm(true);
     setCandidateId(canId);
     setCvIdSelected(cvId);
-  }
+  };
 
   const updateStatusCV = () => {
-    handleUpdateStatus(cvIdSelected, "contacted");
+    if (cvIdSelected) {
+      handleUpdateStatus(cvIdSelected, "contacted");
+    }
   };
 
   const hanldeMess = () => {
@@ -219,11 +256,11 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
       title: "Chức năng đang phát triển",
       text: "Chức năng liên hệ đang được phát triển. Vui lòng thử lại sau.",
     });
-  }
+  };
 
   const handleCloseConfirm = () => {
     setOpenModalConfirm(false);
-  }
+  };
 
   const statusMap = {
     pending: "Đang chờ duyệt",
@@ -233,17 +270,27 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     contacted: "Đã liên hệ",
   };
 
+  // Hầu hết các trường sẽ bị disable nếu status không phải là 'active'
+  const isReadOnly = job.status !== "active";
+
+  // Trường endDate sẽ bị disable trừ khi status là 'active' HOẶC 'expired'
+  const isEndDateDisabled = job.status !== "active" && job.status !== "expired";
+
+  // Nút lưu sẽ hiển thị nếu (update=true) VÀ (status là 'active' HOẶC 'expired')
+  const showSaveButton = update && (job.status === "active" || job.status === "expired");
+
+
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
       <div className={`view-modal ${closing ? "close" : ""}`}>
         <div className="view-modal-content">
           {/* Head */}
           <div className="view-modal-head">
-
             <input
               className="info-input view-modal-title"
               value={editedJob.jobTitle}
               onChange={(e) => handleChange("jobTitle", e.target.value)}
+              disabled={isReadOnly} // Logic mới
             />
 
             <button className="close-btn" onClick={handleClose}>
@@ -260,13 +307,15 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
               Thông tin công việc
             </button>
             <button
-              className={`tab-btn-hr ${activeTab === "applicants" ? "active" : ""}`}
+              className={`tab-btn-hr ${activeTab === "applicants" ? "active" : ""
+                }`}
               onClick={() => setActiveTab("applicants")}
             >
               Ứng viên ứng tuyển
             </button>
             <button
-              className={`tab-btn-hr ${activeTab === "candidates" ? "active" : ""}`}
+              className={`tab-btn-hr ${activeTab === "candidates" ? "active" : ""
+                }`}
               onClick={() => setActiveTab("candidates")}
             >
               Ứng viên phù hợp
@@ -275,7 +324,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
           {/* Tab content */}
           <div className="view-modal-body h-full">
-
             {openModalConfirm && (
               <ModalContactCandidate
                 job={job}
@@ -322,13 +370,13 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
                 {/* Job Info */}
                 <div className="job-info">
-
                   <div className="job-info-item">
                     <span className="label job-info-lable">Loại công việc:</span>
                     <select
                       className="info-input"
                       value={editedJob.jobType}
                       onChange={(e) => handleChange("jobType", e.target.value)}
+                      disabled={isReadOnly} // Logic mới
                     >
                       <option value="Full-time">Full-time</option>
                       <option value="Part-time">Part-time</option>
@@ -343,6 +391,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                       className="info-input"
                       value={editedJob.jobLevel}
                       onChange={(e) => handleChange("jobLevel", e.target.value)}
+                      disabled={isReadOnly} // Logic mới
                     >
                       <option value="Intern">Intern</option>
                       <option value="Fresher">Fresher</option>
@@ -355,11 +404,14 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                   </div>
 
                   <div className="job-info-item">
-                    <span className="label job-info-lable">Cấp bậc:</span>
+                    <span className="label job-info-lable">Kinh nghiệm:</span> {/* Sửa label "Cấp bậc" -> "Kinh nghiệm" */}
                     <select
                       className="info-input"
                       value={editedJob.experience}
-                      onChange={(e) => handleChange("experience", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("experience", e.target.value)
+                      }
+                      disabled={isReadOnly} // Logic mới
                     >
                       <option value="none">Không yêu cầu</option>
                       <option value="lt1">Dưới 1 năm</option>
@@ -377,6 +429,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                       className="info-input"
                       value={editedJob.salary}
                       onChange={(e) => handleChange("salary", e.target.value)}
+                      disabled={isReadOnly} // Logic mới
                     />
                   </div>
 
@@ -389,6 +442,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                       onChange={(e) =>
                         handleChange("num", parseInt(e.target.value, 10))
                       }
+                      disabled={isReadOnly} // Logic mới
                     />
                   </div>
 
@@ -397,7 +451,10 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                     <input
                       className="info-input"
                       value={editedJob.workingHours}
-                      onChange={(e) => handleChange("workingHours", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("workingHours", e.target.value)
+                      }
+                      disabled={isReadOnly} // Logic mới
                     />
                   </div>
 
@@ -408,6 +465,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                       type="date"
                       value={editedJob.endDate?.slice(0, 10)}
                       onChange={(e) => handleChange("endDate", e.target.value)}
+                      disabled={isEndDateDisabled} // Logic MỚI: Chỉ disable khi không active VÀ không expired
                     />
                   </div>
                 </div>
@@ -423,8 +481,13 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           type="text"
                           value={desc}
                           onChange={(e) =>
-                            handleArrayChange("jobDescription", idx, e.target.value)
+                            handleArrayChange(
+                              "jobDescription",
+                              idx,
+                              e.target.value
+                            )
                           }
+                          disabled={isReadOnly} // Logic mới
                         />
                       </li>
                     ))}
@@ -442,8 +505,13 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           type="text"
                           value={req}
                           onChange={(e) =>
-                            handleArrayChange("requirement", idx, e.target.value)
+                            handleArrayChange(
+                              "requirement",
+                              idx,
+                              e.target.value
+                            )
                           }
+                          disabled={isReadOnly} // Logic mới
                         />
                       </li>
                     ))}
@@ -463,6 +531,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           onChange={(e) =>
                             handleArrayChange("skills", idx, e.target.value)
                           }
+                          disabled={isReadOnly} // Logic mới
                         />
                       </li>
                     ))}
@@ -483,6 +552,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             onChange={(e) =>
                               handleArrayChange("benefits", idx, e.target.value)
                             }
+                            disabled={isReadOnly} // Logic mới
                           />
                         </li>
                       ))}
@@ -490,14 +560,17 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                   </div>
                 )}
 
-                {update && (
+                {/* --- LOGIC NÚT LƯU MỚI --- */}
+                {showSaveButton && (
                   <div className="job-footer">
                     <button
                       className="btn-save-edit"
                       onClick={handleSave}
                       disabled={loading}
                     >
-                      {loading ? "Đang lưu..." : "Lưu chỉnh sửa"}
+                      {loading
+                        ? "Đang lưu..."
+                        : (job.status === 'expired' ? 'Gia hạn và mở lại' : 'Lưu chỉnh sửa')}
                     </button>
                   </div>
                 )}
@@ -514,7 +587,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                 ) : (
                   <div className="inline-block min-w-full align-middle">
                     <div className="table-wrapper">
-                      <p className="text-left font-bold" style={{ paddingBottom: 10 }}>Tổng số ứng viên: {applicants.length}</p>
+                      <p className="text-left font-bold" style={{ paddingBottom: 10 }}>
+                        Tổng số ứng viên: {applicants.length}
+                      </p>
                       <table className="applications-table">
                         <thead>
                           <tr>
@@ -528,19 +603,26 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                           </tr>
                         </thead>
                         <tbody>
-
                           {sortedApplicants.map((app) => (
                             <tr key={app._id}>
                               <td className="flex gap-1.5 items-center w-fit">
-                                <img src={app.userSnapshot.avatar || gray} className="candidate-avt" alt="" />{" "}
+                                <img
+                                  src={app.userSnapshot.avatar || gray}
+                                  className="candidate-avt"
+                                  alt=""
+                                />{" "}
                                 {app.userSnapshot.fullname}
                               </td>
 
                               <CoverLetterCell coverLetter={app.coverLetter} />
 
                               <td>
-                                <span className={`status-badge status-${app.status}`}>
-                                  {statusMap[app.status as keyof typeof statusMap] || app.status}
+                                <span
+                                  className={`status-badge status-${app.status}`}
+                                >
+                                  {statusMap[
+                                    app.status as keyof typeof statusMap
+                                  ] || app.status}
                                 </span>
                               </td>
 
@@ -561,7 +643,12 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-blue-600 font-bold"
-                                    onClick={() => { handleUpdateStatus(app._id, "reviewed") }}
+                                    onClick={() => {
+                                      // Chỉ update status thành reviewed nếu status hiện tại là pending
+                                      if (app.status === 'pending') {
+                                        handleUpdateStatus(app._id, "reviewed");
+                                      }
+                                    }}
                                   >
                                     Xem
                                   </a>
@@ -571,19 +658,31 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                               </td>
 
                               <td>
-                                <button className="btn-mess" onClick={() => { hanldeMess() }}><AiOutlineMessage size={18} /></button>
+                                <button
+                                  className="btn-mess"
+                                  onClick={() => {
+                                    hanldeMess();
+                                  }}
+                                >
+                                  <AiOutlineMessage size={18} />
+                                </button>
                               </td>
 
                               <td>
-                                <button className="btn-contact" onClick={() => { hanldeContact(app.userId, app._id) }}><BsTelephone size={18} /></button>
+                                <button
+                                  className="btn-contact"
+                                  onClick={() => {
+                                    hanldeContact(app.userId, app._id);
+                                  }}
+                                >
+                                  <BsTelephone size={18} />
+                                </button>
                               </td>
                             </tr>
                           ))}
-
                         </tbody>
                       </table>
                     </div>
-
                   </div>
                 )}
               </div>
@@ -591,18 +690,21 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
-                {loadingApplicants ? (
+                {loadingApplicants ? ( // Bạn có thể muốn tạo một state loading riêng cho 'candidates'
                   <div className="loading-container">
                     <div className="loader"></div>
                     <p>Đang tải ...</p>
                   </div>
                 ) : sortedCandidates.length === 0 ? (
                   <div className="loading-container">
-                    <div className="loader"></div>
-                    <p>Đang tải ...</p>
+                    {/* <div className="loader"></div> // Có thể bỏ loader ở đây nếu không có gì để tải */}
+                    <p>Không tìm thấy ứng viên phù hợp nào khác.</p>
                   </div>
                 ) : (
-                  <table className="applications-table" style={{ marginTop: 20 }}>
+                  <table
+                    className="applications-table"
+                    style={{ marginTop: 20 }}
+                  >
                     <thead>
                       <tr className="bg-gray-100">
                         <th className="px-4 py-2 text-left">Ứng viên</th>
@@ -623,7 +725,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             {app.user?.fullname}
                           </td>
                           <td className="font-bold text-emerald-500">
-                            {app.score !== null ? `${app.score.toFixed(2)}%` : "-"}
+                            {app.score !== null
+                              ? `${app.score.toFixed(2)}%`
+                              : "-"}
                           </td>
                           <td>
                             {app.user?.cv[0].fileUrls ? (
@@ -640,7 +744,12 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                             )}
                           </td>
                           <td>
-                            <button className="btn-contact" onClick={() => { hanldeContact(app.userId, "") }}>
+                            <button
+                              className="btn-contact"
+                              onClick={() => {
+                                hanldeContact(app.userId, ""); // Không có CV ID vì đây là gợi ý, chưa apply
+                              }}
+                            >
                               Liên hệ
                             </button>
                           </td>
@@ -651,7 +760,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                 )}
               </div>
             )}
-
           </div>
         </div>
       </div>
