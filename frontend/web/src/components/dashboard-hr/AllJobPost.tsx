@@ -6,6 +6,7 @@ import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
+import { Empty } from "antd";
 
 
 const AllJobPost = () => {
@@ -51,8 +52,7 @@ const AllJobPost = () => {
   };
 
   if (loading) return <div>Đang tải...</div>;
-  if (error) return <div className="text-2xl"
-    style={{ padding: 20 }}>Không có bài đăng tuyển dụng nào!</div>;
+    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!"/></div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 

@@ -9,24 +9,40 @@ import { useEffect, useState } from "react";
 
 import useDashboard from "../../hook/useDashboard";
 
+import { ConfigProvider, DatePicker, Space } from 'antd';
+import type { Dayjs } from 'dayjs';
+import dayjs from "dayjs";
+
+const { RangePicker } = DatePicker;
+type RangeValue = [Dayjs | null, Dayjs | null] | null;
+
 const Dashboard = () => {
 
-    const [startDate, setStartDate] = useState<string>("");
-    const [endDate, setEndDate] = useState<string>("");
+    const [startDate, setStartDate] = useState<Dayjs | null>(null);
+    const [endDate, setEndDate] = useState<Dayjs | null>(null);
     const { allJobDepartment, allJobUser, allCandidate, allCandidateByUser } = useDashboard();
 
+    const handleRangeChange = (dates: RangeValue, dateStrings: [string, string]) => {
+        if (dates) {
+            setStartDate(dates[0]);
+            setEndDate(dates[1]);
+
+            console.log('Start Date (Chuỗi):', dateStrings[0]);
+            console.log('End Date (Chuỗi):', dateStrings[1]);
+        } else {
+            console.log('Đã xóa lựa chọn');
+            setStartDate(null);
+            setEndDate(null);
+        }
+    };
+
     useEffect(() => {
-        const today = new Date();
-        const priorDate = new Date();
-        priorDate.setDate(today.getDate() - 30);
+        const today = dayjs();
+        const priorDate = dayjs().subtract(30, 'day');
 
-        // format yyyy-mm-dd để input type="date" hiểu
-        const formatDate = (date: Date) => {
-            return date.toISOString().split("T")[0];
-        };
+        setEndDate(today);
+        setStartDate(priorDate);
 
-        setEndDate(formatDate(today));
-        setStartDate(formatDate(priorDate));
     }, []);
 
     return (
@@ -36,19 +52,24 @@ const Dashboard = () => {
                 <header className="wrapper-dashboard_head flex items-center justify-between bg-white rounded-xl shadow-2xl">
                     <span className="text-xl">Bảng điều kiển</span>
                     <div className="flex gap-3.5">
-                        <input
-                            type="date"
-                            className="focus:outline-none focus:ring-2 focus:ring-emerald-600"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                        />
-
-                        <input
-                            type="date"
-                            className="focus:outline-none focus:ring-2 focus:ring-emerald-600"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                        />
+                        <ConfigProvider
+                            theme={{
+                                components: {
+                                    DatePicker: {
+                                        colorPrimary: '#059669',
+                                        activeBorderColor: '#059669',
+                                        hoverBorderColor: "#059669"
+                                    }
+                                }
+                            }}
+                        >
+                            <Space direction="vertical" size={12}>
+                                <RangePicker
+                                    value={[startDate, endDate]}
+                                    onChange={handleRangeChange}
+                                />
+                            </Space>
+                        </ConfigProvider>
                     </div>
                 </header>
 
@@ -247,7 +268,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="dashboard-body_main flex gap-5"
-                        style={{marginTop: 20}}
+                        style={{ marginTop: 20 }}
                     >
 
                         <div className="body-main_left w-[65%] shadow-xl rounded-xl">

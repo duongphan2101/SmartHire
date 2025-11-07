@@ -4,13 +4,14 @@ import "./JobDetails.css";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
-import { BsFilter } from "react-icons/bs";
+// import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
 import { fetchDistrictsByProvinceId, fetchProvinces_V2 } from "../../utils/provinceApi";
 import { Pagination } from "antd";
+import Chat from "../../components/Chat/Chat";
 
 interface District {
   code: number;
@@ -123,8 +124,8 @@ const JobDetails: React.FC = () => {
         if (!auto) {
           Swal.fire({
             icon: "info",
-            title: "Không tìm thấy công việc phù hợp",
-            text: "Vui lòng thử lại với từ khóa hoặc địa điểm khác.",
+            title: "Không tìm thấy việc phù hợp",
+            text: "Vui lòng thử lại với từ khóa khác.",
             confirmButtonText: "Đóng",
           });
         }
@@ -181,7 +182,7 @@ const JobDetails: React.FC = () => {
     <div className="App-JobDetail">
       <Header />
       <ChatWithAI />
-
+      <Chat />
       <div className="content bg-gray-50">
         <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
           {/* HÀNG 1: nameJob + location */}

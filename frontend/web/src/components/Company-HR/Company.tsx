@@ -8,6 +8,7 @@ import useDepartment, { type DepartmentData } from "../../hook/useDepartment";
 import ModalViewCompany from "../dashboard-hr/ModalViewCompany";
 import { AddDepartmentmodal } from "../dashboard-hr/AddDerpartmentmodal";
 import { Join_Company_Modal } from "../Company-HR/Join_Company_Modal";
+import { Empty } from "antd";
 
 const MySwal = withReactContent(Swal);
 
@@ -166,10 +167,13 @@ const Company: React.FC = () => {
             </div>
           </div>
         ) : (
-          <p style={{ padding: 20 }}>
-            Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc liên hệ HR
-            để được thêm vào công ty hiện có!
-          </p>
+          <div>
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="Bạn đang không thuộc công ty nào, có thể tạo một công ty hoặc liên hệ HR
+            để được thêm vào công ty hiện có!"
+            />
+          </div>
+
         )}
       </div>
 

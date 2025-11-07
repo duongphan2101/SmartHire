@@ -11,6 +11,7 @@ import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaRegEye } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import "./JobApplied.css";
+import Chat from "../../components/Chat/Chat";
 
 const JobApplied: React.FC = () => {
   const { user, getUser, applyJob } = useUser(); // Sử dụng applyJob để cập nhật nếu cần
@@ -87,7 +88,7 @@ const JobApplied: React.FC = () => {
   return (
     <div className="App">
       <Header />
-
+      <Chat />
       <div className="job-applied-container">
         <h2 className="job-applied-title">Công việc đã ứng tuyển</h2>
 
