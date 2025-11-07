@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
                     style={{ padding: 30, marginTop: 20 }}
                 >
                     <div>© 2025 SmartHire. All rights reserved.</div>
-                    <div>Điều khoản sử dụng | Chính sách bảo mật</div>
+                    <div><a href="/termUser">Điều khoản sử dụng | Chính sách bảo mật</a></div>
                 </div>
             </div>
         </footer>

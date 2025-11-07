@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Register.css";
 // import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,7 +11,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import TermsModal from "../../components/TermsModal/TermsModal";
 
-function Login() {
+function Register() {
   const location = useLocation();
   const { register, logout } = useAuth();
 
@@ -22,7 +22,7 @@ function Login() {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
-  const [role, setRole] = useState("");
+  const [, setRole] = useState("");
 
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
@@ -42,9 +42,7 @@ function Login() {
     setAcceptedTerms(true);
   };
 
-  const handleSubmit = async () => {
-    // e.preventDefault();
-
+  const handleSubmit = async (roleFromModal: string) => {
     // Regex check
     const emailRegex =
       /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com)$/;
@@ -80,8 +78,7 @@ function Login() {
     }
 
     try {
-      console.log("Alert role: ", role);
-      await register(fullName, email, password, role);
+      await register(fullName, email, password, roleFromModal);
 
       const result = await MySwal.fire({
         title: "Đăng ký thành công!",
@@ -93,7 +90,7 @@ function Login() {
       });
 
       if (result.isConfirmed) {
-        window.location.href = "/home";
+        window.location.href = "/login";
       } else {
         logout();
         setEmail("");
@@ -110,26 +107,32 @@ function Login() {
   };
 
   return (
-    <div className="login-background">
-      <div className="login-container">
-        <div className="tab-switch">
+    // Đã đổi tên class
+    <div className="register-background">
+      <div className="register-container">
+
+        <div className="register-tab-switch">
           <Link
             to="/login"
-            className={`tab1 ${location.pathname === "/login" ? "active-tab" : ""
+            // Đã đổi tên class và logic active
+            className={`register-tab-switch__tab register-tab-switch__tab--login ${location.pathname === "/login"
+                ? "register-tab-switch__tab--active"
+                : ""
               }`}
           >
             Đăng nhập
           </Link>
           <Link
             to="/register"
-            className={`tab2 ${location.pathname === "/register" ? "active-tab" : ""
+            // Đã đổi tên class và logic active
+            className={`register-tab-switch__tab register-tab-switch__tab--register ${location.pathname === "/register"
+                ? "register-tab-switch__tab--active"
+                : ""
               }`}
           >
             Đăng ký
           </Link>
         </div>
-
-        <h2 className="title">Đăng ký</h2>
 
         {/* Modal */}
         {acceptedTerms && (
@@ -138,82 +141,85 @@ function Login() {
             onConfirm={(selectedRole) => {
               setRole(selectedRole);
               setAcceptedTerms(false);
-              handleSubmit();
+              handleSubmit(selectedRole);
             }}
           />
         )}
 
+        {/* Các class social cũng được đổi tên (dù đang bị comment) */}
+        {/* <div className="register-social-buttons">
+           <button className="register-social-btn register-social-btn--facebook">
+             <FaFacebook size={20} color="#197ce6" />
+             Đăng ký với Facebook
+           </button>
+ 
+           <button className="register-social-btn register-social-btn--google">
+             <FcGoogle size={20} />
+             Đăng ký với Google
+           </button>
+         </div>
+ 
+         <div className="register-divider">
+           <hr />
+           <span>hoặc</span>
+           <hr />
+         </div> */}
 
-        {/* <div className="social-buttons">
-          <button className="social-btn facebook">
-            <FaFacebook size={20} color="#197ce6" />
-            Đăng ký với Facebook
-          </button>
-
-          <button className="social-btn google">
-            <FcGoogle size={20} />
-            Đăng ký với Google
-          </button>
-        </div>
-
-        <div className="divider">
-          <hr />
-          <span>hoặc</span>
-          <hr />
-        </div> */}
-
-        <form className="signup-form" onSubmit={handleOpen}>
-          <div className="input-group">
+        {/* Đã đổi tên class */}
+        <form className="register-form" onSubmit={handleOpen}>
+          <h2 className="register-container__title w-full">Đăng ký</h2>
+          <p className="text-gray-500 text-center w-full">Hãy nhập đầy đủ các thông tin nhé!</p>
+          <div className="register-form__group">
             <input
               type="text"
               id="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field"
+              className="register-form__input" // Đã đổi tên class
             />
           </div>
 
-          <div className="input-group">
+          <div className="register-form__group">
             <input
               type="text"
               id="hoten"
               placeholder="Họ và tên"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="input-field"
+              className="register-form__input" // Đã đổi tên class
             />
           </div>
 
-          <div className="password-row">
-            <div className="input-group">
+          <div className="register-form__password-row">
+            <div className="register-form__group">
               <input
                 type={isShown ? "text" : "password"}
                 id="password"
                 placeholder="Mật khẩu"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                className="register-form__input" // Đã đổi tên class
               />
               <span
-                className="toggle-password"
+                className="register-form__toggle-password" // Đã đổi tên class
                 onClick={() => setIsShown(!isShown)}
               >
                 {isShown ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
 
-            <div className="input-group">
+            <div className="register-form__group">
               <input
                 type={isShownRe ? "text" : "password"}
                 id="repassword"
                 placeholder="Xác nhận mật khẩu"
                 value={repassword}
                 onChange={(e) => setRePassword(e.target.value)}
-                className="input-field"
+                className="register-form__input" // Đã đổi tên class
               />
               <span
-                className="toggle-password"
+                className="register-form__toggle-password" // Đã đổi tên class
                 onClick={() => setIsShownRe(!isShownRe)}
               >
                 {isShownRe ? <FaEye /> : <FaEyeSlash />}
@@ -221,7 +227,7 @@ function Login() {
             </div>
           </div>
 
-          <button className="signup-btn" type="submit">
+          <button className="register-form__submit-btn" type="submit">
             Đăng ký
           </button>
         </form>
@@ -232,4 +238,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

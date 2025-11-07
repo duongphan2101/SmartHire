@@ -4,12 +4,12 @@ import "./JobDetails.css";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
-import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
 import { Pagination } from "antd"; 
+import { fetchDistrictsByProvinceId, fetchProvinces_V2 } from "../../utils/provinceApi";
 
 interface District {
   code: number;
@@ -68,25 +68,28 @@ const JobDetails: React.FC = () => {
 
   // Load danh sách tỉnh
   useEffect(() => {
-    const loadProvinces = async () => {
-      try {
-        const res = await fetch("https://provinces.open-api.vn/api/?depth=2");
-        const data = await res.json();
-        setProvinces(data);
-      } catch (err) {
-        console.error("fetch provinces error:", err);
-      }
-    };
-    loadProvinces();
+    fetchProvinces_V2().then(setProvinces);
   }, []);
 
-  // Khi chọn tỉnh → hiển thị quận/huyện
+  // Khi chọn tỉnh → GỌI API để tải quận/huyện
   useEffect(() => {
-    if (location) {
-      const selectedProvince = provinces.find((p) => p.name === location);
-      setDistricts(selectedProvince ? selectedProvince.districts : []);
-    } else {
+    if (!location) {
       setDistricts([]);
+      return;
+    }
+
+    if (provinces.length > 0) {
+      const selectedProvince = provinces.find(
+        (p) => p.name === location
+      );
+      if (selectedProvince) {
+        fetchDistrictsByProvinceId(selectedProvince.code)
+          .then(setDistricts)
+          .catch((err) => {
+            console.error("Lỗi khi tải quận/huyện:", err);
+            setDistricts([]); // Reset nếu có lỗi
+          });
+      }
     }
   }, [location, provinces]);
 

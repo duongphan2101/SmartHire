@@ -39,6 +39,22 @@ export default function useUser() {
     }
   }, []);
 
+  const getAllHR = useCallback(async (): Promise<UserResponse[] | void> => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const res = await axios.get<UserResponse[]>(`${HOSTS.userService}/hr/all`);
+    return res.data;
+  } catch (err) {
+    const axiosErr = err as AxiosError<{ message?: string }>;
+    setError(axiosErr.response?.data?.message || "getAllHR failed");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+
   const updateUser = useCallback(async (user_id: string, data: Partial<UserResponse>): Promise<UserResponse | void> => {
     try {
       setLoading(true);
@@ -146,5 +162,5 @@ export default function useUser() {
   );
 
 
-  return { getUser, user, updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser };
+  return { getUser, user, getAllHR ,updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser };
 }

@@ -30,8 +30,8 @@ import {
 import BuildCvs from "./pages/BuildCVs/BuildCvs";
 import type { Job } from "./hook/useJob";
 import type { UserResponse } from "./hook/useUser";
-import type { Department } from "./utils/interfaces";
 import Detail_Company from "./components/Detail-Company/Detail_Company";
+import React from "react";
 
 function App() {
 
@@ -54,15 +54,6 @@ function App() {
     endDate: "",
     num: 0,
     createdAt: "",
-  };
-
-  const dummyCompany: Department = {
-    _id: "",
-    name: "",
-    address: "",
-    avatar: "",
-    description: "",
-    website: "",
   };
 
   const dummySaveJob = async (userId: string, jobId: string): Promise<UserResponse | void> => {
@@ -94,7 +85,7 @@ function App() {
         <Route path="/buildcv" element={<BuildCvs />} />
         <Route path="/profile" element={<Profile />} />
         {/* <Route path="/jobdetail" element={<JobDetails item={item} saveJob={} />} /> */}
-        <Route path="/jobdetail/:id" element={<JobDetails item={dummyItem} saveJob={dummySaveJob} unsaveJob={dummyUnsaveJob} />} />
+        <Route path="/jobdetail/:id" element={React.createElement(JobDetails as any, { item: dummyItem, saveJob: dummySaveJob, unsaveJob: dummyUnsaveJob })} />
         <Route path="/companydetail/:id" element={<Detail_Company />} />
         <Route path="/cvs" element={<Cvs />} />
         <Route path="/liked" element={<JobSave />} />

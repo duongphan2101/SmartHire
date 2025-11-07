@@ -72,9 +72,11 @@ function Login() {
           </Link>
         </div>
 
-        <h2 className="title">Đăng nhập</h2>
-
         <form className="signup-form" onSubmit={handleSubmit}>
+
+          <h2 className="login-title">Đăng nhập</h2>
+          <p className="text-gray-500 text-center w-full" style={{marginBottom: 10}}>Hãy nhập đầy đủ các thông tin nhé!</p>
+
           <div className="input-group">
             <input
               type="text"
@@ -106,29 +108,31 @@ function Login() {
           <button className="signup-btn" type="submit" disabled={loading}>
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
-        </form>
-        <div style={{ textAlign: "right", width: "100%", marginTop: "10px" }}>
-          <Link to="/forgot-password" className="forgot-password-link">
-            Quên mật khẩu ?
-          </Link>
-        </div>
-        <div className="divider">
-          <hr />
-          <span>hoặc</span>
-          <hr />
-        </div>
 
-        <div className="social-buttons">
-          {/* <button className="social-btn facebook" onClick={loginWithFacebook}>
+          <div style={{ textAlign: "right", width: "100%", marginTop: "10px" }}>
+            <Link to="/forgot-password" className="forgot-password-link">
+              Quên mật khẩu ?
+            </Link>
+          </div>
+          <div className="divider">
+            <hr />
+            <span>hoặc</span>
+            <hr />
+          </div>
+
+          <div className="social-buttons">
+            {/* <button className="social-btn facebook" onClick={loginWithFacebook}>
             <FaFacebook size={20} color="#197ce6" />
             Đăng nhập với Facebook
           </button> */}
 
-          <button className="social-btn google" onClick={loginWithGoogle}>
-            <FcGoogle size={20} />
-            Đăng nhập với Google
-          </button>
-        </div>
+            <button className="social-btn google" onClick={loginWithGoogle}>
+              <FcGoogle size={20} />
+              Đăng nhập với Google
+            </button>
+          </div>
+
+        </form>
 
         <ToastContainer position="top-right" autoClose={2000} />
       </div>

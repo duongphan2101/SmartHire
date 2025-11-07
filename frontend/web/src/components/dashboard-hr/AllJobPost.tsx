@@ -52,7 +52,7 @@ const AllJobPost = () => {
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div className="text-2xl"
-    style={{ padding: 20 }}>{error}</div>;
+    style={{ padding: 20 }}>Không có bài đăng tuyển dụng nào!</div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 

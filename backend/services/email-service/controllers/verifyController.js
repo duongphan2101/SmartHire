@@ -4,18 +4,70 @@ const axios = require("axios");
 
 exports.sendVerifyEmail = async (req, res) => {
   try {
-    const { email, user_id } = req.body;
+    // Thêm fullname để email trông thân thiện hơn
+    const { email, user_id, fullname } = req.body;
 
-    // Tạo token verify
+    // --- Validation ---
+    if (!email || !user_id) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu thông tin email hoặc user_id" });
+    }
+
+    // --- Tạo Token và Link (Giữ nguyên) ---
     const token = jwt.sign(
       { email, user_id },
       process.env.EMAIL_VERIFY_SECRET,
       { expiresIn: "1d" }
     );
-
     const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
 
-    // Config mailer
+    // --- 1. Template HTML mới (Theo phong cách notifyApplication) ---
+    const subject = `SmartHire - Vui lòng xác nhận email của bạn`;
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; width: 95%; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #059669; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">Xác nhận Email - SmartHire</h1>
+        </div>
+        
+        <div style="padding: 30px;">
+          <h2 style="color: #333;">Xin chào ${fullname || "bạn"},</h2>
+          <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>SmartHire</strong>.</p>
+          <p>Để hoàn tất quá trình đăng ký và bảo mật tài khoản, vui lòng nhấp vào nút bên dưới để xác nhận địa chỉ email của bạn:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyLink}"
+               style="background-color: #059669; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Xác nhận Email
+            </a>
+          </div>
+          
+          <p>Nếu bạn không thể nhấp vào nút trên, vui lòng sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
+          <p style="word-break: break-all; font-size: 14px;">
+            <a href="${verifyLink}" style="color: #2563eb;">${verifyLink}</a>
+          </p>
+
+          <p style="margin-top: 25px;">
+            Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email này.
+          </p>
+          <p style="margin-top: 30px;">Trân trọng,<br>Đội ngũ SmartHire</p>
+        </div>
+      </div>
+    `;
+
+    // --- 2. Nội dung Text Fallback ---
+    const textFallback = `
+      Xin chào ${fullname || "bạn"},
+      Cảm ơn bạn đã đăng ký tài khoản tại SmartHire.
+      Vui lòng truy cập liên kết sau để xác nhận địa chỉ email của bạn:
+      ${verifyLink}
+
+      Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email này.
+      Trân trọng,
+      Đội ngũ SmartHire
+    `;
+
+    // --- 3. Cấu hình Transporter (Giữ nguyên) ---
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -24,16 +76,17 @@ exports.sendVerifyEmail = async (req, res) => {
       },
     });
 
-    await transporter.sendMail({
-      from: `"My App" <${process.env.EMAIL_USER}>`,
+    // --- 4. Cấu hình Mail Options (Phiên bản đầy đủ) ---
+    const mailOptions = {
+      from: `"SmartHire" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Xác nhận email của bạn",
-      html: `
-        <h1>Chào mừng!</h1>
-        <p>Bấm vào link dưới đây để xác nhận email:</p>
-        <a href="${verifyLink}">${verifyLink}</a>
-      `,
-    });
+      subject: subject,
+      text: textFallback, // Thêm nội dung text
+      html: htmlTemplate, // Sử dụng template HTML mới
+    };
+
+    // --- 5. Gửi mail ---
+    await transporter.sendMail(mailOptions);
 
     res.json({ message: "Đã gửi email xác nhận" });
   } catch (err) {

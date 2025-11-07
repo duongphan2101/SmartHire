@@ -5,94 +5,93 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.login-background {
+.register-background {
   background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-    url("../../assets/images/bgLogin.jpg");
+    url("../../assets/images/8840374.jpg");
   background-size: cover;
   background-position: center;
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
 }
 
-.login-container {
+.register-container {
   background-color: white;
-  width: 500px;
+  width: 30%;
+  height: 50%;
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
 }
 
-.tab-switch {
+.register-tab-switch {
   display: flex;
   overflow: hidden;
   margin-bottom: 20px;
+  width: 80%;
 }
 
-.tab-switch a {
+.register-tab-switch__tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: #ddd;
+  font-weight: bold;
+  cursor: pointer;
   color: #fffefe;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease-out;
 }
 
-.active-tab {
-  background-color: #000 !important;
+.register-tab-switch__tab:hover {
+  background-color: #059669;
+  color: #fff;
+}
+
+.register-tab-switch__tab--login {
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.register-tab-switch__tab--register {
+  border-bottom-right-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.register-tab-switch__tab--active {
+  background-color: #059669 !important;
   color: #fff !important;
 }
 
-.tab1 {
-  flex: 1;
-  padding: 10px 0;
-  border: none;
-  border-radius: 0px;
-  border-bottom-left-radius: 10px;
-  border-top-left-radius: 10px;
-  background: #ddd;
+.register-form {
+  text-align: center;
+}
 
+.register-container__title {
+  /* margin: 20px 0; */
+  font-size: 26px;
+  color: #059669;
   font-weight: bold;
-  cursor: pointer;
-  border-left: 10px;
+  text-transform: uppercase;
 }
 
-.tab1:hover {
-  background-color: #000;
-  color: #fff;
-  transition: all 0.4s ease-out;
-}
-
-.tab2 {
-  flex: 1;
-  padding: 10px 0;
-  border: none;
-  border-radius: 0px;
-  border-bottom-right-radius: 10px;
-  border-top-right-radius: 10px;
-  background: #ddd;
-  font-weight: bold;
-  cursor: pointer;
-  border-left: 10px;
-}
-
-.tab2:hover {
-  transition: all 0.4s ease-out;
-  background-color: #000;
-  color: #fff;
-}
-
-.title {
-  margin: 20px 0;
-  font-size: 20px;
-  color: #333;
-}
-
-.social-buttons {
+.register-social-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.social-btn {
+.register-social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,58 +105,54 @@
   color: #333;
 }
 
-.social-btn img {
+.register-social-btn img {
   width: 20px;
   height: 20px;
 }
 
-.divider {
+.register-divider {
   display: flex;
   align-items: center;
   margin: 20px 0;
   gap: 10px;
 }
 
-.divider hr {
+.register-divider hr {
   flex: 1;
   border: none;
   height: 1px;
   background: #ccc;
 }
 
-.divider span {
+.register-divider span {
   color: #999;
   font-size: 14px;
 }
 
-.signup-form {
+.register-form {
   display: flex;
   flex-wrap: wrap;
-  /* gap: 15px; */
+  gap: 10px;
   height: auto;
 }
 
-.name-fields {
+/* Class này có trong CSS gốc nhưng không thấy dùng trong JSX, vẫn refactor */
+.register-form__name-fields {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.signup-form input {
-  background-color: #fff;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 14px;
-  height: 50px;
-}
+/* Đã bỏ rule '.signup-form input' vì đã có '.register-form__input' (từ .input-field)
+   chi tiết và đầy đủ hơn, tránh xung đột và dư thừa. */
 
-.input-group {
+.register-form__group {
   position: relative;
   margin-bottom: 10px;
+  width: 100%; /* Thêm để group chiếm 100% chiều rộng */
 }
 
-.input-field {
+.register-form__input {
   width: 100%;
   padding: 14px 10px 10px;
   font-size: 16px;
@@ -167,13 +162,15 @@
   transition: border 0.3s;
   color: #000;
   background-color: #fff !important;
+  height: 50px; /* Thống nhất chiều cao từ rule cũ */
 }
 
-.input-field:focus {
+.register-form__input:focus {
   border-color: #333;
 }
 
-.floating-label {
+/* Class này có trong CSS gốc nhưng không thấy dùng trong JSX, vẫn refactor */
+.register-form__label {
   position: absolute;
   top: 13px;
   left: 10px;
@@ -185,16 +182,17 @@
   padding: 0 5px;
 }
 
-.password-row {
+.register-form__password-row {
   display: flex;
   gap: 10px;
+  width: 100%; /* Thêm để row chiếm 100% chiều rộng */
 }
 
-.password-row .input-group {
+.register-form__password-row .register-form__group {
   flex: 1;
 }
 
-.toggle-password {
+.register-form__toggle-password {
   position: absolute;
   top: 50%;
   right: 12px;
@@ -207,112 +205,102 @@
   padding: 2px;
   border-radius: 50%;
   transition: color 0.3s;
+  display: flex; /* Thêm để căn giữa icon */
+  align-items: center; /* Thêm để căn giữa icon */
 }
 
-.toggle-password:hover {
+.register-form__toggle-password:hover {
   color: #000;
 }
 
-.signup-btn {
+.register-form__submit-btn {
   margin-top: 10px;
   background: #ccc;
+  color: white;
   border: none;
   padding: 12px;
   border-radius: 999px;
   font-weight: bold;
   cursor: pointer;
+  width: 100%; /* Thêm để nút submit chiếm 100% */
 }
 
-.signup-btn:hover {
-  background-color: #000;
+.register-form__submit-btn:hover {
+  background-color: #059669;
   color: #fff;
   transition: all 0.4s ease-out;
 }
 
-.toggle-password {
-  display: flex;
-  align-items: center;
-}
-
-.input-field:focus {
-  border-color: var(--color-emerald-600);
-}
-
 @media (max-width: 768px) {
-  .login-container {
+  .register-container {
     width: 320px;
     padding: 20px;
     border-radius: 15px;
     margin: 0 auto;
   }
 
-  .tab-switch {
+  .register-tab-switch {
     gap: 10px;
   }
 
-  .tab1,
-  .tab2 {
+  .register-tab-switch__tab--login,
+  .register-tab-switch__tab--register {
     border-radius: 10px !important;
   }
 
-  .title {
+  .register-container__title {
     font-size: 18px;
     margin: 15px 0;
   }
 
-  .social-buttons {
+  .register-social-buttons {
     flex-direction: column;
     gap: 8px;
   }
 
-  .social-btn {
+  .register-social-btn {
     font-size: 14px;
     padding: 8px;
   }
 
-  .divider {
+  .register-divider {
     margin: 30px 0;
     gap: 6px;
   }
 
-  .divider span {
+  .register-divider span {
     font-size: 12px;
   }
 
-  .signup-form {
+  .register-form {
     flex-direction: column;
     gap: 10px;
   }
 
-  .signup-form input,
-  .login-form input {
-    font-size: 14px;
-    height: 45px;
-  }
+  /* Không cần rule cho .login-form input vì đã bỏ */
 
-  .input-group {
-    width: 100%;
-  }
-
-  .input-field {
+  .register-form__input {
     font-size: 14px;
     height: 45px;
     padding: 12px 10px;
   }
 
-  .floating-label {
+  .register-form__group {
+    width: 100%;
+  }
+
+  .register-form__label {
     font-size: 14px;
     top: 10px;
   }
 
-  .toggle-password {
+  .register-form__toggle-password {
     font-size: 16px;
     right: 10px;
   }
 
-  .signup-btn {
+  .register-form__submit-btn {
     font-size: 14px;
     padding: 10px;
   }
 }
-

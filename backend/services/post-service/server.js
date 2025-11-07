@@ -15,7 +15,7 @@ connectDB();
 app.use("/api/departments", departmentRoutes);
 app.use("/api/jobs", jobRoutes);
 
-const PORT = process.env.PORT || 4444;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

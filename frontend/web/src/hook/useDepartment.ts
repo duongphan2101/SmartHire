@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
+import type { InviteData } from "../utils/interfaces";
 
 export type DepartmentStatus = 'Active' | 'Suspended' | 'Archived';
 
@@ -18,6 +19,8 @@ interface UseDepartmentReturn {
   // data
   department: DepartmentData | null;
   departments: DepartmentData[];
+  invite: InviteData | null;
+  joinResponse: { success: boolean; message: string } | null;
 
   // state
   loading: boolean;
@@ -29,16 +32,21 @@ interface UseDepartmentReturn {
   deleteDepartment: (id: string) => Promise<void>;
   updateDepartmentStatus: (id: string, newStatus: DepartmentStatus) => Promise<void>;
   getDepartmentById: (id: string) => Promise<void>;
+  createInvite: (departmentId: string, createdBy: string) => Promise<InviteData>;
+  joinDepartment: (code: string, userId: string) => Promise<void>;
 }
 
 export default function useDepartment(mode: "user" | "all" = "user"): UseDepartmentReturn {
   const [department, setDepartment] = useState<DepartmentData | null>(null);
   const [departments, setDepartments] = useState<DepartmentData[]>([]);
+  const [invite, setInvite] = useState<InviteData | null>(null);
+  const [joinResponse, setJoinResponse] = useState<{ success: boolean; message: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const host = HOSTS.companyService;
 
+  // ---------------- FETCH ----------------
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -78,7 +86,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     fetchData();
   }, [fetchData]);
 
-
+  // ---------------- CREATE ----------------
   const createDepartment = useCallback(async (data: Omit<DepartmentData, "_id" | "status"> & { employees: string[] }) => {
     try {
       setLoading(true);
@@ -92,6 +100,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   }, [host, fetchData]);
 
+  // ---------------- DELETE ----------------
   const deleteDepartment = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -105,6 +114,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   }, [host, fetchData]);
 
+  // ---------------- STATUS UPDATE ----------------
   const updateDepartmentStatus = useCallback(async (id: string, newStatus: DepartmentStatus) => {
     try {
       setLoading(true);
@@ -118,15 +128,12 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   }, [host, fetchData]);
 
+  // ---------------- GET BY ID ----------------
   const getDepartmentById = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      setError(null);
-
       const res = await axios.get<DepartmentData>(`${host}/${id}`);
       setDepartment(res.data || null);
-      //console.log("Fetched department by ID:", res.data);
-
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.message || "Failed to fetch department by ID");
@@ -136,9 +143,44 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   }, [host]);
 
+  // ---------------- CREATE INVITE ----------------
+  const createInvite = useCallback(async (departmentId: string, createdBy: string) => {
+    try {
+      setLoading(true);
+      const res = await axios.post<InviteData>(`${host}/create-invite`, { departmentId, createdBy });
+      setInvite(res.data);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || axiosErr.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [host]);
+
+  // ---------------- JOIN DEPARTMENT ----------------
+  const joinDepartment = useCallback(async (code: string, userId: string) => {
+    try {
+      setLoading(true);
+      const res = await axios.post(`${host}/join-department`, { code, userId });
+      setJoinResponse(res.data);
+      await fetchData();
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || axiosErr.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [host, fetchData]);
+
+  // ---------------- RETURN ----------------
   return {
     department,
     departments,
+    invite,
+    joinResponse,
     loading,
     error,
     refetch: fetchData,
@@ -146,5 +188,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     deleteDepartment,
     updateDepartmentStatus,
     getDepartmentById,
+    createInvite,
+    joinDepartment,
   };
 }
