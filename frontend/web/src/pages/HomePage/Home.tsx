@@ -23,6 +23,7 @@ import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import useApplication from "../../hook/useApplication";
 import { useNavigate } from "react-router-dom";
+import Chat from "../../components/Chat/Chat";
 const MySwal = withReactContent(Swal);
 
 const Home: React.FC = () => {
@@ -393,6 +394,7 @@ const Home: React.FC = () => {
       <div className="App">
         <Header />
         <ChatWithAI />
+        <Chat />
 
         <div className="containerStyle">
 

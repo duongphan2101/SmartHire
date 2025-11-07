@@ -5,6 +5,7 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 import Swal from "sweetalert2";
 import "./Cvs.css";
+import Chat from "../../components/Chat/Chat";
 
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
@@ -57,6 +58,7 @@ const Cvs: React.FC = () => {
     <div className="App">
       <Header />
       <ChatWithAI />
+      <Chat />
 
       <div className="cvs-container">
         <h2 className="cvs-title">CV đã tạo trên SmartHire</h2>
@@ -65,9 +67,9 @@ const Cvs: React.FC = () => {
             <p className="empty-text">
               Bạn chưa có CV nào. Hãy tạo CV đầu tiên của bạn!
             </p>
-         <a href="/buildCV" className="create-cv-button">
-  Tạo CV mới
-</a>
+            <a href="/buildCV" className="create-cv-button">
+              Tạo CV mới
+            </a>
 
           </div>
         ) : (

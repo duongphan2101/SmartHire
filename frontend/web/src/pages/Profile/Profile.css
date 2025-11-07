@@ -65,7 +65,7 @@
     color: var(--color-blue-400);
 }
 
-.card-link_item span{
+.card-link_item span {
     display: flex;
     gap: 10px;
     align-items: center;
@@ -75,113 +75,183 @@
     padding: 30px 20px;
 }
 
-/* From Uiverse.io by dovatgabriel */ 
+/* From Uiverse.io by dovatgabriel */
 .group {
- position: relative;
+    position: relative;
 }
 
 .input {
- font-size: 16px;
- padding: 10px 10px 10px 5px;
- display: block;
- width: 100%;
- border: none;
- border-bottom: 1px solid #515151;
- background: transparent;
+    font-size: 16px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #515151;
+    background: transparent;
 }
 
 .input:focus {
- outline: none;
+    outline: none;
 }
 
 label {
- color: #999;
- font-size: 18px;
- font-weight: normal;
- position: absolute;
- pointer-events: none;
- left: 5px;
- top: 10px;
- transition: 0.2s ease all;
- -moz-transition: 0.2s ease all;
- -webkit-transition: 0.2s ease all;
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
 }
 
-.input:focus ~ label, .input:valid ~ label {
- top: -20px;
- font-size: 14px;
- color: var(--color-emerald-600);
+.input:focus~label,
+.input:valid~label {
+    top: -20px;
+    font-size: 14px;
+    color: var(--color-emerald-600);
 }
 
 .bar {
- position: relative;
- display: block;
- width: 100%;
+    position: relative;
+    display: block;
+    width: 100%;
 }
 
-.bar:before, .bar:after {
- content: '';
- height: 2px;
- width: 0;
- bottom: 0px;
- position: absolute;
- background: var(--color-emerald-600);
- transition: 0.2s ease all;
- -moz-transition: 0.2s ease all;
- -webkit-transition: 0.2s ease all;
+.bar:before,
+.bar:after {
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 0px;
+    position: absolute;
+    background: var(--color-emerald-600);
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
 }
 
 .bar:before {
- left: 50%;
+    left: 50%;
 }
 
 .bar:after {
- right: 50%;
+    right: 50%;
 }
 
-.input:focus ~ .bar:before, .input:focus ~ .bar:after {
- width: 50%;
+.input:focus~.bar:before,
+.input:focus~.bar:after {
+    width: 50%;
 }
 
 .highlight {
- position: absolute;
- height: 60%;
- width: 100px;
- top: 25%;
- left: 0;
- pointer-events: none;
- opacity: 0.5;
+    position: absolute;
+    height: 60%;
+    width: 100px;
+    top: 25%;
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
-.input:focus ~ .highlight {
- animation: inputHighlighter 0.3s ease;
+.input:focus~.highlight {
+    animation: inputHighlighter 0.3s ease;
+}
+
+.card-link-item-bg {
+    height: 105px;
+    width: 100%;
+    border-radius: 10px;
 }
 
 @keyframes inputHighlighter {
- from {
-  background: var(--color-emerald-600);
- }
+    from {
+        background: var(--color-emerald-600);
+    }
 
- to {
-  width: 0;
-  background: transparent;
- }
+    to {
+        width: 0;
+        background: transparent;
+    }
 }
 
 
 .button {
-  position: relative;
-  padding: 10px 22px;
-  border-radius: 6px;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  background-color: var(--color-emerald-600);
-  width: 40%;
+    position: relative;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: var(--color-emerald-600);
+    width: 40%;
 }
 
 .button:active {
-  transform: scale(0.96);
+    transform: scale(0.96);
+}
+
+.box-userStatus {
+    position: absolute;
+    top: 0;
+    right: -20px;
+    border-radius: 15px;
+    padding: 4px 10px;
+
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    border: 2px solid white;
+}
+
+.box-userStatus::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #f0f0f0;
+}
+
+.status-active {
+    background-color: #059669;
+}
+
+.status-inactive {
+    background-color: #6c757d;
+}
+
+.status-banned {
+    background-color: #dc3545;
+}
+
+.status-active::after {
+    border-top-color: #059669;
+}
+
+.status-inactive::after {
+    border-top-color: #6c757d;
+}
+
+.status-banned::after {
+    border-top-color: #dc3545;
+}
+
+.profile-choseCV {
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.profile-suggestion {
+    border-radius: 10px;
+    height: 200px;
 }
 
 @media (max-width: 1280px) {

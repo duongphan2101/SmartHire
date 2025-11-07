@@ -11,6 +11,7 @@ import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaRegEye, FaTrash } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import "./jobSave.css";
+import Chat from "../../components/Chat/Chat";
 
 const JobSave: React.FC = () => {
   const { user, getUser, unsaveJob } = useUser();
@@ -85,7 +86,7 @@ const JobSave: React.FC = () => {
   return (
     <div className="App">
       <Header />
-
+      <Chat />
       <div className="job-save-container">
         <h2 className="job-save-title">Công việc đã lưu</h2>
 

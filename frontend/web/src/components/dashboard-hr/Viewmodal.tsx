@@ -16,6 +16,7 @@ import ModalContactCandidate from "./ModalContactCandidate";
 import { AiOutlineMessage } from "react-icons/ai";
 import { BsTelephone } from "react-icons/bs";
 import usePayment from "../../hook/usePayment";
+import { Empty } from "antd";
 interface ViewModalProps {
   job: Job;
   onClose: () => void;
@@ -560,7 +561,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                   </div>
                 )}
 
-                {/* --- LOGIC NÚT LƯU MỚI --- */}
                 {showSaveButton && (
                   <div className="job-footer">
                     <button
@@ -583,7 +583,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                 {loadingApplicants ? (
                   <p>Đang tải ứng viên...</p>
                 ) : applicants.length === 0 ? (
-                  <p>Chưa có ai ứng tuyển</p>
+                  <div>
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Chưa có ai ứng tuyển cho công việc này!" />
+                  </div>
                 ) : (
                   <div className="inline-block min-w-full align-middle">
                     <div className="table-wrapper">
@@ -690,15 +692,15 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
 
             {activeTab === "candidates" && (
               <div className="tab-content tab-content-enter">
-                {loadingApplicants ? ( // Bạn có thể muốn tạo một state loading riêng cho 'candidates'
+                {loadingApplicants ? (
                   <div className="loading-container">
                     <div className="loader"></div>
                     <p>Đang tải ...</p>
                   </div>
                 ) : sortedCandidates.length === 0 ? (
                   <div className="loading-container">
-                    {/* <div className="loader"></div> // Có thể bỏ loader ở đây nếu không có gì để tải */}
-                    <p>Không tìm thấy ứng viên phù hợp nào khác.</p>
+                    <div className="loader"></div>
+                    <p>Đang tải ...</p>
                   </div>
                 ) : (
                   <table
