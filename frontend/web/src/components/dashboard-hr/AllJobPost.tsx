@@ -7,9 +7,13 @@ import { HOSTS } from "../../utils/host";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
 import { Empty } from "antd";
+import type { ChatRoom } from "../../utils/interfaces";
 
+interface AllJobPostProps {
+  onOpenChatRequest: (room: ChatRoom) => void;
+}
 
-const AllJobPost = () => {
+const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { jobs, loading, error, refetch } = useJob();
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,6 +86,7 @@ const AllJobPost = () => {
           onClose={() => setViewJob(null)}
           onUpdated={refetch}
           update={false}
+          onOpenChatRequest={onOpenChatRequest}
         />
       )}
 

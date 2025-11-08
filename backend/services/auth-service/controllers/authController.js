@@ -181,11 +181,11 @@ exports.loginWithGoogle = async (req, res) => {
     let user;
 
     try {
-      const response = await axios.get(`${userServiceUrl}/emailfind/${encodeURIComponent(email)}`);
+      const response = await axios.get(`${Url}/emailfind/${encodeURIComponent(email)}`);
       user = response.data;
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        const createResponse = await axios.post(`${userServiceUrl}`, {
+        const createResponse = await axios.post(`${Url}`, {
           email,
           fullname: name,
           avatar: picture,

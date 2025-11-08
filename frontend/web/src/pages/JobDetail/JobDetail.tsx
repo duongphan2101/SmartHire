@@ -4,14 +4,14 @@ import "./JobDetails.css";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
-// import { BsFilter } from "react-icons/bs";
 import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
 import { fetchDistrictsByProvinceId, fetchProvinces_V2 } from "../../utils/provinceApi";
 import { Pagination } from "antd";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 interface District {
   code: number;
@@ -176,13 +176,28 @@ const JobDetails: React.FC = () => {
     // Tùy chọn: Cuộn lên đầu danh sách khi chuyển trang
     document.querySelector('.head-left-main')?.scrollTo(0, 0);
   };
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
 
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
 
   return (
     <div className="App-JobDetail">
-      <Header />
+      <Header onOpenChat={handleOpenChatRequest} />
+
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
       <ChatWithAI />
-      <Chat />
       <div className="content bg-gray-50">
         <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
           {/* HÀNG 1: nameJob + location */}

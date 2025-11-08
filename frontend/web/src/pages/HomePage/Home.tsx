@@ -23,7 +23,9 @@ import useJob from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import useApplication from "../../hook/useApplication";
 import { useNavigate } from "react-router-dom";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
+
 const MySwal = withReactContent(Swal);
 
 const Home: React.FC = () => {
@@ -49,7 +51,8 @@ const Home: React.FC = () => {
   const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
   const { renderMatchingJob } = useApplication();
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
-
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
   const [fitJobNotify, setFitJobNotify] = useState<string>("Chưa có công việc nào phù hợp với bạn.");
 
   const slogans = [
@@ -389,13 +392,25 @@ const Home: React.FC = () => {
       });
   }, [activeTab, user, renderMatchingJob]);
 
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
+  
   return (
     <>
       <div className="App">
-        <Header />
+        <Header onOpenChat={handleOpenChatRequest} />
         <ChatWithAI />
-        <Chat />
-
+        {openChat && (
+          <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+        )}
         <div className="containerStyle">
 
           <div className="container-fluid container-fluid_banner">
@@ -635,7 +650,7 @@ const Home: React.FC = () => {
                           </div>
                         </div>
                         <div className="lasted-item_bottom items-center gap-2">
-                          <ul className="flex gap-6 flex-1" style={{marginTop: 15}}>
+                          <ul className="flex gap-6 flex-1" style={{ marginTop: 15 }}>
                             <li
                               className="bottom-li flex gap-3 items-center"
                               style={{ fontSize: 13 }}
@@ -709,7 +724,7 @@ const Home: React.FC = () => {
                       </div>
                     ) : recommendedJobs.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 w-full">
-                        {recommendedJobs.filter(item => item.job.status === "active").slice(0, 10).map((item) => (
+                        {recommendedJobs.filter(item => item.job.status === "active").slice(0, 8).map((item) => (
                           <div key={item.job._id} className="lasted-item flex flex-col gap-2">
 
                             <div className="lasted-item_top flex justify-between">
@@ -808,7 +823,7 @@ const Home: React.FC = () => {
                                   </div>
 
                                   {/* Tooltip nội dung lý do phù hợp */}
-                                  <div className="absolute z-10 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 
+                                  <div className="absolute z-10 bottom-full left-2/2 -translate-x-1/2 w-72 
                                     p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg
                                     opacity-0 group-hover:opacity-100 transition-all duration-300
                                     pointer-events-none group-hover:pointer-events-auto

@@ -28,6 +28,7 @@ const ApplicationSchema = new mongoose.Schema(
       location: String,
     },
     userSnapshot: {
+      _id: String,
       fullname: String,
       email: String,
       avatar: String,

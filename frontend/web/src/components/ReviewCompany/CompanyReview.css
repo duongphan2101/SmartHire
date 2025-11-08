@@ -1,0 +1,256 @@
+.company-review-container {
+  width: 84%;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px 40px;
+  font-family: "Inter", sans-serif;
+}
+
+.review-heading {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #0f172a;
+}
+
+/* ===== FORM ===== */
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.star {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.star:hover {
+  transform: scale(1.15);
+}
+
+.review-title-input,
+.review-textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 16px;
+  border: 1.8px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+
+.review-title-input:focus,
+.review-textarea:focus {
+  border-color: #059669;
+}
+
+.review-submit {
+  background-color: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 28px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.25s ease;
+  display: block;
+  margin: 0 auto;
+}
+.review-submit:hover:not(.disabled) {
+  background-color: #047857;
+  transform: translateY(-1px);
+}
+.review-submit.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== LIST ===== */
+.review-list {
+  margin-top: 40px;
+}
+
+.review-item {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+  margin-top: 20px;
+  padding-bottom: 15px;
+}
+
+/* Header có avatar + info + sao */
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.review-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.review-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #05966930;
+}
+
+.review-user-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.review-date {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.review-stars {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.review-title {
+  font-weight: 600;
+  color: #111827;
+  margin-top: 5px;
+}
+
+.review-content {
+  text-align: left;
+  margin: 10px 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* ===== COMMENT ===== */
+.comment-section {
+  margin-top: 15px;
+  border-left: 3px solid #05966930;
+  padding-left: 15px;
+}
+
+.comment-item {
+  text-align: left;
+  margin-bottom: 10px;
+}
+.comment-item strong {
+  color: #059669;
+}
+.comment-item p {
+  margin: 3px 0 0 0;
+  color: #374151;
+}
+
+.comment-input-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.comment-input-box input {
+  flex: 1;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  outline: none;
+}
+.comment-input-box input:focus {
+  border-color: #059669;
+}
+.comment-input-box button {
+  background: #059669;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+.comment-input-box button:hover {
+  background: #047857;
+}
+
+.no-review {
+  text-align: center;
+  color: #6b7280;
+  margin-top: 20px;
+}
+.comment-section {
+  margin-top: 15px;
+  border-left: 3px solid #05966930;
+  padding-left: 15px;
+}
+
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-item strong {
+  color: #059669;
+}
+.comment-item p {
+  margin: 3px 0 0 0;
+  color: #374151;
+}
+
+.comment-input-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.comment-input-box input {
+  flex: 1;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  outline: none;
+}
+.comment-input-box input:focus {
+  border-color: #059669;
+}
+.comment-input-box button {
+  background: #059669;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+.comment-input-box button:hover {
+  background: #047857;
+}
+
+.no-review {
+  text-align: center;
+  color: #6b7280;
+  margin-top: 20px;
+}

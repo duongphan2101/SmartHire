@@ -30,6 +30,15 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+// Get all HR users
+exports.getAllHR = async (req, res) => {
+  try {
+    const hrUsers = await User.find({ role: "hr" });
+    res.json(hrUsers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // Get one
 exports.getUserByEmail = async (req, res) => {

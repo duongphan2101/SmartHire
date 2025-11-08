@@ -5,6 +5,7 @@ export const HOSTS = {
   chatbotService: "http://localhost:3333/api/chatbot",
   companyService: "http://localhost:4444/api/departments",
   jobService: "http://localhost:4444/api/jobs",
+  reviewService: "http://localhost:4444/api/reviews",
   applicationService: "http://localhost:5555/api/applications",
   cvAIService: "http://localhost:8080/api/cvai",
   matchingService: "http://localhost:6789/api/matching",
@@ -12,6 +13,8 @@ export const HOSTS = {
   walletService: "http://localhost:7777/api/wallet",
   paymentService: "http://localhost:7777/api/payment",
   interviewService: "http://localhost:1000/api/interviews",
+  chatService: "http://localhost:1000/api/chat",
   notificationService: "http://localhost:7000/api/notifications",
   socket: "http://localhost:7000",
+  chat_socket: "http://localhost:1000",
 };

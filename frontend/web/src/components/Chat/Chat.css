@@ -1,80 +1,28 @@
-.chat-widget {
+.chat-modal__overlay {
   position: fixed;
-  bottom: 140px;
-  right: 20px;
-  z-index: 1000;
-  scroll-behavior: smooth;
-}
-
-.chat-widget__toggle-button {
-  background: #059669;
-  border: none;
-  border-radius: 50%;
-  padding: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: float 2.5s ease-in-out infinite;
+  bottom: 10px;
+  right: 10px;
+  /* width: 100vw;
+  height: 100vh; */
+  /* background-color: rgba(0, 0, 0, .5); */
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
-
-.chat-widget__toggle-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
-}
-
-/* ----
-   2. TOOLTIP (Khi chat đóng)
-   ---- */
-
-.chat-widget__tooltip {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  margin-bottom: 10px;
-  background-color: #333;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(5px);
-  transition: all 0.3s ease;
-}
-
-.chat-widget:hover .chat-widget__tooltip {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ----
-   3. CHAT WINDOW (Layout 2 cột)
-   ---- */
 
 .chat-widget__window {
-  position: absolute;
-  bottom: -120px;
-  right: 80px;
-  width: 700px; /* Chiều rộng cho 2 cột */
-  height: 500px; /* Chiều cao */
+  position: relative;
+  width: 700px;
+  height: 500px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 0.4s ease;
   overflow: hidden;
-  
-  /* Quan trọng: Chia 2 cột */
   display: flex;
   flex-direction: row; 
 }
-
-/* ----
-   4. CỘT BÊN TRÁI (Sidebar / Danh sách hội thoại)
-   ---- */
 
 .chat-widget__sidebar {
   width: 250px;
@@ -85,19 +33,20 @@
 }
 
 .chat-widget__sidebar-header {
-  padding: 15px;
+  padding: 9px;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .chat-widget__sidebar-header h3 {
   margin: 0;
   font-size: 1.1rem;
+  color: #059669;
+  font-weight: bold;
 }
 
 .conversation-list {
   flex: 1;
   overflow-y: auto;
-  /* Ẩn thanh cuộn */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -113,6 +62,7 @@
   transition: background-color 0.2s ease;
   position: relative;
   gap: 10px;
+  align-items: center;
 }
 
 .conversation-item:hover {
@@ -138,7 +88,7 @@
 
 .conversation-item__details {
   flex: 1;
-  overflow: hidden; /* Để dấu ... hoạt động */
+  overflow: hidden;
 }
 
 .conversation-item__details strong {
@@ -176,19 +126,14 @@
   justify-content: center;
 }
 
-/* ----
-   5. CỘT BÊN PHẢI (Main Chat / Nội dung)
-   ---- */
-
 .chat-widget__main {
-  flex: 1; /* Chiếm phần còn lại */
+  flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #f9f9f9; /* Nền cho phần chat */
+  background-color: #f9f9f9;
 }
 
-/* Trạng thái khi chưa chọn chat */
 .chat-widget__empty {
   flex: 1;
   display: flex;
@@ -198,7 +143,6 @@
   color: #777;
 }
 
-/* Header của Main Chat */
 .chat-widget__header {
   background: var(--color-emerald-600, #10b981);
   color: white;
@@ -207,8 +151,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Thêm viền dưới để tách biệt với sidebar header */
-  border-bottom: 1px solid var(--color-emerald-700, #059669);
 }
 
 .chat-widget__close-button {
@@ -221,7 +163,6 @@
   padding: 0 5px;
 }
 
-/* Body (Nơi chứa tin nhắn) */
 .chat-widget__body {
   flex: 1;
   padding: 15px;
@@ -230,8 +171,6 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  
-  /* Ẩn thanh cuộn */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -239,10 +178,6 @@
 .chat-widget__body::-webkit-scrollbar {
   display: none;
 }
-
-/* ----
-   6. TIN NHẮN & TYPING
-   ---- */
 
 .message-message {
   display: inline-block;
@@ -252,25 +187,25 @@
   margin-bottom: 8px;
   word-break: break-word;
   width: fit-content;
-  max-width: 85%; /* Tăng max-width */
+  max-width: 85%;
   line-height: 1.4;
   text-align: left;
-  position: relative; /* Để định vị timestamp */
+  position: relative;
   padding-bottom: 20px;
 }
 
-.message--hr { /* Tin nhắn của Nhà tuyển dụng */
+.message--hr {
   background-color: #e5e7eb;
   color: #111827;
   align-self: flex-start;
-  border-bottom-left-radius: 4px; /* Tạo kiểu tin nhắn */
+  border-bottom-left-radius: 4px;
 }
 
-.message--user { /* Tin nhắn của Ứng viên (bạn) */
+.message--user {
   background-color: var(--color-emerald-600, #10b981);
   color: white;
   align-self: flex-end;
-  border-bottom-right-radius: 4px; /* Tạo kiểu tin nhắn */
+  border-bottom-right-radius: 4px;
 }
 
 .message__timestamp {
@@ -286,7 +221,6 @@
   opacity: 0.8;
 }
 
-/* Typing Indicator */
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -316,11 +250,6 @@
 .typing-indicator span:nth-child(3) {
   animation-delay: 0.4s;
 }
-
-
-/* ----
-   7. INPUT AREA (Khu vực nhập liệu)
-   ---- */
 
 .chat-widget__input-area {
   padding: 10px 15px;
@@ -373,11 +302,6 @@
   opacity: 0.5;
 }
 
-
-/* ----
-   8. ANIMATIONS
-   ---- */
-
 @keyframes blink {
   0% { opacity: 0.4; transform: translateY(0); }
   20% { opacity: 1; transform: translateY(-2px); }
@@ -389,7 +313,6 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Window Fade-in */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -397,19 +320,6 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Button Float */
-@keyframes float {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
     transform: translateY(0);
   }
 }

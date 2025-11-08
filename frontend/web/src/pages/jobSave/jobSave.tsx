@@ -11,7 +11,8 @@ import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaRegEye, FaTrash } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import "./jobSave.css";
-import Chat from "../../components/Chat/Chat";
+import ChatModal from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
 
 const JobSave: React.FC = () => {
   const { user, getUser, unsaveJob } = useUser();
@@ -82,11 +83,26 @@ const JobSave: React.FC = () => {
       });
     }
   };
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
 
   return (
     <div className="App">
-      <Header />
-      <Chat />
+      <Header onOpenChat={handleOpenChatRequest} />
+
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
       <div className="job-save-container">
         <h2 className="job-save-title">Công việc đã lưu</h2>
 

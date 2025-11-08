@@ -1,10 +1,8 @@
-// models/ChatRoom.js
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const ChatSchema = new mongoose.Schema({
   senderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
     required: true,
   },
   message: {
@@ -25,18 +23,16 @@ const ChatSchema = new mongoose.Schema({
 const ChatRoomSchema = new mongoose.Schema(
   {
     jobId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Job",
+      type: String,
       required: true,
     },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
       },
     ],
-    chats: [ChatSchema], // danh sách tin nhắn lưu trực tiếp
+    chats: [ChatSchema],
     lastMessage: {
       type: String,
       default: "",
@@ -49,4 +45,4 @@ const ChatRoomSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("ChatRoom", ChatRoomSchema);
+module.exports = mongoose.model("ChatRoom", ChatRoomSchema);

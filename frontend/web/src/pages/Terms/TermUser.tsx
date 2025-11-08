@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTerms } from "../../hook/useTerms";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import "./TermUser.css";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 const TermUser: React.FC = () => {
   const { termsText, isLoading, fetchTerms } = useTerms();
@@ -12,12 +13,26 @@ const TermUser: React.FC = () => {
   useEffect(() => {
     fetchTerms("user");
   }, [fetchTerms]);
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
 
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
   return (
     <div className="App-TermUser">
-      <Header />
+      <Header onOpenChat={handleOpenChatRequest} />
+
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
       <ChatWithAI />
-      <Chat />
       <div className="termuser-container">
         <div className="termuser-card">
           <h1 className="termuser-title">Điều khoản dành cho Người dùng</h1>

@@ -2,28 +2,44 @@ import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 import "./Intro.css";
-import healcare from "../../assets/images/healcare.jpg";
-import Chat from "../../components/Chat/Chat";
+// import healcare from "../../assets/images/healcare.jpg";
+import logo from "../../assets/images/logo_v1.png";
+import type { ChatRoom } from "../../utils/interfaces";
+import { useState } from "react";
+import ChatModal from "../../components/Chat/Chat";
 
 const Intro = () => {
   const title = "SMART HIRE";
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
 
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
   return (
     <div className="App">
-      <Header />
-      <ChatWithAI />
-      <Chat />
-      <div className="intro-container">
-        <h1 className="intro-title">
-          {title.split("").map((char, index) => (
-            <span key={index}>{char}</span>
-          ))}
-        </h1>
+      <Header onOpenChat={handleOpenChatRequest} />
 
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
+      <ChatWithAI />
+      <div className="intro-container">
         <div className="intro-content">
           <div className="intro-text">
+            <h1 className="intro-title">
+              {title.split("").map((char, index) => (
+                <span key={index}>{char}</span>
+              ))}
+            </h1>
             <p>
-              <b style={{fontSize: "1.5rem"}}>SmartHire</b> không chỉ đơn thuần là một nền tảng tuyển dụng, mà
+              <b style={{ fontSize: "1.5rem" }}>SmartHire</b> không chỉ đơn thuần là một nền tảng tuyển dụng, mà
               còn là cầu nối giúp rút ngắn khoảng cách giữa người tìm việc và
               việc tìm người.
             </p>
@@ -51,7 +67,7 @@ const Intro = () => {
           </div>
 
           <div className="intro-image">
-            <img src={healcare} alt="healcare" />
+            <img src={logo} alt="healcare" />
           </div>
         </div>
       </div>

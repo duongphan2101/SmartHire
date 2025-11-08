@@ -13,7 +13,9 @@ import { FaRegEye, FaRegMoneyBillAlt } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
-
+import CompanyReview from "../../components/ReviewCompany/CompanyReview";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../Chat/Chat";
 
 const Detail_Company: React.FC = () => {
     const JOBS_PER_PAGE = 8;
@@ -23,7 +25,8 @@ const Detail_Company: React.FC = () => {
     const [jobs, setJobs] = useState<Job[]>([]);
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [openChat, setIsChatOpen] = useState(false);
+    const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
     useEffect(() => {
         const fetchCompanyAndJobs = async () => {
             if (!id) return;
@@ -68,9 +71,23 @@ const Detail_Company: React.FC = () => {
         );
     };
 
+    const handleOpenChatRequest = (room?: ChatRoom) => {
+        if (room) {
+            setCurrentChatRoom(room);
+        }
+        setIsChatOpen(true);
+    };
+
+    const handleCloseChat = () => {
+        setIsChatOpen(false);
+    };
     return (
         <div className="detail-company-container">
-            <Header />
+            <Header onOpenChat={handleOpenChatRequest} />
+
+            {openChat && (
+                <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+            )}
 
             <div className="detail-company-body">
 
@@ -97,7 +114,7 @@ const Detail_Company: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="company-info-bottom text-justify" style={{marginTop: 20}}>
+                    <div className="company-info-bottom text-justify" style={{ marginTop: 20 }}>
                         <p><strong>Địa chỉ:</strong> {department.address || "Chưa cập nhật"}</p>
                         <p className="flex gap-1.5"><strong>Website:</strong> <a className="text-blue-500" href={department.website}>{department.website || "Chưa cập nhật"}</a></p>
                     </div>
@@ -111,7 +128,7 @@ const Detail_Company: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {currentJobs.length > 0 ? (
-                            currentJobs.map(item => (
+                            currentJobs.slice().reverse().map(item => (
                                 <div key={item._id} className="lasted-item flex flex-col">
 
                                     <div className="lasted-item_top flex justify-between">
@@ -209,6 +226,7 @@ const Detail_Company: React.FC = () => {
                 </div>
 
             </div>
+            <CompanyReview />
 
             <Footer />
         </div>
