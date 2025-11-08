@@ -4,6 +4,7 @@ import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import "./TermUser.css";
+import Chat from "../../components/Chat/Chat";
 
 const TermUser: React.FC = () => {
   const { termsText, isLoading, fetchTerms } = useTerms();
@@ -16,7 +17,7 @@ const TermUser: React.FC = () => {
     <div className="App-TermUser">
       <Header />
       <ChatWithAI />
-
+      <Chat />
       <div className="termuser-container">
         <div className="termuser-card">
           <h1 className="termuser-title">Điều khoản dành cho Người dùng</h1>

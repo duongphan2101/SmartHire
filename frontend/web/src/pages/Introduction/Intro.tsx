@@ -1,9 +1,9 @@
-import React from "react";
 import Header from "../../components/Header/Header";
 import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 import "./Intro.css";
 import healcare from "../../assets/images/healcare.jpg";
+import Chat from "../../components/Chat/Chat";
 
 const Intro = () => {
   const title = "SMART HIRE";
@@ -12,7 +12,7 @@ const Intro = () => {
     <div className="App">
       <Header />
       <ChatWithAI />
-
+      <Chat />
       <div className="intro-container">
         <h1 className="intro-title">
           {title.split("").map((char, index) => (

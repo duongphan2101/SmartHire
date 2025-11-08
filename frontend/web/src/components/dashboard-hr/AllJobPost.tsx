@@ -6,6 +6,7 @@ import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
+import { Empty } from "antd";
 
 
 const AllJobPost = () => {
@@ -24,7 +25,7 @@ const AllJobPost = () => {
     await refetch();
   };
 
-   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -51,8 +52,7 @@ const AllJobPost = () => {
   };
 
   if (loading) return <div>Đang tải...</div>;
-  if (error) return <div className="text-2xl"
-    style={{ padding: 20 }}>Không có bài đăng tuyển dụng nào!</div>;
+    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!"/></div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 
@@ -88,14 +88,27 @@ const AllJobPost = () => {
       <div className="all-job-cards">
         {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
           <div className="all-job-card" key={job._id}>
-            <div className="all-job-card-header">
-              <h3 className="font-bold">{job.jobTitle}</h3>
-              {/* <button
-                className="all-close-card-button"
-                onClick={() => handleRemoveJob(job._id)}
-              >
-                ×
-              </button> */}
+            <div className="job-card-header flex items-center">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold">{job.jobTitle}</h3>
+
+                {job.status !== "active" && (
+                  <span
+                    className={`badge-jobStatus ${job.status === "expired"
+                      ? "bg-red-100 text-red-600"
+                      : job.status === "banned"
+                        ? "bg-gray-200 text-gray-600"
+                        : "bg-yellow-100 text-yellow-700"
+                      }`}
+                  >
+                    {job.status === "expired"
+                      ? "Hết hạn"
+                      : job.status === "banned"
+                        ? "Tạm khóa"
+                        : job.status}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="all-job-body">
               <div className="flex items-center justify-between">

@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
+import { Empty } from "antd";
 
 const MySwal = withReactContent(Swal);
 
@@ -32,8 +33,6 @@ const JobPost = () => {
         ? allJobs.filter((job) => String(job?.createBy?._id) === String(currentUserId))
         : [];
 
-
-    // SỬA ĐỔI: Hàm handleAddClick để kiểm tra trạng thái công ty
     const handleAddClick = () => {
         // 1. Kiểm tra trạng thái Tạm khóa
         if (department && department.status === 'Suspended') {
@@ -122,7 +121,7 @@ const JobPost = () => {
 
     if (loading) return <div>Đang tải...</div>;
     // Hiển thị lỗi từ useJob
-    if (error) return <div className="text-2xl" style={{ padding: 20 }}>Không có bài đăng tuyển dụng nào!</div>;
+    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!"/></div>;
 
     // Sử dụng jobs đã lọc thay vì allJobs
     const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
@@ -159,15 +158,37 @@ const JobPost = () => {
             <div className="job-cards">
                 {Array.isArray(jobsToRender) && jobsToRender.map((job) => (
                     <div className="job-card" key={job._id}>
-                        <div className="job-card-header">
-                            <h3 className="font-bold">{job.jobTitle}</h3>
+
+                        <div className="job-card-header flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold">{job.jobTitle}</h3>
+
+                                {job.status !== "active" && (
+                                    <span
+                                        className={`badge-jobStatus ${job.status === "expired"
+                                            ? "bg-red-100 text-red-600"
+                                            : job.status === "banned"
+                                                ? "bg-gray-200 text-gray-600"
+                                                : "bg-yellow-100 text-yellow-700"
+                                            }`}
+                                    >
+                                        {job.status === "expired"
+                                            ? "Hết hạn"
+                                            : job.status === "banned"
+                                                ? "Tạm khóa"
+                                                : job.status}
+                                    </span>
+                                )}
+                            </div>
+
                             <button
-                                className="close-card-button"
+                                className="close-card-button text-lg font-bold text-gray-500 hover:text-black"
                                 onClick={() => handleRemoveJob(job._id)}
                             >
                                 ×
                             </button>
                         </div>
+
                         <div className="job-body">
                             <div className="flex items-center justify-between">
                                 <span className="job-date" style={{ marginTop: 0 }}>

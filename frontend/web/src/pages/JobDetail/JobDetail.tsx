@@ -8,8 +8,9 @@ import Detail from "../../components/Detail-Job/Detail";
 import useJob, { type Job } from "../../hook/useJob";
 import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
-import { Pagination } from "antd"; 
 import { fetchDistrictsByProvinceId, fetchProvinces_V2 } from "../../utils/provinceApi";
+import { Pagination } from "antd";
+import Chat from "../../components/Chat/Chat";
 
 interface District {
   code: number;
@@ -109,7 +110,7 @@ const JobDetails: React.FC = () => {
       if (results && results.length > 0) {
         setRelatedJobs(results);
         setCurrentPage(1); // Reset trang về 1 khi tìm kiếm mới
-        
+
         // Chỉ chuyển trang nếu người dùng bấm nút Tìm kiếm
         if (!auto) {
           navigate(
@@ -122,8 +123,8 @@ const JobDetails: React.FC = () => {
         if (!auto) {
           Swal.fire({
             icon: "info",
-            title: "Không tìm thấy công việc phù hợp",
-            text: "Vui lòng thử lại với từ khóa hoặc địa điểm khác.",
+            title: "Không tìm thấy việc phù hợp",
+            text: "Vui lòng thử lại với từ khóa khác.",
             confirmButtonText: "Đóng",
           });
         }
@@ -160,18 +161,19 @@ const JobDetails: React.FC = () => {
       { replace: true }
     );
   };
-  
+
   // Logic phân trang
   const indexOfLastJob = currentPage * JOBS_PER_PAGE;
   const indexOfFirstJob = indexOfLastJob - JOBS_PER_PAGE;
   // Lấy dữ liệu công việc hiện tại (dùng relatedJobs vì đây là danh sách bên trái)
-  const currentRelatedJobs = relatedJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const activeJobs = relatedJobs.filter(job => job.status === "active").reverse();
+  const currentRelatedJobs = activeJobs.slice(indexOfFirstJob, indexOfLastJob);
 
   // Hàm chuyển trang
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // Tùy chọn: Cuộn lên đầu danh sách khi chuyển trang
-    document.querySelector('.head-left-main')?.scrollTo(0, 0); 
+    document.querySelector('.head-left-main')?.scrollTo(0, 0);
   };
 
 
@@ -179,7 +181,7 @@ const JobDetails: React.FC = () => {
     <div className="App-JobDetail">
       <Header />
       <ChatWithAI />
-
+      <Chat />
       <div className="content bg-gray-50">
         <div className="content-main flex flex-wrap xl:flex-nowrap flex-col gap-5">
           {/* HÀNG 1: nameJob + location */}
@@ -323,18 +325,18 @@ const JobDetails: React.FC = () => {
                     )
                   )}
                 </div>
-                
+
                 {/* PHẦN PHÂN TRANG */}
                 {(relatedJobs.length > JOBS_PER_PAGE) && (
-                    <div style={{ marginTop: '16px', textAlign: 'center' }} className="flex justify-center items-center">
-                        <Pagination
-                            current={currentPage}
-                            total={relatedJobs.length}
-                            pageSize={JOBS_PER_PAGE}
-                            onChange={handlePageChange}
-                            hideOnSinglePage={true}
-                        />
-                    </div>
+                  <div style={{ marginTop: '16px', textAlign: 'center' }} className="flex justify-center items-center">
+                    <Pagination
+                      current={currentPage}
+                      total={relatedJobs.length}
+                      pageSize={JOBS_PER_PAGE}
+                      onChange={handlePageChange}
+                      hideOnSinglePage={true}
+                    />
+                  </div>
                 )}
 
               </div>

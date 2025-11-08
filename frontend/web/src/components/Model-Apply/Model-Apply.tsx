@@ -8,19 +8,18 @@ import {
   Button,
   TextField,
   Slide,
-  FormControlLabel,
   CircularProgress,
   Select,
   MenuItem,
   InputLabel,
   FormControl,
-  Switch,
   FormGroup,
 } from "@mui/material";
 import type { TransitionProps } from "@mui/material/transitions";
 import useCV from "../../hook/useCV";
 import useApplication from "../../hook/useApplication";
 import useUser from "../../hook/useUser";
+import { Switch } from "antd";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -85,18 +84,12 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
   };
 
   const handleAiToggle = (checked: boolean) => {
-    console.log("Toggle value:", checked);
+    // console.log("Toggle value:", checked);
     setAiSupport(checked);
 
-    Swal.fire({
-      icon: checked ? "info" : "warning",
-      title: checked ? "Đã bật AI hỗ trợ" : "Đã tắt AI hỗ trợ",
-      text: checked
-        ? "AI sẽ giúp bạn viết thư giới thiệu."
-        : "Bạn sẽ tự viết thư giới thiệu.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    if (checked) {
+      generateCoverLetter({ cvId: selectedCV, jobId: _id });
+    }
   };
 
   useEffect(() => {
@@ -121,13 +114,10 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   }, [errorCV]);
 
-
   useEffect(() => {
     if (cvs.length > 0) {
       const firstCV = cvs[0]._id;
       setSelectedCV(firstCV);
-
-      generateCoverLetter({ cvId: firstCV, jobId: _id });
     }
   }, [cvs, _id]);
 
@@ -182,18 +172,14 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                 </Select>
               </FormControl>
 
-              {/* Switch bật AI */}
-              <FormControlLabel
-                sx={{ position: 'relative' }}
-                control={
-                  <Switch
-                    checked={aiSupport}
-                    onChange={(_, checked) => handleAiToggle(checked)} // dùng param thứ 2
-                    color="success"
-                  />
-                }
-                label="AI hỗ trợ viết thư giới thiệu"
-              />
+              <div className="w-full flex gap-2.5">
+                <Switch
+                  checked={aiSupport}
+                  onChange={(checked) => handleAiToggle(checked)}
+                />
+                <span>AI hỗ trợ viết thư giới thiệu</span>
+              </div>
+
 
               {/* Thư giới thiệu */}
               <TextField

@@ -4,6 +4,7 @@ import { HOSTS } from "../utils/host";
 import useDepartment from "./useDepartment";
 
 export interface Job {
+  updatedAt: string | undefined;
   _id: string;
   jobTitle: string;
   jobType: string;
@@ -30,6 +31,7 @@ export interface Job {
   endDate: string;
   num: number;
   createdAt: string;
+  status: string;
   districts?: { name: string }[];
 }
 export interface Category {
@@ -185,7 +187,6 @@ export default function useJob() {
       setLoading(false);
     }
   }, [host]);
-
 
   useEffect(() => {
     refetch();

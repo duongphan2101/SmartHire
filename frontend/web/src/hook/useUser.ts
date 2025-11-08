@@ -15,6 +15,7 @@ export interface UserResponse {
   cv: string[];
   createdAt?: string;
   updatedAt?: string;
+  status: string;
 }
 
 export default function useUser() {

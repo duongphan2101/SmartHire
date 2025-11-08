@@ -15,7 +15,6 @@ const getReviews = async (req, res) => {
   }
 };
 
-// Tạo review mới
 const createReview = async (req, res) => {
   try {
     const { companyId, rating, title, content, userId, fullname, avatar } = req.body || {};

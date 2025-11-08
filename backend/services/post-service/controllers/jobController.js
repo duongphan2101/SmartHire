@@ -100,7 +100,7 @@ const getAllJobs = async (req, res) => {
 
 const getLatestJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 }).limit(6);
+    const jobs = await Job.find({ status: "active" }).sort({ createdAt: -1 }).limit(6);
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });

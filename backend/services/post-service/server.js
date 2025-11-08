@@ -5,6 +5,8 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const companyReviewRoutes = require("./routes/companyReviewRoutes");
 const cors = require("cors");
+// const jobScheduler = require("./utils/jobScheduler");
+require("./utils/jobScheduler");
 
 const app = express();
 

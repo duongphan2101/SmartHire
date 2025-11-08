@@ -45,6 +45,7 @@ exports.register = async (req, res) => {
     }
 
     // 2. Gọi user-service tạo user, goi payment-service tao wallet
+    const status =  "active";
     const userResp = await axios.post(`${host}`, {
       fullname,
       email,
@@ -52,7 +53,8 @@ exports.register = async (req, res) => {
         "https://res.cloudinary.com/dufwcmob3/image/upload/v1758978702/AVT-Default_ntfvjk.png",
       dob: null,
       phone: null,
-      role
+      role,
+      status
     });
 
     const user_id = userResp.data._id;

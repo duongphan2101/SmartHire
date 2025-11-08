@@ -8,7 +8,6 @@ import { FaRegBell } from "react-icons/fa";
 import {
   AiOutlineMessage,
   AiOutlineProfile,
-  AiOutlineSetting,
   AiOutlineLogout,
 } from "react-icons/ai";
 import { FaRegBookmark } from "react-icons/fa6";
@@ -29,7 +28,6 @@ const Header: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const handleNotificationClick = async (n: Notification) => {
-    // 👈 Khai báo type cho n
     try {
       if (!n.isRead) {
         await axios.patch(
@@ -94,6 +92,7 @@ const Header: React.FC = () => {
       </div>
 
       <header className="header">
+
         <div className="header-logo header-item">
           <a href="/">
             <span className="span-logo">
@@ -217,9 +216,6 @@ const Header: React.FC = () => {
                     <a className="user-dropdown-item" href="/termUser">
                       Điều khoản người dùng
                     </a>
-                    <a className="user-dropdown-item" href="/setting">
-                      Cài đặt
-                    </a>
                     <a className="user-dropdown-item" onClick={handleLogout}>
                       Đăng xuất
                     </a>
@@ -318,10 +314,6 @@ const Header: React.FC = () => {
                   <a className="mobile-user-item" href="/applyted">
                     <FaRegCheckSquare />
                     Công việc đã ứng tuyển
-                  </a>
-                  <a className="mobile-user-item" href="/setting">
-                    <AiOutlineSetting />
-                    Cài đặt
                   </a>
                   <a className="mobile-user-item active" onClick={handleLogout}>
                     <AiOutlineLogout />

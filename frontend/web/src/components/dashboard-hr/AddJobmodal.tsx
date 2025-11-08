@@ -43,6 +43,7 @@ interface AddJobModalProps {
         date: string;
         endDate: string;
         num: number;
+        status: string;
     }) => void;
 }
 
@@ -177,6 +178,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             });
             return;
         }
+        const status = "active";
         const payload = {
             jobTitle,
             jobType,
@@ -203,6 +205,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             jobDescription: jobDescriptions.filter((d) => d.trim()),
             endDate,
             num,
+            status
         };
 
         // console.log("PAYLOAD: ", payload);
@@ -226,6 +229,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             const listCandidate = await renderMatchingCvsForOneJob({ job_id: savedJob._id });
             // console.log("LIST top 5: ", listCandidate.slice(0, 5));
             // console.log("LIST FULL: ", listCandidate);
+            const renderListCandidate = listCandidate.filter(item => item.finalScore >= 65 );
 
             await sendJobRecommendationEmails(
                 {
@@ -240,7 +244,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                     location: savedJob.location,
                     salary: savedJob.salary,
                 },
-                listCandidate.slice(0, 5)
+                // listCandidate.slice(0, 5)
+                renderListCandidate.slice(0, 5)
             );
 
             toast.success("Tạo bài đăng thành công");
@@ -249,7 +254,6 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
             console.error("Error saving job:", err);
         }
     };
-
 
     return (
         <div className="add-job-modal" onDoubleClick={onClose}>
