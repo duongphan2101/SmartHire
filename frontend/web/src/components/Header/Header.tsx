@@ -15,7 +15,11 @@ import { PiReadCvLogo } from "react-icons/pi";
 import { FaRegCheckSquare } from "react-icons/fa";
 import NotificationModal from "../NotificationModal/NotificationModal";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onOpenChat: () => void;
+}
+
+const Header = ({ onOpenChat }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { getUser, loadingUser, user } = useUser();
   const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -80,11 +84,6 @@ const Header: React.FC = () => {
     window.location.href = "/home";
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    alert("Chức năng đang được phát triển!");
-  };
-
   return (
     <header className="header-container">
       <div className="header-script">
@@ -126,6 +125,10 @@ const Header: React.FC = () => {
             </a>
           </nav>
         </div>
+
+        {/* {openChat && (
+          <ChatModal room={rooms[0]} onClose={handleCloseChat} />
+        )} */}
 
         <div className="header-user header-item desktop-only">
           {loadingUser ? (
@@ -179,9 +182,11 @@ const Header: React.FC = () => {
                   />
                 )}
               </div>
+
               <div className="user-mess user-info-item">
-                <AiOutlineMessage size={20} />
+                <AiOutlineMessage size={20} onClick={onOpenChat} />
               </div>
+
               <div className="user-sep user-info-item">
                 <img className="user-avt" src={user.avatar} />
 
@@ -285,7 +290,7 @@ const Header: React.FC = () => {
                   <div
                     className="mobile-user-item"
                     style={{ paddingTop: 10 }}
-                    onClick={handleClick}
+                    onClick={() => setOpenNotify(!openNotify)}
                   >
                     <FaRegBell size={20} color="#ddd" />
                     <span style={{ color: "#ddd" }}>Thông báo</span>
@@ -294,7 +299,7 @@ const Header: React.FC = () => {
                   <div
                     className="mobile-user-item"
                     style={{ paddingTop: 10 }}
-                    onClick={handleClick}
+                    onClick={onOpenChat}
                   >
                     <AiOutlineMessage size={20} color="#ddd" />
                     <span style={{ color: "#ddd" }}>Tin nhắn</span>

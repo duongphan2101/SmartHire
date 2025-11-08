@@ -1,0 +1,108 @@
+.hr-list-container {
+  padding: 20px;
+  position: relative;
+  background-color:#fff;
+  height: 100%;
+}
+
+.hr-search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hr-search-input {
+  padding: 10px 15px;
+  border: 2px solid #000000;
+  border-radius: 20px;
+  font-size: 14px;
+  width: 500px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.hr-search-input:focus {
+  border-color: var(--color-emerald-600);
+}
+
+.hr-add-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 25px;
+  background-color: var(--color-emerald-600);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.hr-add-button:hover {
+  background-color: var(--color-emerald-700);
+  transform: translateY(-1px);
+}
+
+.hr-add-button:active {
+  transform: translateY(0);
+}
+
+.hr-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  /* height: 100%; */
+}
+
+.hr-card {
+  background: url('../../assets/images/origin.webp') center no-repeat;
+  background-size: cover;
+  border-radius: 8px;
+  padding: 15px;
+  height: 120px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #ece7e2;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hr-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+}
+
+.hr-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.hr-info h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.hr-info p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #000000;
+}
+
+.hr-empty,
+.hr-loading,
+.hr-error {
+  text-align: center;
+  color: #555;
+  font-size: 16px;
+  margin-top: 30px;
+}

@@ -13,6 +13,8 @@ import Dashboard_HR from "../../components/Dashboard/Dashboard";
 import useDepartment from "../../hook/useDepartment";
 import Payment from "../../components/Payment/Payment";
 import TermHR from "../../components/dashboard-hr/TermHR";
+import ChatModal from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
 
 export const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -23,6 +25,26 @@ export const Dashboard = () => {
 
   const { department } = useDepartment();
   const companyName = department?.name || "SmartHire";
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
+  // Dùng cho HRheader (mở danh sách chat)
+  const handleOpenChatList = () => {
+    setCurrentChatRoom(null); // Không chọn phòng cụ thể
+    setIsChatOpen(true);
+  };
+
+  // Dùng cho ViewModal (mở 1 phòng chat cụ thể)
+  const handleOpenChatRequest = (room: ChatRoom) => {
+    setCurrentChatRoom(room);
+    setIsChatOpen(true);
+  };
+
+  // Dùng cho ChatModal (để tự đóng nó)
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+    setCurrentChatRoom(null);
+  };
 
   return (
     <div className="App-Dashboard">
@@ -35,26 +57,29 @@ export const Dashboard = () => {
         />
 
         <div
-          className={`main-content-wrapper ${
-            collapsed ? "collapsed" : "expanded"
-          }`}
+          className={`main-content-wrapper ${collapsed ? "collapsed" : "expanded"
+            }`}
         >
           <HRheader
             breadcrumb={breadcrumb}
             setPage={setPage}
             companyName={companyName}
+            onOpenChat={handleOpenChatList}
           />
           <div className="page-content bg-gray-50">
             {page === "dashboard" && <Dashboard_HR />}
             {page === "about" && <About />}
             {page === "company" && <CompanyContent />}
-            {page === "allJobPost" && <AllJobPost />}
-            {page === "jobPost" && <JobPost />}
+            {page === "allJobPost" && <AllJobPost onOpenChatRequest={handleOpenChatRequest} />}
+            {page === "jobPost" && <JobPost onOpenChatRequest={handleOpenChatRequest} />}
             {page === "payment" && <Payment />}
             {page === "termHr" && <TermHR />}
           </div>
         </div>
       </div>
+      {isChatOpen && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
     </div>
   );
 };

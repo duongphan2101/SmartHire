@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   createUser,
   getUsers,
+  getAllHR,
   getUserById,
   updateUser,
   deleteUser,
@@ -14,6 +15,7 @@ const {
 
 router.post("/", createUser);
 router.get("/", getUsers);
+router.get("/hr/all", getAllHR);
 router.get("/:id", getUserById);
 router.get("/emailfind/:email", getUserByEmail);
 router.put("/:id", updateUser);

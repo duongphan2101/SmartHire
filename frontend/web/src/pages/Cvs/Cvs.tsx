@@ -5,7 +5,8 @@ import ChatWithAI from "../../components/Chat-With-AI/ChatWithAI";
 import Footer from "../../components/Footer/Footer";
 import Swal from "sweetalert2";
 import "./Cvs.css";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
@@ -53,12 +54,26 @@ const Cvs: React.FC = () => {
   };
 
   if (loadingUser) return <p className="loading">Đang tải CV...</p>;
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
 
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
   return (
     <div className="App">
-      <Header />
+      <Header onOpenChat={handleOpenChatRequest} />
+
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
       <ChatWithAI />
-      <Chat />
 
       <div className="cvs-container">
         <h2 className="cvs-title">CV đã tạo trên SmartHire</h2>

@@ -9,7 +9,7 @@ const useDashboardCharts = () => {
     try {
       const salaryRes = await axios.get("http://localhost:4444/api/jobs/stats/salary");
       const industryRes = await axios.get("http://localhost:4444/api/jobs/stats/hot-industry");
-
+      
       setSalaryStats(salaryRes.data);
       setIndustryStats(industryRes.data);
     } catch (error) {

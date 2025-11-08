@@ -11,7 +11,8 @@ import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaRegEye } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import "./JobApplied.css";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 const JobApplied: React.FC = () => {
   const { user, getUser, applyJob } = useUser(); // Sử dụng applyJob để cập nhật nếu cần
@@ -85,10 +86,27 @@ const JobApplied: React.FC = () => {
     }
   };
 
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
+  const handleOpenChatRequest = (room?: ChatRoom) => {
+    if (room) {
+      setCurrentChatRoom(room);
+    }
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
+
   return (
     <div className="App">
-      <Header />
-      <Chat />
+      <Header onOpenChat={handleOpenChatRequest} />
+
+      {openChat && (
+        <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+      )}
       <div className="job-applied-container">
         <h2 className="job-applied-title">Công việc đã ứng tuyển</h2>
 

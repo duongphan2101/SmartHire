@@ -1,166 +1,140 @@
 import React, { useState, useRef, useEffect } from "react";
 import './Chat.css';
 import { BsFillSendFill } from 'react-icons/bs';
-import { AiOutlineComment, AiOutlineUser } from "react-icons/ai";
+import { AiOutlineUser } from "react-icons/ai";
+import { useChat } from "../../hook/useChat";
+import useUser from "../../hook/useUser";
+import useJob from "../../hook/useJob";
+import type { ChatRoom, ChatMessage } from "../../utils/interfaces";
+import type { UserResponse } from "../../hook/useUser";
+import type { Job } from "../../hook/useJob";
+import { Empty } from "antd";
 
-interface HRProfile {
-  id: string;
-  name: string;
-  company: string;
-  avatarUrl?: string;
+interface ChatModalProps {
+  room: ChatRoom | null;
+  onClose: () => void;
 }
 
-interface Message {
-  id: number;
-  sender: "user" | "hr";
-  text: string;
-  timestamp: string;
-}
+const userCache = new Map<string, UserResponse>();
+const jobCache = new Map<string, Job>();
 
-interface Conversation {
-  id: string;
-  hr: HRProfile;
-  messages: Message[];
-  unreadCount: number;
-}
-
-const useMockChatSystem = () => {
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: "conv1",
-      hr: { id: "hr1", name: "Nguyễn Văn A", company: "SmartHire" },
-      messages: [
-        { id: 1, sender: "hr", text: "Chào em, anh thấy CV của em rất phù hợp.", timestamp: "10:30 AM" },
-        { id: 2, sender: "user", text: "Dạ vâng, em cảm ơn anh ạ.", timestamp: "10:31 AM" },
-      ],
-      unreadCount: 1,
-    },
-    {
-      id: "conv2",
-      hr: { id: "hr2", name: "Lê Thị B", company: "Google (Việt Nam)" },
-      messages: [
-        { id: 1, sender: "hr", text: "Lịch phỏng vấn của em là 9:00 sáng mai nhé.", timestamp: "Hôm qua" },
-      ],
-      unreadCount: 0,
-    },
-    {
-      id: "conv3",
-      hr: { id: "hr3", name: "Trần C", company: "VNG Corporation" },
-      messages: [
-        { id: 1, sender: "user", text: "Em chào chị, em muốn hỏi về vị trí...", timestamp: "2 ngày trước" },
-      ],
-      unreadCount: 0,
-    },
-    {
-      id: "conv4",
-      hr: { id: "hr1", name: "Nguyễn Văn A", company: "SmartHire" },
-      messages: [
-        { id: 1, sender: "hr", text: "Chào em, anh thấy CV của em rất phù hợp.", timestamp: "10:30 AM" },
-        { id: 2, sender: "user", text: "Dạ vâng, em cảm ơn anh ạ.", timestamp: "10:31 AM" },
-      ],
-      unreadCount: 1,
-    },
-    {
-      id: "conv5",
-      hr: { id: "hr2", name: "Lê Thị B", company: "Google (Việt Nam)" },
-      messages: [
-        { id: 1, sender: "hr", text: "Lịch phỏng vấn của em là 9:00 sáng mai nhé.", timestamp: "Hôm qua" },
-      ],
-      unreadCount: 0,
-    },
-    {
-      id: "conv6",
-      hr: { id: "hr3", name: "Trần C", company: "VNG Corporation" },
-      messages: [
-        { id: 1, sender: "user", text: "Em chào chị, em muốn hỏi về vị trí...", timestamp: "2 ngày trước" },
-      ],
-      unreadCount: 0,
-    }
-  ]);
-
-  const [loading, setLoading] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>("conv1"); // Chọn conv1 làm mặc định
-
-  // Lấy ra cuộc trò chuyện đang được chọn
-  const activeConversation = conversations.find(c => c.id === activeConversationId) || null;
-
-  // Gửi tin nhắn
-  const sendMessage = (text: string) => {
-    if (!activeConversationId) return;
-
-    const newMessage: Message = {
-      id: Date.now(),
-      sender: "user", // Người gửi luôn là "user" (ứng viên)
-      text: text,
-      timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-    };
-
-    // Cập nhật state
-    setConversations(prevConvs =>
-      prevConvs.map(conv => {
-        if (conv.id === activeConversationId) {
-          return { ...conv, messages: [...conv.messages, newMessage] };
-        }
-        return conv;
-      })
-    );
-
-    // Giả lập HR trả lời
-    setLoading(true);
-    setTimeout(() => {
-      const hrResponse: Message = {
-        id: Date.now() + 1,
-        sender: "hr",
-        text: "HR đang bận, sẽ trả lời bạn sau.",
-        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setConversations(prevConvs =>
-        prevConvs.map(conv => {
-          if (conv.id === activeConversationId) {
-            return { ...conv, messages: [...conv.messages, hrResponse] };
-          }
-          return conv;
-        })
-      );
-      setLoading(false);
-
-    }, 1500);
-  };
-
-  return {
-    conversations,
-    activeConversation,
-    activeConversationId,
-    setActiveConversationId,
-    sendMessage,
-    loading
-  };
-};
-
-// --- Hết Mock Hook ---
-
-
-const Chat: React.FC = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
+const ChatModal: React.FC<ChatModalProps> = ({ room, onClose }) => {
   const [message, setMessage] = useState("");
+  const chatBodyRef = useRef<HTMLDivElement | null>(null);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [memberDetails, setMemberDetails] = useState<Map<string, UserResponse>>(userCache);
+  const [jobDetails, setJobDetails] = useState<Map<string, Job>>(jobCache);
+
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const currentUserId = currentUser._id || currentUser.user_id;
 
   const {
-    conversations,
-    activeConversation,
-    activeConversationId,
-    setActiveConversationId,
-    sendMessage,
-    loading
-  } = useMockChatSystem();
+    rooms,
+    messages,
+    currentRoomId,
+    fetchRooms,
+    fetchMessages,
+    sendMessage
+  } = useChat();
 
-  const chatBodyRef = useRef<HTMLDivElement | null>(null);
+  const { getUser } = useUser();
+  const { getJobById } = useJob();
 
-  const toggleChat = () => setIsChatOpen(!isChatOpen);
+  const getOtherMemberId = (chatRoom: ChatRoom): string => {
+    if (!chatRoom.members) return "Unknown";
+    const otherId = chatRoom.members.find((id: string) => id !== currentUserId);
+    return otherId || "Unknown User";
+  };
+
+  const handleSelectRoom = async (roomId: string) => {
+    if (roomId === currentRoomId) return;
+    setIsLoadingMessages(true);
+    await fetchMessages(roomId);
+    setIsLoadingMessages(false);
+  };
+
+  useEffect(() => {
+    fetchRooms();
+    if (room?._id) {
+      handleSelectRoom(room._id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchRooms, room]);
+
+  useEffect(() => {
+    if (rooms.length === 0) return;
+
+    const fetchMemberDetails = async () => {
+      if (!getUser) return;
+      const newDetailsMap = new Map(memberDetails);
+      const idsToFetch = new Set<string>();
+
+      for (const r of rooms) {
+        const otherMemberId = getOtherMemberId(r);
+        if (otherMemberId !== "Unknown User" && !newDetailsMap.has(otherMemberId)) {
+          idsToFetch.add(otherMemberId);
+        }
+      }
+      if (idsToFetch.size === 0) return;
+
+      try {
+        const promises = Array.from(idsToFetch).map(id => getUser(id));
+        const results = await Promise.all(promises);
+        results.forEach(user => {
+          if (user) newDetailsMap.set(user._id, user);
+        });
+
+        setMemberDetails(newDetailsMap);
+
+        newDetailsMap.forEach((value, key) => {
+          userCache.set(key, value);
+        });
+
+      } catch (err) { console.error("Lỗi fetch user details:", err); }
+    };
+
+    const fetchJobDetails = async () => {
+      if (!getJobById) return;
+      const newDetailsMap = new Map(jobDetails);
+      const idsToFetch = new Set<string>();
+
+      for (const r of rooms) {
+        if (r.jobId && !newDetailsMap.has(r.jobId)) {
+          idsToFetch.add(r.jobId);
+        }
+      }
+      if (idsToFetch.size === 0) return;
+
+      try {
+        const promises = Array.from(idsToFetch).map(id => getJobById(id));
+        const results = await Promise.all(promises);
+        results.forEach(job => {
+          if (job) newDetailsMap.set(job._id, job);
+        });
+
+        setJobDetails(newDetailsMap);
+        newDetailsMap.forEach((value, key) => {
+          jobCache.set(key, value);
+        });
+
+      } catch (err) { console.error("Lỗi fetch job details:", err); }
+    };
+
+    fetchMemberDetails();
+    fetchJobDetails();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms, getUser, getJobById]);
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages, isLoadingMessages]);
 
   const handleSend = () => {
-    if (!message.trim() || loading || !activeConversation) return;
-    sendMessage(message);
+    if (!message.trim() || !currentRoomId || isLoadingMessages) return;
+    sendMessage(currentRoomId, message, "text");
     setMessage("");
   };
 
@@ -170,128 +144,134 @@ const Chat: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    }
-  }, [activeConversation?.messages, loading]); // Trigger khi tin nhắn của cuộc trò chuyện đang active thay đổi
-
-  // Lấy tin nhắn cuối cùng để hiển thị preview
-  const getLastMessage = (conv: Conversation) => {
-    return conv.messages[conv.messages.length - 1]?.text || "Chưa có tin nhắn";
-  };
+  const activeRoom = rooms.find(r => r._id === currentRoomId);
 
   return (
-    <div className="chat-widget">
+    <div className="chat-modal__overlay" onClick={onClose}>
+      <div
+        className="chat-widget__window"
+        style={{ width: "700px", height: "500px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="chat-widget__sidebar">
+          <div className="chat-widget__sidebar-header">
+            <h3>Tin nhắn</h3>
+          </div>
+          <div className="conversation-list">
+            {rooms.map(r => {
+              const otherMemberId = getOtherMemberId(r);
+              const userDetail = memberDetails.get(otherMemberId);
+              const jobDetail = jobDetails.get(r.jobId);
 
-      {!isChatOpen && (
-        <div className="chat-widget__tooltip">
-          Tin nhắn của bạn
-        </div>
-      )}
-
-      {/* Nút bấm mở chat */}
-      <button className="chat-widget__toggle-button" onClick={toggleChat} aria-label="Mở tin nhắn">
-        <AiOutlineComment size={30} color="white"/>
-      </button>
-
-      {/* Cửa sổ chat (giờ là 2 cột) */}
-      {isChatOpen && (
-        <div className="chat-widget__window" style={{ width: "700px", height: "500px" }}>
-
-          {/* ----- CỘT BÊN TRÁI (Sidebar) ----- */}
-          <div className="chat-widget__sidebar">
-            <div className="chat-widget__sidebar-header">
-              <h3>Tin nhắn</h3>
-            </div>
-            <div className="conversation-list">
-              {conversations.map(conv => (
+              return (
                 <div
-                  key={conv.id}
-                  className={`conversation-item ${conv.id === activeConversationId ? 'selected' : ''}`}
-                  onClick={() => setActiveConversationId(conv.id)}
+                  key={r._id}
+                  className={`conversation-item ${r._id === currentRoomId ? 'selected' : ''}`}
+                  onClick={() => handleSelectRoom(r._id)}
                 >
                   <div className="conversation-item__avatar">
-                    <AiOutlineUser size={24} />
+                    {userDetail?.avatar ? (
+                      <img src={userDetail.avatar} alt="avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                    ) : (
+                      <AiOutlineUser size={24} />
+                    )}
                   </div>
-                  <div className="conversation-item__details">
-                    <strong>{conv.hr.name}</strong>
-                    <span>{conv.hr.company}</span>
-                    <p>{getLastMessage(conv)}</p>
+                  <div className="conversation-item__details text-left">
+                    <strong className="text-black">
+                      {userDetail?.role === 'hr'
+                        ? `HR ${userDetail.fullname}`
+                        : (userDetail?.fullname || otherMemberId)}
+                    </strong>
+                    <span style={{ fontSize: '0.8rem', color: '#555' }}>
+                      công việc: {jobDetail?.jobTitle || "..."}
+                    </span>
+                    <p>{r.lastMessage || "..."}</p>
                   </div>
-                  {conv.unreadCount > 0 && (
-                    <div className="conversation-item__unread">
-                      {conv.unreadCount}
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-
-          {/* ----- CỘT BÊN PHẢI (Main Chat) ----- */}
-          <div className="chat-widget__main">
-            {!activeConversation ? (
-              // Trạng thái khi chưa chọn cuộc trò chuyện
-              <div className="chat-widget__empty">
-                <p>Hãy chọn một cuộc trò chuyện để bắt đầu.</p>
-              </div>
-            ) : (
-              // Trạng thái khi đã chọn
-              <>
-                <div className="chat-widget__header">
-                  <span className="chat-widget__header-title">
-                    {activeConversation.hr.name}
-                  </span>
-                  <button className="chat-widget__close-button" onClick={toggleChat} aria-label="Đóng cửa sổ chat">
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-
-                <div className="chat-widget__body" ref={chatBodyRef}>
-                  {activeConversation.messages.map((msg, index) => (
-                    <div key={msg.id || index} className={`message-message ${msg.sender === "user" ? "message--user" : "message--hr"}`}>
-                      {msg.text && <div>{msg.text}</div>}
-                      <span className="message__timestamp">{msg.timestamp}</span>
-                    </div>
-                  ))}
-
-                  {loading && (
-                    <div className="message-message message--hr">
-                      <div className="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="chat-widget__input-area">
-                  <input
-                    placeholder="Nhập nội dung ... "
-                    className="chat-widget__input"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={loading}
-                  />
-                  <button
-                    className="chat-widget__send-button"
-                    onClick={handleSend}
-                    disabled={loading}
-                  >
-                    <BsFillSendFill size={24} color="#10b981" />
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
         </div>
-      )}
+
+        <div className="chat-widget__main">
+          {!activeRoom ? (
+            <div className="chat-widget__empty">
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            </div>
+          ) : (
+            <>
+              <div className="chat-widget__header">
+                <span className="chat-widget__header-title">
+                  <div>
+                    {
+                      (() => {
+                        const otherMemberId = getOtherMemberId(activeRoom);
+                        const details = memberDetails.get(otherMemberId);
+
+                        if (details?.role === 'hr') {
+                          return `HR ${details.fullname}`;
+                        }
+                        return details?.fullname || otherMemberId;
+                      })()
+                    }
+                    <small style={{ display: 'block', fontWeight: 'normal', opacity: 0.9 }}>
+                      Về vị trí: {jobDetails.get(activeRoom.jobId)?.jobTitle || "..."}
+                    </small>
+                  </div>
+                </span>
+                <button className="chat-widget__close-button" onClick={onClose} aria-label="Đóng cửa sổ chat">
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+
+              <div className="chat-widget__body" ref={chatBodyRef}>
+                {messages.map((msg: ChatMessage, index) => (
+                  <div
+                    key={index}
+                    className={`message-message ${msg.senderId === currentUserId ? "message--user" : "message--hr"
+                      }`}
+                  >
+                    {msg.message && <div>{msg.message}</div>}
+                    <span className="message__timestamp">
+                      {new Date(msg.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+
+                {isLoadingMessages && (
+                  <div className="message-message message--hr">
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="chat-widget__input-area">
+                <input
+                  placeholder="Nhập nội dung ... "
+                  className="chat-widget__input"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={isLoadingMessages}
+                />
+                <button
+                  className="chat-widget__send-button"
+                  onClick={handleSend}
+                  disabled={isLoadingMessages}
+                >
+                  <BsFillSendFill size={24} color="#10b981" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Chat;
+export default ChatModal;

@@ -9,6 +9,8 @@ import Swal from "sweetalert2";
 import FreshInternCVTemplate from "../../components/Templates/Template-1/SeniorCVTemplate";
 import TwoColumnCVTemplate from "../../components/Templates/Template-2/TwoColumnCVTemplate";
 import ModernCenteredCVTemplate from "../../components/Templates/Template-3/ModernCenteredCVTemplate";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 type TemplateKey = 'twocolumns' | 'fresher' | 'modern';
 
@@ -227,9 +229,25 @@ const BuildCvs: React.FC = () => {
 
     const contentClasses = `buildcv-content ${isModalOpen ? 'modal-open' : ''}`;
 
+    const [openChat, setIsChatOpen] = useState(false);
+    const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+    const handleOpenChatRequest = (room?: ChatRoom) => {
+        if (room) {
+            setCurrentChatRoom(room);
+        }
+        setIsChatOpen(true);
+    };
+
+    const handleCloseChat = () => {
+        setIsChatOpen(false);
+    };
     return (
         <div className="buildcv-app">
-            <Header />
+            <Header onOpenChat={handleOpenChatRequest} />
+
+            {openChat && (
+                <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+            )}
 
             <div className={contentClasses}>
                 <div className="buildcv-toolbar shadow-2xl">

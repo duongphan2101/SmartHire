@@ -77,6 +77,7 @@ exports.applyJob = async (req, res) => {
         location: job.location,
       },
       userSnapshot: {
+        _id: user._id,
         fullname: user.fullname,
         email: user.email,
         avatar: user.avatar,

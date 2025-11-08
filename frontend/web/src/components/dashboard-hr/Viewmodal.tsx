@@ -17,16 +17,21 @@ import { AiOutlineMessage } from "react-icons/ai";
 import { BsTelephone } from "react-icons/bs";
 import usePayment from "../../hook/usePayment";
 import { Empty } from "antd";
+import { useChat } from "../../hook/useChat";
+import type { ChatRoom } from "../../utils/interfaces";
+
 interface ViewModalProps {
   job: Job;
   onClose: () => void;
   onUpdated?: () => void;
   update: boolean;
+  onOpenChatRequest: (room: ChatRoom) => void;
 }
 
-const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
+const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewModalProps) => {
   if (!job) return null;
-
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const currentHRId = currentUser._id || currentUser.user_id;
   const [editedJob, setEditedJob] = useState<Job>({ ...job });
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "applicants" | "candidates">("info");
@@ -41,7 +46,8 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
   const [loadingScores, setLoadingScores] = useState(false);
   const MySwal = withReactContent(Swal);
-
+  const [openChat, setOpenChat] = useState(false);
+  const { createChatRoom, sendChatRequest, fetchRooms } = useChat();
   // fetch ứng viên khi chuyển tab
   useEffect(() => {
     const fetchApplicants = async () => {
@@ -251,12 +257,30 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     }
   };
 
-  const hanldeMess = () => {
-    MySwal.fire({
-      icon: "info",
-      title: "Chức năng đang phát triển",
-      text: "Chức năng liên hệ đang được phát triển. Vui lòng thử lại sau.",
-    });
+  // const handleOpenChat = () => {
+  //   setOpenChat(true);
+  // };
+
+  const handleCloseChat = () => {
+    setOpenChat(false);
+  };
+
+  const handleMess = async (canId: string) => {
+    try {
+      const jobId = job._id;
+      const members = [currentHRId, canId];
+
+      const newRoom = await createChatRoom(jobId, members);
+      if (newRoom) {
+        fetchRooms();
+        onOpenChatRequest(newRoom);
+        handleClose();
+      } else {
+        console.log("❌ Không tạo được room (có thể đã tồn tại)");
+      }
+    } catch (error) {
+      console.error("Error creating chat room:", error);
+    }
   };
 
   const handleCloseConfirm = () => {
@@ -271,15 +295,9 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
     contacted: "Đã liên hệ",
   };
 
-  // Hầu hết các trường sẽ bị disable nếu status không phải là 'active'
   const isReadOnly = job.status !== "active";
-
-  // Trường endDate sẽ bị disable trừ khi status là 'active' HOẶC 'expired'
   const isEndDateDisabled = job.status !== "active" && job.status !== "expired";
-
-  // Nút lưu sẽ hiển thị nếu (update=true) VÀ (status là 'active' HOẶC 'expired')
   const showSaveButton = update && (job.status === "active" || job.status === "expired");
-
 
   return (
     <div className="view-modal-overlay" onDoubleClick={handleClose}>
@@ -646,7 +664,6 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                                     rel="noreferrer"
                                     className="text-blue-600 font-bold"
                                     onClick={() => {
-                                      // Chỉ update status thành reviewed nếu status hiện tại là pending
                                       if (app.status === 'pending') {
                                         handleUpdateStatus(app._id, "reviewed");
                                       }
@@ -662,10 +679,7 @@ const ViewModal = ({ job, onClose, onUpdated, update }: ViewModalProps) => {
                               <td>
                                 <button
                                   className="btn-mess"
-                                  onClick={() => {
-                                    hanldeMess();
-                                  }}
-                                >
+                                  onClick={() => { handleMess(app.userSnapshot._id) }}>
                                   <AiOutlineMessage size={18} />
                                 </button>
                               </td>

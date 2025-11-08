@@ -12,7 +12,8 @@ import { Select, Switch } from "antd";
 import { TbWorld } from "react-icons/tb";
 import useCV, { type CVResponse } from "../../hook/useCV";
 import PdfPreview from "../../components/Preview-PDF/PdfPreview";
-import Chat from "../../components/Chat/Chat";
+import type { ChatRoom } from "../../utils/interfaces";
+import ChatModal from "../../components/Chat/Chat";
 
 const Profile: React.FC = () => {
 
@@ -238,11 +239,25 @@ const Profile: React.FC = () => {
     };
 
     const pdfUrl = getPdfUrl();
+    const [openChat, setIsChatOpen] = useState(false);
+    const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+    const handleOpenChatRequest = (room?: ChatRoom) => {
+        if (room) {
+            setCurrentChatRoom(room);
+        }
+        setIsChatOpen(true);
+    };
 
+    const handleCloseChat = () => {
+        setIsChatOpen(false);
+    };
     return (
         <div className="profile-container bg-gray-50">
-            <Header />
-            <Chat />
+            <Header onOpenChat={handleOpenChatRequest} />
+
+            {openChat && (
+                <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
+            )}
             <div className="profile-content">
                 <ul className="profile-nav flex gap-2" style={{ padding: '10px' }}>
                     <li className="profile-nav_item text-blue-400"><a href="/home">Trang chủ</a></li>

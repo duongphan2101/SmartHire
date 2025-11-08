@@ -1,31 +1,35 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import useNotification, { type Notification } from "../../hook/useNotification";
-import NotificationModal from "../NotificationModal/NotificationModal"; // 👈 thêm modal
+import NotificationModal from "../NotificationModal/NotificationModal";
 import "./HRheader.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
 import { IoWalletOutline } from "react-icons/io5";
 import usePayment from "../../hook/usePayment";
-
+import { AiOutlineMessage } from "react-icons/ai";
+import Chat from "../Chat/Chat";
+import { useChat } from "../../hook/useChat";
 interface HRheaderProps {
   breadcrumb: string;
   setPage: (
     page: "dashboard" | "about" | "company" | "jobPost" | "payment"
   ) => void;
   companyName: string;
+  onOpenChat: () => void;
 }
 
-const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
+const HRheader = ({ breadcrumb, setPage, companyName, onOpenChat }: HRheaderProps) => {
   const { getUser, user } = useUser();
   const [, setCompanyAvatar] = useState<string | null>(null);
   const { balance } = usePayment();
   const { notifications, setNotifications } = useNotification(user?._id);
   const [openNotify, setOpenNotify] = useState(false);
-
+  const [openChat, setOpenChat] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const { fetchRooms,rooms } = useChat();
 
   useEffect(() => {
     if (user?._id) {
@@ -34,6 +38,7 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
         .then((res) => setNotifications(res.data))
         .catch((err) => console.error(err));
     }
+    fetchRooms();
   }, [user, setNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -83,6 +88,14 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
 
   const handleAbout = () => setPage("about");
   const handlePayment = () => setPage("payment");
+
+  // const handleOpenChat = () => {
+  //   setOpenChat(true);
+  // };
+
+  const handleCloseChat = () => {
+    setOpenChat(false);
+  };
 
   return (
     <div className="main-header">
@@ -165,6 +178,14 @@ const HRheader = ({ breadcrumb, setPage, companyName }: HRheaderProps) => {
               notification={selectedNotification}
               onClose={() => setOpenModal(false)}
             />
+          )}
+
+          <div className="icon-button">
+            <AiOutlineMessage size={24} onClick={onOpenChat} />
+          </div>
+
+          {openChat && (
+            <Chat room={rooms[0]} onClose={handleCloseChat} />
           )}
 
           <div className="flex items-center gap-2">

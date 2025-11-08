@@ -119,6 +119,28 @@ export interface InviteData {
   expiresAt: string;
 }
 
-export interface EmailNotifyJob {
-  
+export interface ChatMessage {
+    senderId: string;
+    message: string;
+    messageType?: "text" | "file" | "system";
+    createdAt: string;
+}
+
+export interface ChatRoom {
+    _id: string;
+    jobId: string;
+    members: string[];
+    chats: ChatMessage[];
+    lastMessage: string;
+    isActive: boolean;
+}
+
+export interface ChatRequest {
+    _id: string;
+    hrId: string;
+    candidateId: string;
+    jobId: string;
+    status: "pending" | "accepted" | "rejected";
+    createdAt: string;
+    updatedAt: string;
 }

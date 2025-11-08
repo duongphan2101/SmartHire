@@ -11,10 +11,13 @@ import withReactContent from "sweetalert2-react-content";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
 import { Empty } from "antd";
+import type { ChatRoom } from "../../utils/interfaces";
 
 const MySwal = withReactContent(Swal);
-
-const JobPost = () => {
+interface JobPostProps {
+    onOpenChatRequest: (room: ChatRoom) => void;
+}
+const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { jobs: allJobs, loading, error, refetch } = useJob();
 
@@ -121,7 +124,7 @@ const JobPost = () => {
 
     if (loading) return <div>Đang tải...</div>;
     // Hiển thị lỗi từ useJob
-    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!"/></div>;
+    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!" /></div>;
 
     // Sử dụng jobs đã lọc thay vì allJobs
     const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
@@ -152,6 +155,7 @@ const JobPost = () => {
                     onClose={() => setViewJob(null)}
                     onUpdated={refetch}
                     update={true}
+                    onOpenChatRequest={onOpenChatRequest}
                 />
             )}
 

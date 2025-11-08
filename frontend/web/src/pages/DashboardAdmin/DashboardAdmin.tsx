@@ -11,7 +11,8 @@ import CompanyList from "../../components/dashboardAdmin/CompanyList";
 import HRterms from "../../components/dashboardAdmin/HRterms";
 import UserTerms from "../../components/dashboardAdmin/UserTerms";
 import About from "../../components/About-HR/About-hr";
-import DashboardContent from "../../components/dashboardAdmin/DashboardAdmin"; 
+import DashboardContent from "../../components/dashboardAdmin/dashboardAdmin"; 
+import HRList from "../../components/dashboardAdmin/HRList";
 
 export const DashboardAdmin = () => {
     const [collapsed, setCollapsed] = useState(false);
@@ -52,7 +53,7 @@ export const DashboardAdmin = () => {
                         {/* SỬA LỖI: Sử dụng tên component đã đổi tên */}
                         {page === "dashboard" && <DashboardContent />} 
                         
-                        {page === "manageUsers" && <div>👤 Nhà tuyển dụng</div>}
+                        {page === "manageUsers" && <HRList />}
                         {page === "company" && <CompanyList />}
                         {page === "userTerms" && <UserTerms />}
                         {page === "hrTerms" && <HRterms />}

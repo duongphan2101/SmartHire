@@ -80,12 +80,13 @@
   gap: 8px;
 }
 
-.icon-button {
+.icon-group .icon-button {
   padding: 8px;
   border-radius: 9999px;
   background-color: transparent;
   border: none;
   cursor: pointer;
+  margin-left: 0;
 }
 
 .icon-button:hover {
