@@ -306,7 +306,88 @@
   font-size: 16px;
   color: #1f2937;
 }
+/* === ICON BÚT === */
+.edit-button-wrapper {
+  margin-left: auto;
+  padding: 0 8px;
+}
 
+.edit-icon {
+  cursor: pointer;
+  color: #1890ff;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.edit-icon:hover {
+  color: #40a9ff;
+}
+
+.edit-icon.small {
+  font-size: 14px;
+}
+
+/* === EDIT MODE === */
+.edit-rating {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+  border-color: #059669;
+}
+
+.edit-textarea.small {
+  font-size: 13px;
+  resize: none;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.save-icon { color: #52c41a; cursor: pointer; }
+.cancel-icon { color: #ff4d4f; cursor: pointer; }
+
+/* === ĐÃ CHỈNH SỬA === */
+.edited-tag {
+  color: #888;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* === COMMENT === */
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comment-text {
+  margin: 4px 0 0;
+  color: #374151;
+  word-break: break-word;
+}
 @media (max-width: 600px) {
   .company-overall-rating {
     flex-direction: column;
@@ -316,4 +397,13 @@
   .overall-score {
     justify-content: center;
   }
+}
+.ant-pagination {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.ant-pagination li:hover {
+  cursor: pointer;
+  color: #059669;
 }

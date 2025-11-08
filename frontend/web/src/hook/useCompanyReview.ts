@@ -5,9 +5,11 @@ import { HOSTS } from "../utils/host";
 export interface Comment {
   _id: string;
   author: string;
-   avatar?: string;
+  avatar?: string;
   text: string;
   date: string;
+  userId?: string;
+  editedAt?: string;
 }
 
 interface Review {
@@ -16,10 +18,11 @@ interface Review {
   title: string;
   content: string;
   userId: string;
-  fullname: string; 
-  author: string; 
-  avatar?: string; 
+  fullname: string;
+  author: string;
+  avatar?: string;
   date: string;
+  editedAt?: string;
   comments: Comment[];
 }
 
@@ -28,6 +31,16 @@ const useCompanyReview = (companyId?: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getCurrentUserId = (): string | null => {
+    const userData = localStorage.getItem("user");
+    if (!userData) return null;
+    try {
+      const parsed = JSON.parse(userData);
+      return parsed._id || parsed.user_id || null;
+    } catch {
+      return null;
+    }
+  };
   const fetchReviews = async () => {
     try {
       setLoading(true);
@@ -49,32 +62,66 @@ const useCompanyReview = (companyId?: string) => {
     title?: string;
     content: string;
     userId?: string;
-    author?: string;
     fullname?: string;
     avatar?: string;
   }) => {
-    const res = await axios.post(HOSTS.reviewService, data);
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) throw new Error("Không tìm thấy userId");
+
+    const res = await axios.post(HOSTS.reviewService, {
+      ...data,
+      userId: currentUserId,
+    });
     setReviews((prev) => [res.data, ...prev]);
   };
 
-  const addComment = async (
+ const addComment = async (
   reviewId: string,
   text: string,
   userId?: string,
   fullname?: string,
   avatar?: string
 ) => {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) throw new Error("Không tìm thấy userId");
+
   const res = await axios.post(`${HOSTS.reviewService}/${reviewId}/comments`, {
     text,
-    userId,
+    userId: currentUserId,
     fullname,
     avatar,
   });
-  setReviews((prev) =>
-    prev.map((r) => (r._id === reviewId ? res.data : r))
-  );
+  setReviews((prev) => prev.map((r) => (r._id === reviewId ? res.data : r)));
 };
 
+  const updateReview = async (
+  reviewId: string,
+  data: { title?: string; content: string; rating?: number }
+) => {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) throw new Error("Không tìm thấy userId");
+
+  const res = await axios.put(`${HOSTS.reviewService}/${reviewId}`, {
+    ...data,
+    userId: currentUserId,
+  });
+  setReviews((prev) => prev.map((r) => (r._id === reviewId ? res.data : r)));
+};
+
+const updateComment = async (
+  reviewId: string,
+  commentId: string,
+  text: string
+) => {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) throw new Error("Không tìm thấy userId");
+
+  const res = await axios.put(`${HOSTS.reviewService}/${reviewId}/comments/${commentId}`, {
+    text,
+    userId: currentUserId,
+  });
+  setReviews((prev) => prev.map((r) => (r._id === reviewId ? res.data : r)));
+};
   const deleteReview = async (id: string) => {
     await axios.delete(`${HOSTS.reviewService}/${id}`);
     setReviews((prev) => prev.filter((r) => r._id !== id));
@@ -90,6 +137,8 @@ const useCompanyReview = (companyId?: string) => {
     error,
     addReview,
     addComment,
+    updateReview,
+    updateComment,
     deleteReview,
     refetch: fetchReviews,
   };

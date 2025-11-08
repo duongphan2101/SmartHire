@@ -21,7 +21,7 @@
     "@mui/x-date-pickers": "^8.14.1",
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.11",
-    "antd": "^5.27.6",
+    "antd": "^4.24.16",
     "axios": "^1.11.0",
     "cloudinary": "^2.7.0",
     "dayjs": "^1.11.18",
