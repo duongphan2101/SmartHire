@@ -13,7 +13,7 @@ import { FaRegEye, FaRegMoneyBillAlt } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
-
+import CompanyReview from "../../components/ReviewCompany/CompanyReview";
 
 const Detail_Company: React.FC = () => {
     const JOBS_PER_PAGE = 8;
@@ -207,8 +207,9 @@ const Detail_Company: React.FC = () => {
                         />
                     </div>
                 </div>
-
+                        
             </div>
+            <CompanyReview/>
 
             <Footer />
         </div>
