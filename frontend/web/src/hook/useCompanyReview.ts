@@ -83,7 +83,7 @@ const useCompanyReview = (companyId?: string) => {
   avatar?: string
 ) => {
   const currentUserId = getCurrentUserId();
-  if (!currentUserId) throw new Error("Không tìm thấy userId");
+  if (!currentUserId) return;
 
   const res = await axios.post(`${HOSTS.reviewService}/${reviewId}/comments`, {
     text,

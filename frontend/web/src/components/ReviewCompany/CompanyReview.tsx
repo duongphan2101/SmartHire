@@ -13,15 +13,6 @@ interface Props {
 const REVIEWS_PER_PAGE = 3;
 const COMMENTS_PER_PAGE = 2;
 
-interface EditState {
-  reviewId?: string;
-  commentId?: string;
-  title?: string;
-  content?: string;
-  rating?: number;
-  commentText?: string;
-}
-
 const CompanyReview: React.FC<Props> = ({ companyId }) => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -30,7 +21,19 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
   const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
   const [currentReviewPage, setCurrentReviewPage] = useState(1);
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: number }>({});
-  const [editing, setEditing] = useState<EditState>({});
+
+  const [editingReview, setEditingReview] = useState<{
+    reviewId?: string;
+    title?: string;
+    content?: string;
+    rating?: number;
+  }>({});
+
+  const [editingComment, setEditingComment] = useState<{
+    reviewId?: string;
+    commentId?: string;
+    text?: string;
+  }>({});
 
   const { reviews, addReview, addComment, updateReview, updateComment, loading } = useCompanyReview(companyId);
   const { user, getUser, loadingUser } = useUser();
@@ -47,7 +50,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
     fetchUser();
   }, [getUser]);
 
-  // === SUBMIT REVIEW ===
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rating || !content.trim() || !user) return;
@@ -68,7 +70,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
     setCurrentReviewPage(1);
   };
 
-  // === ADD COMMENT ===
   const handleAddComment = async (reviewId: string) => {
     const text = commentText[reviewId]?.trim();
     if (!text || !user?._id) return;
@@ -78,7 +79,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
     setExpandedComments((prev) => ({ ...prev, [reviewId]: 1 }));
   };
 
-  // === TÍNH RATING TỔNG ===
   const calculateAverageRating = (): string => {
     if (reviews.length === 0) return "0.0";
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
@@ -88,11 +88,10 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
   const averageRating = calculateAverageRating();
   const totalReviews = reviews.length;
 
-  // === PHÂN TRANG ===
+
   const startReviewIndex = (currentReviewPage - 1) * REVIEWS_PER_PAGE;
   const paginatedReviews = reviews.slice(startReviewIndex, startReviewIndex + REVIEWS_PER_PAGE);
 
-  // === KIỂM TRA CÓ THỂ SỬA KHÔNG (48h) ===
   const canEdit = (date: string): boolean => {
     const reviewTime = new Date(date).getTime();
     if (isNaN(reviewTime)) return false;
@@ -100,50 +99,52 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
     return hoursDiff <= 48;
   };
 
-  // === CHỈNH SỬA REVIEW ===
   const startEditReview = (review: any) => {
-    setEditing({
+    setEditingReview({
       reviewId: review._id,
       title: review.title || "",
       content: review.content,
       rating: review.rating,
     });
+    setEditingComment({}); 
   };
 
   const saveEditReview = async () => {
-    if (!editing.reviewId || !editing.content?.trim()) return;
+    if (!editingReview.reviewId || !editingReview.content?.trim()) return;
 
     try {
-      await updateReview(editing.reviewId, {
-        title: editing.title,
-        content: editing.content,
-        rating: editing.rating,
+      await updateReview(editingReview.reviewId, {
+        title: editingReview.title,
+        content: editingReview.content,
+        rating: editingReview.rating,
       });
       message.success("Cập nhật thành công");
-      setEditing({});
+      setEditingReview({});
     } catch {
       message.error("Cập nhật thất bại");
     }
   };
 
-  const cancelEdit = () => setEditing({});
+  const cancelEditReview = () => setEditingReview({});
 
-  // === CHỈNH SỬA COMMENT ===
   const startEditComment = (reviewId: string, commentId: string, text: string) => {
-    setEditing({ reviewId, commentId, commentText: text });
+    setEditingComment({ reviewId, commentId, text });
+    setEditingReview({}); 
   };
 
   const saveEditComment = async () => {
-    if (!editing.reviewId || !editing.commentId || !editing.commentText?.trim()) return;
+    if (!editingComment.reviewId || !editingComment.commentId || !editingComment.text?.trim()) return;
 
     try {
-      await updateComment(editing.reviewId, editing.commentId, editing.commentText);
+      await updateComment(editingComment.reviewId, editingComment.commentId, editingComment.text);
       message.success("Cập nhật bình luận thành công");
-      setEditing({});
+      setEditingComment({});
     } catch {
       message.error("Cập nhật thất bại");
     }
   };
+
+  const cancelEditComment = () => setEditingComment({});
 
   if (loadingUser) return <p>Đang tải thông tin người dùng...</p>;
   if (!user) return <p>Vui lòng đăng nhập để đánh giá</p>;
@@ -151,8 +152,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
   return (
     <div className="company-review-container">
       <h3 className="review-heading">Đánh giá công ty</h3>
-
-      {/* RATING TỔNG */}
       <div className="company-overall-rating">
         <div className="overall-score">
           <span className="big-rating">{averageRating}</span>
@@ -170,7 +169,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
         <p className="review-count">Dựa trên {totalReviews} đánh giá</p>
       </div>
 
-      {/* FORM ĐÁNH GIÁ */}
       <form className="review-form" onSubmit={handleSubmitReview}>
         <div className="rating-stars">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -211,7 +209,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
         </button>
       </form>
 
-      {/* DANH SÁCH ĐÁNH GIÁ */}
       <div className="review-list">
         {loading ? (
           <p>Đang tải đánh giá...</p>
@@ -220,7 +217,7 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
         ) : (
           <>
             {paginatedReviews.map((review) => {
-              const isEditingReview = editing.reviewId === review._id;
+              const isEditingReview = editingReview.reviewId === review._id;
               const commentPage = expandedComments[review._id] || 1;
               const startCommentIndex = (commentPage - 1) * COMMENTS_PER_PAGE;
               const paginatedComments = review.comments.slice(
@@ -230,7 +227,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
 
               return (
                 <div key={review._id} className="review-item">
-                  {/* HEADER + ICON BÚT */}
                   <div className="review-header">
                     <div className="review-user-info">
                       <img
@@ -257,8 +253,7 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                       ))}
                     </div>
 
-                    {/* ICON BÚT - HIỂN THỊ RÕ */}
-                    {review.userId === user._id && canEdit(review.date) && !isEditingReview && (
+                    {review.userId === user._id && canEdit(review.date) && !editingReview.reviewId && (
                       <div className="edit-button-wrapper">
                         <EditOutlined
                           className="edit-icon"
@@ -269,7 +264,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                     )}
                   </div>
 
-                  {/* NỘI DUNG REVIEW */}
                   <div className="review-body">
                     {isEditingReview ? (
                       <>
@@ -278,8 +272,8 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                             <FaStar
                               key={star}
                               size={20}
-                              color={star <= (editing.rating || 0) ? "#fbbf24" : "#d1d5db"}
-                              onClick={() => setEditing({ ...editing, rating: star })}
+                              color={star <= (editingReview.rating || 0) ? "#fbbf24" : "#d1d5db"}
+                              onClick={() => setEditingReview({ ...editingReview, rating: star })}
                               style={{ cursor: "pointer" }}
                             />
                           ))}
@@ -287,15 +281,15 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
 
                         <input
                           type="text"
-                          value={editing.title || ""}
-                          onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+                          value={editingReview.title || ""}
+                          onChange={(e) => setEditingReview({ ...editingReview, title: e.target.value })}
                           placeholder="Tiêu đề"
                           className="edit-input"
                         />
 
                         <textarea
-                          value={editing.content || ""}
-                          onChange={(e) => setEditing({ ...editing, content: e.target.value })}
+                          value={editingReview.content || ""}
+                          onChange={(e) => setEditingReview({ ...editingReview, content: e.target.value })}
                           rows={3}
                           className="edit-textarea"
                           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && saveEditReview()}
@@ -303,7 +297,7 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
 
                         <div className="edit-actions">
                           <CheckOutlined onClick={saveEditReview} className="save-icon" />
-                          <CloseOutlined onClick={cancelEdit} className="cancel-icon" />
+                          <CloseOutlined onClick={cancelEditReview} className="cancel-icon" />
                         </div>
                       </>
                     ) : (
@@ -319,11 +313,10 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                     )}
                   </div>
 
-                  {/* BÌNH LUẬN */}
                   <div className="comment-section">
                     {paginatedComments.map((c) => {
-                      const isEditingComment =
-                        editing.reviewId === review._id && editing.commentId === c._id;
+                      const isEditingThisComment =
+                        editingComment.reviewId === review._id && editingComment.commentId === c._id;
 
                       return (
                         <div key={c._id} className="comment-item">
@@ -340,8 +333,7 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                                 {c.editedAt && <span className="edited-tag"> (Đã sửa)</span>}
                               </span>
 
-                              {/* ICON BÚT CHO COMMENT */}
-                              {c.userId === user._id && canEdit(c.date) && !isEditingComment && (
+                              {c.userId === user._id && canEdit(c.date) && !editingComment.commentId && (
                                 <EditOutlined
                                   className="edit-icon small"
                                   onClick={() => startEditComment(review._id, c._id, c.text)}
@@ -350,12 +342,12 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                               )}
                             </div>
 
-                            {isEditingComment ? (
+                            {isEditingThisComment ? (
                               <>
                                 <textarea
-                                  value={editing.commentText || ""}
+                                  value={editingComment.text || ""}
                                   onChange={(e) =>
-                                    setEditing({ ...editing, commentText: e.target.value })
+                                    setEditingComment({ ...editingComment, text: e.target.value })
                                   }
                                   rows={2}
                                   className="edit-textarea small"
@@ -365,7 +357,7 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                                 />
                                 <div className="edit-actions">
                                   <CheckOutlined onClick={saveEditComment} className="save-icon" />
-                                  <CloseOutlined onClick={cancelEdit} className="cancel-icon" />
+                                  <CloseOutlined onClick={cancelEditComment} className="cancel-icon" />
                                 </div>
                               </>
                             ) : (
@@ -376,7 +368,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                       );
                     })}
 
-                    {/* Phân trang comment */}
                     {review.comments.length > COMMENTS_PER_PAGE && (
                       <div className="comment-pagination">
                         <Pagination
@@ -392,7 +383,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
                       </div>
                     )}
 
-                    {/* Nhập bình luận */}
                     <div className="comment-input-box">
                       <input
                         type="text"
@@ -410,7 +400,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
               );
             })}
 
-            {/* Phân trang review */}
             <div className="review-pagination">
               <Pagination
                 current={currentReviewPage}
@@ -423,8 +412,6 @@ const CompanyReview: React.FC<Props> = ({ companyId }) => {
           </>
         )}
       </div>
-
-      {/* CSS ĐÃ TÁCH RIÊNG - XEM FILE CompanyReview.css */}
     </div>
   );
 };
