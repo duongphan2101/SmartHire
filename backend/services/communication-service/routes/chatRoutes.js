@@ -7,7 +7,7 @@ const {
   deleteChatRoom,
   // Chat
   getMessages,
-  sendMessage,
+  // sendMessage,
   // ChatRequest
   sendChatRequest,
   acceptChatRequest,
@@ -30,7 +30,7 @@ router.delete("/room/:chatRoomId", deleteChatRoom);
 router.get("/messages/:chatRoomId", getMessages);
 
 // Gửi tin nhắn
-router.post("/messages/:chatRoomId", sendMessage);
+// router.post("/messages/:chatRoomId", sendMessage);
 
 // ================= ChatRequest =================
 // Gửi yêu cầu chat từ HR tới candidate

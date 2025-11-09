@@ -402,15 +402,17 @@ const Home: React.FC = () => {
   const handleCloseChat = () => {
     setIsChatOpen(false);
   };
-  
+
   return (
     <>
       <div className="App">
         <Header onOpenChat={handleOpenChatRequest} />
-        <ChatWithAI />
+
         {openChat && (
           <ChatModal room={currentChatRoom} onClose={handleCloseChat} />
         )}
+
+        <ChatWithAI />
         <div className="containerStyle">
 
           <div className="container-fluid container-fluid_banner">
