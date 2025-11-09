@@ -11,6 +11,8 @@ import ChatModal from "../../components/Chat/Chat";
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
   const [cvs, setCvs] = useState<any[]>([]);
+  const [openChat, setIsChatOpen] = useState(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -54,8 +56,7 @@ const Cvs: React.FC = () => {
   };
 
   if (loadingUser) return <p className="loading">Đang tải CV...</p>;
-  const [openChat, setIsChatOpen] = useState(false);
-  const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
   const handleOpenChatRequest = (room?: ChatRoom) => {
     if (room) {
       setCurrentChatRoom(room);

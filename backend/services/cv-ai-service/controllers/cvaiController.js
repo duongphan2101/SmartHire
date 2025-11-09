@@ -1,42 +1,57 @@
 require("dotenv").config();
-const OpenAI = require("openai");
 const axios = require("axios");
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const client = new OpenAI({
-  baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_TOKEN,
-});
+// Cấu hình an toàn (bắt buộc) - cho phép nội dung không nhạy cảm
+const safetySettings = [
+  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+];
 
-// ===== COMMON HELPER =====
-async function callAI(prompt, fieldName, content) {
-  const response = await client.chat.completions.create({
-    model: "deepseek-ai/DeepSeek-V3.1:fireworks-ai",
-    messages: [
-      { role: "system", content: prompt },
-      { role: "user", content },
-    ],
-    temperature: 0.7,
-    max_tokens: 300,
-    response_format: { type: "json_object" },
-  });
 
-  return JSON.parse(response.choices[0].message.content);
-}
+async function callGemini(systemPrompt, userContent, fieldName, maxTokens = 2048) {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-pro",
+      systemInstruction: systemPrompt,
+      safetySettings,
+    });
 
-async function callAI_Cover(prompt, fieldName, content) {
-  const response = await client.chat.completions.create({
-    model: "deepseek-ai/DeepSeek-V3.1:fireworks-ai",
-    messages: [
-      { role: "system", content: prompt },
-      { role: "user", content },
-    ],
-    temperature: 0.7,
-    max_tokens: 500,
-    response_format: { type: "json_object" },
-  });
+    const generationConfig = {
+      temperature: 0.7,
+      maxOutputTokens: maxTokens,
+      responseMimeType: "application/json",
+    };
 
-  const raw = response.choices[0].message.content;
-  return safeParse(raw, fieldName);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: userContent }] }],
+      generationConfig,
+    });
+
+    const response = result.response;
+    if (!response.candidates || response.candidates.length === 0 || !response.candidates[0].content) {
+      console.error("LỖI: Gemini trả về nội dung rỗng. Lý do có thể là Safety Block.");
+      console.log("Full Gemini Response:", JSON.stringify(response, null, 2));
+      const finishReason = response.candidates?.[0]?.finishReason || "EMPTY_CANDIDATE";
+      throw new Error(`Gemini response was empty or blocked. Finish Reason: ${finishReason}`);
+    }
+    const text = response.text();
+    if (text === "") {
+      console.error("LỖI: Gemini trả về chuỗi rỗng!");
+      // Log này sẽ cho chúng ta biết lý do (ví dụ: finishReason: "SAFETY")
+      console.log("Full response object:", JSON.stringify(response, null, 2));
+    }
+    return safeParse(text, fieldName);
+  } catch (err) {
+    console.error(`Gemini call error for ${fieldName}:`, err.message || err);
+    if (err.response && err.response.text) {
+      return safeParse(err.response.text(), fieldName);
+    }
+    throw err;
+  }
 }
 
 function safeParse(content, fieldName) {
@@ -44,6 +59,7 @@ function safeParse(content, fieldName) {
     return JSON.parse(content);
   } catch (err) {
     console.warn("safeParse JSON error:", err.message);
+    // Fallback: Nếu AI trả về text rác, gói nó vào JSON
     return { [fieldName]: content };
   }
 }
@@ -53,20 +69,21 @@ function safeParse(content, fieldName) {
 async function summary(req, res) {
   try {
     const { content } = req.body;
+    // console.log("ĐẦU VÀO /summary:", content);
     if (!content) return res.status(400).json({ error: "Missing summary content" });
 
-    const result = await callAI(
+    const result = await callGemini(
       `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Summary CV để ngắn gọn, chuyên nghiệp, 
-       thu hút nhà tuyển dụng. Giữ giọng văn tự nhiên, tránh phóng đại.
-       Trả về JSON: { "optimizedSummary": "<...>" }`,
+       Nhiệm vụ: tối ưu phần Summary CV để ngắn gọn, chuyên nghiệp, 
+       thu hút nhà tuyển dụng. Giữ giọng văn tự nhiên, tránh phóng đại.
+       Trả về JSON: { "optimizedSummary": "<...>" }`,
+      content,
       "optimizedSummary",
-      content
+      2048
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Summary optimization error:", err.message || err);
     res.status(500).json({ error: "Summary optimization error", details: err.message || String(err) });
   }
 }
@@ -77,18 +94,18 @@ async function skills(req, res) {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: "Missing skills content" });
 
-    const result = await callAI(
+    const result = await callGemini(
       `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu danh sách Skills để rõ ràng, phân nhóm hợp lý,
-       tập trung vào kỹ năng quan trọng với nhà tuyển dụng.
-       Trả về JSON: { "optimizedSkills": ["skill1", "skill2", ...] }`,
+       Nhiệm vụ: tối ưu danh sách Skills để rõ ràng, phân nhóm hợp lý,
+       tập trung vào kỹ năng quan trọng với nhà tuyển dụng.
+       Trả về JSON: { "optimizedSkills": ["skill1", "skill2", ...] }`,
+      content,
       "optimizedSkills",
-      content
+      2048
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Skills optimization error:", err.message || err);
     res.status(500).json({ error: "Skills optimization error", details: err.message || String(err) });
   }
 }
@@ -97,20 +114,21 @@ async function skills(req, res) {
 async function experience(req, res) {
   try {
     const { content } = req.body;
+        // console.log("ĐẦU VÀO /experience description:", content);
     if (!content) return res.status(400).json({ error: "Missing experience content" });
 
-    const result = await callAI(
+    const result = await callGemini(
       `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Kinh nghiệm làm việc (Experience),
-       tập trung vào thành tựu (achievements), tác động và kết quả.
-       Trả về JSON: { "optimizedExperience": "<...>" }`,
+       Nhiệm vụ: tối ưu phần Kinh nghiệm làm việc (Experience),
+       tập trung vào thành tựu (achievements), tác động và kết quả.
+       Trả về JSON: { "optimizedExperience": "<...>" }`,
+      content,
       "optimizedExperience",
-      content
+      2048
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Experience optimization error:", err.message || err);
     res.status(500).json({ error: "Experience optimization error", details: err.message || String(err) });
   }
 }
@@ -121,18 +139,18 @@ async function education(req, res) {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: "Missing education content" });
 
-    const result = await callAI(
+    const result = await callGemini(
       `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Học vấn (Education),
-       giữ ngắn gọn nhưng nêu bật được trường, ngành, thành tích nổi bật.
-       Trả về JSON: { "optimizedEducation": "<...>" }`,
+       Nhiệm vụ: tối ưu phần Học vấn (Education),
+       giữ ngắn gọn nhưng nêu bật được trường, ngành, thành tích nổi bật.
+       Trả về JSON: { "optimizedEducation": "<...>" }`,
+      content,
       "optimizedEducation",
-      content
+      2048
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Education optimization error:", err.message || err);
     res.status(500).json({ error: "Education optimization error", details: err.message || String(err) });
   }
 }
@@ -143,18 +161,18 @@ async function projects(req, res) {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: "Missing projects content" });
 
-    const result = await callAI(
+    const result = await callGemini(
       `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Dự án (Projects), 
-       nêu rõ vai trò, công nghệ sử dụng và kết quả đạt được.
-       Trả về JSON: { "optimizedProjects": "<...>" }`,
+       Nhiệm vụ: tối ưu phần Dự án (Projects), 
+       nêu rõ vai trò, công nghệ sử dụng và kết quả đạt được.
+       Trả về JSON: { "optimizedProjects": "<...>" }`,
+      content,
       "optimizedProjects",
-      content
+      2048
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Projects optimization error:", err.message || err);
     res.status(500).json({ error: "Projects optimization error", details: err.message || String(err) });
   }
 }
@@ -170,10 +188,6 @@ async function coverLetter(req, res) {
     const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
     const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
 
-    // console.log("Fetching CV from:", `${CV_SERVICE_URL}/cv/${cvId}`);
-    // console.log("Fetching Job from:", `${JOB_SERVICE_URL}/${jobId}`);
-
-    // 1. Fetch CV + Job song song
     const [cvRes, jobRes] = await Promise.all([
       axios.get(`${CV_SERVICE_URL}/cv/${cvId}`),
       axios.get(`${JOB_SERVICE_URL}/${jobId}`),
@@ -185,52 +199,37 @@ async function coverLetter(req, res) {
     if (!cv) return res.status(404).json({ error: "CV not found" });
     if (!job) return res.status(404).json({ error: "Job not found" });
 
-    // 2. Build input cho AI
     const candidateInfo = `
-      Họ tên: ${cv.fullname || ""}
-      Kỹ năng: ${(cv.skills || []).join(", ")}
-      Kinh nghiệm: ${cv.experience || "Chưa có"} năm
-      Học vấn: ${cv.education || ""}
-    `;
+      Họ tên: ${cv.fullname || ""}
+      Kỹ năng: ${(cv.skills || []).join(", ")}
+      Kinh nghiệm: ${cv.experience || "Chưa có"} năm
+      Học vấn: ${cv.education || ""}
+    `;
 
+    // P/S: Dòng `job.department?.name` có vẻ lạ, 
+    // bạn nên kiểm tra xem đây là "Tên công ty" hay "Tên phòng ban"
     const jobInfo = `
-      Vị trí: ${job.jobTitle || ""}
-      Công ty: ${job.department?.name || ""}
-      Yêu cầu: ${(job.requirement || []).join(", ")}
-    `;
+      Vị trí: ${job.jobTitle || ""}
+      Công ty: ${job.companyName || job.department?.name || ""} 
+      Yêu cầu: ${(job.requirement || []).join(", ")}
+    `;
 
-    // console.log("Candidate info:", candidateInfo);
-    // console.log("Job info:", jobInfo);
-
-    // 3. Prompt riêng
     const prompt = `
-      Bạn là chuyên gia viết cover letter.
-      Dựa trên thông tin ứng viên và công việc, hãy viết thư xin việc
-      chuyên nghiệp, ngắn gọn, tập trung vào lý do ứng tuyển.
-      Yêu cầu: Trả về JSON hợp lệ, format đúng:
-      {
-        "coverLetter": "Nội dung thư, các xuống dòng phải dùng \\n, không để raw newline"
-      }
-    `;
+      Bạn là chuyên gia viết cover letter.
+      Dựa trên thông tin ứng viên và công việc, hãy viết thư xin việc
+      chuyên nghiệp, ngắn gọn, tập trung vào lý do ứng tuyển.
+      Yêu cầu: Trả về JSON hợp lệ, format đúng:
+      {
+        "coverLetter": "Nội dung thư, các xuống dòng phải dùng \\n, không để raw newline"
+      }
+    `;
 
-    // 4. Gọi AI
-    let result;
-    try {
-      result = await callAI_Cover(
-        prompt,
-        "coverLetter",
-        `
-        Ứng viên:
-        ${candidateInfo}
-
-        Công việc:
-        ${jobInfo}
-        `
-      );
-    } catch (parseErr) {
-      console.warn("AI JSON parse failed, fallback to raw string:", parseErr.message);
-      result = { coverLetter: parseErr.message || "Không thể sinh cover letter" };
-    }
+    const result = await callGemini(
+      prompt,
+      `Ứng viên:\n${candidateInfo}\n\nCông việc:\n${jobInfo}`,
+      "coverLetter",
+      2048
+    );
 
     res.json(result);
   } catch (err) {
@@ -241,8 +240,6 @@ async function coverLetter(req, res) {
     });
   }
 }
-
-
 
 
 module.exports = { summary, skills, experience, education, projects, coverLetter };

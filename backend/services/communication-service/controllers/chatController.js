@@ -30,7 +30,13 @@ const initSocket = (socketIoInstance) => {
         chatRoom.lastMessage = message;
         await chatRoom.save();
 
-        io.to(chatRoomId).emit("newMessage", newMsg);
+        const savedMsg = chatRoom.chats[chatRoom.chats.length - 1];
+
+        io.to(chatRoomId).emit("newMessage", {
+          ...savedMsg.toObject(),
+          chatRoomId: chatRoomId
+        });
+
       } catch (err) {
         console.error("Socket sendMessage error:", err);
       }
@@ -104,31 +110,31 @@ const getMessages = async (req, res) => {
   }
 };
 
-const sendMessage = async (req, res) => {
-  try {
-    const { chatRoomId } = req.params;
-    const { senderId, message, messageType = "text" } = req.body;
+// const sendMessage = async (req, res) => {
+//   try {
+//     const { chatRoomId } = req.params;
+//     const { senderId, message, messageType = "text" } = req.body;
 
-    const chatRoom = await ChatRoom.findById(chatRoomId);
-    if (!chatRoom) return res.status(404).json({ msg: "Room not found" });
+//     const chatRoom = await ChatRoom.findById(chatRoomId);
+//     if (!chatRoom) return res.status(404).json({ msg: "Room not found" });
 
-    const newMsg = {
-      senderId,
-      message,
-      messageType,
-      createdAt: new Date(),
-    };
+//     const newMsg = {
+//       senderId,
+//       message,
+//       messageType,
+//       createdAt: new Date(),
+//     };
 
-    chatRoom.chats.push(newMsg);
-    chatRoom.lastMessage = message;
-    await chatRoom.save();
+//     chatRoom.chats.push(newMsg);
+//     chatRoom.lastMessage = message;
+//     await chatRoom.save();
 
-    io?.to(chatRoomId).emit("newMessage", newMsg);
-    res.status(201).json(newMsg);
-  } catch (err) {
-    res.status(500).json({ msg: err.message });
-  }
-};
+//     io?.to(chatRoomId).emit("newMessage", newMsg);
+//     res.status(201).json(newMsg);
+//   } catch (err) {
+//     res.status(500).json({ msg: err.message });
+//   }
+// };
 
 //
 // =================== CHAT REQUEST ===================
@@ -208,7 +214,7 @@ module.exports = {
   getChatRoomsByUser,
   deleteChatRoom,
   getMessages,
-  sendMessage,
+  // sendMessage,
   sendChatRequest,
   acceptChatRequest,
   rejectChatRequest,

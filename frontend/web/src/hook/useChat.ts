@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import type { ChatMessage, ChatRequest, ChatRoom } from "../utils/interfaces";
@@ -14,7 +14,7 @@ export const useChat = () => {
     const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
-
+    const currentRoomIdRef = useRef<string | null>(null);
     // ==== Load userId từ localStorage ====
     useEffect(() => {
         try {
@@ -30,23 +30,45 @@ export const useChat = () => {
     }, []);
 
     useEffect(() => {
-        const s: Socket = io(SOCKET_URL);
+        if (!userId) return;
+
+        const s: Socket = io(SOCKET_URL, {
+            query: { userId }
+        });
         setSocket(s);
+        console.log("🔌 Socket connecting...");
 
         s.on("connect", () => console.log("🔌 Socket connected:", s.id));
+        s.on("disconnect", () => console.log("Socket disconnected"));
 
-        s.on("newMessage", (msg: ChatMessage & { chatRoomId: string }) => {
-            if (msg.chatRoomId === currentRoomId) {
-                setMessages((prev) => [...prev, msg]);
-            }
-        });
-        const cleanup = () => {
+        // Cleanup khi component unmount
+        return () => {
             s.disconnect();
         };
+    }, [userId]);
 
-        return cleanup;
-    }, [currentRoomId]);
+    useEffect(() => {
+        if (!socket) return;
 
+        const handleNewMessage = (msg: ChatMessage & { chatRoomId: string }) => {
+            setRooms((prevRooms) =>
+                prevRooms.map((room) =>
+                    room._id === msg.chatRoomId
+                        ? { ...room, lastMessage: msg.message }
+                        : room
+                )
+            );
+            if (msg.chatRoomId === currentRoomIdRef.current) {
+                setMessages((prev) => [...prev, msg]);
+            }
+        };
+
+        socket.on("newMessage", handleNewMessage);
+
+        return () => {
+            socket.off("newMessage", handleNewMessage);
+        };
+    }, [socket]);
 
     // ==== ChatRoom CRUD ====
     const fetchRooms = useCallback(async () => {
@@ -88,6 +110,7 @@ export const useChat = () => {
                 const res = await axios.get<ChatMessage[]>(`${API_URL}/messages/${roomId}`);
                 setMessages(res.data);
                 setCurrentRoomId(roomId);
+                currentRoomIdRef.current = roomId;
                 socket?.emit("joinRoom", roomId);
             } catch (err) {
                 console.error(err);
@@ -97,22 +120,23 @@ export const useChat = () => {
     );
 
     const sendMessage = useCallback(
-        async (
+        (
             roomId: string,
             message: string,
             messageType: "text" | "file" | "system" = "text"
         ) => {
-            try {
-                const res = await axios.post<ChatMessage>(`${API_URL}/messages/${roomId}`, {
-                    senderId: userId,
-                    message,
-                    messageType,
-                });
-                socket?.emit("sendMessage", { chatRoomId: roomId, senderId: userId, message, messageType });
-                setMessages((prev) => [...prev, res.data]);
-            } catch (err) {
-                console.error(err);
+            if (!socket || !userId) {
+                console.error("Socket or UserID not available");
+                return;
             }
+
+            socket.emit("sendMessage", {
+                chatRoomId: roomId,
+                senderId: userId,
+                message,
+                messageType,
+            });
+
         },
         [socket, userId]
     );
@@ -178,5 +202,6 @@ export const useChat = () => {
         sendChatRequest,
         acceptChatRequest,
         rejectChatRequest,
+        socket
     };
 };

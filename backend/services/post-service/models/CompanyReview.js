@@ -4,7 +4,9 @@ const commentSchema = new mongoose.Schema({
   author: { type: String, default: "Người bình luận" },
   avatar: { type: String, default: "/default-avatar.png" },
   text: { type: String, required: true },
+  userId: { type: String },
   date: { type: Date, default: Date.now },
+  editedAt: { type: Date },
 });
 
 const reviewSchema = new mongoose.Schema({
@@ -14,7 +16,9 @@ const reviewSchema = new mongoose.Schema({
   content: { type: String, required: true },
   author: { type: String, default: "Người dùng ẩn danh" },
   avatar: { type: String, default: "/default-avatar.png" },
+  userId: { type: String, required: true },
   date: { type: Date, default: Date.now },
+  editedAt: { type: Date },
   comments: [commentSchema],
 });
 
