@@ -254,3 +254,160 @@
   color: #6b7280;
   margin-top: 20px;
 }
+.company-overall-rating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.overall-score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.big-rating {
+  font-size: 36px;
+  color: #1f2937;
+}
+
+.out-of {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.overall-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.review-count {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+  flex: 1;
+  min-width: 150px;
+}
+
+.review-body {
+  margin-top: 12px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.review-body h4 {
+  margin: 4px 0;
+  font-size: 16px;
+  color: #1f2937;
+}
+/* === ICON BÚT === */
+.edit-button-wrapper {
+  margin-left: auto;
+  padding: 0 8px;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: #1890ff;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.edit-icon:hover {
+  color: #40a9ff;
+}
+
+.edit-icon.small {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+}
+
+/* === EDIT MODE === */
+.edit-rating {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+  border-color: #059669;
+}
+
+.edit-textarea.small {
+  font-size: 13px;
+  resize: none;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.save-icon { color: #52c41a; cursor: pointer; }
+.cancel-icon { color: #ff4d4f; cursor: pointer; }
+
+/* === ĐÃ CHỈNH SỬA === */
+.edited-tag {
+  color: #888;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* === COMMENT === */
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comment-text {
+  margin: 4px 0 0;
+  color: #374151;
+  word-break: break-word;
+}
+@media (max-width: 600px) {
+  .company-overall-rating {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+  }
+  .overall-score {
+    justify-content: center;
+  }
+}
+.ant-pagination {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.ant-pagination li:hover {
+  cursor: pointer;
+  color: #059669;
+}
