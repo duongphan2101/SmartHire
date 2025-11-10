@@ -131,6 +131,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 type: "INTERVIEW_INVITE",
                 title: "Lời mời phỏng vấn",
                 message: `Bạn đã được mời phỏng vấn cho vị trí ${job.jobTitle} tại ${job.department.name}. Vui lòng kiểm tra email để biết thêm chi tiết.`,
+                requestId: ""
             });
 
         } catch (err) {

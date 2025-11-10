@@ -10,12 +10,13 @@ export interface Notification {
   title: string;
   message: string;
   isRead: boolean;
+  requestId: string;
   createdAt: string;
 }
 
 type CreateNotificationPayload = Pick<
   Notification,
-  "receiverId" | "type" | "title" | "message"
+  "receiverId" | "type" | "title" | "message" | "requestId"
 >;
 
 type ApiError = {

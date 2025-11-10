@@ -26,6 +26,7 @@
 .notification-message {
   margin-top: 10px;
   /* color: #fff; */
+  text-align: justify;
 }
 
 .notification-time {
@@ -51,4 +52,28 @@
 
 .notification-footer button:hover {
   background-color: #047857;
+}
+
+.notify-modal-btn {
+  padding: 10px 15px;
+  border-radius: 10px;
+  color: white;
+}
+
+.notify-modal-btn_accept {
+  background-color: #059669;
+}
+
+.notify-modal-btn_inject {
+  background-color: var(--color-red-400);
+}
+
+.notify-modal-btn_accept:hover {
+  background-color: #047857;
+  cursor: pointer;
+}
+
+.notify-modal-btn_inject:hover {
+  background-color: var(--color-red-500);
+  cursor: pointer;
 }

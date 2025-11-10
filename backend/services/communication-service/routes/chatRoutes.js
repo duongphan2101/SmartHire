@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   // ChatRoom
   createChatRoom,
+  createChatRoomInactive,
   getChatRoomsByUser,
   deleteChatRoom,
   // Chat
@@ -13,11 +14,13 @@ const {
   acceptChatRequest,
   rejectChatRequest,
   getChatRequests,
+  getChatRequestsbyId
 } = require("../controllers/chatController");
 
 // ================= ChatRoom =================
 // Tạo chat room (HR)
 router.post("/room", createChatRoom);
+router.post("/room-inactive", createChatRoomInactive);
 
 // Lấy tất cả chat room của user
 router.get("/room/user/:userId", getChatRoomsByUser);
@@ -44,5 +47,6 @@ router.put("/request/:requestId/reject", rejectChatRequest);
 
 // Lấy tất cả request cho candidate
 router.get("/request/:candidateId", getChatRequests);
+router.get("/request/req/:requestId", getChatRequestsbyId);
 
 module.exports = router;
