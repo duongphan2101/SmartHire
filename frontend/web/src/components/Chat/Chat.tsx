@@ -9,6 +9,7 @@ import type { ChatRoom, ChatMessage } from "../../utils/interfaces";
 import type { UserResponse } from "../../hook/useUser";
 import type { Job } from "../../hook/useJob";
 import { Empty } from "antd";
+import { AiOutlineClose } from "react-icons/ai";
 
 interface ChatModalProps {
   room: ChatRoom | null;
@@ -196,12 +197,17 @@ const ChatModal: React.FC<ChatModalProps> = ({ room, onClose }) => {
         <div className="chat-widget__main">
           {!activeRoom ? (
             <div className="chat-widget__empty">
+              <div className="chat-widget__empty_head">
+                <button className="chat-widget__empty_head__closebtn hover:bg-gray-200">
+                  <AiOutlineClose onClick={onClose}/>
+                </button>
+              </div>
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             </div>
           ) : (
             <>
               <div className="chat-widget__header">
-                <span className="chat-widget__header-title">
+                <span className="chat-widget__header-title text-left">
                   <div>
                     {
                       (() => {

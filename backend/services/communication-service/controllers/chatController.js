@@ -74,6 +74,27 @@ const createChatRoom = async (req, res) => {
   }
 };
 
+const createChatRoomInactive = async (req, res) => {
+  try {
+    const { jobId, members } = req.body;
+
+    if (!jobId || !members || members.length !== 2) {
+      return res.status(400).json({ msg: "Invalid data" });
+    }
+
+    const exist = await ChatRoom.findOne({
+      jobId,
+      members: { $all: members },
+    });
+    if (exist) return res.status(200).json(exist);
+
+    const newRoom = await ChatRoom.create({ jobId, members, chats: [], isActive: false });
+    res.status(201).json(newRoom);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
 const getChatRoomsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -208,9 +229,20 @@ const getChatRequests = async (req, res) => {
   }
 };
 
+const getChatRequestsbyId = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const requests = await ChatRequest.findById(requestId);
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
 module.exports = {
   initSocket,
   createChatRoom,
+  createChatRoomInactive,
   getChatRoomsByUser,
   deleteChatRoom,
   getMessages,
@@ -219,4 +251,5 @@ module.exports = {
   acceptChatRequest,
   rejectChatRequest,
   getChatRequests,
+  getChatRequestsbyId
 };

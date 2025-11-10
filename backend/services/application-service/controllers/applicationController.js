@@ -95,6 +95,7 @@ exports.applyJob = async (req, res) => {
         type: "APPLY",
         title: "Ứng tuyển thành công",
         message: `Bạn đã ứng tuyển vào công việc ${job.jobTitle} tại ${job.location}`,
+        requestId: ""
       });
       //console.log("User notification response:", userNotificationRes.data);
 
@@ -104,6 +105,7 @@ exports.applyJob = async (req, res) => {
           type: "APPLY",
           title: "Ứng viên mới",
           message: `Ứng viên ${user.fullname} đã ứng tuyển vào vị trí ${job.jobTitle}`,
+          requestId: ""
         });
         //console.log("HR notification response:", hrNotificationRes.data);
       }

@@ -112,3 +112,111 @@ exports.sendJobSuggestionEmail = async (req, res) => {
     });
   }
 };
+
+/**
+ * Gửi email thông báo cho ứng viên khi HR gửi lời mời trao đổi.
+ */
+exports.sendChatRequestEmail = async (req, res) => {
+  try {
+    const { hr, job, candidate, message } = req.body;
+
+    // console.log("HR: ", hr);
+    // console.log("JOB: ", job);
+    // console.log("Candidate: ", candidate);
+    // console.log("MESSAGE: ", message);
+
+    // --- 1. Validation ---
+    if (!hr || !hr.email || !hr.fullname || !hr.companyName) {
+      return res.status(400).json({
+        message: "Thiếu thông tin HR (hr, email, fullname, companyName).",
+      });
+    }
+
+    if (!job || !job.title) {
+      return res.status(400).json({
+        message: "Thiếu thông tin công việc (job.title).",
+      });
+    }
+
+    if (!candidate || !candidate.email || !candidate.fullname) {
+      return res.status(400).json({
+        message: "Thiếu thông tin ứng viên (candidate, email, fullname).",
+      });
+    }
+
+    // --- 2. Xây dựng nội dung Email ---
+    const subject = `SmartHire: Bạn có lời mời trao đổi cho vị trí ${job.title}!`;
+    const defaultMessage =
+      "Chúng tôi rất ấn tượng với hồ sơ của bạn và mong muốn được trao đổi thêm về cơ hội này.";
+
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; width: 95%; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #059669; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 22px;">SmartHire - Bạn có lời mời trao đổi!</h1>
+        </div>
+
+        <div style="padding: 25px;">
+          <h2 style="color: #333;">Xin chào ${candidate.fullname},</h2>
+          <p>Tin vui! <strong>${hr.fullname}</strong> từ công ty <strong>${hr.companyName}</strong> đã xem hồ sơ của bạn và muốn mời bạn trao đổi về vị trí:</p>
+          
+          <div style="background-color: #f9f9f9; padding: 15px 20px; border-radius: 5px; border: 1px solid #eee; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 5px; color: #059669;">${job.title}</h3>
+            <p style="margin: 0;"><strong>Công ty:</strong> ${hr.companyName}</p>
+          </div>
+
+          <div style="background-color: #fdfdfd; padding: 20px; border-radius: 5px; border: 1px solid #eee; margin-bottom: 25px; border-left: 4px solid #059669;">
+            <p style="margin: 0 0 10px; font-weight: bold;">Lời nhắn từ ${hr.fullname}:</p>
+            <p style="margin: 0; font-style: italic;">
+              "${message || defaultMessage}"
+            </p>
+          </div>
+
+          <a href="${process.env.CLIENT_URL}/jobdetail/${job._id || ""}"
+            target="_blank"
+            style="background-color: #059669; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; font-weight: bold;">
+            Xem chi tiết & Ứng tuyển
+          </a>
+
+          <p>Vui lòng đăng nhập vào SmartHire để xem chi tiết và phản hồi lại nhà tuyển dụng nhé.</p>
+
+          <p style="margin-top: 25px;">Chúc bạn có buổi trao đổi thành công! 🤝</p>
+          <p>Trân trọng,<br>Đội ngũ SmartHire</p>
+        </div>
+      </div>
+    `;
+
+    const textFallback = `
+      Xin chào ${candidate.fullname},
+      Tin vui! ${hr.fullname} từ ${hr.companyName} đã gửi bạn lời mời trao đổi cho vị trí ${job.title}.
+      
+      Lời nhắn từ HR: "${message || defaultMessage}"
+      
+      Vui lòng đăng nhập vào SmartHire để phản hồi
+      Chúc bạn có buổi trao đổi thành công!
+    `;
+
+    const mailOptions = {
+      from: `SmartHire <${process.env.EMAIL_USER}>`,
+      to: candidate.email,
+      subject,
+      text: textFallback,
+      html: htmlTemplate,
+    };
+
+    // --- 3. Gửi email ---
+    console.log(`📧 Gửi email mời trao đổi đến: ${candidate.email} từ ${hr.email}`);
+    await transporter.sendMail(mailOptions);
+
+    // --- 4. Phản hồi thành công ---
+    res.json({
+      message: `Đã gửi lời mời trao đổi cho ứng viên ${candidate.fullname} thành công.`,
+    });
+
+  } catch (err) {
+    console.error("❌ Email error:", err.message);
+    res.status(500).json({
+      message: "Gửi email mời trao đổi thất bại",
+      error: err.message,
+    });
+  }
+};

@@ -2,7 +2,7 @@ const Notification = require("../models/notificationModel");
 
 exports.createNotification = async (req, res) => {
   try {
-    const { receiverId, type, title, message } = req.body;
+    const { receiverId, type, title, message, requestId } = req.body;
 
     if (!receiverId || !title || !message) {
       return res.status(400).json({ message: "Thiếu dữ liệu" });
@@ -13,6 +13,7 @@ exports.createNotification = async (req, res) => {
       type,
       title,
       message,
+      requestId
     });
 
     if (req.io) {

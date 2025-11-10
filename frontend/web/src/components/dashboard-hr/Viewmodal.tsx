@@ -19,6 +19,9 @@ import usePayment from "../../hook/usePayment";
 import { Empty } from "antd";
 import { useChat } from "../../hook/useChat";
 import type { ChatRoom } from "../../utils/interfaces";
+import useNotification from "../../hook/useNotification";
+import useEmailService from "../../hook/useEmail";
+import useUser from "../../hook/useUser";
 
 interface ViewModalProps {
   job: Job;
@@ -46,8 +49,15 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
   const [loadingScores, setLoadingScores] = useState(false);
   const MySwal = withReactContent(Swal);
-  const [openChat, setOpenChat] = useState(false);
-  const { createChatRoom, sendChatRequest, fetchRooms } = useChat();
+  const { createChatRoom, sendChatRequest, fetchRooms, createChatRoomInactive} = useChat();
+  const { createNotification } = useNotification();
+  const { sendHrExchangeInvite } = useEmailService();
+  const { getUser, user } = useUser();
+
+  useEffect(() => {
+    getUser(currentHRId);
+  }, []);
+
   // fetch ứng viên khi chuyển tab
   useEffect(() => {
     const fetchApplicants = async () => {
@@ -257,14 +267,6 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
     }
   };
 
-  // const handleOpenChat = () => {
-  //   setOpenChat(true);
-  // };
-
-  const handleCloseChat = () => {
-    setOpenChat(false);
-  };
-
   const handleMess = async (canId: string) => {
     try {
       const jobId = job._id;
@@ -277,9 +279,92 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
         handleClose();
       } else {
         console.log("❌ Không tạo được room (có thể đã tồn tại)");
+        MySwal.fire({
+          icon: "warning",
+          title: "Thông báo",
+          text: "Bạn đã trò chuyện với cho ứng viên này trước đó.",
+        });
       }
     } catch (error) {
       console.error("Error creating chat room:", error);
+      MySwal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "có lỗi xảy ra, " + error,
+      });
+    }
+  };
+
+  const hanldeSendRequest = async (canId: string, canFullname: string, canEmail: string) => {
+    try {
+      const jobId = job._id;
+      const requestData = await sendChatRequest(currentHRId, canId, jobId);
+
+      // const members = [currentHRId, canId];
+
+      // const newRoom = await createChatRoomInactive(jobId, members);
+      // if (newRoom) {
+      //   fetchRooms();
+      //   // onOpenChatRequest(newRoom);
+      // } else {
+      //   console.log("❌ Không tạo được room (có thể đã tồn tại)");
+      //   MySwal.fire({
+      //     icon: "warning",
+      //     title: "Thông báo",
+      //     text: "Bạn đã trò chuyện với cho ứng viên này trước đó.",
+      //   });
+      // }
+
+      if (requestData) {
+        MySwal.fire({
+          icon: "success",
+          title: "Thành công!",
+          text: "Đã gửi yêu cầu trao đổi với ứng viên, để có thể bắt đầu trao đổi phải đợi họ chấp nhận yêu cầu!",
+        });
+
+        const emailMessage = `Xin chào! Chúng tôi nhận thấy bạn phù hợp với công việc ${job.jobTitle} tại công ty ${job.department.name} của chúng tôi, nếu bạn có nhu cầu ứng tuyển hãy chấp nhận lời mời của chúng tôi để trao đổi kỹ hơn, hoặc bạn có thể ứng tuyển. Vui lòng kiểm tra email để biết thêm chi tiết.`;
+
+        await createNotification({
+          receiverId: canId,
+          type: "CHAT_REQUEST",
+          title: "Lời mời trao đổi và ứng tuyển công việc",
+          message: emailMessage,
+          requestId: requestData._id
+        });
+
+        await sendHrExchangeInvite({
+          candidate: {
+            fullname: canFullname,
+            email: canEmail,
+          },
+          hr: {
+            fullname: user?.fullname ?? "",
+            email: user?.email ?? "",
+            companyName: job.department.name,
+          },
+          job: {
+            title: job.jobTitle,
+            _id: job._id
+          },
+          message: emailMessage,
+        });
+
+        handleClose();
+      } else {
+        console.log("❌ Không tạo được room (có thể đã tồn tại)");
+
+        MySwal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Bạn đã gửi yêu cầu cho ứng viên này trước đó.",
+        });
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi gửi yêu cầu! " + error
+      });
     }
   };
 
@@ -713,8 +798,9 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                   </div>
                 ) : sortedCandidates.length === 0 ? (
                   <div className="loading-container">
-                    <div className="loader"></div>
-                    <p>Đang tải ...</p>
+                    {/* <div className="loader"></div> */}
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có ứng viên phù hợp!" />
+                    {/* <p>Đang tải ...</p> */}
                   </div>
                 ) : (
                   <table
@@ -726,7 +812,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                         <th className="px-4 py-2 text-left">Ứng viên</th>
                         <th className="px-4 py-2">Điểm phù hợp</th>
                         <th className="px-4 py-2">CV</th>
-                        <th className="px-4 py-2">Liên hệ</th>
+                        <th className="px-4 py-2">Liên hệ trao đổi</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -761,12 +847,12 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                           </td>
                           <td>
                             <button
-                              className="btn-contact"
+                              className="btn-mess"
                               onClick={() => {
-                                hanldeContact(app.userId, ""); // Không có CV ID vì đây là gợi ý, chưa apply
+                                hanldeSendRequest(app.userId, app.user?.fullname ?? "", app.user?.email ?? "");
                               }}
                             >
-                              Liên hệ
+                              <AiOutlineMessage size={18} />
                             </button>
                           </td>
                         </tr>
