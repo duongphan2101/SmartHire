@@ -232,6 +232,14 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
                 userId={user}
             />
 
+            {/* <ModalAIRefine
+                isOpen={openModelAIRefine}
+                onClose={() => setOpenModelAIRefine(false)}
+                title="Chỉnh sửa Thư giới thiệu (AI)"
+                suggestions={["Ngắn gọn hơn", "Chuyên nghiệp hơn", "Nhấn mạnh kinh nghiệm React"]}
+                onRefine={() => { alert("HEHE") }}
+            /> */}
+
             <div className="page-title w-full flex flex-col gap-3">
                 <img className="avt-department" src={item.department.avatar} />
                 <div className="flex items-center justify-between">

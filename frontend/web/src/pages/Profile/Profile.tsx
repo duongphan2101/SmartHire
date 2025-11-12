@@ -308,6 +308,9 @@ const Profile: React.FC = () => {
                                                 checked={jobStatus === "active"}
                                                 onChange={onChangeUserStatus}
                                                 disabled={jobStatus === "banned"}
+                                                style={{
+                                                    backgroundColor: jobStatus === "active" ? '#059669' : undefined,
+                                                }}
                                             />
                                         </li>
                                         <li className="card-link_item">

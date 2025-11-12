@@ -143,6 +143,20 @@
   color: #777;
 }
 
+.chat-widget__empty_btnClose {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+.chat-widget__empty_btnClose:hover {
+  background-color: var(--color-gray-200);
+  color: white;
+}
+
 .chat-widget__header {
   background: var(--color-emerald-600, #10b981);
   color: white;

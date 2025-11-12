@@ -186,13 +186,46 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 <div>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker']}>
-                            <DateTimePicker label="Chọn thời gian phỏng vấn ứng viên"
+                            <DateTimePicker
+                                label="Chọn thời gian phỏng vấn ứng viên"
                                 defaultValue={time}
                                 value={time}
-                                onChange={(newValue) => setTime(newValue)} />
+                                onChange={(newValue) => setTime(newValue)}
+                                // slotProps={{
+                                //     textField: {
+                                //         fullWidth: true,
+                                //         sx: {
+                                //             '& .MuiOutlinedInput-root': {
+                                //                 '& fieldset': {
+                                //                     borderColor: '#059669',
+                                //                 },
+                                //                 '&:hover fieldset': {
+                                //                     borderColor: '#047857',
+                                //                 },
+                                //                 '&.Mui-focused fieldset': {
+                                //                     borderColor: '#059669',
+                                //                 },
+                                //             },
+                                //             '& .MuiInputLabel-root': {
+                                //                 color: '#059669',
+                                //                 '&.Mui-focused': {
+                                //                     color: '#059669',
+                                //                 },
+                                //             },
+                                //             '& .MuiInputBase-input': {
+                                //                 color: '#059669',
+                                //             },
+                                //             '& .MuiSvgIcon-root': {
+                                //                 color: '#059669',
+                                //             },
+                                //         },
+                                //     },
+                                // }}
+                            />
                         </DemoContainer>
                     </LocalizationProvider>
                 </div>
+
 
                 <div className="w-full flex flex-col gap-0.5 text-left">
                     <span className="text-gray-400">
@@ -217,6 +250,17 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         className="w-full text-sm font-sans font-normal leading-5"
+                        sx={{
+                            '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                borderColor: '#059669',
+                            },
+                            '& label.Mui-focused': {
+                                color: '#059669',
+                            },
+                            '& .MuiOutlinedInput-root:hover fieldset': {
+                                borderColor: '#059669',
+                            },
+                        }}
                     />
                 </div>
 
@@ -237,9 +281,9 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                         bg-white text-slate-900 
                         box-border
                         
-                        hover:border-emerald-900 
+                        hover:border-emerald-600 
                         
-                        focus:border-emerald-900 
+                        focus:border-emerald-600 
                         focus:ring-2 focus:ring-emerald-600
                         focus-visible:outline-0
                     "
