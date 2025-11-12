@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .chat-widget__window {
@@ -135,6 +135,7 @@
 }
 
 .chat-widget__empty {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;

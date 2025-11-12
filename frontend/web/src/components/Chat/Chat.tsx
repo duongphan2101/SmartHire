@@ -9,6 +9,7 @@ import type { ChatRoom, ChatMessage } from "../../utils/interfaces";
 import type { UserResponse } from "../../hook/useUser";
 import type { Job } from "../../hook/useJob";
 import { Empty } from "antd";
+import { AiOutlineClose } from "react-icons/ai";
 
 interface ChatModalProps {
   room: ChatRoom | null;

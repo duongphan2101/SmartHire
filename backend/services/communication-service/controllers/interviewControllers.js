@@ -37,10 +37,10 @@ const getInterviewById = async (req, res) => {
       return res.status(404).json({ message: "Interview not found" });
     }
 
-    const interview = await Interview.findById(id)
-      .populate("hrId", "name email")
-      .populate("candidateId", "name email")
-      .populate("jobId", "title");
+    const interview = await Interview.findById(id);
+      // .populate("hrId", "name email")
+      // .populate("candidateId", "name email")
+      // .populate("jobId", "title");
 
     if (!interview) {
       return res.status(404).json({ message: "Interview not found" });

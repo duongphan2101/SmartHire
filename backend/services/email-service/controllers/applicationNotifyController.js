@@ -239,9 +239,6 @@ exports.notifyInterview = async (req, res) => {
             </ul>
           </div>
           
-          <p style="margin-top: 25px;">
-            Vui lòng <strong>trả lời (reply)</strong> email này để xác nhận sự tham gia của bạn.
-          </p>
           <p>
             Nếu có bất kỳ câu hỏi nào, bạn có thể liên hệ trực tiếp với ${hr.fullname} qua email: 
             <a href="mailto:${hr.email}">${hr.email}</a>.

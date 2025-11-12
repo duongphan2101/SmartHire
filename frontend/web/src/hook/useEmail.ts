@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 import type { Interview } from "../utils/interfaces";
 
+// --- Các interface hiện có ---
 interface EmailUser {
   fullname: string;
   email: string;
@@ -19,11 +20,23 @@ interface EmailJob {
   title: string;
 }
 
+interface EmailJob2 {
+  title: string;
+  _id: string;
+}
+
 export interface InterviewEmailPayload {
   candidate: EmailUser;
   hr: EmailHR;
   job: EmailJob;
   interview: Interview;
+}
+
+export interface HrInviteEmailPayload {
+  candidate: EmailUser;
+  hr: EmailHR;
+  job: EmailJob2;
+  message: string;
 }
 
 type ApiError = {
@@ -58,15 +71,12 @@ export default function useEmailService() {
   };
 
   /**
-   * Gửi email mời phỏng vấn
+   * Gửi email mời phỏng vấn (chính thức, có lịch)
    */
   const sendInterviewInvite = async (payload: InterviewEmailPayload) => {
     setLoading(true);
     setError(null);
     try {
-
-      console.log("Gửi email với payload:", payload);
-      console.log(`${host}/interview`)
       const res = await axios.post(`${host}/interview`, payload);
       return res.data;
     } catch (err) {
@@ -77,11 +87,24 @@ export default function useEmailService() {
   };
 
   /**
-  * Gửi email thông báo job phù hợp nhất cho top 5 ứng viên
-  * @param hr Thông tin HR đăng job
-  * @param job Thông tin job mới đăng
-  * @param matchedUsers Danh sách ứng viên từ API matching (đã slice top 5)
-  */
+   * Gửi email mời trao đổi (lời nhắn) từ HR đến ứng viên
+   */
+  const sendHrExchangeInvite = async (payload: HrInviteEmailPayload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${host}/notify-chat-request`, payload);
+      return res.data;
+    } catch (err) {
+      return handleError(err, "Failed to send HR exchange invite email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Gửi email thông báo job phù hợp nhất cho top 5 ứng viên
+   */
   const sendJobRecommendationEmails = async (
     hr: EmailHR,
     job: EmailJobMatching,
@@ -122,6 +145,7 @@ export default function useEmailService() {
     // Functions
     sendInterviewInvite,
     clearError,
-    sendJobRecommendationEmails
+    sendJobRecommendationEmails,
+    sendHrExchangeInvite,
   };
 }

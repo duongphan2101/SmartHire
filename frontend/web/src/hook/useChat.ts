@@ -83,9 +83,17 @@ export const useChat = () => {
 
     const createChatRoom = async (jobId: string, members: string[]) => {
         try {
-            console.log("data: JobId: " + jobId + " members: " + members);
-            console.log(`${API_URL}/room`)
             const res = await axios.post<ChatRoom>(`${API_URL}/room`, { jobId, members });
+            setRooms((prev) => [...prev, res.data]);
+            return res.data;
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const createChatRoomInactive = async (jobId: string, members: string[]) => {
+        try {
+            const res = await axios.post<ChatRoom>(`${API_URL}/room-inactive`, { jobId, members });
             setRooms((prev) => [...prev, res.data]);
             return res.data;
         } catch (err) {
@@ -188,6 +196,17 @@ export const useChat = () => {
         }
     };
 
+    const getChatRequestbyId = async (requestId: string) => {
+        try {
+            const res = await axios.get<ChatRequest>(
+                `${API_URL}/request/req/${requestId}`
+            );
+            return res.data;
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return {
         rooms,
         messages,
@@ -195,6 +214,7 @@ export const useChat = () => {
         currentRoomId,
         fetchRooms,
         createChatRoom,
+        createChatRoomInactive,
         deleteChatRoom,
         fetchMessages,
         sendMessage,
@@ -202,6 +222,7 @@ export const useChat = () => {
         sendChatRequest,
         acceptChatRequest,
         rejectChatRequest,
-        socket
+        socket,
+        getChatRequestbyId
     };
 };

@@ -94,7 +94,7 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
 
         try {
 
-            await createInterview(interviewData);
+            const inter = await createInterview(interviewData);
             MySwal.fire({
                 icon: "info",
                 title: "Thành công",
@@ -130,7 +130,8 @@ const ContactCandidate = ({ job, candidate_id, close, updateStatus }: ModalConta
                 receiverId: candidate_id,
                 type: "INTERVIEW_INVITE",
                 title: "Lời mời phỏng vấn",
-                message: `Bạn đã được mời phỏng vấn cho vị trí ${job.jobTitle} tại ${job.department.name}. Vui lòng kiểm tra email để biết thêm chi tiết.`,
+                message: `Bạn đã được mời phỏng vấn cho vị trí ${job.jobTitle} tại ${job.department.name}.`,
+                requestId: inter._id
             });
 
         } catch (err) {
