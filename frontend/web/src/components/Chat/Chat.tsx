@@ -197,11 +197,11 @@ const ChatModal: React.FC<ChatModalProps> = ({ room, onClose }) => {
         <div className="chat-widget__main">
           {!activeRoom ? (
             <div className="chat-widget__empty">
-              <div className="chat-widget__empty_head">
-                <button className="chat-widget__empty_head__closebtn hover:bg-gray-200">
-                  <AiOutlineClose onClick={onClose}/>
-                </button>
-              </div>
+              <button className="chat-widget__empty_btnClose"
+                onClick={onClose}
+              >
+                x
+              </button>
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             </div>
           ) : (

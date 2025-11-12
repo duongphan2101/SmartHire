@@ -3,7 +3,7 @@ const axios = require("axios");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Cấu hình an toàn (bắt buộc) - cho phép nội dung không nhạy cảm
+// Cấu hình an toàn
 const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
   { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -11,49 +11,115 @@ const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
 ];
 
-
-async function callGemini(systemPrompt, userContent, fieldName, maxTokens = 2048) {
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-pro",
-      systemInstruction: systemPrompt,
-      safetySettings,
-    });
-
-    const generationConfig = {
-      temperature: 0.7,
-      maxOutputTokens: maxTokens,
-      responseMimeType: "application/json",
-    };
-
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: userContent }] }],
-      generationConfig,
-    });
-
-    const response = result.response;
-    if (!response.candidates || response.candidates.length === 0 || !response.candidates[0].content) {
-      console.error("LỖI: Gemini trả về nội dung rỗng. Lý do có thể là Safety Block.");
-      console.log("Full Gemini Response:", JSON.stringify(response, null, 2));
-      const finishReason = response.candidates?.[0]?.finishReason || "EMPTY_CANDIDATE";
-      throw new Error(`Gemini response was empty or blocked. Finish Reason: ${finishReason}`);
-    }
-    const text = response.text();
-    if (text === "") {
-      console.error("LỖI: Gemini trả về chuỗi rỗng!");
-      // Log này sẽ cho chúng ta biết lý do (ví dụ: finishReason: "SAFETY")
-      console.log("Full response object:", JSON.stringify(response, null, 2));
-    }
-    return safeParse(text, fieldName);
-  } catch (err) {
-    console.error(`Gemini call error for ${fieldName}:`, err.message || err);
-    if (err.response && err.response.text) {
-      return safeParse(err.response.text(), fieldName);
-    }
-    throw err;
-  }
+/**
+ * Helper function để tạm dừng (sleep)
+ * @param {number} ms - Thời gian tạm dừng (miliseconds)
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Hàm gọi Gemini API với cơ chế retry (thử lại) tự động.
+ * Sẽ thử lại nếu gặp lỗi 500, 503 (quá tải), hoặc 429 (rate limit).
+ * @param {string} modelName - Tên model (vd: "gemini-2.5-pro", "gemini-2.5-flash")
+ * @param {string} systemPrompt - Hướng dẫn hệ thống
+ * @param {string} userContent - Nội dung prompt từ user
+ * @param {string} fieldName - Tên trường JSON fallback
+ * @param {number} maxTokens - Số tokens tối đa
+ * @param {number} maxRetries - Số lần thử lại tối đa
+ * @param {number} initialDelay - Thời gian chờ ban đầu (ms)
+ * @returns {Promise<object>} - Kết quả JSON đã parse
+ */
+async function callGeminiWithRetry(
+  modelName,
+  systemPrompt,
+  userContent,
+  fieldName,
+  maxTokens = 2048,
+  maxRetries = 3,
+  initialDelay = 1000 // 1 giây
+) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemPrompt,
+        safetySettings,
+      });
+
+      const generationConfig = {
+        temperature: 0.7,
+        maxOutputTokens: maxTokens,
+        responseMimeType: "application/json",
+      };
+
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: userContent }] }],
+        generationConfig,
+      });
+
+      const response = result.response;
+
+      // Kiểm tra nội dung rỗng hoặc bị chặn (safety)
+      if (!response.candidates || response.candidates.length === 0 || !response.candidates[0].content) {
+        const finishReason = response.candidates?.[0]?.finishReason || "EMPTY_CANDIDATE";
+        console.error(`LỖI (Attempt ${attempt}/${maxRetries}): Gemini trả về nội dung rỗng. Lý do: ${finishReason}`);
+        if (finishReason === "SAFETY" || finishReason === "RECITATION") {
+          throw new Error(`Gemini response was blocked. Finish Reason: ${finishReason}`);
+        }
+        lastError = new Error(`Gemini response was empty. Finish Reason: ${finishReason}`);
+        if (attempt === maxRetries) throw lastError;
+      } else {
+        const text = response.text();
+        if (text === "") {
+          console.error(`LỖI (Attempt ${attempt}/${maxRetries}): Gemini trả về chuỗi rỗng!`);
+          lastError = new Error("Gemini returned an empty string.");
+          if (attempt === maxRetries) throw lastError;
+        } else {
+          // THÀNH CÔNG!
+          return safeParse(text, fieldName);
+        }
+      }
+    } catch (err) {
+      lastError = err;
+      const errorMessage = (err.message || String(err)).toLowerCase();
+      // Kiểm tra các lỗi có thể thử lại
+      const isRetryable =
+        errorMessage.includes("503") || // Service Unavailable (Quá tải)
+        errorMessage.includes("500") || // Internal Server Error
+        errorMessage.includes("overloaded") || // Thông báo quá tải
+        errorMessage.includes("429"); // Rate limit (Quá nhiều request)
+
+      if (isRetryable && attempt < maxRetries) {
+        // Tính toán thời gian chờ (exponential backoff)
+        const delay = initialDelay * Math.pow(2, attempt - 1); // vd: 1s, 2s, 4s
+        console.warn(
+          `LỖI (Attempt ${attempt}/${maxRetries}) for ${fieldName} (${modelName}): ${err.message}. Đang thử lại sau ${delay}ms...`
+        );
+        await sleep(delay);
+        continue; // Chuyển sang lần thử tiếp theo
+      } else {
+        // Lỗi không thể thử lại (vd: 400 Bad Request) HOẶC đã hết số lần thử
+        console.error(
+          `LỖI CUỐI CÙNG (Attempt ${attempt}/${maxRetries}) for ${fieldName} (${modelName}):`,
+          err.message || err
+        );
+        throw err; // Ném lỗi ra để endpoint handler bắt
+      }
+    }
+  }
+  // Fallback nếu vòng lặp kết thúc mà không thành công
+  console.error(`Thoát khỏi vòng lặp retry cho ${fieldName} mà không thành công.`);
+  throw lastError || new Error(`Unknown error after ${maxRetries} attempts.`);
+}
+
+
+/**
+ * Parse JSON một cách an toàn
+ */
 function safeParse(content, fieldName) {
   try {
     return JSON.parse(content);
@@ -68,16 +134,50 @@ function safeParse(content, fieldName) {
 // ===== SUMMARY =====
 async function summary(req, res) {
   try {
-    const { content } = req.body;
-    // console.log("ĐẦU VÀO /summary:", content);
-    if (!content) return res.status(400).json({ error: "Missing summary content" });
+    // THÊM MỚI: Nhận 2 trường tùy chọn
+    const { content, previousResult, refinementPrompt } = req.body;
 
-    const result = await callGemini(
-      `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Summary CV để ngắn gọn, chuyên nghiệp, 
-       thu hút nhà tuyển dụng. Giữ giọng văn tự nhiên, tránh phóng đại.
-       Trả về JSON: { "optimizedSummary": "<...>" }`,
-      content,
+    // Kiểm tra logic: Phải có "content" (tạo mới) HOẶC ("previousResult" VÀ "refinementPrompt") (chỉnh sửa)
+    if (!content && !(previousResult && refinementPrompt)) {
+      return res.status(400).json({ error: "Missing 'content' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+    }
+
+    const systemPrompt = `Bạn là chuyên gia viết CV.
+      Nhiệm vụ: tối ưu phần Summary CV để ngắn gọn, chuyên nghiệp, 
+      thu hút nhà tuyển dụng. Giữ giọng văn tự nhiên, tránh phóng đại.
+      Luôn trả về JSON: { "optimizedSummary": "<...>" }`;
+
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa
+      userContent = `
+Đây là bản nháp Summary trước đó (previousResult):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy tạo một phiên bản Summary mới DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "optimizedSummary": "<...>" }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới (Logic cũ)
+      userContent = `
+Đây là nội dung Summary gốc của người dùng (content):
+---
+${content}
+---
+Hãy tối ưu nội dung này và trả về JSON format { "optimizedSummary": "<...>" }.
+      `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemPrompt,
+      userContent,
       "optimizedSummary",
       2048
     );
@@ -91,15 +191,48 @@ async function summary(req, res) {
 // ===== SKILLS =====
 async function skills(req, res) {
   try {
-    const { content } = req.body;
-    if (!content) return res.status(400).json({ error: "Missing skills content" });
+    const { content, previousResult, refinementPrompt } = req.body;
 
-    const result = await callGemini(
-      `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu danh sách Skills để rõ ràng, phân nhóm hợp lý,
-       tập trung vào kỹ năng quan trọng với nhà tuyển dụng.
-       Trả về JSON: { "optimizedSkills": ["skill1", "skill2", ...] }`,
-      content,
+    if (!content && !(previousResult && refinementPrompt)) {
+      return res.status(400).json({ error: "Missing 'content' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+    }
+
+    const systemPrompt = `Bạn là chuyên gia viết CV.
+      Nhiệm vụ: tối ưu danh sách Skills để rõ ràng, phân nhóm hợp lý,
+      tập trung vào kỹ năng quan trọng với nhà tuyển dụng.
+      Luôn trả về JSON: { "optimizedSkills": ["skill1", "skill2", ...] }`;
+
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa
+      userContent = `
+Đây là bản nháp Skills trước đó (previousResult, là một JSON string array):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy tạo một phiên bản Skills mới DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "optimizedSkills": ["skill1", "skill2", ...] }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới
+      userContent = `
+Đây là nội dung Skills gốc của người dùng (content):
+---
+${content}
+---
+Hãy tối ưu nội dung này và trả về JSON format { "optimizedSkills": ["skill1", "skill2", ...] }.
+      `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemPrompt,
+      userContent,
       "optimizedSkills",
       2048
     );
@@ -107,22 +240,55 @@ async function skills(req, res) {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: "Skills optimization error", details: err.message || String(err) });
+    V
   }
 }
 
 // ===== EXPERIENCE =====
 async function experience(req, res) {
   try {
-    const { content } = req.body;
-        // console.log("ĐẦU VÀO /experience description:", content);
-    if (!content) return res.status(400).json({ error: "Missing experience content" });
+    const { content, previousResult, refinementPrompt } = req.body;
 
-    const result = await callGemini(
-      `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Kinh nghiệm làm việc (Experience),
-       tập trung vào thành tựu (achievements), tác động và kết quả.
-       Trả về JSON: { "optimizedExperience": "<...>" }`,
-      content,
+    if (!content && !(previousResult && refinementPrompt)) {
+      return res.status(400).json({ error: "Missing 'content' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+    }
+
+    const systemPrompt = `Bạn là chuyên gia viết CV.
+      Nhiệm vụ: tối ưu phần Kinh nghiệm làm việc (Experience),
+      tập trung vào thành tựu (achievements), tác động và kết quả.
+      Luôn trả về JSON: { "optimizedExperience": "<...>" }`;
+
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa
+      userContent = `
+Đây là bản nháp Experience trước đó (previousResult):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy tạo một phiên bản Experience mới DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "optimizedExperience": "<...>" }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới
+      userContent = `
+Đây là nội dung Experience gốc của người dùng (content):
+---
+${content}
+---
+Hãy tối ưu nội dung này và trả về JSON format { "optimizedExperience": "<...>" }.
+      `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemPrompt,
+      userContent,
       "optimizedExperience",
       2048
     );
@@ -136,15 +302,48 @@ async function experience(req, res) {
 // ===== EDUCATION =====
 async function education(req, res) {
   try {
-    const { content } = req.body;
-    if (!content) return res.status(400).json({ error: "Missing education content" });
+    const { content, previousResult, refinementPrompt } = req.body;
 
-    const result = await callGemini(
-      `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Học vấn (Education),
-       giữ ngắn gọn nhưng nêu bật được trường, ngành, thành tích nổi bật.
-       Trả về JSON: { "optimizedEducation": "<...>" }`,
-      content,
+    if (!content && !(previousResult && refinementPrompt)) {
+      return res.status(400).json({ error: "Missing 'content' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+    }
+
+    const systemPrompt = `Bạn là chuyên gia viết CV.
+      Nhiệm vụ: tối ưu phần Học vấn (Education),
+      giữ ngắn gọn nhưng nêu bật được trường, ngành, thành tích nổi bật.
+      Luôn trả về JSON: { "optimizedEducation": "<...>" }`;
+
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa
+      userContent = `
+Đây là bản nháp Education trước đó (previousResult):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy tạo một phiên bản Education mới DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "optimizedEducation": "<...>" }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới
+      userContent = `
+Đây là nội dung Education gốc của người dùng (content):
+---
+${content}
+---
+Hãy tối ưu nội dung này và trả về JSON format { "optimizedEducation": "<...>" }.
+      `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemPrompt,
+      userContent,
       "optimizedEducation",
       2048
     );
@@ -152,26 +351,61 @@ async function education(req, res) {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: "Education optimization error", details: err.message || String(err) });
+    V
   }
 }
 
 // ===== PROJECTS =====
 async function projects(req, res) {
   try {
-    const { content } = req.body;
-    if (!content) return res.status(400).json({ error: "Missing projects content" });
+    const { content, previousResult, refinementPrompt } = req.body;
 
-    const result = await callGemini(
-      `Bạn là chuyên gia viết CV.
-       Nhiệm vụ: tối ưu phần Dự án (Projects), 
-       nêu rõ vai trò, công nghệ sử dụng và kết quả đạt được.
-       Trả về JSON: { "optimizedProjects": "<...>" }`,
-      content,
+    if (!content && !(previousResult && refinementPrompt)) {
+      return res.status(400).json({ error: "Missing 'content' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+    }
+
+    const systemPrompt = `Bạn là chuyên gia viết CV.
+      Nhiệm vụ: tối ưu phần Dự án (Projects), 
+      nêu rõ vai trò, công nghệ sử dụng và kết quả đạt được.
+      Luôn trả về JSON: { "optimizedProjects": "<...>" }`;
+
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa
+      userContent = `
+Đây là bản nháp Projects trước đó (previousResult):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy tạo một phiên bản Projects mới DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "optimizedProjects": "<...>" }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới
+      userContent = `
+Đây là nội dung Projects gốc của người dùng (content):
+---
+${content}
+---
+Hãy tối ưu nội dung này và trả về JSON format { "optimizedProjects": "<...>" }.
+      `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemPrompt,
+      userContent,
       "optimizedProjects",
       2048
     );
 
     res.json(result);
+    V
   } catch (err) {
     res.status(500).json({ error: "Projects optimization error", details: err.message || String(err) });
   }
@@ -180,43 +414,12 @@ async function projects(req, res) {
 // ===== COVER LETTER =====
 async function coverLetter(req, res) {
   try {
-    const { cvId, jobId } = req.body;
-    if (!cvId || !jobId) {
-      return res.status(400).json({ error: "Missing cvId or jobId" });
-    }
+    // THÊM MỚI: Nhận 2 trường tùy chọn
+    const { cvId, jobId, previousResult, refinementPrompt } = req.body;
 
-    const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
-    const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
-
-    const [cvRes, jobRes] = await Promise.all([
-      axios.get(`${CV_SERVICE_URL}/cv/${cvId}`),
-      axios.get(`${JOB_SERVICE_URL}/${jobId}`),
-    ]);
-
-    const cv = cvRes.data;
-    const job = jobRes.data;
-
-    if (!cv) return res.status(404).json({ error: "CV not found" });
-    if (!job) return res.status(404).json({ error: "Job not found" });
-
-    const candidateInfo = `
-      Họ tên: ${cv.fullname || ""}
-      Kỹ năng: ${(cv.skills || []).join(", ")}
-      Kinh nghiệm: ${cv.experience || "Chưa có"} năm
-      Học vấn: ${cv.education || ""}
-    `;
-
-    // P/S: Dòng `job.department?.name` có vẻ lạ, 
-    // bạn nên kiểm tra xem đây là "Tên công ty" hay "Tên phòng ban"
-    const jobInfo = `
-      Vị trí: ${job.jobTitle || ""}
-      Công ty: ${job.companyName || job.department?.name || ""} 
-      Yêu cầu: ${(job.requirement || []).join(", ")}
-    `;
-
-    const prompt = `
+    const systemPrompt = `
       Bạn là chuyên gia viết cover letter.
-      Dựa trên thông tin ứng viên và công việc, hãy viết thư xin việc
+      Dựa trên thông tin được cung cấp, hãy viết thư xin việc
       chuyên nghiệp, ngắn gọn, tập trung vào lý do ứng tuyển.
       Yêu cầu: Trả về JSON hợp lệ, format đúng:
       {
@@ -224,9 +427,72 @@ async function coverLetter(req, res) {
       }
     `;
 
-    const result = await callGemini(
-      prompt,
-      `Ứng viên:\n${candidateInfo}\n\nCông việc:\n${jobInfo}`,
+    let userContent = "";
+
+    if (previousResult && refinementPrompt) {
+      // TRƯỜNG HỢP 2: Chỉnh sửa Cover Letter
+      userContent = `
+Đây là bản nháp Cover Letter trước đó (previousResult):
+---
+${previousResult}
+---
+Đây là hướng dẫn chỉnh sửa từ người dùng (refinementPrompt):
+---
+${refinementPrompt}
+---
+Hãy viết lại Cover Letter DỰA TRÊN BẢN NHÁP TRƯỚC ĐÓ và HƯỚNG DẪN CHỈNH SỬA.
+Vẫn trả về JSON format { "coverLetter": "<...>" }.
+      `;
+    } else {
+      // TRƯỜNG HỢP 1: Tạo mới Cover Letter (Logic cũ)
+      if (!cvId || !jobId) {
+        return res.status(400).json({ error: "Missing 'cvId' + 'jobId' (for initial) or 'previousResult' + 'refinementPrompt' (for refinement)." });
+      }
+
+      const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
+      const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
+
+      const [cvRes, jobRes] = await Promise.all([
+        axios.get(`${CV_SERVICE_URL}/cv/${cvId}`),
+        axios.get(`${JOB_SERVICE_URL}/${jobId}`),
+      ]);
+
+      const cv = cvRes.data;
+      const job = jobRes.data;
+
+      if (!cv) return res.status(404).json({ error: "CV not found" });
+      if (!job) return res.status(404).json({ error: "Job not found" });
+
+      const candidateInfo = `
+        Họ tên: ${cv.fullname || ""}
+        Kỹ năng: ${(cv.skills || []).join(", ")}
+V       Kinh nghiệm: ${cv.experience || "Chưa có"} năm
+        Học vấn: ${cv.education || ""}
+      `;
+
+      const jobInfo = `
+        Vị trí: ${job.jobTitle || ""}
+        Công ty: ${job.companyName || job.department?.name || ""} 
+        Yêu cầu: ${(job.requirement || []).join(", ")}
+      `;
+
+      userContent = `
+Hãy viết Cover Letter dựa trên thông tin sau:
+---
+Thông tin Ứng viên:
+${candidateInfo}
+---
+Thông tin Công việc:
+${jobInfo}
+---
+Hãy trả về JSON format { "coverLetter": "<...>" }.
+V     `;
+    }
+
+    const result = await callGeminiWithRetry(
+      "gemini-2.5-flash", // Vẫn dùng flash cho nhanh
+      systemPrompt,
+      userContent,
       "coverLetter",
       2048
     );

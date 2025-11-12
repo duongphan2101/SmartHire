@@ -2,8 +2,14 @@ import { useState } from "react";
 import "./Modal-AI-Recomend.css";
 import useCV from "../../hook/useCV";
 import Swal from "sweetalert2";
+import { Button, CircularProgress, TextField } from "@mui/material";
 
-// --- INTERFACES (giữ nguyên) ---
+type OptimizeParams = {
+    content?: string;
+    previousResult?: string;
+    refinementPrompt?: string;
+}
+
 interface ModalProps {
     content: string;
     onClose: () => void;
@@ -21,42 +27,84 @@ export interface CVAIResponse {
 const Modal_AI_Recomend: React.FC<ModalProps> = ({ content, onClose, type, onApply }) => {
     const { optimizeSummary, optimizeExperience, optimizeProjects } = useCV();
 
-    // --- STATE MANAGEMENT (giữ nguyên) ---
+    // --- STATE MANAGEMENT ---
     const [suggestion, setSuggestion] = useState<CVAIResponse | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [refinementPrompt, setRefinementPrompt] = useState<string>("");
 
-    // --- LOGIC (giữ nguyên) ---
+    const callAIFunction = async (params: OptimizeParams) => {
+        const buildInput = () => {
+            const base = params.previousResult ?? params.content ?? "";
+            const refinement = params.refinementPrompt ? params.refinementPrompt.trim() : "";
+            if (refinement) {
+                return `${base}\n\nRefinement: ${refinement}`;
+            }
+            return base;
+        };
+
+        const input = buildInput();
+
+        switch (type) {
+            case "Summary":
+                return await optimizeSummary(input);
+            case "Experience":
+                return await optimizeExperience(input);
+            case "ProjectDescription":
+                return await optimizeProjects(input);
+            default:
+                throw new Error("Loại gợi ý không hợp lệ.");
+        }
+    };
+
+    // 1. Lấy Gợi ý Mới (Tạo mới)
     const handleGetSuggestion = async () => {
         setIsLoading(true);
         setError(null);
-        setSuggestion(null); // Xóa gợi ý cũ khi tạo gợi ý mới
+        setSuggestion(null);
+        setRefinementPrompt("");
 
         try {
-            let result: CVAIResponse | void;
-            switch (type) {
-                case "Summary":
-                    result = await optimizeSummary(content);
-                    break;
-                case "Experience":
-                    result = await optimizeExperience(content);
-                    break;
-                case "ProjectDescription":
-                    result = await optimizeProjects(content);
-                    break;
-                default:
-                    throw new Error("Loại gợi ý không hợp lệ.");
-            }
+            const result = await callAIFunction({ content });
             if (!result) {
-                 setError("AI không thể tạo gợi ý lúc này, vui lòng thử lại.");
+                setError("AI không thể tạo gợi ý lúc này, vui lòng thử lại.");
             } else {
-                 setSuggestion(result);
+                setSuggestion(result);
             }
         } catch (err) {
             console.error(`Tối ưu ${type} thất bại`, err);
             setError("Gợi ý thất bại, vui lòng thử lại sau.");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // 2. Chỉnh sửa Gợi ý (MỚI)
+    const handleRefine = async () => {
+        const previousResult = getSuggestionValue();
+        if (!refinementPrompt.trim() || !previousResult) {
+            setError("Vui lòng nhập chỉ dẫn chỉnh sửa.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const params = { previousResult, refinementPrompt };
+            const result = await callAIFunction(params);
+
+            if (!result) {
+                setError("AI không thể chỉnh sửa lúc này, vui lòng thử lại.");
+            } else {
+                setSuggestion(result); // Cập nhật suggestion với kết quả mới
+            }
+        } catch (err) {
+            console.error(`Chỉnh sửa ${type} thất bại`, err);
+            setError("Chỉnh sửa thất bại, vui lòng thử lại sau.");
+        } finally {
+            setIsLoading(false);
+            setRefinementPrompt("");
         }
     };
 
@@ -99,7 +147,6 @@ const Modal_AI_Recomend: React.FC<ModalProps> = ({ content, onClose, type, onApp
     };
 
 
-    // --- RENDER LOGIC (đã thay đổi) ---
     return (
         <div className="modal-ai-recomend w-full">
             <div className="modal-ai-recomend-box">
@@ -112,49 +159,92 @@ const Modal_AI_Recomend: React.FC<ModalProps> = ({ content, onClose, type, onApp
 
                 <div className="recomend-box_body bg-white text-left">
                     {/* Lớp phủ cho trạng thái loading và error */}
-                    {isLoading && (
+                    {(isLoading || (error && !isLoading)) && (
                         <div className="state-overlay">
-                            <div className="loader"></div>
-                            <p>AI đang suy nghĩ...</p>
+                            {isLoading ? (
+                                <>
+                                    <div className="loader"></div>
+                                    <p>AI đang suy nghĩ...</p>
+                                </>
+                            ) : (
+                                <p className="error-message">{error}</p>
+                            )}
                         </div>
                     )}
-                    {error && !isLoading && (
-                         <div className="state-overlay">
-                            <p className="error-message">{error}</p>
-                        </div>
-                    )}
+
                     <textarea
                         value={getSuggestionValue()}
                         className="ip-body-content w-full p-2"
                         placeholder="Nhấn '✨ Gợi ý mới' để AI tạo nội dung cho bạn..."
                         readOnly
                     />
-                </div>
-                
-                {/* Thanh công cụ luôn hiển thị */}
-                <div className="recomend-box_bottom bg-white flex justify-end items-center p-2">
-                    <div className="flex gap-2">
-                        <button 
-                            className="btn-get-suggestion" 
-                            onClick={handleGetSuggestion}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Đang tải..." : "✨ Gợi ý mới"}
-                        </button>
-                        <button 
-                            className="btn-coppy" 
-                            onClick={handleCopy}
-                            disabled={!suggestion || isLoading}
-                        >
-                            Sao chép
-                        </button>
-                        <button
-                            className="bg-emerald-600 text-white btn-acept"
-                            onClick={handleApply}
-                            disabled={!suggestion || isLoading}
-                        >
-                            Áp dụng
-                        </button>
+
+                    {!isLoading && suggestion && (
+                        <div className="refinement-area">
+
+                            <TextField
+                                fullWidth
+                                label="Yêu cầu AI chỉnh sửa (vd: ngắn gọn hơn, chuyên nghiệp hơn)"
+                                value={refinementPrompt}
+                                onChange={(e) => setRefinementPrompt(e.target.value)}
+                                margin="normal"
+                                disabled={isLoading}
+                                variant="outlined"
+                                onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+                                size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                        borderColor: '#059669',
+                                    },
+                                    '& label.Mui-focused': {
+                                        color: '#059669',
+                                    },
+                                }}
+                            />
+                            <Button
+                                onClick={handleRefine}
+                                variant="contained"
+                                disabled={isLoading || !refinementPrompt.trim()}
+                                sx={{
+                                    mt: 1,
+                                    textTransform: 'none',
+                                    backgroundColor: '#059669',
+                                    '&:hover': {
+                                        backgroundColor: '#047857',
+                                    },
+                                }}
+                                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                            >
+                                {isLoading ? "Đang chỉnh sửa..." : "Chỉnh sửa bằng AI"}
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* Thanh công cụ luôn hiển thị */}
+                    <div className="recomend-box_bottom bg-white flex justify-end items-center p-2">
+                        <div className="flex gap-2">
+                            <button
+                                className="btn-get-suggestion"
+                                onClick={handleGetSuggestion}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Đang tải..." : "✨ Gợi ý mới"}
+                            </button>
+                            <button
+                                className="btn-coppy"
+                                onClick={handleCopy}
+                                disabled={!suggestion || isLoading}
+                            >
+                                Sao chép
+                            </button>
+                            <button
+                                className="bg-emerald-600 text-white btn-acept"
+                                onClick={handleApply}
+                                disabled={!suggestion || isLoading}
+                            >
+                                Áp dụng
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -163,4 +253,3 @@ const Modal_AI_Recomend: React.FC<ModalProps> = ({ content, onClose, type, onApp
 };
 
 export default Modal_AI_Recomend;
-

@@ -71,10 +71,14 @@ export interface UserResponse {
   cv: CVResponse[];
 }
 
-interface CoverLetterParams {
-  cvId: string;
-  jobId: string;
-}
+// interface CoverLetterParams {
+//   cvId: string;
+//   jobId: string;
+// }
+
+type CoverLetterParams =
+  | { cvId: string; jobId: string; }
+  | { previousResult: string; refinementPrompt: string; };
 
 export default function useApplication() {
   const [loading, setLoading] = useState(false);
@@ -221,9 +225,18 @@ export default function useApplication() {
     try {
       const host = HOSTS.cvAIService;
       const res = await axios.post(`${host}/coverLetter`, params);
-      setCoverLetter(res.data.coverLetter);
+
+      if (res.data && res.data.coverLetter) {
+        setCoverLetter(res.data.coverLetter);
+        return res.data;
+      } else {
+        throw new Error("API không trả về 'coverLetter' như mong đợi.");
+      }
+
     } catch (err: any) {
-      setError(err.response?.data?.error || "Có lỗi xảy ra");
+      const errorMessage = err.response?.data?.error || err.message || "Có lỗi xảy ra khi tạo thư giới thiệu";
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
