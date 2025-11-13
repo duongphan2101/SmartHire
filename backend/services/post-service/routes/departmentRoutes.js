@@ -25,7 +25,15 @@ router.put('/update/:id', updateDepartment);
 router.put('/status/:id', updateDepartmentStatus);
 router.delete('/delete/:id', deleteDepartment);
 router.get('/search', searchDepartments);
-
+router.get("/:id/rating", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { averageRating, totalReviews } = await calculateAverageRating(id);
+    res.json({ averageRating, totalReviews });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 router.post('/create-invite', createDepartmentInvite);
 router.post('/join-department', joinDepartment);
 

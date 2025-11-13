@@ -49,6 +49,19 @@ export default function useJob() {
 
   const host = HOSTS.jobService;
 
+  const fetchPendingJobsAdmin = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Job[]>(`${host}/pending`);
+      setJobs(res.data);
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch pending jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, [host]);
+
   // fetch all
   const refetch = useCallback(async () => {
     if (!department) {
@@ -171,7 +184,7 @@ export default function useJob() {
     }
   }, [host]);
 
-  const categories_sum = useCallback(async ( 
+  const categories_sum = useCallback(async (
     title?: string,
   ) => {
     try {
@@ -186,6 +199,28 @@ export default function useJob() {
       return { sum: 0, data: [] };
     } finally {
       setLoading(false);
+    }
+  }, [host]);
+
+  const approveJob = useCallback(async (id: string) => {
+    try {
+      const res = await axios.put(`${host}/approve/${id}`);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Duyệt bài thất bại");
+      return null;
+    }
+  }, [host]);
+
+  const rejectJob = useCallback(async (id: string) => {
+    try {
+      const res = await axios.put(`${host}/reject/${id}`);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Từ chối bài thất bại");
+      return null;
     }
   }, [host]);
 
@@ -205,6 +240,9 @@ export default function useJob() {
     filterJobs,
     getJobById,
     categories_sum,
-    getJobByDepartmentId
+    getJobByDepartmentId,
+    approveJob,
+    rejectJob,
+    fetchPendingJobsAdmin
   };
 }

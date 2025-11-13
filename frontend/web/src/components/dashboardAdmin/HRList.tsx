@@ -63,7 +63,7 @@ const HRList: React.FC = () => {
           <p className="hr-empty">Không có HR nào được tìm thấy</p>
         ) : (
           filteredHR.map((hr) => (
-            <div className="hr-card" key={hr._id}>
+            <div className="hr-card shadow-2xs" key={hr._id}>
               <img
                 src={hr.avatar || "/default-avatar.png"}
                 alt={hr.fullname}
