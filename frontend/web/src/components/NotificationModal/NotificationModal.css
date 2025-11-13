@@ -5,7 +5,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 1000;
+}
+
+.swal2-container {
+  z-index: 99999 !important;
 }
 
 .notification-box {

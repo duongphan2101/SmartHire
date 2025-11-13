@@ -56,7 +56,7 @@ export interface Interview {
   scheduledAt: Date | string;
   location: string;
   mode: 'online' | 'offline';
-  status: 'pending' | 'confirmed' | 'rejected' | 'completed';
+  status: 'pending' | 'confirmed' | 'rejected' | 'completed' | 'failed';
   note: string;
 }
 

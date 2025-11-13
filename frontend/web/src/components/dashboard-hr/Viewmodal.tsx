@@ -14,7 +14,7 @@ import useApplication, {
 import ModalContactCandidate from "./ModalContactCandidate";
 
 import { AiOutlineMessage } from "react-icons/ai";
-import { BsTelephone } from "react-icons/bs";
+import { BsCheckCircle, BsTelephone, BsXCircle } from "react-icons/bs";
 import usePayment from "../../hook/usePayment";
 import { Empty } from "antd";
 import { useChat } from "../../hook/useChat";
@@ -43,15 +43,15 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
   const [closing, setClosing] = useState(false);
   const [matchingJobs, setMatchingJobs] = useState<MatchingResponse[]>([]);
   const [matchingCandidate, setMatchingCandidate] = useState<MatchingCVSResponse[]>([]);
-  const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus } = useApplication();
+  const { renderMatchingCvForJob, renderMatchingCvsForOneJob, updateStatus, updateStatusAndNote } = useApplication();
   const { withdraw } = usePayment();
   const [cvIdSelected, setCvIdSelected] = useState<string>("");
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
   const [loadingScores, setLoadingScores] = useState(false);
   const MySwal = withReactContent(Swal);
-  const { createChatRoom, sendChatRequest, fetchRooms, createChatRoomInactive} = useChat();
+  const { createChatRoom, sendChatRequest, fetchRooms } = useChat();
   const { createNotification } = useNotification();
-  const { sendHrExchangeInvite } = useEmailService();
+  const { sendHrExchangeInvite, sendInterviewResult } = useEmailService();
   const { getUser, user } = useUser();
 
   useEffect(() => {
@@ -243,13 +243,173 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
       const res = await updateStatus({ id, status: newStatus });
-      console.log("✅ Updated:", res.data);
-      // Cập nhật lại state_applicants sau khi update
-      setApplicants(prev =>
-        prev.map(app => app._id === id ? { ...app, status: newStatus } : app)
+
+      // Cập nhật lại state
+      setApplicants((prev) =>
+        prev.map((app) => (app._id === id ? { ...app, status: newStatus } : app))
       );
+
+      // Xử lý nội dung thông báo & Email
+      let msgTitle = "Cập nhật thành công";
+      let msgText = "Trạng thái ứng viên đã được cập nhật.";
+
+      let msgNotifyTitle = "Thông báo kết quả phỏng vấn.";
+      let msgNotifyText = "Kết quả phỏng vấn.";
+
+      // Biến xác định kết quả cho Email
+      let emailResult: "accepted" | "rejected" = "rejected";
+
+      if (newStatus === "accepted") {
+        msgTitle = "Tuyệt vời!";
+        msgText = "Ứng viên đã được đánh dấu là thông qua phỏng vấn.";
+
+        msgNotifyTitle = "Kết quả phỏng vấn";
+        msgNotifyText = "Chúc mừng bạn, kết quả phỏng vấn được nhà tuyển dụng đánh giá là bạn đã xuất sắc vượt qua cuộc phỏng vấn!";
+        emailResult = "accepted";
+      } else if (newStatus === "rejected" || newStatus === "failed") {
+        msgTitle = "Đã từ chối";
+        msgText = "Ứng viên đã được đánh dấu là trượt phỏng vấn.";
+
+        msgNotifyTitle = "Kết quả phỏng vấn";
+        msgNotifyText = "Kết quả phỏng vấn được nhà tuyển dụng đánh giá là bạn không phù hợp!";
+        emailResult = "rejected";
+      }
+
+      MySwal.fire({
+        target: ".view-modal-overlay",
+        icon: "info",
+        title: msgTitle,
+        text: msgText,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      if (res.data && res.data.userSnapshot) {
+        await createNotification({
+          receiverId: res.data.userSnapshot._id,
+          type: "INFO",
+          title: msgNotifyTitle,
+          message: msgNotifyText,
+          requestId: ""
+        });
+
+        // Gửi email chạy ngầm, không cần await chặn UI nếu không muốn
+        await sendInterviewResult({
+          candidate: {
+            email: res.data.userSnapshot.email,
+            fullname: res.data.userSnapshot.fullname
+          },
+          hr: {
+            companyName: job.department.name || "Công ty Tuyển dụng",
+            fullname: user?.fullname,
+            email: user?.email
+          },
+          job: {
+            title: job?.jobTitle || "Vị trí ứng tuyển"
+          },
+          result: emailResult,
+          feedback: msgNotifyText
+        }).catch(err => console.error("Failed to send result email", err));
+      }
+
     } catch (err) {
       console.error("❌ Update failed:", err);
+      MySwal.fire({
+        target: ".view-modal-overlay",
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể cập nhật trạng thái. Vui lòng thử lại!",
+      });
+    }
+  };
+
+  const handleAcceptWithNote = async (appId: string, currentNote: string = "") => {
+    const { value: note } = await MySwal.fire({
+      title: "Ghi chú cho ứng viên",
+      input: "textarea",
+      inputValue: currentNote,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận Tuyển dụng",
+      inputAttributes: {
+        "aria-label": "Ghi chú",
+        style: "min-height: 150px; font-size: 1.1em;",
+      },
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#10b981",
+      inputPlaceholder: "Nhập nội dung tại đây (để trống sẽ dùng lời nhắn mặc định)...",
+      width: "600px",
+      customClass: {
+        container: "z-[99999]",
+      },
+    });
+
+    if (note !== undefined) {
+      try {
+        const status = "accepted";
+        const cleanNote = note.trim();
+        const res = await updateStatusAndNote({ id: appId, status, note: cleanNote });
+
+        setApplicants((prev) =>
+          prev.map((app) => (app._id === appId ? { ...app, status: status, note: cleanNote } : app))
+        );
+
+        const msgNotifyTitle = "Kết quả phỏng vấn";
+        const msgNotifyText = "Chúc mừng bạn! Bạn đã xuất sắc vượt qua vòng phỏng vấn.";
+
+        let finalMsg = msgNotifyText;
+
+        // Xử lý Note hiển thị
+        if (cleanNote) {
+          finalMsg += `\n\nLời nhắn từ bộ phận nhân sự: "${cleanNote}"`;
+        } else {
+          finalMsg += "\n\nBộ phận nhân sự sẽ sớm liên hệ lại với bạn để trao đổi chi tiết về Offer và ngày nhận việc.";
+        }
+
+        // Tạo thông báo In-App
+        if (res.data && res.data.userSnapshot) {
+          await createNotification({
+            receiverId: res.data.userSnapshot._id,
+            type: "INFO",
+            title: msgNotifyTitle,
+            message: finalMsg,
+            requestId: ""
+          });
+
+          await sendInterviewResult({
+            candidate: {
+              email: res.data.userSnapshot.email,
+              fullname: res.data.userSnapshot.fullname
+            },
+            hr: {
+              companyName: job.department.name || "Công ty Tuyển dụng",
+              fullname: user?.fullname,
+              email: user?.email
+            },
+            job: {
+              title: job?.jobTitle || "Vị trí ứng tuyển"
+            },
+            result: "accepted",
+            feedback: cleanNote || "Chúc mừng bạn gia nhập đội ngũ của chúng tôi!"
+          }).catch(err => console.error("Failed to send result email", err));
+        }
+
+        MySwal.fire({
+          icon: "success",
+          title: "Tuyệt vời!",
+          text: "Đã chấp nhận ứng viên và gửi thông báo thành công.",
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+      } catch (err) {
+        console.error("❌ Error:", err);
+        MySwal.fire({
+          target: ".view-modal-overlay",
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể cập nhật trạng thái. Vui lòng thử lại."
+        });
+      }
     }
   };
 
@@ -508,7 +668,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                   </div>
 
                   <div className="job-info-item">
-                    <span className="label job-info-lable">Kinh nghiệm:</span> {/* Sửa label "Cấp bậc" -> "Kinh nghiệm" */}
+                    <span className="label job-info-lable">Kinh nghiệm:</span>
                     <select
                       className="info-input"
                       value={editedJob.experience}
@@ -569,9 +729,20 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                       type="date"
                       value={editedJob.endDate?.slice(0, 10)}
                       onChange={(e) => handleChange("endDate", e.target.value)}
-                      disabled={isEndDateDisabled} // Logic MỚI: Chỉ disable khi không active VÀ không expired
+                      disabled={isEndDateDisabled}
                     />
                   </div>
+
+                  <div className="job-info-item items-center">
+                    <span className="label job-info-lable">Đã tuyển được: </span>
+                    <span className="text-green-600 font-bold">
+                      {applicants.filter(app => app.status === "accepted").length}
+                    </span>
+                    <span className="text-gray-500">
+                      /{editedJob.num} 
+                    </span>
+                  </div>
+
                 </div>
 
                 {/* Description */}
@@ -704,7 +875,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                             <th>Độ phù hợp</th>
                             <th>CV</th>
                             <th>Trao đổi</th>
-                            <th>Liên hệ</th>
+                            <th>Thao tác</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -769,16 +940,61 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                                 </button>
                               </td>
 
-                              <td>
-                                <button
-                                  className="btn-contact"
-                                  onClick={() => {
-                                    hanldeContact(app.userId, app._id);
-                                  }}
-                                >
-                                  <BsTelephone size={18} />
-                                </button>
+                              <td className="flex items-center justify-start">
+                                {(() => {
+                                  // TRƯỜNG HỢP 1: Đã có kết quả (Accepted hoặc Rejected) -> Chỉ hiện kết quả, không click được
+                                  if (app.status === "accepted") {
+                                    return (
+                                      <span className="text-green-600 font-bold flex items-center gap-2 cursor-default">
+                                        <BsCheckCircle size={22} /> Đã nhận
+                                      </span>
+                                    );
+                                  }
+                                  if (app.status === "rejected") {
+                                    return (
+                                      <span className="text-red-600 font-bold flex items-center gap-2 cursor-default">
+                                        <BsXCircle size={22} /> Đã loại
+                                      </span>
+                                    );
+                                  }
+
+                                  // TRƯỜNG HỢP 2: Đã liên hệ -> Hiện 2 nút để quyết định
+                                  if (app.status === "contacted") {
+                                    return (
+                                      <div className="flex items-center justify-center gap-3">
+                                        <button
+                                          className="text-green-600 hover:text-green-800 transition-colors"
+                                          title="Đậu phỏng vấn"
+                                          // onClick={() => handleUpdateStatus(app._id, "accepted")}
+                                          onClick={() => handleAcceptWithNote(app._id, app.note)}
+                                        >
+                                          <BsCheckCircle size={22} />
+                                        </button>
+
+                                        <button
+                                          className="text-red-600 hover:text-red-800 transition-colors"
+                                          title="Trượt phỏng vấn"
+                                          onClick={() => handleUpdateStatus(app._id, "rejected")}
+                                        >
+                                          <BsXCircle size={22} />
+                                        </button>
+                                      </div>
+                                    );
+                                  }
+
+                                  // TRƯỜNG HỢP 3: Chưa làm gì cả (pending/reviewed) -> Hiện nút gọi
+                                  return (
+                                    <button
+                                      className="btn-contact"
+                                      title="Liên hệ phỏng vấn"
+                                      onClick={() => hanldeContact(app.userId, app._id)}
+                                    >
+                                      <BsTelephone size={18} />
+                                    </button>
+                                  );
+                                })()}
                               </td>
+
                             </tr>
                           ))}
                         </tbody>

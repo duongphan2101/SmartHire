@@ -51,6 +51,18 @@ interface EmailJobMatching {
   salary?: string;
 }
 
+export interface InterviewResultPayload {
+  candidate: EmailUser;
+  hr: {
+    companyName: string;
+    fullname?: string;
+    email?: string;
+  };
+  job: EmailJob;
+  result: "accepted" | "rejected";
+  feedback?: string;
+}
+
 export default function useEmailService() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +150,23 @@ export default function useEmailService() {
     }
   };
 
+  /**
+ * Gửi email thông báo kết quả phỏng vấn
+ */
+  const sendInterviewResult = async (payload: InterviewResultPayload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${host}/notify-interview-result`, payload);
+      console.log("PAYLOAD: ", payload);
+      return res.data;
+    } catch (err) {
+      return handleError(err, "Failed to send interview result email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     // States
     loading,
@@ -147,5 +176,6 @@ export default function useEmailService() {
     clearError,
     sendJobRecommendationEmails,
     sendHrExchangeInvite,
+    sendInterviewResult
   };
 }

@@ -175,7 +175,6 @@ const searchJobs = async (req, res) => {
   }
 };
 
-
 const deleteJob = async (req, res) => {
   try {
     const { id } = req.params;

@@ -16,6 +16,7 @@ router.get("/count", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 router.get("/stats/salary", async (req, res) => {
   try {
     const stats = await Job.aggregate([
@@ -34,7 +35,6 @@ router.get("/stats/salary", async (req, res) => {
   }
 });
 
-// 🔥 API 2: Ngành nghề hot (Top 5)
 router.get("/stats/hot-industry", async (req, res) => {
   try {
     const stats = await Job.aggregate([

@@ -28,21 +28,15 @@ exports.applyJob = async (req, res) => {
     // Lấy email HR từ userService dựa trên createBy._id và role: "hr"
     let hrEmail, hrFullname, hrAvatar;
     if (job.createBy && job.createBy._id) {
-      // console.log(
-      //   "Thử lấy thông tin HR từ userService với _id:",
-      //   job.createBy._id
-      // );
       try {
         const hrRes = await axios.get(
           `${HOSTS.userService}/${job.createBy._id}`
         );
         const hrData = hrRes.data;
-        // console.log("Response từ userService:", hrData);
         if (hrData.role === "hr" && hrData.email) {
           hrEmail = hrData.email;
           hrFullname = hrData.fullname;
           hrAvatar = hrData.avatar;
-          // console.log("Đã lấy được email HR:", hrEmail);
         } else {
           console.warn(
             `User ${job.createBy._id} không phải HR (role: ${hrData.role}) hoặc không có email`
@@ -97,7 +91,6 @@ exports.applyJob = async (req, res) => {
         message: `Bạn đã ứng tuyển vào công việc ${job.jobTitle} tại ${job.location}`,
         requestId: ""
       });
-      //console.log("User notification response:", userNotificationRes.data);
 
       if (job.createBy && job.createBy._id) {
         await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
@@ -107,7 +100,6 @@ exports.applyJob = async (req, res) => {
           message: `Ứng viên ${user.fullname} đã ứng tuyển vào vị trí ${job.jobTitle}`,
           requestId: ""
         });
-        //console.log("HR notification response:", hrNotificationRes.data);
       }
     } catch (notifyErr) {
       console.error("Lỗi gửi notification:", {
@@ -117,7 +109,6 @@ exports.applyJob = async (req, res) => {
       });
     }
 
-    // Gửi email sử dụng hrEmail từ userService
     let emailStatus = "Sent to user only";
     if (user.email) {
       try {
@@ -133,15 +124,10 @@ exports.applyJob = async (req, res) => {
             salary: job.salary,
           },
         };
-        // console.log(
-        //   "Payload gửi đến email service trước khi gửi:",
-        //   emailPayload
-        // );
         const emailResponse = await axios.post(
           `${HOSTS.emailService}/api/email/notify`,
           emailPayload
         );
-        // console.log("Response từ email service:", emailResponse.data);
         emailStatus = hrEmail
           ? "Sent to both user and HR"
           : "Sent to user only";
@@ -255,6 +241,58 @@ exports.updateStatus = async (req, res) => {
     );
     res.json({ success: true, data: application });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+exports.updateStatusAndNote = async (req, res) => {
+  try {
+    const { status, note } = req.body;
+    const applicationId = req.params.id;
+
+    const application = await Application.findByIdAndUpdate(
+      applicationId,
+      { status, note },
+      { new: true }
+    );
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: "Application not found" });
+    }
+
+    if (status === "accepted") {
+      try {
+        const jobId = application.jobId;
+        const jobRes = await axios.get(`${HOSTS.jobService}/${jobId}`);
+        const job = jobRes.data;
+
+        if (job) {
+          const currentAccepted = job.accepted || 0;
+          const newAccepted = currentAccepted + 1;
+
+          let updatePayload = {
+            accepted: newAccepted
+          };
+
+          // Kiểm tra nếu đã tuyển đủ (accepted >= num) thì đóng Job
+          if (job.num && newAccepted >= job.num) {
+            updatePayload.status = "filled";
+            console.log(`⚠️ Job ${jobId} has reached limit (${newAccepted}/${job.num}). Setting to EXPIRED.`);
+          }
+
+          // Gọi API cập nhật lại Job
+          await axios.put(`${HOSTS.jobService}/${jobId}`, updatePayload);
+        }
+      } catch (jobError) {
+        console.error("❌ Lỗi khi cập nhật số lượng Job:", jobError.message);
+      }
+    }
+
+    res.json({ success: true, data: application });
+
+  } catch (error) {
+    console.error("Update App Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

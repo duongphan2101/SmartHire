@@ -169,18 +169,24 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
 
                                 {job.status !== "active" && (
                                     <span
-                                        className={`badge-jobStatus ${job.status === "expired"
-                                            ? "bg-red-100 text-red-600"
-                                            : job.status === "banned"
-                                                ? "bg-gray-200 text-gray-600"
-                                                : "bg-yellow-100 text-yellow-700"
+                                        className={`badge-jobStatus px-2 py-1 rounded-md text-xs font-semibold ${job.status === "filled"
+                                                ? "bg-green-100 text-green-700" // Filled: Màu xanh lá (Thành công)
+                                                : job.status === "expired"
+                                                    ? "bg-red-100 text-red-600"     // Expired: Màu đỏ
+                                                    : job.status === "banned"
+                                                        ? "bg-gray-200 text-gray-600"   // Banned: Màu xám
+                                                        : "bg-yellow-100 text-yellow-700" // Default (Active): Màu vàng
                                             }`}
                                     >
-                                        {job.status === "expired"
-                                            ? "Hết hạn"
-                                            : job.status === "banned"
-                                                ? "Tạm khóa"
-                                                : job.status}
+                                        {job.status === "filled"
+                                            ? "Đã tuyển đủ"
+                                            : job.status === "expired"
+                                                ? "Hết hạn"
+                                                : job.status === "banned"
+                                                    ? "Tạm khóa"
+                                                    : job.status === "active"
+                                                        ? "Đang tuyển"
+                                                        : job.status}
                                     </span>
                                 )}
                             </div>

@@ -33,6 +33,7 @@ export interface Job {
   createdAt: string;
   status: string;
   districts?: { name: string }[];
+  accepted: number;
 }
 export interface Category {
   sum: number;
