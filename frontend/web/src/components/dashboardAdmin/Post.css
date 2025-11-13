@@ -1,0 +1,140 @@
+.post-list-container {
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 16px;
+  min-height: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: 'Inter', sans-serif;
+}
+
+.post-search-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.post-search-input {
+  padding: 12px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 24px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 450px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.post-search-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.3);
+}
+
+.post-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.post-card {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.post-info h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.post-info p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.post-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.post-status.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.post-status.active {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.post-status.banned {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.post-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.post-btn.approve {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.post-btn.reject {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+}
+
+.post-btn.view {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.post-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.post-loading,
+.post-empty {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
+  padding: 40px 0;
+}

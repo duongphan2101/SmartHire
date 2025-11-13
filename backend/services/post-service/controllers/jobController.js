@@ -9,11 +9,12 @@ const createJob = async (req, res) => {
     if (!departmentId) {
       return res.status(400).json({ message: "Thiếu ID công ty để đăng tin." });
     }
-    const department = await Department.findById(departmentId);
 
+    const department = await Department.findById(departmentId);
     if (!department) {
       return res.status(404).json({ message: "Công ty không tồn tại." });
     }
+
     if (department.status !== 'Active') {
       const statusMap = {
         'Suspended': 'tạm khóa',
@@ -24,16 +25,18 @@ const createJob = async (req, res) => {
         message: `Lỗi: Công ty hiện đang ở trạng thái ${statusVi}. HR không thể đăng tin tuyển dụng.`
       });
     }
-    // ---------------------------------------------------
+    jobData.status = "pending";
 
     const job = new Job(jobData);
     const savedJob = await job.save();
+
     res.status(201).json(savedJob);
   } catch (err) {
     console.error("Job save error:", err);
     res.status(400).json({ message: err.message });
   }
 };
+
 
 const getJobs = async (req, res) => {
   try {
@@ -267,6 +270,47 @@ const getSalaryStats = async (req, res) => {
   }
 };
 
+const approveJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const job = await Job.findById(id);
+    if (!job) return res.status(404).json({ message: "Job not found" });
+
+    if (job.status !== "pending") {
+      return res.status(400).json({ message: "Chỉ có thể duyệt bài ở trạng thái pending." });
+    }
+
+    job.status = "active";
+    await job.save();
+
+    res.json({ message: "Duyệt bài thành công!", job });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const rejectJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const job = await Job.findById(id);
+    if (!job) return res.status(404).json({ message: "Job not found" });
+
+    if (job.status !== "pending") {
+      return res.status(400).json({ message: "Chỉ có thể từ chối bài ở trạng thái pending." });
+    }
+
+    job.status = "banned";
+    await job.save();
+
+    res.json({ message: "Từ chối bài đăng thành công!", job });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 module.exports = {
   createJob,
   getJobs,
@@ -280,5 +324,7 @@ module.exports = {
   categories,
   getNumJobsByDepartment,
   getNumJobsByUser,
-  getSalaryStats
+  getSalaryStats,
+  approveJob,
+  rejectJob
 };

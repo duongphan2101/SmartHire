@@ -13,6 +13,7 @@ import UserTerms from "../../components/dashboardAdmin/UserTerms";
 import About from "../../components/About-HR/About-hr";
 import DashboardContent from "../../components/dashboardAdmin/dashboardAdmin"; 
 import HRList from "../../components/dashboardAdmin/HRList";
+import Post from "../../components/dashboardAdmin/Post";
 
 export const DashboardAdmin = () => {
     const [collapsed, setCollapsed] = useState(false);
@@ -25,6 +26,7 @@ export const DashboardAdmin = () => {
       | "userTerms"
       | "hrTerms"
       | "about"
+      | "post"
     >("dashboard");
 
     const adminName = "ADMIN";
@@ -53,6 +55,7 @@ export const DashboardAdmin = () => {
                         {/* SỬA LỖI: Sử dụng tên component đã đổi tên */}
                         {page === "dashboard" && <DashboardContent />} 
                         
+                        {page === "post" && <Post />}
                         {page === "manageUsers" && <HRList />}
                         {page === "company" && <CompanyList />}
                         {page === "userTerms" && <UserTerms />}

@@ -14,7 +14,7 @@ import "./nav.css";
 interface AdminNavProps {
   setBreadcrumb: (breadcrumb: string) => void;
   setPage: (
-    page: "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms"
+    page: "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms" | "post"
   ) => void;
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
@@ -57,6 +57,7 @@ const AdminNav: React.FC<AdminNavProps> = ({
     setBreadcrumb(breadcrumbText);
     setActiveItem(item);
     if (item === "Bảng điều khiển") setPage("dashboard");
+    else if (item === "Bài đăng") setPage("post");
     else if (item === "HR") setPage("manageUsers");
     else if (item === "Công ty") setPage("company");
     else if (item === "Điều khoản người dùng") setPage("userTerms");
@@ -92,6 +93,17 @@ const AdminNav: React.FC<AdminNavProps> = ({
           </div>
         </li>
 
+        <li
+          className={`admin-nav-item ${activeItem === "post" ? "active" : ""}`}
+          onClick={() => handleItemClick("Bài đăng", false)}
+        >
+          <div className="admin-nav-item-content">
+            <div className="admin-nav-item-text">
+              <HiOutlineBriefcase className="admin-nav-item-icon" />
+              <span>Bài đăng</span>
+            </div>
+          </div>
+        </li>
         <li
           className={`admin-nav-item ${activeItem === "HR" ? "active" : ""}`}
           onClick={() => handleItemClick("HR", false)}
