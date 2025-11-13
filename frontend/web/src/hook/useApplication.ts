@@ -217,6 +217,27 @@ export default function useApplication() {
     []
   );
 
+  const updateStatusAndNote = useCallback(
+    async (data: { id: string; status: string; note: string; }) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await axios.put<{ success: boolean; data: any }>(
+          `${HOSTS.applicationService}/${data.id}/status-note`,
+          { status: data.status }
+        );
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Update status failed");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   // 🔵 Tạo thư xin việc tự động bằng AI
   const generateCoverLetter = async (params: CoverLetterParams) => {
     setLoading(true);
@@ -249,6 +270,7 @@ export default function useApplication() {
     renderMatchingCvsForOneJob,
     renderMatchingJobsForDepartment,
     updateStatus,
+    updateStatusAndNote,
     loading,
     error,
     coverLetter,

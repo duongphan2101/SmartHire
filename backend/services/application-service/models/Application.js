@@ -45,6 +45,10 @@ const ApplicationSchema = new mongoose.Schema(
       enum: ["pending", "reviewed", "accepted", "rejected", "contacted"],
       default: "pending",
     },
+    note: {
+      type: String,
+      default: ""
+    }
   },
   { timestamps: true }
 );

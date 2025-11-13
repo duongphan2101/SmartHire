@@ -83,7 +83,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
       setTimeout(() => {
         onClose();
         setCoverletter("");
-        setSelectedCV(cvs.length > 0 ? cvs[0]._id : ""); // Reset về CV đầu tiên
+        setSelectedCV(cvs.length > 0 ? cvs[0]._id : "");
         setAiSupport(false);
         setRefinementPrompt("");
       }, 500);
@@ -97,25 +97,19 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   };
 
-  // CẬP NHẬT: Chỉ chạy AI nếu bật VÀ chưa có nội dung
   const handleAiToggle = (checked: boolean) => {
     setAiSupport(checked);
-    if (checked && !coverletter && selectedCV && _id) { // Thêm điều kiện
+    if (checked && !coverletter && selectedCV && _id) {
       generateCoverLetter({ cvId: selectedCV, jobId: _id });
     }
   };
 
-  // THÊM MỚI: Hàm gọi AI để chỉnh sửa
   const handleRefine = async () => {
-    if (!refinementPrompt.trim() || !coverletter) return; // Cần nội dung cũ và chỉ dẫn mới
-
-    // Gọi hook với logic "chỉnh sửa" (từ cvaiController.js)
+    if (!refinementPrompt.trim() || !coverletter) return; 
     await generateCoverLetter({
       previousResult: coverletter,
       refinementPrompt: refinementPrompt
     });
-
-    // Xóa nội dung trường chỉnh sửa sau khi gửi
     setRefinementPrompt("");
   };
 

@@ -56,7 +56,7 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
   };
 
   if (loading) return <div>Đang tải...</div>;
-    if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!"/></div>;
+  if (error) return <div className="text-2xl" style={{ padding: 20 }}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có bài đăng!" /></div>;
 
   const jobsToRender = searchResults.length > 0 ? searchResults : jobs;
 
@@ -99,18 +99,24 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
 
                 {job.status !== "active" && (
                   <span
-                    className={`badge-jobStatus ${job.status === "expired"
-                      ? "bg-red-100 text-red-600"
-                      : job.status === "banned"
-                        ? "bg-gray-200 text-gray-600"
-                        : "bg-yellow-100 text-yellow-700"
+                    className={`badge-jobStatus px-2 py-1 rounded-md text-xs font-semibold ${job.status === "filled"
+                        ? "bg-green-100 text-green-700"
+                        : job.status === "expired"
+                          ? "bg-red-100 text-red-600"
+                          : job.status === "banned"
+                            ? "bg-gray-200 text-gray-600" 
+                            : "bg-yellow-100 text-yellow-700"
                       }`}
                   >
-                    {job.status === "expired"
-                      ? "Hết hạn"
-                      : job.status === "banned"
-                        ? "Tạm khóa"
-                        : job.status}
+                    {job.status === "filled"
+                      ? "Đã tuyển đủ"
+                      : job.status === "expired"
+                        ? "Hết hạn"
+                        : job.status === "banned"
+                          ? "Tạm khóa"
+                          : job.status === "active"
+                            ? "Đang tuyển"
+                            : job.status}
                   </span>
                 )}
               </div>

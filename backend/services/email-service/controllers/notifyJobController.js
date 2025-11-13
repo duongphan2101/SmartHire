@@ -220,3 +220,142 @@ exports.sendChatRequestEmail = async (req, res) => {
     });
   }
 };
+
+/**
+ * Gửi email thông báo kết quả phỏng vấn (Đậu hoặc Rớt).
+ */
+exports.sendInterviewResultEmail = async (req, res) => {
+  try {
+    const { hr, job, candidate, result, feedback } = req.body; 
+    
+    // console.log("-----------------------------------------------");
+    // console.log("HR: ", hr);
+    // console.log("JOB: ", job);
+    // console.log("CANDIDATE: ", candidate);
+    // console.log("RESULT: ", result);
+    // console.log("FEEDBACK: ", feedback);
+    // console.log("-----------------------------------------------");
+
+    // --- 1. Validation ---
+    if (!hr || !hr.companyName) {
+      return res.status(400).json({ message: "Thiếu thông tin công ty (hr.companyName)." });
+    }
+    if (!job || !job.title) {
+      return res.status(400).json({ message: "Thiếu thông tin công việc (job.title)." });
+    }
+    if (!candidate || !candidate.email || !candidate.fullname) {
+      return res.status(400).json({ message: "Thiếu thông tin ứng viên." });
+    }
+    if (!result) {
+      return res.status(400).json({ message: "Thiếu kết quả phỏng vấn (result)." });
+    }
+
+    // --- 2. Cấu hình nội dung dựa trên kết quả ---
+    const isPassed = result === 'accepted';
+    
+    // Cấu hình cho trường hợp ĐẬU
+    const passedConfig = {
+      subject: `Chúc mừng! Bạn đã trúng tuyển vị trí ${job.title} tại ${hr.companyName}`,
+      headerTitle: "Chúc mừng bạn đã trúng tuyển! 🎉",
+      headerColor: "#059669", // Màu xanh thành công
+      intro: `Chúng tôi rất vui mừng thông báo rằng bạn đã <strong>VƯỢT QUA</strong> vòng phỏng vấn và chính thức trúng tuyển.`,
+      detailsTitle: "Chi tiết công việc:",
+      messageLabel: "Lời nhắn/Offer từ nhà tuyển dụng:",
+      defaultMessage: "Chào mừng bạn gia nhập đội ngũ của chúng tôi. Chúng tôi sẽ sớm gửi Offer chi tiết qua email.",
+      ctaText: "Xác nhận ngay",
+      ctaLink: `${process.env.CLIENT_URL}/applyted`,
+      footerText: "Chúng tôi rất mong chờ được làm việc cùng bạn!"
+    };
+
+    // Cấu hình cho trường hợp RỚT
+    const rejectedConfig = {
+      subject: `Thông báo kết quả phỏng vấn vị trí ${job.title} - ${hr.companyName}`,
+      headerTitle: "Thông báo kết quả phỏng vấn",
+      headerColor: "#6b7280", // Màu xám trung tính
+      intro: `Cảm ơn bạn đã dành thời gian tham gia phỏng vấn. Sau khi cân nhắc kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn <strong>chưa phù hợp</strong> để đi tiếp ở thời điểm hiện tại.`,
+      detailsTitle: "Vị trí ứng tuyển:",
+      messageLabel: "Góp ý từ nhà tuyển dụng:",
+      defaultMessage: "Chúng tôi đánh giá cao năng lực của bạn và sẽ lưu hồ sơ cho các cơ hội trong tương lai.",
+      ctaText: "Xem các công việc khác",
+      ctaLink: `${process.env.CLIENT_URL}/home`, // Link về trang chủ tìm việc
+      footerText: "Chúc bạn sớm tìm được bến đỗ phù hợp!"
+    };
+
+    const config = isPassed ? passedConfig : rejectedConfig;
+    const hrMessage = feedback || config.defaultMessage;
+
+    // --- 3. HTML Template ---
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; width: 95%; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        
+        <div style="background-color: ${config.headerColor}; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 22px;">${config.headerTitle}</h1>
+        </div>
+
+        <div style="padding: 25px;">
+          <h2 style="color: #333;">Xin chào ${candidate.fullname},</h2>
+          
+          <p>${config.intro}</p>
+          
+          <div style="background-color: #f9f9f9; padding: 15px 20px; border-radius: 5px; border: 1px solid #eee; margin: 20px 0;">
+            <h3 style="margin: 0 0 5px; color: ${config.headerColor};">${job.title}</h3>
+            <p style="margin: 0;"><strong>Công ty:</strong> ${hr.companyName}</p>
+          </div>
+
+          <div style="border-left: 4px solid ${config.headerColor}; padding-left: 15px; margin-bottom: 25px;">
+            <p style="margin: 0 0 5px; font-weight: bold; color: #555;">${config.messageLabel}</p>
+            <p style="margin: 0; font-style: italic; color: #333;">
+              "${hrMessage}"
+            </p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${config.ctaLink}"
+              target="_blank"
+              style="background-color: ${config.headerColor}; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              ${config.ctaText}
+            </a>
+          </div>
+
+          <p style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; color: #666;">
+            ${config.footerText}
+          </p>
+          <p style="font-size: 12px; color: #999;">Trân trọng,<br>Đội ngũ SmartHire</p>
+        </div>
+      </div>
+    `;
+
+    const textFallback = `
+      Xin chào ${candidate.fullname},
+      
+      ${isPassed ? "CHÚC MỪNG! Bạn đã trúng tuyển" : "Thông báo kết quả phỏng vấn"} vị trí ${job.title} tại ${hr.companyName}.
+      
+      Lời nhắn từ HR: "${hrMessage}"
+      
+      Vui lòng kiểm tra email hoặc đăng nhập SmartHire để xem chi tiết.
+    `;
+
+    const mailOptions = {
+      from: `SmartHire <${process.env.EMAIL_USER}>`,
+      to: candidate.email,
+      subject: config.subject,
+      text: textFallback,
+      html: htmlTemplate,
+    };
+
+    // --- 4. Gửi email ---
+    console.log(`📧 Gửi email kết quả (${result}) đến: ${candidate.email}`);
+    await transporter.sendMail(mailOptions);
+
+    res.json({
+      message: `Đã gửi thông báo kết quả (${result}) cho ứng viên ${candidate.fullname}.`,
+    });
+
+  } catch (err) {
+    console.error("❌ Email error:", err.message);
+    res.status(500).json({
+      message: "Gửi email kết quả thất bại",
+      error: err.message,
+    });
+  }
+};
