@@ -98,9 +98,9 @@ const HRList: React.FC = () => {
                 />
                 <div className="hr-info">
                   <h3>{hr.fullname}</h3>
-                  <p>{hr.email}</p>
+                  <h4 className="text-black">{hr.email}</h4>
                   {company ? (
-                    <p>Công ty: {company.name}</p>
+                    <h4 className="text-black">Công ty: {company.name}</h4>
                   ) : (
                     <p className="no-company">Chưa thuộc công ty nào</p>
                   )}

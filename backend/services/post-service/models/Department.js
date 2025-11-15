@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const DepartmentSchema = new mongoose.Schema({
   name: {
@@ -24,18 +24,20 @@ const DepartmentSchema = new mongoose.Schema({
   employees: [
     {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   ],
   status: {
-        type: String,
-        enum: ['Active', 'Suspended', 'Archived'], 
-        default: 'Active',
-        required: true,
-    }
-
+    type: String,
+    enum: ["Pending", "Active", "Suspended"],
+    default: "Pending",
+  },
 });
 
-const Department = mongoose.model('Department', DepartmentSchema, 'departments');
+const Department = mongoose.model(
+  "Department",
+  DepartmentSchema,
+  "departments"
+);
 
 module.exports = Department;

@@ -123,6 +123,7 @@ const PostAdmin: React.FC = () => {
           onUpdated={() => { }}
           update={false}
           onOpenChatRequest={() => { }}
+          admin={true}
         />
       )}
 

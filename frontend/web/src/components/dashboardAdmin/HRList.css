@@ -7,7 +7,7 @@
 .hr-search-container {
   display: flex;
   justify-content: start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .hr-search-input {
@@ -20,9 +20,14 @@
   transition: border-color 0.3s ease;
 }
 
+.hr-search-input:hover {
+  border-color: #b4b9bf;
+}
+
 .hr-search-input:focus {
   border-color: #0c8f47;
-  box-shadow: 0px 0px 0px 3px rgba(12, 143, 71, 0.2);
+  box-shadow: 0px 0px 0px 4px rgba(12, 143, 71, 0.18);
+  background: #fff;
 }
 
 .hr-grid {
@@ -47,14 +52,14 @@
   /* flex-direction: column; */
   gap: 16px;
   align-items: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.28s ease;
 }
 
 .hr-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .hr-avatar {
@@ -62,26 +67,34 @@
   height: 90px;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid #e5e7eb;
+  border: 3px solid #e5e7eb;
+  transition: all 0.25s ease;
+}
+
+.hr-card:hover .hr-avatar {
+  border-color: #0c8f47;
 }
 
 .hr-info {
   display: flex;
   flex-direction: column;
   text-align: left;
+  gap: 5px;
+  justify-content: start;
+  align-items: start;
 }
 
 .hr-info h3 {
   margin: 0;
   color: #111827;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .hr-info p {
   margin: 3px 0;
   font-size: 14px;
-  color: #374151;
+  color: #4b5563;
 }
 
 .no-company {
@@ -89,24 +102,28 @@
   font-style: italic;
 }
 
-.hr-empty,
-.hr-loading,
-.hr-error {
-  text-align: center;
-  color: #6b7280;
-  font-size: 16px;
-  margin-top: 30px;
+.hr-status-badge {
+  margin-top: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
 }
+
 .ban-btn {
-  margin-top: 10px;
-  padding: 6px 14px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   background: var(--color-red-300);
   color: white;
-  font-size: 13px;
-  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100px;
+  text-align: center;
+  transition: all 0.2s ease;
+  margin: 0 auto;
 }
 
 .ban-btn:hover {
@@ -119,4 +136,15 @@
 
 .ban-btn.unban:hover {
   background: #047857;
+}
+
+/* ====== TRẠNG THÁI EMPTY / LOADING / ERROR ====== */
+.hr-empty,
+.hr-loading,
+.hr-error {
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  margin-top: 30px;
+  padding: 20px 0;
 }

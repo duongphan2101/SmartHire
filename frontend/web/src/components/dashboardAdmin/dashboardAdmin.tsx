@@ -8,10 +8,17 @@ import HotIndustryChart from "./HotIndustryChart";
 import useDashboardAdmin from "../../hook/useDashboardAdmin";
 import useDashboardCharts from "../../hook/useDashboardCharts";
 
+import { ConfigProvider, DatePicker, Space } from 'antd';
+import type { Dayjs } from 'dayjs';
+import dayjs from "dayjs";
+
+const { RangePicker } = DatePicker;
+type RangeValue = [Dayjs | null, Dayjs | null] | null;
+
 const DashboardAdmin = () => {
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
- const { salaryStats, industryStats, fetchChartData } = useDashboardCharts();
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const { salaryStats, industryStats, fetchChartData } = useDashboardCharts();
 
   useEffect(() => {
     fetchChartData();
@@ -19,18 +26,28 @@ const DashboardAdmin = () => {
   const { totalJobs, totalCompanies, totalPosts, fetchCounts } =
     useDashboardAdmin();
 
+  const handleRangeChange = (dates: RangeValue, dateStrings: [string, string]) => {
+    if (dates) {
+      setStartDate(dates[0]);
+      setEndDate(dates[1]);
+
+      console.log('Start Date (Chuỗi):', dateStrings[0]);
+      console.log('End Date (Chuỗi):', dateStrings[1]);
+    } else {
+      console.log('Đã xóa lựa chọn');
+      setStartDate(null);
+      setEndDate(null);
+    }
+  };
+
   useEffect(() => {
-    const today = new Date();
-    const priorDate = new Date();
-    priorDate.setDate(today.getDate() - 30);
+    const today = dayjs();
+    const priorDate = dayjs().subtract(30, 'day');
 
-    const formatDate = (date: Date) => date.toISOString().split("T")[0];
+    setEndDate(today);
+    setStartDate(priorDate);
 
-    setEndDate(formatDate(today));
-    setStartDate(formatDate(priorDate));
-    fetchCounts();
   }, []);
-
   return (
     <div className="admin-app-dashboard">
       <div className="admin-wrapper-dashboard flex flex-col gap-3.5">
@@ -40,19 +57,24 @@ const DashboardAdmin = () => {
           </span>
 
           <div className="flex gap-3.5">
-            <input
-              type="date"
-              className="focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-
-            <input
-              type="date"
-              className="focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <ConfigProvider
+              theme={{
+                components: {
+                  DatePicker: {
+                    colorPrimary: '#059669',
+                    activeBorderColor: '#059669',
+                    hoverBorderColor: "#059669"
+                  }
+                }
+              }}
+            >
+              <Space direction="vertical" size={12}>
+                <RangePicker
+                  value={[startDate, endDate]}
+                  onChange={handleRangeChange}
+                />
+              </Space>
+            </ConfigProvider>
           </div>
         </header>
 
@@ -218,12 +240,12 @@ const DashboardAdmin = () => {
             </div>
           </div>
         </div>
-        
+
       </div>
-       <div className="grid grid-cols-2 gap-6 mt-5">
-      <SalaryJobChart data={salaryStats} />
-      <HotIndustryChart data={industryStats} />
-    </div>
+      <div className="grid grid-cols-2 gap-6 mt-5">
+        <SalaryJobChart data={salaryStats} />
+        <HotIndustryChart data={industryStats} />
+      </div>
 
 
     </div>
