@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 import useDepartment from "./useDepartment";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 export interface Job {
   updatedAt: string | undefined;
@@ -35,6 +39,7 @@ export interface Job {
   districts?: { name: string }[];
   accepted: number;
 }
+
 export interface Category {
   sum: number;
   data: Job[];
@@ -62,14 +67,12 @@ export default function useJob() {
     }
   }, [host]);
 
-  // fetch all
   const refetch = useCallback(async () => {
     if (!department) {
       setJobs([]);
       setError("Bạn chưa thuộc công ty nào");
       return;
     }
-
     try {
       setLoading(true);
       const res = await axios.get<Job[]>(`${host}/getAll/${department._id}`);
@@ -83,7 +86,6 @@ export default function useJob() {
     }
   }, [host, department]);
 
-  // fetch all
   const latest = useCallback(async () => {
     try {
       setLoading(true);
@@ -107,8 +109,7 @@ export default function useJob() {
 
   const getJobByDepartmentId = useCallback(async (id: string) => {
     try {
-      const idDepartment = id;
-      const res = await axios.get<Job[]>(`${host}/getAll/${idDepartment}`);
+      const res = await axios.get<Job[]>(`${host}/getAll/${id}`);
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -117,24 +118,53 @@ export default function useJob() {
     }
   }, [host]);
 
-  // create
-  const createJob = useCallback(async (payload: Omit<Job, "_id" | "createdAt">) => {
-    try {
-      setLoading(true);
-      const res = await axios.post<Job>(`${host}/create`, payload);
-      setJobs((prev) => [...prev, res.data]);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      const errorMessage = axiosErr.response?.data?.message || "Lỗi không xác định khi tạo Job.";
-      setError(errorMessage);
-      setLoading(false);
-      throw new Error(errorMessage);
-    } finally {
-    }
-  }, [host]);
+  // createJob với Swal xử lý lỗi và thông báo thành công
+  const createJob = useCallback(
+    async (payload: Omit<Job, "_id" | "createdAt">) => {
+      if (!department) {
+        await MySwal.fire({
+          title: "Chưa có công ty",
+          text: "Bạn chưa thuộc công ty nào. Vui lòng tạo hoặc tham gia công ty trước khi tiếp tục.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        throw new Error("Bạn chưa thuộc công ty nào");
+      }
 
-  // delete
+      try {
+        setLoading(true);
+        const res = await axios.post<Job>(`${host}/create`, payload);
+        setJobs((prev) => [...prev, res.data]);
+
+        await MySwal.fire({
+          title: "Bài đăng đã gửi",
+          text: "Bài đăng của bạn đã được gửi và đang chờ admin duyệt.",
+          icon: "info",
+          confirmButtonText: "OK",
+        });
+
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        const errorMessage =
+          axiosErr.response?.data?.message || "Lỗi không xác định khi tạo Job.";
+
+        await MySwal.fire({
+          title: "Không thể đăng bài",
+          text: errorMessage,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [host, department]
+  );
+
   const deleteJob = useCallback(async (id: string) => {
     try {
       setLoading(true);
@@ -149,40 +179,45 @@ export default function useJob() {
     }
   }, [host]);
 
-  const filterJobs = useCallback(async (
-    title?: string,
-    location?: string,
-    district?: string,
-    jobType?: string,
-    jobLevel?: string,
-    experience?: string
-  ) => {
-    try {
-      setLoading(true);
-      const res = await axios.get<Job[]>(`${host}/filter/search`, {
-        params: { title, location, district, jobType, jobLevel, experience },
-      });
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to filter jobs");
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [host]);
+  const filterJobs = useCallback(
+    async (
+      title?: string,
+      location?: string,
+      district?: string,
+      jobType?: string,
+      jobLevel?: string,
+      experience?: string
+    ) => {
+      try {
+        setLoading(true);
+        const res = await axios.get<Job[]>(`${host}/filter/search`, {
+          params: { title, location, district, jobType, jobLevel, experience },
+        });
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Failed to filter jobs");
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [host]
+  );
 
-  const getJobById = useCallback(async (id: string) => {
-    try {
-      // setLoading(true);
-      const res = await axios.get<Job>(`${host}/${id}`);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
-      return null;
-    }
-  }, [host]);
+  const getJobById = useCallback(
+    async (id: string) => {
+      try {
+        const res = await axios.get<Job>(`${host}/${id}`);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
+        return null;
+      }
+    },
+    [host]
+  );
 
   const categories_sum = useCallback(async (
     title?: string,

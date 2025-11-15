@@ -13,6 +13,7 @@ export interface DepartmentData {
   description: string;
   website: string;
   status: DepartmentStatus;
+   employees: string[]; 
 }
 
 interface UseDepartmentReturn {

@@ -172,6 +172,40 @@ exports.addJobToApplyted = async (req, res) => {
   }
 };
 
+// Ban HR
+exports.banUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "banned" },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ message: "User banned", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Unban HR
+exports.unbanUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "active" },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ message: "User unbanned", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 
 

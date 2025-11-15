@@ -1,14 +1,13 @@
 .hr-list-container {
-  padding: 20px;
-  position: relative;
-  background-color:#fff;
-  height: 100%;
+  padding: 24px;
+  background-color: #fff;
+  min-height: 100%;
 }
 
 .hr-search-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: start;
+  margin-bottom: 20px;
 }
 
 .hr-search-input {
@@ -22,38 +21,15 @@
 }
 
 .hr-search-input:focus {
-  border-color: var(--color-emerald-600);
-}
-
-.hr-add-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 15px 25px;
-  background-color: var(--color-emerald-600);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.hr-add-button:hover {
-  background-color: var(--color-emerald-700);
-  transform: translateY(-1px);
-}
-
-.hr-add-button:active {
-  transform: translateY(0);
+  border-color: #0c8f47;
+  box-shadow: 0px 0px 0px 3px rgba(12, 143, 71, 0.2);
 }
 
 .hr-grid {
-  margin-top: 20px;
+  margin-top: 10px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
-  /* height: 100%; */
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
 }
 
 .hr-card {
@@ -62,48 +38,85 @@
   background-color: var(--color-blue-50);
   border-radius: 8px;
   padding: 15px;
-  height: 120px;
+  /* height: 200px; */
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   color: #ece7e2;
   display: flex;
+  justify-content: space-around;
+  /* flex-direction: column; */
+  gap: 16px;
   align-items: center;
-  gap: 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.hr-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
 }
 
 .hr-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 2px solid #fff;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
 }
 
 .hr-info {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   text-align: left;
 }
 
 .hr-info h3 {
   margin: 0;
+  color: #111827;
   font-size: 18px;
   font-weight: 600;
-  color: #000000;
 }
 
 .hr-info p {
   margin: 3px 0;
   font-size: 14px;
-  color: #000000;
+  color: #374151;
+}
+
+.no-company {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .hr-empty,
 .hr-loading,
 .hr-error {
   text-align: center;
-  color: #555;
+  color: #6b7280;
   font-size: 16px;
   margin-top: 30px;
+}
+.ban-btn {
+  margin-top: 10px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--color-red-300);
+  color: white;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.ban-btn:hover {
+  background: var(--color-red-400);
+}
+
+.ban-btn.unban {
+  background: #059669;
+}
+
+.ban-btn.unban:hover {
+  background: #047857;
 }
