@@ -55,7 +55,8 @@ function App() {
     num: 0,
     createdAt: "",
     updatedAt: "",
-    status: ""
+    status: "",
+    accepted: 0
   };
 
   const dummySaveJob = async (userId: string, jobId: string): Promise<UserResponse | void> => {

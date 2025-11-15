@@ -88,6 +88,7 @@ export interface Job {
   num: number;
   createdAt: string;
   districts?: { name: string }[];
+  accepted: number;
 }
 
 export interface Department {

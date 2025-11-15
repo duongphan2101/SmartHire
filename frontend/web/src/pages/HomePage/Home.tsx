@@ -512,52 +512,50 @@ const Home: React.FC = () => {
               <div className="w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full">
                   {categories.map((item, idx) => (
-                    <>
-                      <a onClick={() => handleItem(item.url)} className="shadow-2xl bg-transparent cursor-pointer relative"
-                        style={{ borderRadius: "10px", overflow: 'hidden' }}>
-                        <div key={idx} className="categories-item bg-transparent"
+                    <a key={idx} onClick={() => handleItem(item.url)} className="shadow-2xl bg-transparent cursor-pointer relative"
+                      style={{ borderRadius: "10px", overflow: 'hidden' }}>
+                      <div key={idx} className="categories-item bg-transparent"
+                        style={{
+                          backgroundColor: item.color,
+                          transition: "all 0.3s ease",
+                          borderRadius: "10px",
+                          height: "280px",
+                        }}
+                      >
+                        <div className="item-bottom">
+                          <span className="item-title">{item.name}</span>
+                          <p className="text-gray-500 text-sm text-left" style={{ marginTop: 10 }}>{item.description}</p>
+                          <span className="item-posted">
+                            Bài đăng:
+                            <span
+                              className="bg-emerald-500"
+                              style={{
+                                color: "#fff",
+                                marginLeft: 10,
+                                padding: "5px 15px",
+                                borderRadius: 10,
+                                fontSize: 12,
+                                zIndex: 1
+                              }}
+                            >
+                              {item.posted}
+                            </span>
+                          </span>
+                        </div>
+
+                        <div className="absolute box-icon-category -right-7 -bottom-7 box-icon"
                           style={{
-                            backgroundColor: item.color,
-                            transition: "all 0.3s ease",
-                            borderRadius: "10px",
-                            height: "280px",
+                            backgroundColor: darkenColor(item.color, 5),
+                            padding: 40,
+                            borderRadius: "50%",
+                            zIndex: 0
                           }}
                         >
-                          <div className="item-bottom">
-                            <span className="item-title">{item.name}</span>
-                            <p className="text-gray-500 text-sm text-left" style={{ marginTop: 10 }}>{item.description}</p>
-                            <span className="item-posted">
-                              Bài đăng:
-                              <span
-                                className="bg-emerald-500"
-                                style={{
-                                  color: "#fff",
-                                  marginLeft: 10,
-                                  padding: "5px 15px",
-                                  borderRadius: 10,
-                                  fontSize: 12,
-                                  zIndex: 1
-                                }}
-                              >
-                                {item.posted}
-                              </span>
-                            </span>
-                          </div>
-
-                          <div className="absolute box-icon-category -right-7 -bottom-7 box-icon"
-                            style={{
-                              backgroundColor: darkenColor(item.color, 5),
-                              padding: 40,
-                              borderRadius: "50%",
-                              zIndex: 0
-                            }}
-                          >
-                            {item.icon}
-                          </div>
-
+                          {item.icon}
                         </div>
-                      </a>
-                    </>
+
+                      </div>
+                    </a>
                   ))}
 
                 </div>
