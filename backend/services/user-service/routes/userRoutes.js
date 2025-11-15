@@ -10,7 +10,9 @@ const {
   getUserByEmail,
   addJobToLiked,
   removeJobFromLiked,
-  addJobToApplyted
+  addJobToApplyted,
+  banUser,
+  unbanUser,
 } = require("../controllers/userController");
 
 router.post("/", createUser);
@@ -24,5 +26,7 @@ router.delete("/:id", deleteUser);
 router.post("/save", addJobToLiked);
 router.post("/unsave", removeJobFromLiked);
 router.post("/apply", addJobToApplyted);
+router.put("/ban/:id", banUser);
+router.put("/unban/:id", unbanUser);
 
 module.exports = router;

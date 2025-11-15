@@ -6,8 +6,11 @@ import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
+import Swal from "sweetalert2";
 import { Empty } from "antd";
 import type { ChatRoom } from "../../utils/interfaces";
+import useDepartment from "../../hook/useDepartment";
+
 
 interface AllJobPostProps {
   onOpenChatRequest: (room: ChatRoom) => void;
@@ -19,10 +22,24 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [viewJob, setViewJob] = useState<any | null>(null);
+  const { department } = useDepartment("user");
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const handleAddClick = () => setIsModalOpen(true);
+  const handleAddClick = () => {
+    if (department?.status === "Pending") {
+      Swal.fire({
+        icon: "warning",
+        title: "Công ty đang chờ duyệt",
+        text: "Bạn không thể tạo bài đăng cho đến khi admin phê duyệt.",
+        confirmButtonText: "Đã hiểu",
+      });
+      return;
+    }
+
+    setIsModalOpen(true);
+  };
+
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleSaveJob = async () => {
@@ -87,6 +104,7 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
           onUpdated={refetch}
           update={false}
           onOpenChatRequest={onOpenChatRequest}
+          admin={false}
         />
       )}
 
@@ -97,15 +115,15 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
               <div className="flex items-center gap-2">
                 <h3 className="font-bold">{job.jobTitle}</h3>
 
-                {job.status !== "active" && (
+                {job.status !== "active" && job.status !== "pending" && (
                   <span
                     className={`badge-jobStatus px-2 py-1 rounded-md text-xs font-semibold ${job.status === "filled"
                         ? "bg-green-100 text-green-700"
                         : job.status === "expired"
                           ? "bg-red-100 text-red-600"
                           : job.status === "banned"
-                            ? "bg-gray-200 text-gray-600" 
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-gray-200 text-gray-600"
+                            : ""
                       }`}
                   >
                     {job.status === "filled"
@@ -114,11 +132,10 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
                         ? "Hết hạn"
                         : job.status === "banned"
                           ? "Tạm khóa"
-                          : job.status === "active"
-                            ? "Đang tuyển"
-                            : job.status}
+                          : job.status}
                   </span>
                 )}
+                
               </div>
             </div>
             <div className="all-job-body">

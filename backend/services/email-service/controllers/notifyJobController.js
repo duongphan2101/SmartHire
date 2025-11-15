@@ -226,8 +226,8 @@ exports.sendChatRequestEmail = async (req, res) => {
  */
 exports.sendInterviewResultEmail = async (req, res) => {
   try {
-    const { hr, job, candidate, result, feedback } = req.body; 
-    
+    const { hr, job, candidate, result, feedback } = req.body;
+
     // console.log("-----------------------------------------------");
     // console.log("HR: ", hr);
     // console.log("JOB: ", job);
@@ -252,7 +252,7 @@ exports.sendInterviewResultEmail = async (req, res) => {
 
     // --- 2. Cấu hình nội dung dựa trên kết quả ---
     const isPassed = result === 'accepted';
-    
+
     // Cấu hình cho trường hợp ĐẬU
     const passedConfig = {
       subject: `Chúc mừng! Bạn đã trúng tuyển vị trí ${job.title} tại ${hr.companyName}`,
@@ -355,6 +355,149 @@ exports.sendInterviewResultEmail = async (req, res) => {
     console.error("❌ Email error:", err.message);
     res.status(500).json({
       message: "Gửi email kết quả thất bại",
+      error: err.message,
+    });
+  }
+};
+
+/**
+ * Gửi email thông báo cho HR khi bài đăng được Admin duyệt hoặc từ chối.
+ */
+exports.sendPostApprovalEmail = async (req, res) => {
+  try {
+    const { hr, job, status, reason } = req.body;
+
+    // --- 1. Validation ---
+    if (!hr || !hr.email || !hr.fullname) {
+      return res.status(400).json({
+        message: "Thiếu thông tin HR (hr, email, fullname)."
+      });
+    }
+
+    if (!job || !job.title || !job._id) {
+      return res.status(400).json({
+        message: "Thiếu thông tin công việc (job, title, _id)."
+      });
+    }
+
+    if (!status || (status !== 'active' && status !== 'banned')) {
+      return res.status(400).json({
+        message: "Trạng thái không hợp lệ (phải là 'active' hoặc 'banned')."
+      });
+    }
+
+    // Yêu cầu phải có lý do nếu bị từ chối
+    if (status === 'banned' && !reason) {
+      return res.status(400).json({
+        message: "Cần cung cấp lý do từ chối (reason) khi 'status' là 'banned'."
+      });
+    }
+
+    // --- 2. Cấu hình nội dung dựa trên kết quả ---
+    const isApproved = status === 'active';
+
+    // Cấu hình cho trường hợp DUYỆT
+    const approvedConfig = {
+      subject: `SmartHire: Tin tuyển dụng "${job.title}" đã được DUYỆT!`,
+      headerTitle: "Tin tuyển dụng đã được duyệt! 👍",
+      headerColor: "#059669",
+      intro: `Chúng tôi vui mừng thông báo tin tuyển dụng <strong>"${job.title}"</strong> của bạn đã được quản trị viên phê duyệt và <strong>hiện đã hiển thị công khai</strong> trên nền tảng.`,
+      messageLabel: "Ghi chú:",
+      messageContent: "Bài đăng của bạn bây giờ đã có thể tiếp cận các ứng viên tiềm năng. Chúc bạn sớm tìm được nhân tài!",
+      ctaText: "Xem bài đăng",
+      ctaLink: `${process.env.CLIENT_URL}/jobdetail/${job._id}`,
+      footerText: "Cảm ơn bạn đã đồng hành cùng SmartHire."
+    };
+
+    // Cấu hình cho trường hợp TỪ CHỐI
+    const rejectedConfig = {
+      subject: `SmartHire: Tin tuyển dụng "${job.title}" cần xem xét lại`,
+      headerTitle: "Tin tuyển dụng bị từ chối ✋",
+      headerColor: "#ef4444", // Màu đỏ
+      intro: `Chúng tôi rất tiếc phải thông báo tin tuyển dụng <strong>"${job.title}"</strong> của bạn đã bị từ chối bởi quản trị viên.`,
+      messageLabel: "Lý do từ chối:",
+      messageContent: reason, // Lý do từ req.body
+      ctaText: "Chỉnh sửa bài đăng",
+      // Link tới trang quản lý/chỉnh sửa job của HR
+      ctaLink: `${process.env.CLIENT_URL}/dashboard`,
+      footerText: "Vui lòng cập nhật thông tin và gửi duyệt lại. Xin cảm ơn."
+    };
+
+    const config = isApproved ? approvedConfig : rejectedConfig;
+
+    // --- 3. HTML Template ---
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; width: 95%; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        
+        <div style="background-color: ${config.headerColor}; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 22px;">${config.headerTitle}</h1>
+        </div>
+
+        <div style="padding: 25px;">
+          <h2 style="color: #333;">Xin chào ${hr.fullname},</h2>
+          
+          <p>${config.intro}</p>
+          
+          <div style="border-left: 4px solid ${config.headerColor}; padding-left: 15px; margin: 25px 0;">
+            <p style="margin: 0 0 5px; font-weight: bold; color: #555;">${config.messageLabel}</p>
+            <p style="margin: 0; font-style: italic; color: #333;">
+              "${config.messageContent}"
+            </p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${config.ctaLink}"
+              target="_blank"
+              style="background-color: ${config.headerColor}; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              ${config.ctaText}
+            </a>
+          </div>
+
+          <p style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; color: #666;">
+            ${config.footerText}
+          </p>
+          <p style="font-size: 12px; color: #999;">Trân trọng,<br>Đội ngũ SmartHire</p>
+        </div>
+      </div>
+    `;
+
+    // --- 4. Text Fallback ---
+    const textFallback = `
+      Xin chào ${hr.fullname},
+      
+      ${isApproved
+        ? `Tin tuyển dụng "${job.title}" của bạn đã được DUYỆT.`
+        : `Tin tuyển dụng "${job.title}" của bạn đã bị TỪ CHỐI.`
+      }
+      
+      ${config.messageLabel}
+      "${config.messageContent}"
+      
+      Vui lòng đăng nhập vào SmartHire để xem chi tiết.
+      ${config.footerText}
+    `;
+
+    // --- 5. Mail Options ---
+    const mailOptions = {
+      from: `SmartHire <${process.env.EMAIL_USER}>`,
+      to: hr.email,
+      subject: config.subject,
+      text: textFallback,
+      html: htmlTemplate,
+    };
+
+    // --- 6. Gửi email ---
+    console.log(`📧 Gửi email thông báo duyệt bài (${status}) đến: ${hr.email}`);
+    await transporter.sendMail(mailOptions);
+
+    res.json({
+      message: `Đã gửi thông báo (${status}) cho HR ${hr.fullname} về công việc "${job.title}".`,
+    });
+
+  } catch (err) {
+    console.error("❌ Email error:", err.message);
+    res.status(500).json({
+      message: "Gửi email thông báo duyệt bài thất bại",
       error: err.message,
     });
   }

@@ -162,6 +162,32 @@ export default function useUser() {
     []
   );
 
+const banUser = useCallback(async (user_id: string) => {
+  try {
+    setLoading(true);
+    const res = await axios.put(`${HOSTS.userService}/ban/${user_id}`);
+    return res.data.user;
+  } catch (err) {
+    const axiosErr = err as AxiosError<{ message?: string }>;
+    setError(axiosErr.response?.data?.message || "banUser failed");
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
-  return { getUser, user, getAllHR ,updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser };
+const unbanUser = useCallback(async (user_id: string) => {
+  try {
+    setLoading(true);
+    const res = await axios.put(`${HOSTS.userService}/unban/${user_id}`);
+    return res.data.user;
+  } catch (err) {
+    const axiosErr = err as AxiosError<{ message?: string }>;
+    setError(axiosErr.response?.data?.message || "unbanUser failed");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+
+  return { getUser, user, getAllHR ,updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser, banUser, unbanUser };
 }

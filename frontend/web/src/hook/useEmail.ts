@@ -1,10 +1,8 @@
-// hooks/useEmailService.ts
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 import type { Interview } from "../utils/interfaces";
 
-// --- Các interface hiện có ---
 interface EmailUser {
   fullname: string;
   email: string;
@@ -62,6 +60,14 @@ export interface InterviewResultPayload {
   result: "accepted" | "rejected";
   feedback?: string;
 }
+
+export interface PostApprovalPayload {
+  hr: EmailUser;
+  job: EmailJob2;
+  status: "active" | "banned";
+  reason?: string;
+}
+// --------------------
 
 export default function useEmailService() {
   const [loading, setLoading] = useState(false);
@@ -151,8 +157,8 @@ export default function useEmailService() {
   };
 
   /**
- * Gửi email thông báo kết quả phỏng vấn
- */
+   * Gửi email thông báo kết quả phỏng vấn
+   */
   const sendInterviewResult = async (payload: InterviewResultPayload) => {
     setLoading(true);
     setError(null);
@@ -167,6 +173,27 @@ export default function useEmailService() {
     }
   };
 
+  /**
+   * Gửi email thông báo duyệt/từ chối bài đăng cho HR
+   */
+  const sendPostApprovalNotification = async (
+    payload: PostApprovalPayload
+  ) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${host}/notify-post-approva`, payload);
+      
+      console.log("📤 Sending post approval notification:", payload);
+      return res.data;
+    } catch (err) {
+      return handleError(err, "Failed to send post approval notification");
+    } finally {
+      setLoading(false);
+    }
+  };
+  // -----------------
+
   return {
     // States
     loading,
@@ -176,6 +203,7 @@ export default function useEmailService() {
     clearError,
     sendJobRecommendationEmails,
     sendHrExchangeInvite,
-    sendInterviewResult
+    sendInterviewResult,
+    sendPostApprovalNotification,
   };
 }

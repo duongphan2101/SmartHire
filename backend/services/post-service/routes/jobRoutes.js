@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Job = require("../models/Job"); 
+const Job = require("../models/Job");
 
-const { 
-  createJob, getJobs, getAllJobs , searchJobs, deleteJob,
+const {
+  createJob, getJobs, getAllJobs, searchJobs, deleteJob,
   getLatestJobs, updateJob, getJobById, filterJobs, categories,
   getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob
 } = require('../controllers/jobController');

@@ -29,9 +29,10 @@ interface ViewModalProps {
   onUpdated?: () => void;
   update: boolean;
   onOpenChatRequest: (room: ChatRoom) => void;
+  admin: boolean;
 }
 
-const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewModalProps) => {
+const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }: ViewModalProps) => {
   if (!job) return null;
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const currentHRId = currentUser._id || currentUser.user_id;
@@ -574,6 +575,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
               className={`tab-btn-hr ${activeTab === "applicants" ? "active" : ""
                 }`}
               onClick={() => setActiveTab("applicants")}
+              disabled={admin}
             >
               Ứng viên ứng tuyển
             </button>
@@ -581,6 +583,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
               className={`tab-btn-hr ${activeTab === "candidates" ? "active" : ""
                 }`}
               onClick={() => setActiveTab("candidates")}
+              disabled={admin}
             >
               Ứng viên phù hợp
             </button>
@@ -739,7 +742,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest }: ViewM
                       {applicants.filter(app => app.status === "accepted").length}
                     </span>
                     <span className="text-gray-500">
-                      /{editedJob.num} 
+                      /{editedJob.num}
                     </span>
                   </div>
 
