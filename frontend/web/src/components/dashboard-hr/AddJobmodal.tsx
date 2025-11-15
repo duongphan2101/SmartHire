@@ -141,128 +141,138 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!department || (department as any).message) {
-      await MySwal.fire({
-        title: "Chưa có công ty",
-        text: "Bạn chưa thuộc công ty nào. Vui lòng tạo hoặc tham gia công ty trước khi tiếp tục.",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
+  e.preventDefault();
 
-    if (
-      !jobTitle.trim() ||
-      !jobType.trim() ||
-      !jobLevel.trim() ||
-      !experience.trim() ||
-      !salary.trim() ||
-      !address.trim() ||
-      !location.trim() ||
-      !workingHours.trim() ||
-      !department ||
-      !endDate ||
-      !num ||
-      jobDescriptions.some((s) => !s.trim()) ||
-      skills.some((s) => !s.trim()) ||
-      requirements.some((r) => !r.trim()) ||
-      benefits.some((b) => !b.trim())
-    ) {
-      MySwal.fire({
-        title: "Thiếu thông tin",
-        text: "Vui lòng điền đầy đủ tất cả các trường!",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-    const status = "active";
-    const payload = {
-      jobTitle,
-      jobType,
-      jobLevel,
-      department: {
-        _id: department._id,
-        name: department.name,
-        avatar: department.avatar || "",
-      },
-      createBy: {
-        _id: user?._id,
-        fullname: user?.fullname,
-        email: user?.email,
-        avatar: user?.avatar,
-      },
-      skills: skills.filter((s) => s.trim()),
-      requirement: requirements.filter((s) => s.trim()),
-      benefits: benefits.filter((s) => s.trim()),
-      salary,
-      address,
-      experience,
-      location,
-      workingHours,
-      jobDescription: jobDescriptions.filter((d) => d.trim()),
-      endDate,
-      num,
-      status,
-    };
+  if (!department || (department as any).message) {
+    await MySwal.fire({
+      title: "Chưa có công ty",
+      text: "Bạn chưa thuộc công ty nào. Vui lòng tạo hoặc tham gia công ty trước khi tiếp tục.",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
 
-    // console.log("PAYLOAD: ", payload);
+  if (
+    !jobTitle.trim() ||
+    !jobType.trim() ||
+    !jobLevel.trim() ||
+    !experience.trim() ||
+    !salary.trim() ||
+    !address.trim() ||
+    !location.trim() ||
+    !workingHours.trim() ||
+    !endDate ||
+    !num ||
+    jobDescriptions.some((s) => !s.trim()) ||
+    skills.some((s) => !s.trim()) ||
+    requirements.some((r) => !r.trim()) ||
+    benefits.some((b) => !b.trim())
+  ) {
+    await MySwal.fire({
+      title: "Thiếu thông tin",
+      text: "Vui lòng điền đầy đủ tất cả các trường!",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
 
-    try {
-      const response = await fetch(`${HOSTS.jobService}/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Failed to save job");
-      const savedJob = await response.json();
-
-      onSave({
-        ...savedJob,
-        date: new Date(savedJob.createdAt).toLocaleDateString(),
-      });
-    onClose();
-      await MySwal.fire({
-        icon: "info",
-        title: "Bài đăng đã gửi",
-        text: "Bài đăng của bạn đã được gửi và đang chờ admin duyệt.",
-        confirmButtonText: "OK",
-      });
-      withdraw(1);
-      const listCandidate = await renderMatchingCvsForOneJob({
-        job_id: savedJob._id,
-      });
-      // console.log("LIST top 5: ", listCandidate.slice(0, 5));
-      // console.log("LIST FULL: ", listCandidate);
-      const renderListCandidate = listCandidate.filter(
-        (item) => item.finalScore >= 65
-      );
-
-      await sendJobRecommendationEmails(
-        {
-          fullname: user?.fullname || "",
-          email: user?.email || "",
-          companyName: department.name,
-        },
-        {
-          _id: savedJob._id,
-          title: savedJob.jobTitle,
-          description: savedJob.jobDescription,
-          location: savedJob.location,
-          salary: savedJob.salary,
-        },
-        // listCandidate.slice(0, 5)
-        renderListCandidate.slice(0, 5)
-      );
-
-      toast.success("Tạo bài đăng thành công");
-  
-    } catch (err) {
-      console.error("Error saving job:", err);
-    }
+  const payload = {
+    jobTitle,
+    jobType,
+    jobLevel,
+    department: {
+      _id: department._id,
+      name: department.name,
+      avatar: department.avatar || "",
+    },
+    createBy: {
+      _id: user?._id,
+      fullname: user?.fullname,
+      email: user?.email,
+      avatar: user?.avatar,
+    },
+    skills: skills.filter((s) => s.trim()),
+    requirement: requirements.filter((s) => s.trim()),
+    benefits: benefits.filter((s) => s.trim()),
+    salary,
+    address,
+    experience,
+    location,
+    workingHours,
+    jobDescription: jobDescriptions.filter((d) => d.trim()),
+    endDate,
+    num,
+    status: "active",
   };
+
+  try {
+    const response = await fetch(`${HOSTS.jobService}/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Hiển thị Swal với thông báo từ backend
+      await MySwal.fire({
+        title: "Không thể đăng bài",
+        text: data?.message || "Đã xảy ra lỗi khi tạo bài đăng.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    // Thành công
+    onSave({
+      ...data,
+      date: new Date(data.createdAt).toLocaleDateString(),
+    });
+    onClose();
+
+    await MySwal.fire({
+      title: "Bài đăng đã gửi",
+      text: "Bài đăng của bạn đã được gửi và đang chờ admin duyệt.",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+
+    // Thực hiện các thao tác khác: withdraw, gửi mail, ...
+    withdraw(1);
+    const listCandidate = await renderMatchingCvsForOneJob({ job_id: data._id });
+    const renderListCandidate = listCandidate.filter((item) => item.finalScore >= 65);
+
+    await sendJobRecommendationEmails(
+      {
+        fullname: user?.fullname || "",
+        email: user?.email || "",
+        companyName: department.name,
+      },
+      {
+        _id: data._id,
+        title: data.jobTitle,
+        description: data.jobDescription,
+        location: data.location,
+        salary: data.salary,
+      },
+      renderListCandidate.slice(0, 5)
+    );
+
+  } catch (err: any) {
+    console.error("Error saving job:", err);
+    await MySwal.fire({
+      title: "Lỗi",
+      text: err?.message || "Có lỗi xảy ra khi gửi bài đăng.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+};
+
 
   return (
     <div className="add-job-modal" onDoubleClick={onClose}>

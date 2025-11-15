@@ -1,36 +1,51 @@
+const axios = require("axios");
 const Job = require("../models/Job");
 const Department = require("../models/Department");
+const { HOSTS } = require("../../host");
+
+
+/**
+ * Create a new job
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ * @returns {Promise<void>}
+ */
+
+const checkUserStatus = async (userId) => {
+  if (!userId) {
+    throw new Error("User ID không hợp lệ");
+  }
+
+  try {
+    const res = await axios.get(`${HOSTS.userService}/${userId}`);
+    return res.data.status; 
+  } catch (err) {
+    console.error("User service error:", err.response?.data || err.message);
+    throw new Error("Không thể kiểm tra trạng thái user");
+  }
+};
 
 const createJob = async (req, res) => {
   try {
     const jobData = req.body;
-    const departmentId = jobData.department?._id;
 
-    if (!departmentId) {
-      return res.status(400).json({ message: "Thiếu ID công ty để đăng tin." });
+    // Kiểm tra department như cũ
+    const department = await Department.findById(jobData.department?._id);
+    if (!department) return res.status(404).json({ message: "Công ty không tồn tại." });
+    if (department.status !== "Active") return res.status(403).json({ message: "Công ty không hoạt động" });
+
+    // Kiểm tra HR qua User-Service
+    const userStatus = await checkUserStatus(jobData.createBy._id);
+    if (userStatus === "banned") {
+      return res.status(403).json({ message: "Bạn đã bị admin khóa. Không thể đăng tin tuyển dụng." });
     }
 
-    const department = await Department.findById(departmentId);
-    if (!department) {
-      return res.status(404).json({ message: "Công ty không tồn tại." });
-    }
-
-    if (department.status !== 'Active') {
-      const statusMap = {
-        'Suspended': 'tạm khóa',
-        'Archived': 'lưu trữ'
-      };
-      const statusVi = statusMap[department.status] || 'không hoạt động';
-      return res.status(403).json({
-        message: `Lỗi: Công ty hiện đang ở trạng thái ${statusVi}. HR không thể đăng tin tuyển dụng.`
-      });
-    }
     jobData.status = "pending";
-
     const job = new Job(jobData);
     const savedJob = await job.save();
 
     res.status(201).json(savedJob);
+
   } catch (err) {
     console.error("Job save error:", err);
     res.status(400).json({ message: err.message });
@@ -57,7 +72,9 @@ const getJobs = async (req, res) => {
 const getNumJobsByDepartment = async (req, res) => {
   try {
     const { idDepartment } = req.params;
-    const jobs = await Job.find({ "department._id": idDepartment }).countDocuments();
+    const jobs = await Job.find({
+      "department._id": idDepartment,
+    }).countDocuments();
     if (jobs.length === 0) {
       return res
         .status(200)
@@ -75,9 +92,7 @@ const getNumJobsByUser = async (req, res) => {
     const { idUser } = req.params;
     const jobs = await Job.find({ "createBy._id": idUser }).countDocuments();
     if (jobs.length === 0) {
-      return res
-        .status(200)
-        .json({ message: "Không có job nào!", jobs: [] });
+      return res.status(200).json({ message: "Không có job nào!", jobs: [] });
     }
 
     res.json(jobs);
@@ -103,7 +118,9 @@ const getAllJobs = async (req, res) => {
 
 const getLatestJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ status: "active" }).sort({ createdAt: -1 }).limit(6);
+    const jobs = await Job.find({ status: "active" })
+      .sort({ createdAt: -1 })
+      .limit(6);
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -125,7 +142,8 @@ const getJobById = async (req, res) => {
 
 const filterJobs = async (req, res) => {
   try {
-    const { title, location, district, jobType, jobLevel, experience } = req.query;
+    const { title, location, district, jobType, jobLevel, experience } =
+      req.query;
 
     const filter = {};
     if (title) {
@@ -178,7 +196,6 @@ const searchJobs = async (req, res) => {
   }
 };
 
-
 const deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
@@ -217,7 +234,7 @@ const categories = async (req, res) => {
 
     const response = {
       sum: jobs.length,
-      data: jobs
+      data: jobs,
     };
 
     res.json(response);
@@ -239,29 +256,35 @@ const getSalaryStats = async (req, res) => {
                   $split: [
                     {
                       $replaceAll: {
-                        input: { $replaceAll: { input: "$salary", find: " ", replace: "" } },
+                        input: {
+                          $replaceAll: {
+                            input: "$salary",
+                            find: " ",
+                            replace: "",
+                          },
+                        },
                         find: "triệu",
-                        replace: ""
-                      }
+                        replace: "",
+                      },
                     },
-                    "-"
-                  ]
+                    "-",
+                  ],
                 },
                 as: "val",
-                in: { $toDouble: "$$val" }
-              }
-            }
-          }
-        }
+                in: { $toDouble: "$$val" },
+              },
+            },
+          },
+        },
       },
       {
         $group: {
           _id: { $month: "$createdAt" },
           avgSalary: { $avg: "$salaryNumber" },
-          totalJobs: { $sum: 1 }
-        }
+          totalJobs: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     res.json(stats);
@@ -278,7 +301,9 @@ const approveJob = async (req, res) => {
     if (!job) return res.status(404).json({ message: "Job not found" });
 
     if (job.status !== "pending") {
-      return res.status(400).json({ message: "Chỉ có thể duyệt bài ở trạng thái pending." });
+      return res
+        .status(400)
+        .json({ message: "Chỉ có thể duyệt bài ở trạng thái pending." });
     }
 
     job.status = "active";
@@ -298,7 +323,9 @@ const rejectJob = async (req, res) => {
     if (!job) return res.status(404).json({ message: "Job not found" });
 
     if (job.status !== "pending") {
-      return res.status(400).json({ message: "Chỉ có thể từ chối bài ở trạng thái pending." });
+      return res
+        .status(400)
+        .json({ message: "Chỉ có thể từ chối bài ở trạng thái pending." });
     }
 
     job.status = "banned";
@@ -309,7 +336,6 @@ const rejectJob = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 module.exports = {
   createJob,
@@ -326,5 +352,5 @@ module.exports = {
   getNumJobsByUser,
   getSalaryStats,
   approveJob,
-  rejectJob
+  rejectJob,
 };
