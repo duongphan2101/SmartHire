@@ -2,7 +2,6 @@ const Department = require("../models/Department");
 const DepartmentInvite = require("../models/DepartmentInvite");
 const mongoose = require("mongoose");
 
-
 const createDepartmentInvite = async (req, res) => {
   try {
     const { departmentId, createdBy } = req.body;
@@ -27,10 +26,13 @@ const joinDepartment = async (req, res) => {
     const { code, userId } = req.body;
 
     const invite = await DepartmentInvite.findOne({ code });
-    if (!invite) return res.status(400).json({ message: "Mã mời không hợp lệ" });
+    if (!invite)
+      return res.status(400).json({ message: "Mã mời không hợp lệ" });
 
     if (invite.status !== "active" || invite.expiresAt < Date.now())
-      return res.status(400).json({ message: "Mã mời đã hết hạn hoặc bị vô hiệu hóa" });
+      return res
+        .status(400)
+        .json({ message: "Mã mời đã hết hạn hoặc bị vô hiệu hóa" });
 
     if (invite.usedBy.includes(userId))
       return res.status(400).json({ message: "Bạn đã dùng mã này rồi" });
@@ -77,7 +79,9 @@ const getDepartments = async (req, res) => {
 const getDepartmentbyId = async (req, res) => {
   try {
     const { id } = req.params;
-    const department = await Department.findOne({ _id: new mongoose.Types.ObjectId(id) });
+    const department = await Department.findOne({
+      _id: new mongoose.Types.ObjectId(id),
+    });
     res.json(department);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -106,7 +110,11 @@ const findDepartmentByUserId = async (req, res) => {
 // thêm
 const createDepartment = async (req, res) => {
   try {
-    const department = new Department(req.body);
+    const department = new Department({
+      ...req.body,
+      status: "Pending",
+    });
+
     const saved = await department.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -161,7 +169,7 @@ const updateDepartmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    if (!['Active', 'Suspended', 'Archived'].includes(status)) {
+    if (!["Pending", "Active", "Suspended"].includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
@@ -174,7 +182,10 @@ const updateDepartmentStatus = async (req, res) => {
     if (!updated) {
       return res.status(404).json({ message: "Department not found" });
     }
-    res.json({ message: `Department status updated to ${status}`, department: updated });
+    res.json({
+      message: `Department status updated to ${status}`,
+      department: updated,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -190,5 +201,5 @@ module.exports = {
   searchDepartments,
   updateDepartmentStatus,
   joinDepartment,
-  createDepartmentInvite
+  createDepartmentInvite,
 };

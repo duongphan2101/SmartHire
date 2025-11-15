@@ -1,6 +1,52 @@
+// controllers/companyReviewController.js
 const CompanyReview = require("../models/CompanyReview");
+const Department = require("../models/Department"); // <-- thêm
 const axios = require("axios");
 const { HOSTS } = require("../../host");
+
+// Helper: tính trung bình và update Department
+const calculateAverageRating = async (companyId) => {
+  if (!companyId) {
+    return { averageRating: 0, totalReviews: 0 };
+  }
+
+  // 1) aggregate để tính trung bình và count
+  const agg = await CompanyReview.aggregate([
+    { $match: { companyId: require('mongoose').Types.ObjectId(companyId) } },
+    {
+      $group: {
+        _id: "$companyId",
+        averageRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 },
+      },
+    },
+  ]);
+
+  let averageRating = 0;
+  let totalReviews = 0;
+
+  if (agg.length > 0) {
+    averageRating = Number((agg[0].averageRating || 0).toFixed(1)); // 1 decimal like frontend
+    totalReviews = agg[0].totalReviews || 0;
+  }
+
+  // 2) update Department document (nếu tồn tại)
+  try {
+    await Department.findByIdAndUpdate(
+      companyId,
+      { averageRating, totalReviews },
+      { new: true, runValidators: true }
+    );
+  } catch (err) {
+    // không dừng flow nếu không cập nhật được department — log lỗi để debug
+    console.error("Failed to update Department rating:", err.message);
+  }
+
+  return { averageRating, totalReviews };
+};
+
+// --- existing getReviews, createReview, addComment, updateReview, updateComment, deleteReview ---
+// We'll only show modified create/update/delete to include calculateAverageRating calls
 
 // Lấy danh sách review
 const getReviews = async (req, res) => {
@@ -22,9 +68,7 @@ const createReview = async (req, res) => {
 
     let authorName = "Người dùng ẩn danh";
 
-    // Nếu có fullname gửi từ frontend, dùng luôn
     if (fullname) authorName = fullname;
-    // Nếu không có fullname nhưng có userId, gọi user-service để lấy
     else if (userId) {
       try {
         const response = await axios.get(
@@ -47,14 +91,76 @@ const createReview = async (req, res) => {
     });
 
     await newReview.save();
-    res.status(201).json(newReview);
+
+    // Update department rating after saved
+    const ratingResult = await calculateAverageRating(companyId);
+
+    // Trả về review kèm rating mới (nếu frontend cần)
+    res.status(201).json({ review: newReview, rating: ratingResult });
   } catch (err) {
     console.error("Tạo review lỗi:", err);
     res.status(400).json({ message: err.message });
   }
 };
 
-// Thêm comment
+const updateReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, rating, userId: currentUserId } = req.body;
+
+    const review = await CompanyReview.findById(id);
+    if (!review) return res.status(404).json({ message: "Không tìm thấy" });
+
+    // Kiểm tra quyền
+    if (review.userId !== currentUserId) {
+      return res.status(403).json({ message: "Không có quyền" });
+    }
+
+    // Kiểm tra thời gian (48h)
+    const hoursDiff = (Date.now() - new Date(review.date)) / (1000 * 60 * 60);
+    if (hoursDiff > 48) {
+      return res
+        .status(403)
+        .json({ message: "Đã quá thời gian chỉnh sửa (48 giờ)" });
+    }
+
+    // Cập nhật
+    if (title !== undefined) review.title = title;
+    if (content !== undefined) review.content = content;
+    if (rating !== undefined) review.rating = rating;
+    review.editedAt = new Date();
+
+    await review.save();
+
+    // Recompute rating for company
+    const ratingResult = await calculateAverageRating(review.companyId);
+
+    res.json({ review, rating: ratingResult });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // find review first to get companyId
+    const review = await CompanyReview.findById(id);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    const companyId = review.companyId;
+    await CompanyReview.findByIdAndDelete(id);
+
+    // Recompute rating for company
+    await calculateAverageRating(companyId);
+
+    res.json({ message: "Xoá review thành công" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Add comment / updateComment stay the same - they don't affect rating
 const addComment = async (req, res) => {
   try {
     const { reviewId } = req.params;
@@ -93,41 +199,6 @@ const addComment = async (req, res) => {
   }
 };
 
-const updateReview = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, content, rating, userId: currentUserId } = req.body;
-
-    const review = await CompanyReview.findById(id);
-    if (!review) return res.status(404).json({ message: "Không tìm thấy" });
-
-    // Kiểm tra quyền
-    if (review.userId !== currentUserId) {
-      return res.status(403).json({ message: "Không có quyền" });
-    }
-
-    // Kiểm tra thời gian (48h)
-    const hoursDiff = (Date.now() - new Date(review.date)) / (1000 * 60 * 60);
-    if (hoursDiff > 48) {
-      return res
-        .status(403)
-        .json({ message: "Đã quá thời gian chỉnh sửa (48 giờ)" });
-    }
-
-    // Cập nhật
-    if (title !== undefined) review.title = title;
-    if (content !== undefined) review.content = content;
-    if (rating !== undefined) review.rating = rating;
-    review.editedAt = new Date();
-
-    await review.save();
-    res.json(review);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-// === UPDATE COMMENT ===
 const updateComment = async (req, res) => {
   try {
     const { reviewId, commentId } = req.params;
@@ -159,16 +230,6 @@ const updateComment = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-// Xoá review
-const deleteReview = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await CompanyReview.findByIdAndDelete(id);
-    res.json({ message: "Xoá review thành công" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
 module.exports = {
   getReviews,
@@ -177,4 +238,5 @@ module.exports = {
   updateReview,
   updateComment,
   deleteReview,
+  calculateAverageRating, // export so department router can call it (used by /:id/rating)
 };

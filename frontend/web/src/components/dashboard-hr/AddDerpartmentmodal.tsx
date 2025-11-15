@@ -4,7 +4,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { uploadToCloudinary } from "../../utils/cloudinary";
 import useUser from "../../hook/useUser";
-import type { DepartmentStatus } from "../../hook/useDepartment";
 
 interface AddDerpartmentmodalProps {
   onClose: () => void;
@@ -15,7 +14,6 @@ interface AddDerpartmentmodalProps {
     website: string;
     avatar: string;
     employees: string[];
-    status: DepartmentStatus;
   }) => void;
 }
 
@@ -29,16 +27,17 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
   const [website, setWebsite] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<DepartmentStatus>('Active');
+
   const { getUser, user, loadingUser, errorUser } = useUser();
 
+  // lấy user hiện tại
   useEffect(() => {
     const fetchUser = async () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
         const userId = parsed.user_id ?? parsed._id;
-        setStatus('Active');
+
         if (userId) {
           await getUser(userId);
         }
@@ -47,7 +46,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
     fetchUser();
   }, [getUser]);
 
-  // Avatar
+  // Avatar preview
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -60,7 +59,13 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !address.trim() || !description.trim() || !website.trim() || !avatar) {
+    if (
+      !name.trim() ||
+      !address.trim() ||
+      !description.trim() ||
+      !website.trim() ||
+      !avatar
+    ) {
       toast.error("Vui lòng điền đầy đủ tất cả các trường!");
       return;
     }
@@ -74,22 +79,21 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
       // Upload avatar lên Cloudinary
       const avatarUrl = await uploadToCloudinary(avatar);
 
-      // Lấy _id từ user hiện tại
+      // Lấy id user hiện tại
       const userId = user?._id || "";
-
       const employees = userId ? [userId] : [];
+
       const payload = {
         name,
         address,
         description,
         website,
         avatar: avatarUrl,
-        employees,
-        status,
+        employees, // không gửi status → backend sẽ set Pending
       };
 
       onSave(payload);
-      toast.success("Tạo phòng ban thành công");
+      toast.success("Tạo phòng ban thành công — đang chờ admin duyệt");
       onClose();
     } catch (err) {
       toast.error("Upload ảnh thất bại!");
@@ -102,11 +106,11 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
         <div className="modal-head">
           <p className="font-bold text-2xl">Thêm công ty</p>
         </div>
+
         <div className="modal-body">
           <form onSubmit={handleSubmit}>
-            {/* Thông tin chung */}
             <div className="section-container">
-              {/* <h3>Thông tin chung</h3> */}
+              {/* Tên công ty */}
               <div className="input-container">
                 <input
                   required
@@ -120,6 +124,8 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                 </label>
                 <div className="underline"></div>
               </div>
+
+              {/* Địa chỉ */}
               <div className="input-container">
                 <input
                   required
@@ -133,6 +139,8 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                 </label>
                 <div className="underline"></div>
               </div>
+
+              {/* Website */}
               <div className="input-container">
                 <input
                   required
@@ -146,6 +154,8 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                 </label>
                 <div className="underline"></div>
               </div>
+
+              {/* Avatar */}
               <div className="input-container">
                 <input
                   required
@@ -160,6 +170,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                 <div className="underline"></div>
               </div>
 
+              {/* Preview */}
               {previewUrl && (
                 <img
                   src={previewUrl}
@@ -173,6 +184,8 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
                   }}
                 />
               )}
+
+              {/* Mô tả */}
               <div className="input-container">
                 <textarea
                   required
@@ -192,6 +205,7 @@ export const AddDepartmentmodal: React.FC<AddDerpartmentmodalProps> = ({
             </button>
           </form>
         </div>
+
         <ToastContainer position="top-right" autoClose={2000} />
       </div>
     </div>

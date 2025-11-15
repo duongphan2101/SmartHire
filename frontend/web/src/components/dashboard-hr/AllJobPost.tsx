@@ -6,8 +6,11 @@ import useJob from "../../hook/useJob";
 import { HOSTS } from "../../utils/host";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { FaRegEye } from "react-icons/fa6";
+import Swal from "sweetalert2";
 import { Empty } from "antd";
 import type { ChatRoom } from "../../utils/interfaces";
+import useDepartment from "../../hook/useDepartment";
+
 
 interface AllJobPostProps {
   onOpenChatRequest: (room: ChatRoom) => void;
@@ -19,10 +22,24 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [viewJob, setViewJob] = useState<any | null>(null);
+const { department } = useDepartment("user");
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const handleAddClick = () => setIsModalOpen(true);
+  const handleAddClick = () => {
+  if (department?.status === "Pending") {
+  Swal.fire({
+    icon: "warning",
+    title: "Công ty đang chờ duyệt",
+    text: "Bạn không thể tạo bài đăng cho đến khi admin phê duyệt.",
+    confirmButtonText: "Đã hiểu",
+  });
+  return;
+}
+
+  setIsModalOpen(true);
+};
+
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleSaveJob = async () => {

@@ -5,13 +5,16 @@ import "./CompanyList.css";
 
 const CompanyList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { departments, loading, error, updateDepartmentStatus } = useDepartment("all");
+  const { departments, loading, error, updateDepartmentStatus } =
+    useDepartment("all");
 
-  const handleStatusChange = async (id: string, newStatus: DepartmentStatus) => {
+  const handleStatusChange = async (
+    id: string,
+    newStatus: DepartmentStatus
+  ) => {
     const statusMap: { [key: string]: string } = {
       Active: "Hoạt động",
       Suspended: "Tạm khóa",
-      Archived: "Lưu trữ",
     };
 
     const result = await Swal.fire({
@@ -52,7 +55,8 @@ const CompanyList: React.FC = () => {
     dept.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) return <p style={{ padding: 20 }}>Đang tải danh sách công ty...</p>;
+  if (loading)
+    return <p style={{ padding: 20 }}>Đang tải danh sách công ty...</p>;
   if (error) return <p style={{ padding: 20, color: "red" }}>Lỗi: {error}</p>;
 
   return (
@@ -91,7 +95,11 @@ const CompanyList: React.FC = () => {
                   </p>
                   <p>
                     <strong>Website:</strong>{" "}
-                    <a href={department.website} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={department.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {department.website}
                     </a>
                   </p>
@@ -107,33 +115,33 @@ const CompanyList: React.FC = () => {
                         color:
                           department.status === "Suspended"
                             ? "red"
-                            : department.status === "Archived"
+                            : department.status === "Pending"
                             ? "gray"
                             : "green",
                       }}
                     >
-                      {department.status === "Active"
+                      {department.status === "Pending"
+                        ? "Chờ duyệt"
+                        : department.status === "Active"
                         ? "Hoạt động"
-                        : department.status === "Suspended"
-                        ? "Tạm khóa"
-                        : "Lưu trữ"}
+                        : "Tạm khóa"}
                     </span>
                   </p>
                   <select
                     value={department.status}
                     onChange={(e) =>
-                      handleStatusChange(department._id, e.target.value as DepartmentStatus)
+                      handleStatusChange(
+                        department._id,
+                        e.target.value as DepartmentStatus
+                      )
                     }
-                    style={{
-                      padding: "8px",
-                      width: "180px",
-                      borderRadius: "4px",
-                      border: "1px solid #ccc",
-                    }}
                   >
+                    {department.status === "Pending" && (
+                      <option value="Pending">Chờ duyệt</option>
+                    )}
+
                     <option value="Active">Hoạt động</option>
                     <option value="Suspended">Tạm khóa</option>
-                    {/* <option value="Archived">Lưu trữ</option> */}
                   </select>
                 </div>
               </div>

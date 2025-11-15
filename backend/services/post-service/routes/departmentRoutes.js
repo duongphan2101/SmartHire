@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Department = require("../models/Department");
+const checkDepartmentActive = require("../middleware/checkDepartmentActive");
+
 
 const {
   getDepartments, getDepartmentbyId, findDepartmentByUserId,
@@ -34,7 +36,9 @@ router.get("/:id/rating", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 router.post('/create-invite', createDepartmentInvite);
-router.post('/join-department', joinDepartment);
+router.post('/join-department', joinDepartment); 
+router.put('/update/:id', checkDepartmentActive, updateDepartment);
 
 module.exports = router;

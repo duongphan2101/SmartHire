@@ -132,3 +132,9 @@
     background-color: var(--color-emerald-600);
     color: #fff;
 }
+.reportIcon{
+    position: absolute;
+    left: 470px;
+    bottom: 55px;
+    cursor: pointer;
+}

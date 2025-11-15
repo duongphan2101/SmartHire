@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
 import type { InviteData } from "../utils/interfaces";
 
-export type DepartmentStatus = 'Active' | 'Suspended' | 'Archived';
+export type DepartmentStatus = "Pending" | "Active" | "Suspended";
 
 export interface DepartmentData {
   _id: string;
