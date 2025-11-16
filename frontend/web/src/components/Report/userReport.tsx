@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import "./userReport.css";
 import { MdClose, MdReport } from "react-icons/md";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { HOSTS } from "../../utils/host";
 
 interface UserReportProps {
   open: boolean;
   onClose: () => void;
-  // optional info you may want to show / send
   jobId?: string;
   jobTitle?: string;
   department?: string;
   userId?: string | null;
-  // optional callback when submit (if you later want to handle submit outside)
   onSubmit?: (payload: { title: string; details: string; contact?: string }) => void;
 }
 
@@ -25,25 +26,25 @@ const UserReport: React.FC<UserReportProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
-  const [contact, setContact] = useState("");
 
   useEffect(() => {
     if (open) {
-      // reset form khi mở modal
       setTitle("");
       setDetails("");
-      setContact("");
     }
   }, [open]);
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // basic validation
     if (!title.trim() || !details.trim()) {
-      alert("Vui lòng điền cả tiêu đề và nội dung báo cáo.");
+      Swal.fire({
+        icon: "warning",
+        title: "Thiếu dữ liệu",
+        text: "Vui lòng điền cả tiêu đề và nội dung báo cáo.",
+      });
       return;
     }
 
@@ -54,16 +55,23 @@ const UserReport: React.FC<UserReportProps> = ({
       userId,
       title: title.trim(),
       details: details.trim(),
-      contact: contact.trim() || undefined,
-      createdAt: new Date().toISOString(),
     };
 
-    // nếu có callback onSubmit thì gọi, nếu không thì chỉ đóng modal
-    if (onSubmit) {
-      onSubmit(payload);
-    } else {
-      // hiện thông báo nhỏ rồi đóng (bạn có thể thay bằng Swal nếu muốn)
-      alert("Đã gửi báo cáo (demo).");
+    try {
+      await axios.post(`${HOSTS.reportService}/`, payload);
+      Swal.fire({
+        icon: "success",
+        title: "Gửi báo cáo thành công",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Gửi báo cáo thất bại",
+        text: "Vui lòng thử lại sau.",
+      });
     }
 
     onClose();

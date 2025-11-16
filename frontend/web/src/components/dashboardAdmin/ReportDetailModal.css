@@ -1,0 +1,61 @@
+/* ReportDetailModal.css */
+.report-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.report-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  animation: fadeIn 0.25s ease-out;
+  font-family: "Inter", sans-serif;
+}
+
+.report-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.report-modal-body {
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.report-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-close {
+  background-color: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-close:hover {
+  background-color: #047857;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
