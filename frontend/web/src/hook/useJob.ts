@@ -132,6 +132,17 @@ export default function useJob() {
     }
   }, [host]);
 
+  const getJobByDepId = useCallback(async (id: string) => {
+    try {
+      const res = await axios.get<Job[]>(`${host}/jobByDepId/${id}`);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
+      return [];
+    }
+  }, [host]);
+
   // createJob với Swal xử lý lỗi và thông báo thành công
   const createJob = useCallback(
     async (payload: Omit<Job, "_id" | "createdAt">) => {
@@ -293,6 +304,7 @@ export default function useJob() {
     approveJob,
     rejectJob,
     fetchPendingJobsAdmin,
-    fetchAllJob
+    fetchAllJob,
+    getJobByDepId
   };
 }

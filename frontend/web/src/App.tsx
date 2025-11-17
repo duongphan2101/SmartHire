@@ -95,7 +95,6 @@ function App() {
         <Route path="/applyted" element={<JobApplied />} />
         <Route path="/termuser" element={<TermUser />} />
 
-
         <Route
           element={<ProtectedRoute allowedRoles={["hr"]} redirectTo="/home" />}
         >

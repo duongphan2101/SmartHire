@@ -21,8 +21,6 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { jobs: allJobs, loading, error, refetch } = useJob();
 
-  // BỔ SUNG: Lấy thông tin công ty từ useDepartment
-  // Giả định useDepartment("user") trả về { department: DepartmentData | null }
   const { department } = useDepartment("user");
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -171,6 +169,7 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
           update={true}
           onOpenChatRequest={onOpenChatRequest}
           admin={false}
+          activeUser=""
         />
       )}
 

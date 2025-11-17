@@ -105,6 +105,7 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
           update={false}
           onOpenChatRequest={onOpenChatRequest}
           admin={true}
+          activeUser=""
         />
       )}
 

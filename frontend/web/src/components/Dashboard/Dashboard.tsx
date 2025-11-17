@@ -4,23 +4,42 @@ import "./Dashboard.css";
 import { FaAccusoft, FaForumbee, FaLinux } from 'react-icons/fa';
 import AreaBaseline from "./AreaBaseLine";
 import PieChart from "./PieChart";
-import BarChart from "./BarChart";
 import { useEffect, useState } from "react";
 
 import useDashboard from "../../hook/useDashboard";
 
-import { ConfigProvider, DatePicker, Space } from 'antd';
+import { Badge, ConfigProvider, DatePicker, Space } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from "dayjs";
+import ListCandidate from "./ListCandidate";
+import useApplication, { type ApplicationResponse } from "../../hook/useApplication";
+import ViewModal from "../dashboard-hr/Viewmodal";
+import type { ChatRoom } from "../../utils/interfaces";
+import useJob from "../../hook/useJob";
+import Calendar_Das from "./Calendar";
 
 const { RangePicker } = DatePicker;
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
-
-const Dashboard = () => {
+interface DashboardProps {
+    onOpenChatRequest: (room: ChatRoom) => void;
+    setBreadcrumb: (breadcrumb: string) => void;
+    setPage: (
+        page: "dashboard" | "about" | "company" | "jobPost" | "allJobPost" | "payment" | "termHr"
+    ) => void;
+}
+const Dashboard = ({ onOpenChatRequest, setPage, setBreadcrumb }: DashboardProps) => {
 
     const [startDate, setStartDate] = useState<Dayjs | null>(null);
     const [endDate, setEndDate] = useState<Dayjs | null>(null);
     const { allJobDepartment, allJobUser, allCandidate, allCandidateByUser } = useDashboard();
+    const { getAllJobByUser } = useApplication();
+    const { getJobById } = useJob();
+    const [dataFetchApplication, setDataFetchApplication] = useState<ApplicationResponse[]>([]);
+    const [userIdFind, setUserIdFind] = useState<string>("");
+    const [, setSelectedCandidate] = useState<string>("");
+    const [activeuser, setActiveUser] = useState<string>("");
+    const { refetch } = useJob();
+    const [viewJob, setViewJob] = useState<any | null>(null);
 
     const handleRangeChange = (dates: RangeValue, dateStrings: [string, string]) => {
         if (dates) {
@@ -37,20 +56,72 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        const today = dayjs();
-        const priorDate = dayjs().subtract(30, 'day');
+        const end = dayjs();
+        const start = end.subtract(30, 'day');
+        setEndDate(end);
+        setStartDate(start);
 
-        setEndDate(today);
-        setStartDate(priorDate);
-
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const parsed = JSON.parse(storedUser);
+                const id = parsed.user_id ?? parsed._id;
+                setUserIdFind(id);
+            } catch (error) {
+                console.error("Error parsing user", error);
+            }
+        }
     }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            // Chỉ fetch khi có userId
+            if (!userIdFind) return;
+
+            try {
+                const startStr = startDate ? startDate.toISOString() : undefined;
+                const endStr = endDate ? endDate.toISOString() : undefined;
+                const dataFetch = await getAllJobByUser(userIdFind, startStr ?? '', endStr ?? '');
+                setDataFetchApplication(dataFetch || []);
+            } catch (error) {
+                console.error("Error fetching jobs:", error);
+            }
+        };
+
+        fetchData();
+    }, [userIdFind, startDate, endDate]);
+
+    const handleSelectCandidate = async (application: ApplicationResponse) => {
+        setSelectedCandidate(application._id);
+        setActiveUser(application.userId);
+        try {
+            if (application.jobId) {
+                const jobData = await getJobById(application.jobId);
+                setViewJob(jobData);
+            } else {
+                console.error("Không tìm thấy Job ID trong đơn ứng tuyển này");
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin Job:", error);
+        }
+    }
+
+    const handleItemClick = (item: string, isSubMenu: boolean) => {
+        const breadcrumbText = isSubMenu ? `Công việc > ${item}` : item;
+        setBreadcrumb(breadcrumbText);
+        if (item === "Công ty") setPage("company");
+        else if (item === "Bảng điều khiển") setPage("dashboard");
+        else if (item === "Công việc đã đăng") setPage("jobPost");
+        else if (item === "Tất cả công việc") setPage("allJobPost");
+        else if (item === "Điều khoản HR") setPage("termHr");
+    };
 
     return (
         <div className="app-dashboard">
             <div className="wrapper-dashboard flex flex-col gap-3.5">
 
                 <header className="wrapper-dashboard_head flex items-center justify-between bg-white rounded-xl shadow-2xl">
-                    <span className="text-xl">Bảng điều kiển</span>
+                    <span className="text-xl font-bold">Bảng điều kiển</span>
                     <div className="flex gap-3.5">
                         <ConfigProvider
                             theme={{
@@ -78,14 +149,18 @@ const Dashboard = () => {
                     <div className="dashboard-body_head grid grid-cols-4 gap-6">
 
                         {/* Card 1 */}
-                        <div className="relative group cursor-pointer">
+                        <div className="relative group cursor-pointer"
+                            onClick={() => handleItemClick("Tất cả công việc", true)}
+                        >
                             <div className="body-head_card bg-purple-200 justify-center shadow-xl flex p-4 rounded-xl">
                                 <div className="text-left flex flex-col gap-2.5 w-4/5">
-                                    <FaForumbee size={28} />
-                                    <span className="text-ms">Tổng công việc</span>
+                                    <FaForumbee size={38} className="body-head_card_icon" />
+                                    <span className="text-3xl font-bold body-head_card_title">Tổng công việc</span>
                                 </div>
                                 <div className="flex flex-col justify-end items-end">
-                                    <span className="text-3xl font-bold">{allJobDepartment}</span>
+                                    <span className="text-5xl font-bold body-head_card_count">
+                                        {allJobDepartment > 99 ? "99+" : allJobDepartment}
+                                    </span>
                                 </div>
                             </div>
 
@@ -125,14 +200,18 @@ const Dashboard = () => {
                         </div>
 
                         {/* Card 2 */}
-                        <div className="relative group cursor-pointer">
+                        <div className="relative group cursor-pointer"
+                            onClick={() => handleItemClick("Công việc đã đăng", true)}
+                        >
                             <div className="body-head_card bg-green-200 justify-center shadow-xl flex p-4 rounded-xl">
                                 <div className="text-left flex flex-col gap-2.5 w-4/5">
-                                    <Fa42Group size={28} />
-                                    <span className="text-ms">Công việc đã đăng</span>
+                                    <Fa42Group size={38} className="body-head_card_icon" />
+                                    <span className="text-3xl font-bold body-head_card_title">Công việc đã đăng</span>
                                 </div>
                                 <div className="flex flex-col justify-end items-end">
-                                    <span className="text-3xl font-bold">{allJobUser}</span>
+                                    <span className="text-5xl font-bold body-head_card_count">
+                                        {allJobUser > 99 ? "99+" : allJobUser}
+                                    </span>
                                 </div>
                             </div>
 
@@ -175,11 +254,13 @@ const Dashboard = () => {
                         <div className="relative group cursor-pointer">
                             <div className="body-head_card bg-blue-200 justify-center shadow-xl flex p-4 rounded-xl">
                                 <div className="text-left flex flex-col gap-2.5 w-4/5">
-                                    <FaAccusoft size={28} />
-                                    <span className="text-ms">Tổng ứng viên</span>
+                                    <FaAccusoft size={38} className="body-head_card_icon" />
+                                    <span className="text-3xl font-bold body-head_card_title">Tổng ứng viên</span>
                                 </div>
                                 <div className="flex flex-col justify-end items-end">
-                                    <span className="text-3xl font-bold">{allCandidate}</span>
+                                    <span className="text-5xl font-bold body-head_card_count">
+                                        {allCandidate > 99 ? "99+" : allCandidate}
+                                    </span>
                                 </div>
                             </div>
 
@@ -222,11 +303,11 @@ const Dashboard = () => {
                         <div className="relative group cursor-pointer">
                             <div className="body-head_card bg-red-200 justify-center shadow-xl flex p-4 rounded-xl">
                                 <div className="text-left flex flex-col gap-2.5 w-4/5">
-                                    <FaLinux size={28} />
-                                    <span className="text-ms">Ứng viên của bạn</span>
+                                    <FaLinux size={38} className="body-head_card_icon" />
+                                    <span className="text-3xl font-bold body-head_card_title">Ứng viên của bạn</span>
                                 </div>
                                 <div className="flex flex-col justify-end items-end">
-                                    <span className="text-3xl font-bold">{allCandidateByUser}</span>
+                                    <span className="text-5xl font-bold body-head_card_count">{allCandidateByUser > 99 ? "99+" : allCandidateByUser}</span>
                                 </div>
                             </div>
 
@@ -271,15 +352,40 @@ const Dashboard = () => {
                         style={{ marginTop: 20 }}
                     >
 
-                        <div className="body-main_left w-[65%] shadow-xl rounded-xl">
-                            <BarChart />
+                        <div className="body-main_left bg-white w-[65%] shadow-xl rounded-xl">
+                            {viewJob && (
+                                <ViewModal
+                                    job={viewJob}
+                                    onClose={() => setViewJob(null)}
+                                    onUpdated={refetch}
+                                    update={false}
+                                    onOpenChatRequest={onOpenChatRequest}
+                                    admin={false}
+                                    activeUser={activeuser}
+                                />
+                            )}
+                            {/*  <BarChart />*/}
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-left text-2xl font-bold list_candidate_title"
+                                    style={{ paddingBottom: 10, paddingLeft: 20 }}
+                                >
+                                    Danh sách ứng viên ứng tuyển từ ngày {startDate?.format('YYYY-MM-DD') ?? '-'} đến ngày {endDate?.format('YYYY-MM-DD') ?? '-'}
+
+                                </h3>
+                                <Badge
+                                    className="site-badge-count-99"
+                                    count={"Tổng: " + dataFetchApplication.length}
+                                    style={{ backgroundColor: '#059669', marginRight: 20 }}
+                                />
+                            </div>
+                            <ListCandidate dataList={dataFetchApplication} onSelect={handleSelectCandidate} />
                         </div>
 
-                        <div className="body-main_right w-[35%] bg-gray-50 flex flex-col gap-5"
+                        <div className="body-main_right w-[35%] bg-gra-50 flex flex-col gap-5"
                             style={{ position: 'relative' }}
                         >
                             <div className="shadow-xl rounded-xl">
-                                <PieChart />
+                                <PieChart hrId={userIdFind} />
                             </div>
                             <div className="shadow-xl rounded-xl">
                                 <AreaBaseline />
@@ -288,7 +394,26 @@ const Dashboard = () => {
 
                     </div>
 
+                    <div className="body-main-bottom bg-white shadow-2xl">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                            <h4 className="text-xl font-bold"
+                                style={{paddingLeft: 20, marginBottom: 10, marginTop: 10}}
+                            >Các cuộc phỏng vấn đã sắp xếp</h4>
+
+                            <div className="flex flex-wrap gap-4 text-sm">
+                                <Badge status="processing" text="Đã xác nhận" /> {/* Confirmed - Xanh dương */}
+                                <Badge status="warning" text="Chờ xử lý" />      {/* Pending - Vàng */}
+                                <Badge status="success" text="Hoàn thành" />     {/* Completed - Xanh lá */}
+                                <Badge status="error" text="Thất bại/Hủy" />     {/* Rejected/Failed - Đỏ */}
+                                <Badge status="default" text="Hết hạn" />
+                            </div>
+                        </div>
+                        <Calendar_Das />
+
+                    </div>
+
                 </div>
+
             </div>
         </div>
     );

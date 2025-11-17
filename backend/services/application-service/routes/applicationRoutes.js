@@ -3,8 +3,8 @@ const router = express.Router();
 const {
   applyJob,
   getApplicationsByJob,
-  getApplicationsByUser,
-  updateStatus, getNumApplicationByDepartment, updateStatusAndNote, updateStatus_reject
+  getApplicationsByUser, getApplicationsByJobAndHR,
+  updateStatus, getNumApplicationByDepartment, updateStatusAndNote, updateStatus_reject, getNumApplicationByDepartmentAndUser
 } = require("../controllers/applicationController");
 
 // Apply job
@@ -14,10 +14,10 @@ router.post("/", applyJob);
 router.get("/job/:jobId", getApplicationsByJob);
 
 router.get("/num-application/:departmentId", getNumApplicationByDepartment);
-router.get("/num-application/:departmentId/:userId", getNumApplicationByDepartment);
+router.get("/num-application/:departmentId/:userId", getNumApplicationByDepartmentAndUser);
 
 // Get all applications of a user
-router.get("/user/:userId", getApplicationsByUser);
+router.post("/hr-candidatelist", getApplicationsByJobAndHR);
 router.post("/update-reject", updateStatus_reject);
 
 // Update status

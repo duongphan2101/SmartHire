@@ -45,8 +45,10 @@ export default function useInterview() {
     setLoading(true);
     setError(null);
     try {
+      // console.log(`${host}/`);
       const res = await axios.get<Interview[]>(`${host}/`);
       setInterviews(res.data);
+      // console.log("DATA: ", res.data);
       return res.data;
     } catch (err) {
       handleError(err, "Failed to fetch interviews");
@@ -62,6 +64,7 @@ export default function useInterview() {
     try {
       const res = await axios.get<Interview>(`${host}/${id}`);
       setInterview(res.data);
+      console.log(`DATA ${res.data}`)
       return res.data;
     } catch (err) {
       handleError(err, "Interview not found");
