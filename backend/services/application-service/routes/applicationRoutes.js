@@ -4,7 +4,7 @@ const {
   applyJob,
   getApplicationsByJob,
   getApplicationsByUser,
-  updateStatus, getNumApplicationByDepartment, updateStatusAndNote
+  updateStatus, getNumApplicationByDepartment, updateStatusAndNote, updateStatus_reject
 } = require("../controllers/applicationController");
 
 // Apply job
@@ -18,6 +18,7 @@ router.get("/num-application/:departmentId/:userId", getNumApplicationByDepartme
 
 // Get all applications of a user
 router.get("/user/:userId", getApplicationsByUser);
+router.post("/update-reject", updateStatus_reject);
 
 // Update status
 router.put("/:id/status", updateStatus);

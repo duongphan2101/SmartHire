@@ -245,7 +245,6 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
-
 exports.updateStatusAndNote = async (req, res) => {
   try {
     const { status, note } = req.body;
@@ -293,6 +292,30 @@ exports.updateStatusAndNote = async (req, res) => {
 
   } catch (error) {
     console.error("Update App Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateStatus_reject = async (req, res) => {
+  try {
+    const { canId, jobId } = req.body;
+    console.log(`UPDATE: ${canId} ${jobId}`);
+    const updatedApplication = await Application.findOneAndUpdate(
+      { jobId: jobId, userId: canId },
+      { $set: { status: "rejected" } },
+      { new: true }
+    );
+
+    if (!updatedApplication) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn ứng tuyển"
+      });
+    }
+
+    res.json({ success: true, data: updatedApplication });
+
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };

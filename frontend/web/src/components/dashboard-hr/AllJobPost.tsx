@@ -104,7 +104,7 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
           onUpdated={refetch}
           update={false}
           onOpenChatRequest={onOpenChatRequest}
-          admin={false}
+          admin={true}
         />
       )}
 
@@ -115,15 +115,15 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
               <div className="flex items-center gap-2">
                 <h3 className="font-bold">{job.jobTitle}</h3>
 
-                {job.status !== "active" && job.status !== "pending" && (
+                {job.status !== "active" && (
                   <span
                     className={`badge-jobStatus px-2 py-1 rounded-md text-xs font-semibold ${job.status === "filled"
-                        ? "bg-green-100 text-green-700"
-                        : job.status === "expired"
-                          ? "bg-red-100 text-red-600"
-                          : job.status === "banned"
-                            ? "bg-gray-200 text-gray-600"
-                            : ""
+                      ? "bg-green-100 text-green-700"
+                      : job.status === "expired"
+                        ? "bg-red-100 text-red-600"
+                        : job.status === "banned"
+                          ? "bg-gray-200 text-gray-600"
+                          : "bg-amber-200 text-amber-600"
                       }`}
                   >
                     {job.status === "filled"
@@ -132,10 +132,10 @@ const AllJobPost = ({ onOpenChatRequest }: AllJobPostProps) => {
                         ? "Hết hạn"
                         : job.status === "banned"
                           ? "Tạm khóa"
-                          : job.status}
+                          : "Đợi duyệt"}
                   </span>
                 )}
-                
+
               </div>
             </div>
             <div className="all-job-body">

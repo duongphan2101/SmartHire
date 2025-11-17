@@ -47,6 +47,7 @@ export default function useInterview() {
     try {
       const res = await axios.get<Interview[]>(`${host}/`);
       setInterviews(res.data);
+      return res.data;
     } catch (err) {
       handleError(err, "Failed to fetch interviews");
     } finally {

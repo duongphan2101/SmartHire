@@ -245,7 +245,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
     try {
       const res = await updateStatus({ id, status: newStatus });
 
-      // Cập nhật lại state
+      // Cập nhật lại state (Luôn chạy)
       setApplicants((prev) =>
         prev.map((app) => (app._id === id ? { ...app, status: newStatus } : app))
       );
@@ -276,6 +276,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
         emailResult = "rejected";
       }
 
+      // Popup này vẫn sẽ hiển thị "Cập nhật thành công" khi là 'contacted'
       MySwal.fire({
         target: ".view-modal-overlay",
         icon: "info",
@@ -285,7 +286,9 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
         showConfirmButton: false,
       });
 
-      if (res.data && res.data.userSnapshot) {
+      // [SỬA ĐỔI TẠI ĐÂY]
+      // Chỉ gửi thông báo và email nếu CÓ data VÀ newStatus KHÔNG PHẢI 'contacted'
+      if (res.data && res.data.userSnapshot && newStatus !== 'contacted') {
         await createNotification({
           receiverId: res.data.userSnapshot._id,
           type: "INFO",
@@ -294,7 +297,6 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
           requestId: ""
         });
 
-        // Gửi email chạy ngầm, không cần await chặn UI nếu không muốn
         await sendInterviewResult({
           candidate: {
             email: res.data.userSnapshot.email,

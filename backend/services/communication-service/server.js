@@ -10,6 +10,8 @@ const {
 dotenv.config();
 connectDB();
 
+require("./utils/interviewScheduler");
+
 const app = express();
 // Middleware
 app.use(cors());

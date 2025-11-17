@@ -9,6 +9,7 @@ import type { ChatRequest, Interview } from "../../utils/interfaces";
 import useInterview from "../../hook/useInterview";
 import dayjs from "dayjs";
 import useUser from "../../hook/useUser";
+import StatusBadge from "../StatusBadge/StatusBadge";
 
 interface NotificationModalProps {
   notification: Notification | null;
@@ -160,6 +161,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
+
+
   return (
     <div className="notification-overlay" onClick={onClose} style={{ zIndex: 100 }}>
       <div className="notification-box" onClick={(e) => e.stopPropagation()}>
@@ -170,12 +173,18 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             <p className="notification-message text-black">
               <strong>{interviewInviteData?.mode === "offline" ? "OFFLINE" : "ONLINE"}</strong> tại <strong>{interviewInviteData?.location}</strong>
             </p>
-            <p className="notification-message text-black">
-              vào lúc <strong>{interviewInviteData?.scheduledAt
-                ? dayjs(interviewInviteData.scheduledAt).format('DD/MM/YYYY HH:mm')
-                : ''}
-              </strong>
-            </p>
+            <div className="notification-message text-black flex items-center gap-3.5 flex-wrap justify-between">
+              <span>
+                vào lúc <strong>{interviewInviteData?.scheduledAt
+                  ? dayjs(interviewInviteData.scheduledAt).format('DD/MM/YYYY HH:mm')
+                  : ''}
+                </strong>
+              </span>
+              <div className="flex items-center justify-center gap-8">
+                {interviewInviteData?.status && (
+                  <StatusBadge status={interviewInviteData.status} />
+                )}</div>
+            </div>
           </div>
         )}
         <small className="notification-time text-right">
@@ -195,6 +204,14 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             <button onClick={handleRejectInterviewInvite} className="notify-modal-btn notify-modal-btn_inject">Từ chối</button>
           </div>
         )}
+
+        {/* {notification.type === "INTERVIEW_INVITE" && (
+          <div className="flex items-center justify-center gap-8" style={{ marginTop: 10 }}>
+            {interviewInviteData?.status && (
+              <StatusBadge status={interviewInviteData.status} />
+            )}
+          </div>
+        )} */}
 
         <div className="notification-footer">
           <button onClick={onClose}>Đóng</button>
