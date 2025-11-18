@@ -19,6 +19,9 @@ import useUser, { type UserResponse } from "../../hook/useUser";
 import Swal from "sweetalert2";
 import type { Job } from "../../hook/useJob";
 
+import axios from "axios";
+import { HOSTS } from "../../utils/host"; 
+
 // interface Department {
 //     _id: string;
 //     name: string;
@@ -45,6 +48,16 @@ import type { Job } from "../../hook/useJob";
 //     updatedAt?: string;
 // }
 
+interface ReportPayload {
+  jobId: string;
+  jobTitle: string;
+  department?: string;
+  userId: string;
+  title: string;
+  details: string;
+  contact?: string;
+}
+
 interface DetailProps {
   item: Job;
   saveJob: (userId: string, jobId: string) => Promise<UserResponse | void>;
@@ -58,6 +71,53 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
   const [openModel, setOpenModel] = useState<boolean>(false);
   const { getUser: fetchUser, user: currentUser } = useUser();
   const [applyted, setApplyted] = useState<boolean>(false);
+
+
+  // trong Detail component, thêm:
+const NOTIF_API_HOST = HOSTS.notificationService;
+
+const handleReportSubmit = async (payload: { title: string; details: string; contact?: string }) => {
+  if (!user) {
+    Swal.fire({
+      icon: "warning",
+      title: "Bạn chưa đăng nhập",
+      text: "Vui lòng đăng nhập để gửi báo cáo!",
+    });
+    return;
+  }
+
+  // Build đầy đủ payload gửi lên API
+  const reportPayload: ReportPayload = {
+    jobId: item._id,
+    jobTitle: item.jobTitle,
+    department: item.department?.name,
+    userId: user._id || user.user_id,
+    title: payload.title,
+    details: payload.details,
+    contact: payload.contact,
+  };
+
+  try {
+    await axios.post(`${HOSTS.reportService}/`, reportPayload);
+    Swal.fire({
+      icon: "success",
+      title: "Đã gửi báo cáo",
+      text: "Báo cáo đã được gửi tới Admin.",
+      timer: 1600,
+      showConfirmButton: false,
+    });
+    setOpenReport(false);
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Gửi thất bại",
+      text: "Không thể gửi báo cáo. Vui lòng thử lại sau.",
+    });
+  }
+};
+
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -409,9 +469,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
         jobTitle={item.jobTitle}
         department={item.department?.name}
         userId={user ? user._id || user.user_id : null}
-        onSubmit={(payload) => {
-          console.log("Report payload:", payload);
-        }}
+        onSubmit={handleReportSubmit}
       />
     </div>
   );

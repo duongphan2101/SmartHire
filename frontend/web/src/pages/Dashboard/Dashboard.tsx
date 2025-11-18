@@ -67,7 +67,10 @@ export const Dashboard = () => {
             onOpenChat={handleOpenChatList}
           />
           <div className="page-content bg-gray-50">
-            {page === "dashboard" && <Dashboard_HR />}
+            {page === "dashboard" && <Dashboard_HR
+              onOpenChatRequest={handleOpenChatRequest}
+              setBreadcrumb={setBreadcrumb}
+              setPage={setPage} />}
             {page === "about" && <About />}
             {page === "company" && <CompanyContent />}
             {page === "allJobPost" && <AllJobPost onOpenChatRequest={handleOpenChatRequest} />}

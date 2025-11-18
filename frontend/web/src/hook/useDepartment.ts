@@ -13,7 +13,7 @@ export interface DepartmentData {
   description: string;
   website: string;
   status: DepartmentStatus;
-   employees: string[]; 
+  employees: string[];
 }
 
 interface UseDepartmentReturn {
@@ -35,6 +35,8 @@ interface UseDepartmentReturn {
   getDepartmentById: (id: string) => Promise<void>;
   createInvite: (departmentId: string, createdBy: string) => Promise<InviteData>;
   joinDepartment: (code: string, userId: string) => Promise<void>;
+  getDepartmentByUserId: (id: string) => Promise<DepartmentData | undefined>;
+
 }
 
 export default function useDepartment(mode: "user" | "all" = "user"): UseDepartmentReturn {
@@ -176,6 +178,22 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     }
   }, [host, fetchData]);
 
+  // ---------------- GET BY ID ----------------
+  const getDepartmentByUserId = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      const res = await axios.get<DepartmentData>(`${host}/user/${id}`);
+      // console.log(`${host}/user/${id}`);
+      // console.log("DATA: ", res.data);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.message || "Failed to fetch department by ID");
+    } finally {
+      setLoading(false);
+    }
+  }, [host]);
+
   // ---------------- RETURN ----------------
   return {
     department,
@@ -191,5 +209,6 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     getDepartmentById,
     createInvite,
     joinDepartment,
+    getDepartmentByUserId
   };
 }

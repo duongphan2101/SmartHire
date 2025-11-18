@@ -67,6 +67,20 @@ export default function useJob() {
     }
   }, [host]);
 
+  const fetchAllJob = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Job[]>(`${host}/getAll`);
+      setJobs(res.data);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch pending jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, [host]);
+
   const refetch = useCallback(async () => {
     if (!department) {
       setJobs([]);
@@ -110,6 +124,17 @@ export default function useJob() {
   const getJobByDepartmentId = useCallback(async (id: string) => {
     try {
       const res = await axios.get<Job[]>(`${host}/getAll/${id}`);
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
+      return [];
+    }
+  }, [host]);
+
+  const getJobByDepId = useCallback(async (id: string) => {
+    try {
+      const res = await axios.get<Job[]>(`${host}/jobByDepId/${id}`);
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -278,6 +303,8 @@ export default function useJob() {
     getJobByDepartmentId,
     approveJob,
     rejectJob,
-    fetchPendingJobsAdmin
+    fetchPendingJobsAdmin,
+    fetchAllJob,
+    getJobByDepId
   };
 }

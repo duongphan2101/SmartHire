@@ -1,32 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import useDepartment, { type DepartmentStatus } from "../../hook/useDepartment";
 import Swal from "sweetalert2";
-import "./CompanyList.css";
 
+// Import các component của Material-UI
+import {
+  Box,
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Chip,
+  OutlinedInput,
+  Typography,
+  Avatar,
+  Stack,
+  Link,
+  Paper,
+  Pagination,
+  CircularProgress,
+} from "@mui/material";
+
+// Import icons
+import BusinessIcon from "@mui/icons-material/Business";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
+
+// --- Cấu hình cho trạng thái ---
+const statusOptions = [
+  { label: "Hoạt động", value: "Active", color: "success.main" },
+  { label: "Chờ duyệt", value: "Pending", color: "text.secondary" },
+  { label: "Tạm khóa", value: "Suspended", color: "error.main" },
+];
+
+const statusMap: { [key in DepartmentStatus]: string } = {
+  Active: "Hoạt động",
+  Suspended: "Tạm khóa",
+  Pending: "Chờ duyệt", // Thêm Pending
+};
+
+// --- Cấu hình phân trang ---
+const ITEMS_PER_PAGE = 5;
+
+// --- Component ---
 const CompanyList: React.FC = () => {
+  // --- State ---
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // --- Data Fetching ---
   const { departments, loading, error, updateDepartmentStatus } =
     useDepartment("all");
 
+  // --- Logic xử lý ---
+
+  // 1. Lọc (Filter) - Dùng useMemo để tối ưu
+  const filteredDepartments = useMemo(() => {
+    return departments.filter((dept) => {
+      const matchName = dept.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      const matchStatus =
+        statusFilter.length === 0
+          ? true
+          : statusFilter.includes(dept.status);
+
+      return matchName && matchStatus;
+    });
+  }, [departments, searchQuery, statusFilter]);
+
+  // 2. Phân trang (Pagination) - Dùng useMemo
+  const pageCount = Math.ceil(filteredDepartments.length / ITEMS_PER_PAGE);
+
+  const paginatedDepartments = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredDepartments.slice(startIndex, endIndex);
+  }, [filteredDepartments, currentPage]);
+
+  // --- Handlers ---
+
+  // Xử lý đổi trang
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setCurrentPage(value);
+  };
+
+  // Xử lý cập nhật trạng thái
   const handleStatusChange = async (
     id: string,
     newStatus: DepartmentStatus
   ) => {
-    const statusMap: { [key: string]: string } = {
-      Active: "Hoạt động",
-      Suspended: "Tạm khóa",
-    };
-
     const result = await Swal.fire({
-      title: "Xác nhận thay đổi trạng thái",
-      text: `Bạn có chắc chắn muốn chuyển trạng thái công ty sang "${statusMap[newStatus]}"?`,
+      title: "Xác nhận thay đổi",
+      text: `Chuyển công ty sang trạng thái "${statusMap[newStatus]}"?`,
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Có, thay đổi!",
+      confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      reverseButtons: false,
     });
 
     if (result.isConfirmed) {
@@ -35,121 +111,255 @@ const CompanyList: React.FC = () => {
         Swal.fire({
           icon: "success",
           title: "Cập nhật thành công!",
-          text: `Công ty hiện ở trạng thái: ${statusMap[newStatus]}.`,
           timer: 2000,
           showConfirmButton: false,
         });
       } catch (e) {
-        console.error("Lỗi cập nhật trạng thái:", e);
         Swal.fire({
           icon: "error",
           title: "Lỗi",
-          text: "Lỗi khi cập nhật trạng thái công ty. Vui lòng thử lại.",
+          text: "Không thể cập nhật trạng thái.",
         });
       }
     }
   };
 
-  // Lọc danh sách công ty theo tìm kiếm
-  const filteredDepartments = departments.filter((dept) =>
-    dept.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // --- Render Loading / Error ---
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="50vh"
+      >
+        <CircularProgress />
+        <Typography ml={2}>Đang tải danh sách...</Typography>
+      </Box>
+    );
+  }
 
-  if (loading)
-    return <p style={{ padding: 20 }}>Đang tải danh sách công ty...</p>;
-  if (error) return <p style={{ padding: 20, color: "red" }}>Lỗi: {error}</p>;
+  if (error) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="50vh"
+        color="error.main"
+      >
+        <ErrorOutlineIcon sx={{ mr: 1 }} />
+        <Typography>Lỗi: {error}</Typography>
+      </Box>
+    );
+  }
 
+  // --- Render Chính ---
   return (
-    <div className="admin-company-profile-container">
-      <div className="admin-company-profile-header">
-        <div className="admin-search-container">
-          <input
-            type="text"
-            placeholder="Nhập tên công ty"
-            className="admin-search-input"
+    <Box sx={{ p: { xs: 1, md: 3 }, backgroundColor: "#f9f9f9" }}>
+      {/* 1. THANH LỌC VÀ TÌM KIẾM */}
+      <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={2}
+          alignItems="center"
+        >
+          {/* Search */}
+          <TextField
+            fullWidth
+            label="Tìm theo tên công ty"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <BusinessIcon sx={{ mr: 1, color: "text.secondary" }} />
+              ),
+            }}
           />
-        </div>
-      </div>
 
-      <div className="admin-company-list">
-        {filteredDepartments.length === 0 ? (
-          <p style={{ padding: 20 }}>Không tìm thấy công ty nào phù hợp.</p>
+          {/* Lọc trạng thái (Multi-select) */}
+          <FormControl fullWidth sx={{ minWidth: 250 }}>
+            <InputLabel id="status-filter-label">Lọc theo trạng thái</InputLabel>
+            <Select
+              labelId="status-filter-label"
+              multiple
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as string[])
+              }
+              input={<OutlinedInput label="Lọc theo trạng thái" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                  {selected.map((value) => {
+                    const item = statusOptions.find((s) => s.value === value);
+                    return (
+                      <Chip
+                        key={value}
+                        label={item?.label}
+                        size="small"
+                        sx={{ bgcolor: item?.color, color: "#fff" }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+            >
+              {statusOptions.map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
+      </Paper>
+
+      {/* 2. DANH SÁCH CÔNG TY */}
+      <Stack spacing={2}>
+        {paginatedDepartments.length === 0 ? (
+          <Paper
+            sx={{
+              p: 3,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1,
+              color: "text.secondary",
+            }}
+          >
+            <SearchOffIcon sx={{ fontSize: 40 }} />
+            <Typography>Không tìm thấy công ty nào phù hợp.</Typography>
+          </Paper>
         ) : (
-          filteredDepartments.map((department) => (
-            <div className="admin-company-wrapper" key={department._id}>
-              <div className="admin-company-card">
-                <img
-                  src={department.avatar || "https://via.placeholder.com/150"}
-                  alt={department.name}
-                  className="admin-company-profile-avatar"
-                />
-                <div className="admin-company-details">
-                  <h3>{department.name}</h3>
-                  <p>
-                    <strong>Địa chỉ:</strong> {department.address}
-                  </p>
-                  <p className="admin-company-des">
-                    <strong>Mô tả:</strong> {department.description}
-                  </p>
-                  <p>
-                    <strong>Website:</strong>{" "}
-                    <a
+          paginatedDepartments.map((department) => {
+            const badge = statusOptions.find(
+              (s) => s.value === department.status
+            );
+
+            return (
+              <Paper
+                key={department._id}
+                elevation={1}
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2,
+                  transition: "box-shadow 0.2s",
+                  "&:hover": { boxShadow: 3 },
+                  textAlign: 'left'
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2.5}
+                >
+                  {/* Avatar */}
+                  <Avatar
+                    src={
+                      department.avatar ||
+                      "https://via.placeholder.com/150"
+                    }
+                    sx={{
+                      width: { xs: 80, md: 100 },
+                      height: { xs: 80, md: 100 },
+                      alignSelf: { xs: "center", md: "flex-start" },
+                      border: "2px solid #eee",
+                    }}
+                  />
+
+                  {/* Thông tin chi tiết */}
+                  <Box flex={1}>
+                    <Typography variant="h6" fontWeight="bold">
+                      {department.name}
+                    </Typography>
+                    <Chip
+                      label={badge?.label}
+                      size="small"
+                      sx={{
+                        bgcolor: badge?.color,
+                        color: "#fff",
+                        fontWeight: "bold",
+                        my: 1,
+                      }}
+                    />
+                    <Typography variant="body2" color="text.secondary" mb={1}>
+                      <strong>Địa chỉ:</strong> {department.address}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      mb={1}
+                      // Truncate 2 dòng
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      <strong>Mô tả:</strong> {department.description}
+                    </Typography>
+                    <Link
                       href={department.website}
                       target="_blank"
                       rel="noopener noreferrer"
+                      variant="body2"
                     >
                       {department.website}
-                    </a>
-                  </p>
-                </div>
+                    </Link>
+                  </Box>
 
-                <div className="admin-company-status-control">
-                  <p>
-                    <strong>Trạng thái:</strong>
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        marginLeft: "5px",
-                        color:
-                          department.status === "Suspended"
-                            ? "red"
-                            : department.status === "Pending"
-                            ? "gray"
-                            : "green",
-                      }}
-                    >
-                      {department.status === "Pending"
-                        ? "Chờ duyệt"
-                        : department.status === "Active"
-                        ? "Hoạt động"
-                        : "Tạm khóa"}
-                    </span>
-                  </p>
-                  <select
-                    value={department.status}
-                    onChange={(e) =>
-                      handleStatusChange(
-                        department._id,
-                        e.target.value as DepartmentStatus
-                      )
-                    }
+                  {/* Điều khiển trạng thái */}
+                  <Box
+                    sx={{
+                      minWidth: { xs: "100%", md: 200 },
+                      pt: { xs: 2, md: 0 },
+                      borderTop: {
+                        xs: "1px solid #eee",
+                        md: "none",
+                      },
+                    }}
                   >
-                    {department.status === "Pending" && (
-                      <option value="Pending">Chờ duyệt</option>
-                    )}
-
-                    <option value="Active">Hoạt động</option>
-                    <option value="Suspended">Tạm khóa</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          ))
+                    <FormControl fullWidth>
+                      <InputLabel>Thay đổi trạng thái</InputLabel>
+                      <Select
+                        value={department.status}
+                        label="Thay đổi trạng thái"
+                        onChange={(e) =>
+                          handleStatusChange(
+                            department._id,
+                            e.target.value as DepartmentStatus
+                          )
+                        }
+                      >
+                        {statusOptions.map((opt) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Stack>
+              </Paper>
+            );
+          })
         )}
-      </div>
-    </div>
+      </Stack>
+
+      {/* 3. THANH PHÂN TRANG */}
+      {pageCount > 1 && (
+        <Stack spacing={2} mt={3} alignItems="center">
+          <Pagination
+            count={pageCount}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+          />
+        </Stack>
+      )}
+    </Box>
   );
 };
 

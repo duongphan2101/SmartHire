@@ -96,7 +96,7 @@ const HRList: React.FC = () => {
                   className="hr-avatar"
                   onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100/EBF4FF/76A9FA?text=HR'; }}
                 />
-                <div className="hr-info">
+                <div className="hr-info ">
                   <h3>{hr.fullname}</h3>
                   <h4 className="text-black">{hr.email}</h4>
                   {company ? (

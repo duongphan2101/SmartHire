@@ -1,129 +1,197 @@
+/* ===== CONTAINER ===== */
 .admin-company-profile-container {
- padding: 25px;
-    background-color: #fff;
-    border-radius: 16px;
-    min-height: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    font-family: 'Inter', sans-serif;
+  padding: 30px;
+  background-color: #fff;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
+/* ===== HEADER + FILTER ===== */
 .admin-company-profile-header {
-  padding: 16px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px;
   background-color: #fff;
   border-radius: 12px;
-  border: 1px solid #e7e7e7;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  align-items: center;
 }
 
+/* ===== SEARCH + FILTER BAR ===== */
 .admin-search-container {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  width: 100%;
   gap: 12px;
+  width: 100%;
 }
 
 .admin-search-input {
-  width: 600px;
+  flex: 1 1 250px;
+  max-width: 400px;
   padding: 12px 14px;
-  border: 1px solid #dcdcdc;
+  border: 1px solid #d1d5db;
   border-radius: 10px;
   font-size: 15px;
-  background: #f9f9f9;
-  transition: all 0.2s ease;
+  background-color: #f5f5f5;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-search-input:focus {
-  background: #fff;
+  background-color: #fff;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  outline: none;
 }
 
 /* ===== COMPANY LIST ===== */
 .admin-company-list {
-  margin-top: 28px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* ===== COMPANY CARD ===== */
 .admin-company-wrapper {
-  border: 1px solid #ebebeb;
+  background-color: #fff;
   border-radius: 14px;
   padding: 20px;
-  margin-bottom: 18px;
-  background: #fff;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.admin-company-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
 
 .admin-company-card {
   display: flex;
-  align-items: start;
-  gap: 40px;
-  padding: 10px 5px;
+  flex-wrap: wrap;
+  gap: 30px;
 }
 
 .admin-company-profile-avatar {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 3px solid #f2f2f2;
+  border: 2px solid #e5e5e5;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
 
+/* ===== COMPANY DETAILS ===== */
 .admin-company-details {
-  flex-grow: 1;
-  text-align: left;
-  max-width: 60%;
+  flex: 1;
+  min-width: 250px;
 }
 
 .admin-company-details h3 {
-  margin: 0 0 12px 0;
-  font-size: 26px;
+  margin: 0 0 10px 0;
+  font-size: 24px;
   font-weight: 700;
-  color: #111;
+  color: #111827;
 }
 
 .admin-company-details p {
-  margin: 0 0 10px 0;
-  font-size: 15.5px;
+  margin: 0 0 8px 0;
+  font-size: 15px;
   line-height: 1.6;
+  color: #4b5563;
 }
 
 .admin-company-details p strong {
-  color: #444;
+  color: #1f2937;
   font-weight: 600;
 }
 
 .admin-company-details a {
-  color: #2563eb;
-  text-decoration: none;
+  color: #3b82f6;
   font-weight: 500;
+  text-decoration: none;
 }
 
 .admin-company-details a:hover {
   text-decoration: underline;
 }
 
+/* ===== STATUS CONTROL ===== */
 .admin-company-status-control {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   min-width: 180px;
-  text-align: left;
-  margin-left: 100px;
 }
 
 .admin-company-status-control p {
-  margin-bottom: 12px;
   font-size: 15px;
+  margin-bottom: 4px;
 }
 
 .admin-company-status-control select {
   width: 100%;
   padding: 8px 12px;
   border-radius: 10px;
-  background: #f5f5f5;
-  border: 1px solid #dcdcdc;
+  background-color: #f5f5f5;
+  border: 1px solid #d1d5db;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
+.admin-company-status-control select:hover {
+  border-color: #3b82f6;
+}
+
+/* SỬA LẠI NHÓM NÀY */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-left: 5px;
+  /* Giữ lại margin */
+}
+
+.badge-active {
+  background-color: #22c55e;
+  /* xanh lá */
+}
+
+.badge-pending {
+  background-color: #9ca3af;
+  /* xám */
+}
+
+.badge-suspended {
+  background-color: #ef4444;
+  /* đỏ */
+}
+
+/* ===== RESPONSIVE ===== */
+@media screen and (max-width: 768px) {
+  .admin-company-card {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .admin-company-details {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .admin-company-status-control {
+    margin-left: 0;
+    align-items: center;
+  }
+
+  .admin-search-input {
+    max-width: 100%;
+  }
+}

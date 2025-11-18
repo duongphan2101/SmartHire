@@ -5,6 +5,7 @@ import { FaArrowRight } from 'react-icons/fa6';
 
 import usePayment from "../../hook/usePayment";
 
+import Swal from "sweetalert2";
 import momo from "../../assets/images/logo-momo.webp";
 import napas from "../../assets/images/icon-atm-credit.png";
 import vnpay from "../../assets/images/vnpay.png";
@@ -49,6 +50,14 @@ const Payment = () => {
 
     const handlePick_Bank = (idx: number, bank: string) => {
         if (!enableMethod) return;
+        if (idx == 1 || idx == 2 || idx == 4) {
+            Swal.fire({
+                title: "Thông Báo",
+                text: "Cổng thanh toán này đang tạm khóa, vui lòng thử cổng thanh toán khác",
+                icon: "info",
+            });
+            return;
+        }
         setSelectedMethod(idx);
         setSelectedMethodBank(bank);
         setEnableConfirm(true);
@@ -184,7 +193,7 @@ const Payment = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="text-center text-gray-500" style={{padding: 15}}>
+                                    <td colSpan={5} className="text-center text-gray-500" style={{ padding: 15 }}>
                                         Chưa có giao dịch nào
                                     </td>
                                 </tr>

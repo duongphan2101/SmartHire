@@ -5,7 +5,7 @@ const Job = require("../models/Job");
 const {
   createJob, getJobs, getAllJobs, searchJobs, deleteJob,
   getLatestJobs, updateJob, getJobById, filterJobs, categories,
-  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob
+  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob, getJobsByDepId
 } = require('../controllers/jobController');
 
 
@@ -47,6 +47,7 @@ router.get("/stats/hot-industry", async (req, res) => {
 router.get('/categories', categories);
 router.get('/search', searchJobs);
 router.post('/create', createJob);
+router.get('/jobByDepId/:idDepartment', getJobsByDepId);
 router.get('/getAll/:idDepartment', getJobs);
 router.get('/jobByDepartment/:idDepartment', getNumJobsByDepartment);
 router.get('/jobByUser/:idUser', getNumJobsByUser);

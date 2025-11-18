@@ -21,8 +21,6 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { jobs: allJobs, loading, error, refetch } = useJob();
 
-  // BỔ SUNG: Lấy thông tin công ty từ useDepartment
-  // Giả định useDepartment("user") trả về { department: DepartmentData | null }
   const { department } = useDepartment("user");
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -171,6 +169,7 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
           update={true}
           onOpenChatRequest={onOpenChatRequest}
           admin={false}
+          activeUser=""
         />
       )}
 
@@ -182,7 +181,7 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold">{job.jobTitle}</h3>
 
-                  {job.status !== "active" && job.status !== "pending" && (
+                  {job.status !== "active" && (
                     <span
                       className={`badge-jobStatus px-2 py-1 rounded-md text-xs font-semibold ${job.status === "filled"
                         ? "bg-green-100 text-green-700"
@@ -190,7 +189,7 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
                           ? "bg-red-100 text-red-600"
                           : job.status === "banned"
                             ? "bg-gray-200 text-gray-600"
-                            : ""
+                            : "bg-amber-200 text-amber-600"
                         }`}
                     >
                       {job.status === "filled"
@@ -199,7 +198,7 @@ const JobPost = ({ onOpenChatRequest }: JobPostProps) => {
                           ? "Hết hạn"
                           : job.status === "banned"
                             ? "Tạm khóa"
-                            : job.status}
+                            : "Đợi duyệt"}
                     </span>
                   )}
 

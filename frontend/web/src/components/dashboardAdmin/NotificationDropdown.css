@@ -1,0 +1,127 @@
+/* NotificationDropdown.css */
+
+/* Container tổng */
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 50px;
+  width: 390px;
+  max-height: 420px;
+  overflow-y: auto;
+  background-color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  z-index: 9999;
+  padding: 8px;
+  font-family: "Inter", sans-serif;
+}
+
+.notification-dropdown-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-dropdown-header strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.notification-dropdown-header button {
+  font-size: 12px;
+  color: #0066cc;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.notification-dropdown-header button:hover {
+  color: #004999;
+}
+
+/* Notification item */
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid #f3f3f3;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notification-item.unread {
+  background-color: #f8fafc;
+}
+
+.notification-item:hover {
+  background-color: #f1f5f9;
+}
+
+.notification-item-title {
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.notification-item-title span{
+    color:#111827;
+    font-weight: 600;
+}
+
+.notification-item.unread .notification-item-title {
+  font-weight: 700;
+}
+
+.notification-item-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.notification-item-message {
+  margin-top: 6px;
+  color: #374151;
+  font-size: 13px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* Mark as read button */
+.notification-item button.mark-read-btn {
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notification-item button.mark-read-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Loading / empty state */
+.notification-empty,
+.notification-loading {
+  padding: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Scrollbar style (nice touch) */
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}

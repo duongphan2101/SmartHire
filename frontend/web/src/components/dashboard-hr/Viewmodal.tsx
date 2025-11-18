@@ -12,11 +12,10 @@ import useApplication, {
   type MatchingResponse,
 } from "../../hook/useApplication";
 import ModalContactCandidate from "./ModalContactCandidate";
-
+import { Empty, Pagination } from 'antd';
 import { AiOutlineMessage } from "react-icons/ai";
 import { BsCheckCircle, BsTelephone, BsXCircle } from "react-icons/bs";
 import usePayment from "../../hook/usePayment";
-import { Empty } from "antd";
 import { useChat } from "../../hook/useChat";
 import type { ChatRoom } from "../../utils/interfaces";
 import useNotification from "../../hook/useNotification";
@@ -30,9 +29,10 @@ interface ViewModalProps {
   update: boolean;
   onOpenChatRequest: (room: ChatRoom) => void;
   admin: boolean;
+  activeUser: string;
 }
 
-const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }: ViewModalProps) => {
+const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin, activeUser }: ViewModalProps) => {
   if (!job) return null;
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const currentHRId = currentUser._id || currentUser.user_id;
@@ -151,6 +151,21 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
     (a, b) => (b.score ?? 0) - (a.score ?? 0)
   );
 
+  // --- PAGINATION STATE ---
+  const [pageApplicants, setPageApplicants] = useState(1); // Trang hiện tại của tab Applicants
+  const [pageCandidates, setPageCandidates] = useState(1); // Trang hiện tại của tab Candidates
+  const pageSize = 5; // Số lượng dòng trên mỗi trang
+
+  // --- LOGIC CẮT MẢNG CHO APPLICANTS ---
+  const indexOfLastApp = pageApplicants * pageSize;
+  const indexOfFirstApp = indexOfLastApp - pageSize;
+  const currentApplicants = sortedApplicants.slice(indexOfFirstApp, indexOfLastApp);
+
+  // --- LOGIC CẮT MẢNG CHO CANDIDATES ---
+  const indexOfLastCand = pageCandidates * pageSize;
+  const indexOfFirstCand = indexOfLastCand - pageSize;
+  const currentCandidates = sortedCandidates.slice(indexOfFirstCand, indexOfLastCand);
+
   const handleChange = <K extends keyof Job>(field: K, value: Job[K]) => {
     setEditedJob((prev: Job) => ({
       ...prev,
@@ -245,7 +260,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
     try {
       const res = await updateStatus({ id, status: newStatus });
 
-      // Cập nhật lại state
+      // Cập nhật lại state (Luôn chạy)
       setApplicants((prev) =>
         prev.map((app) => (app._id === id ? { ...app, status: newStatus } : app))
       );
@@ -276,6 +291,7 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
         emailResult = "rejected";
       }
 
+      // Popup này vẫn sẽ hiển thị "Cập nhật thành công" khi là 'contacted'
       MySwal.fire({
         target: ".view-modal-overlay",
         icon: "info",
@@ -285,7 +301,9 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
         showConfirmButton: false,
       });
 
-      if (res.data && res.data.userSnapshot) {
+      // [SỬA ĐỔI TẠI ĐÂY]
+      // Chỉ gửi thông báo và email nếu CÓ data VÀ newStatus KHÔNG PHẢI 'contacted'
+      if (res.data && res.data.userSnapshot && newStatus !== 'contacted') {
         await createNotification({
           receiverId: res.data.userSnapshot._id,
           type: "INFO",
@@ -294,7 +312,6 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
           requestId: ""
         });
 
-        // Gửi email chạy ngầm, không cần await chặn UI nếu không muốn
         await sendInterviewResult({
           candidate: {
             email: res.data.userSnapshot.email,
@@ -861,7 +878,10 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
                   <p>Đang tải ứng viên...</p>
                 ) : applicants.length === 0 ? (
                   <div>
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Chưa có ai ứng tuyển cho công việc này!" />
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description="Chưa có ai ứng tuyển cho công việc này!"
+                    />
                   </div>
                 ) : (
                   <div className="inline-block min-w-full align-middle">
@@ -882,126 +902,165 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedApplicants.map((app) => (
-                            <tr key={app._id}>
-                              <td className="flex gap-1.5 items-center w-fit">
-                                <img
-                                  src={app.userSnapshot.avatar || gray}
-                                  className="candidate-avt"
-                                  alt=""
-                                />{" "}
-                                {app.userSnapshot.fullname}
-                              </td>
+                          {currentApplicants.map((app) => {
+                            const isActive = app.userId === activeUser || (app.userSnapshot && app.userSnapshot._id === activeUser);
 
-                              <CoverLetterCell coverLetter={app.coverLetter} />
+                            return (
+                              <tr
+                                key={app._id}
+                                // STYLE CHO DÒNG ACTIVE
+                                style={{
+                                  backgroundColor: isActive ? '#e6f7ff' : 'transparent',
+                                  transition: 'all 0.3s ease',
+                                  boxShadow: isActive ? 'inset 3px 0 0 #1890ff' : 'none'
+                                }}
+                                // TỰ ĐỘNG CUỘN TỚI DÒNG NÀY
+                                ref={(el) => {
+                                  if (isActive && el) {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  }
+                                }}
+                              >
+                                <td className="flex gap-1.5 items-center w-fit">
+                                  <img
+                                    src={app.userSnapshot.avatar || gray}
+                                    className="candidate-avt"
+                                    alt=""
+                                  />{" "}
+                                  {/* Tô đậm tên và đổi màu nếu active */}
+                                  <span style={{
+                                    fontWeight: isActive ? 'bold' : 'normal',
+                                    color: isActive ? '#1890ff' : 'inherit'
+                                  }}>
+                                    {app.userSnapshot.fullname}
+                                  </span>
+                                </td>
 
-                              <td>
-                                <span
-                                  className={`status-badge status-${app.status}`}
-                                >
-                                  {statusMap[
-                                    app.status as keyof typeof statusMap
-                                  ] || app.status}
-                                </span>
-                              </td>
+                                <CoverLetterCell coverLetter={app.coverLetter} />
 
-                              <td className="font-bold text-emerald-500">
-                                {loadingScores ? (
-                                  <div className="small-loader"></div>
-                                ) : app.score !== null ? (
-                                  `${app.score.toFixed(2)}%`
-                                ) : (
-                                  "-"
-                                )}
-                              </td>
+                                <td>
+                                  <span className={`status-badge status-${app.status}`}>
+                                    {statusMap[app.status as keyof typeof statusMap] ||
+                                      app.status}
+                                  </span>
+                                </td>
 
-                              <td>
-                                {app.cvSnapshot?.fileUrls ? (
-                                  <a
-                                    href={app.cvSnapshot.fileUrls}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-blue-600 font-bold"
+                                <td className="font-bold text-emerald-500">
+                                  {loadingScores ? (
+                                    <div className="small-loader"></div>
+                                  ) : app.score !== null ? (
+                                    `${app.score.toFixed(2)}%`
+                                  ) : (
+                                    "-"
+                                  )}
+                                </td>
+
+                                <td>
+                                  {app.cvSnapshot?.fileUrls ? (
+                                    <a
+                                      href={app.cvSnapshot.fileUrls}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-blue-600 font-bold"
+                                      onClick={() => {
+                                        if (app.status === "pending") {
+                                          handleUpdateStatus(app._id, "reviewed");
+                                        }
+                                      }}
+                                    >
+                                      Xem
+                                    </a>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </td>
+
+                                <td>
+                                  <button
+                                    className="btn-mess"
                                     onClick={() => {
-                                      if (app.status === 'pending') {
-                                        handleUpdateStatus(app._id, "reviewed");
-                                      }
+                                      handleMess(app.userSnapshot._id);
                                     }}
                                   >
-                                    Xem
-                                  </a>
-                                ) : (
-                                  "-"
-                                )}
-                              </td>
+                                    <AiOutlineMessage size={18} />
+                                  </button>
+                                </td>
 
-                              <td>
-                                <button
-                                  className="btn-mess"
-                                  onClick={() => { handleMess(app.userSnapshot._id) }}>
-                                  <AiOutlineMessage size={18} />
-                                </button>
-                              </td>
-
-                              <td className="flex items-center justify-start">
-                                {(() => {
-                                  // TRƯỜNG HỢP 1: Đã có kết quả (Accepted hoặc Rejected) -> Chỉ hiện kết quả, không click được
-                                  if (app.status === "accepted") {
+                                <td className="flex items-center justify-start">
+                                  {(() => {
+                                    if (app.status === "accepted") {
+                                      return (
+                                        <span className="text-green-600 font-bold flex items-center gap-2 cursor-default">
+                                          <BsCheckCircle size={22} /> Đã nhận
+                                        </span>
+                                      );
+                                    }
+                                    if (app.status === "rejected") {
+                                      return (
+                                        <span className="text-red-600 font-bold flex items-center gap-2 cursor-default">
+                                          <BsXCircle size={22} /> Đã loại
+                                        </span>
+                                      );
+                                    }
+                                    if (app.status === "contacted") {
+                                      return (
+                                        <div className="flex items-center justify-center gap-3">
+                                          <button
+                                            className="text-green-600 hover:text-green-800 transition-colors"
+                                            title="Đậu phỏng vấn"
+                                            onClick={() =>
+                                              handleAcceptWithNote(app._id, app.note)
+                                            }
+                                          >
+                                            <BsCheckCircle size={22} />
+                                          </button>
+                                          <button
+                                            className="text-red-600 hover:text-red-800 transition-colors"
+                                            title="Trượt phỏng vấn"
+                                            onClick={() =>
+                                              handleUpdateStatus(app._id, "rejected")
+                                            }
+                                          >
+                                            <BsXCircle size={22} />
+                                          </button>
+                                        </div>
+                                      );
+                                    }
                                     return (
-                                      <span className="text-green-600 font-bold flex items-center gap-2 cursor-default">
-                                        <BsCheckCircle size={22} /> Đã nhận
-                                      </span>
+                                      <button
+                                        className="btn-contact"
+                                        title="Liên hệ phỏng vấn"
+                                        onClick={() => hanldeContact(app.userId, app._id)}
+                                      >
+                                        <BsTelephone size={18} />
+                                      </button>
                                     );
-                                  }
-                                  if (app.status === "rejected") {
-                                    return (
-                                      <span className="text-red-600 font-bold flex items-center gap-2 cursor-default">
-                                        <BsXCircle size={22} /> Đã loại
-                                      </span>
-                                    );
-                                  }
-
-                                  // TRƯỜNG HỢP 2: Đã liên hệ -> Hiện 2 nút để quyết định
-                                  if (app.status === "contacted") {
-                                    return (
-                                      <div className="flex items-center justify-center gap-3">
-                                        <button
-                                          className="text-green-600 hover:text-green-800 transition-colors"
-                                          title="Đậu phỏng vấn"
-                                          // onClick={() => handleUpdateStatus(app._id, "accepted")}
-                                          onClick={() => handleAcceptWithNote(app._id, app.note)}
-                                        >
-                                          <BsCheckCircle size={22} />
-                                        </button>
-
-                                        <button
-                                          className="text-red-600 hover:text-red-800 transition-colors"
-                                          title="Trượt phỏng vấn"
-                                          onClick={() => handleUpdateStatus(app._id, "rejected")}
-                                        >
-                                          <BsXCircle size={22} />
-                                        </button>
-                                      </div>
-                                    );
-                                  }
-
-                                  // TRƯỜNG HỢP 3: Chưa làm gì cả (pending/reviewed) -> Hiện nút gọi
-                                  return (
-                                    <button
-                                      className="btn-contact"
-                                      title="Liên hệ phỏng vấn"
-                                      onClick={() => hanldeContact(app.userId, app._id)}
-                                    >
-                                      <BsTelephone size={18} />
-                                    </button>
-                                  );
-                                })()}
-                              </td>
-
-                            </tr>
-                          ))}
+                                  })()}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
+
+                      {/* Pagination Controls */}
+                      {sortedApplicants.length > pageSize && (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: 20,
+                          }}
+                        >
+                          <Pagination
+                            current={pageApplicants}
+                            total={sortedApplicants.length}
+                            pageSize={pageSize}
+                            onChange={(page) => setPageApplicants(page)}
+                            showSizeChanger={false}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1017,70 +1076,85 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin }
                   </div>
                 ) : sortedCandidates.length === 0 ? (
                   <div className="loading-container">
-                    {/* <div className="loader"></div> */}
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không có ứng viên phù hợp!" />
-                    {/* <p>Đang tải ...</p> */}
                   </div>
                 ) : (
-                  <table
-                    className="applications-table"
-                    style={{ marginTop: 20 }}
-                  >
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="px-4 py-2 text-left">Ứng viên</th>
-                        <th className="px-4 py-2">Điểm phù hợp</th>
-                        <th className="px-4 py-2">CV</th>
-                        <th className="px-4 py-2">Liên hệ trao đổi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedCandidates.map((app) => (
-                        <tr key={app.userId}>
-                          <td className="flex items-center gap-2">
-                            <img
-                              src={app.user?.avatar || gray}
-                              alt=""
-                              className="candidate-avt"
-                            />
-                            {app.user?.fullname}
-                          </td>
-                          <td className="font-bold text-emerald-500">
-                            {app.score !== null
-                              ? `${app.score.toFixed(2)}%`
-                              : "-"}
-                          </td>
-                          <td>
-                            {app.user?.cv[0].fileUrls ? (
-                              <a
-                                href={app.user?.cv[0].fileUrls}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-blue-600 font-bold"
-                              >
-                                Xem
-                              </a>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td>
-                            <button
-                              className="btn-mess"
-                              onClick={() => {
-                                hanldeSendRequest(app.userId, app.user?.fullname ?? "", app.user?.email ?? "");
-                              }}
-                            >
-                              <AiOutlineMessage size={18} />
-                            </button>
-                          </td>
+                  <>
+                    <table
+                      className="applications-table"
+                      style={{ marginTop: 20 }}
+                    >
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="px-4 py-2 text-left">Ứng viên</th>
+                          <th className="px-4 py-2">Điểm phù hợp</th>
+                          <th className="px-4 py-2">CV</th>
+                          <th className="px-4 py-2">Liên hệ trao đổi</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {/* SỬA: Duyệt qua currentCandidates thay vì sortedCandidates */}
+                        {currentCandidates.map((app) => (
+                          <tr key={app.userId}>
+                            <td className="flex items-center gap-2">
+                              <img
+                                src={app.user?.avatar || gray}
+                                alt=""
+                                className="candidate-avt"
+                              />
+                              {app.user?.fullname}
+                            </td>
+                            <td className="font-bold text-emerald-500">
+                              {app.score !== null
+                                ? `${app.score.toFixed(2)}%`
+                                : "-"}
+                            </td>
+                            <td>
+                              {app.user?.cv[0].fileUrls ? (
+                                <a
+                                  href={app.user?.cv[0].fileUrls}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-blue-600 font-bold"
+                                >
+                                  Xem
+                                </a>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                            <td>
+                              <button
+                                className="btn-mess"
+                                onClick={() => {
+                                  hanldeSendRequest(app.userId, app.user?.fullname ?? "", app.user?.email ?? "");
+                                }}
+                              >
+                                <AiOutlineMessage size={18} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* THÊM: Phần Pagination cho Candidates */}
+                    {sortedCandidates.length > pageSize && (
+                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+                        <Pagination
+                          current={pageCandidates}
+                          total={sortedCandidates.length}
+                          pageSize={pageSize}
+                          onChange={(page) => setPageCandidates(page)}
+                          showSizeChanger={false}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
+
           </div>
         </div>
       </div>

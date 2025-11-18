@@ -162,13 +162,75 @@ exports.getApplicationsByJob = async (req, res) => {
   }
 };
 
-// Get all applications of a user
-exports.getApplicationsByUser = async (req, res) => {
+exports.getApplicationsByJobAndHR = async (req, res) => {
   try {
-    const applications = await Application.find({ userId: req.params.userId });
-    res.json({ success: true, data: applications });
+    const { hrId, startDate, endDate } = req.body;
+
+    // console.log(`Checking apps for HR: ${hrId}, from ${startDate} to ${endDate}`);
+
+    if (!hrId) {
+      return res.status(400).json({ success: false, message: "Thiếu hrId" });
+    }
+
+    let allJobs = [];
+    try {
+      const jobResponse = await axios.get(`${HOSTS.jobService}/getAll`);
+      allJobs = jobResponse.data.data || jobResponse.data;
+    } catch (apiError) {
+      console.error("Lỗi gọi API Job:", apiError.message);
+      return res.status(404).json({ success: false, message: "Lỗi kết nối đến service Job" });
+    }
+
+    const myJobIds = [];
+
+    if (Array.isArray(allJobs)) {
+      for (let i = 0; i < allJobs.length; i++) {
+        const job = allJobs[i];
+        if (job.createBy && job.createBy._id) {
+          if (job.createBy._id.toString() === hrId.toString()) {
+            myJobIds.push(job._id);
+          }
+        }
+      }
+    }
+
+    if (myJobIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: "HR này chưa đăng job nào hoặc không tìm thấy job phù hợp."
+      });
+    }
+
+    const query = {
+      jobId: { $in: myJobIds }
+    };
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+
+      if (startDate) {
+        // $gte: Greater Than or Equal (>= startDate)
+        query.createdAt.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        // $lte: Less Than or Equal (<= endDate)
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const applications = await Application.find(query).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: applications,
+      total: applications.length
+    });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error getting applications:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -200,27 +262,36 @@ exports.getNumApplicationByDepartment = async (req, res) => {
   }
 };
 
-// Get num all application - by User
+// Get num all application - by Department and HR User
 exports.getNumApplicationByDepartmentAndUser = async (req, res) => {
   try {
     const { departmentId, userId } = req.params;
-
     const jobRes = await axios.get(
       `${HOSTS.jobService}/getAll/${departmentId}`
     );
 
     const jobs = jobRes.data;
-
     if (!jobs || jobs.length === 0) {
       return res.json(0);
     }
 
-    const jobIds = jobs.map((job) => job._id);
+    const myJobs = jobs.filter((job) => {
+      if (job.createBy && job.createBy._id) {
+        return job.createBy._id.toString() === userId.toString();
+      }
+      if (job.createBy) {
+        return job.createBy.toString() === userId.toString();
+      }
+      return false;
+    });
 
-    // Đếm application theo jobId và userId
+    if (myJobs.length === 0) {
+      return res.json(0);
+    }
+
+    const jobIds = myJobs.map((job) => job._id);
     const totalApplications = await Application.countDocuments({
       jobId: { $in: jobIds },
-      userId: userId, // filter thêm user
     });
 
     return res.json(totalApplications);
@@ -244,7 +315,6 @@ exports.updateStatus = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 exports.updateStatusAndNote = async (req, res) => {
   try {
@@ -293,6 +363,30 @@ exports.updateStatusAndNote = async (req, res) => {
 
   } catch (error) {
     console.error("Update App Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateStatus_reject = async (req, res) => {
+  try {
+    const { canId, jobId } = req.body;
+    console.log(`UPDATE: ${canId} ${jobId}`);
+    const updatedApplication = await Application.findOneAndUpdate(
+      { jobId: jobId, userId: canId },
+      { $set: { status: "rejected" } },
+      { new: true }
+    );
+
+    if (!updatedApplication) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn ứng tuyển"
+      });
+    }
+
+    res.json({ success: true, data: updatedApplication });
+
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };

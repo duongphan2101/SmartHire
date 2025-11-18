@@ -4,12 +4,14 @@ import { HOSTS } from "../utils/host";
 import type { Job } from "../utils/interfaces";
 
 export interface ApplicationResponse {
+  jobSnapshot: any;
+  userSnapshot: any;
   _id: string;
   jobId: string;
   userId: string;
   resumeId: string;
   coverLetter?: string;
-  status: "pending" | "reviewed" | "accepted" | "rejected";
+  status: "pending" | "reviewed" | "accepted" | "rejected" | "contacted";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -263,6 +265,31 @@ export default function useApplication() {
     }
   };
 
+  const getAllJobByUser = useCallback(
+    async (hrId: string, startDate: string, endDate: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = {
+          hrId, startDate, endDate
+        }
+        //console.log(`${HOSTS.applicationService}/hr-candidatelist`);
+        const res = await axios.post(
+          `${HOSTS.applicationService}/hr-candidatelist`, data
+        );
+        // console.log("APPDATA: ", res.data);
+        return res.data.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Get Application failed");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   return {
     createApplication,
     renderMatchingJob,
@@ -274,6 +301,7 @@ export default function useApplication() {
     loading,
     error,
     coverLetter,
-    generateCoverLetter
+    generateCoverLetter,
+    getAllJobByUser
   };
 }
