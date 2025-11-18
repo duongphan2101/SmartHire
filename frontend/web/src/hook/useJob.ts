@@ -82,7 +82,7 @@ export default function useJob() {
   }, [host]);
 
   const refetch = useCallback(async () => {
-    if (!department) {
+    if (!department || !department._id){
       setJobs([]);
       setError("Bạn chưa thuộc công ty nào");
       return;
@@ -122,6 +122,10 @@ export default function useJob() {
   }, [department, refetch]);
 
   const getJobByDepartmentId = useCallback(async (id: string) => {
+    if (!id) {
+        console.warn("getJobByDepartmentId called with undefined ID.");
+        return [];
+    }
     try {
       const res = await axios.get<Job[]>(`${host}/getAll/${id}`);
       return res.data;

@@ -14,6 +14,8 @@ export interface DepartmentData {
   website: string;
   status: DepartmentStatus;
   employees: string[];
+  averageRating?: number; 
+  totalReviews?: number; 
 }
 
 interface UseDepartmentReturn {
