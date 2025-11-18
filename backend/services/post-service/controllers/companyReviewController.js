@@ -1,18 +1,24 @@
-// controllers/companyReviewController.js
 const CompanyReview = require("../models/CompanyReview");
-const Department = require("../models/Department"); // <-- thêm
+const Department = require("../models/Department"); 
 const axios = require("axios");
 const { HOSTS } = require("../../host");
+const mongoose = require('mongoose');
 
-// Helper: tính trung bình và update Department
+// Hàm tính điểm trung bình và tổng số review, cập nhật vào Department
 const calculateAverageRating = async (companyId) => {
+  console.log(`[RATING CHECK] Starting calculation for companyId: ${companyId}`);
   if (!companyId) {
     return { averageRating: 0, totalReviews: 0 };
   }
+  if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    console.error(`[RATING ERROR] Invalid companyId: ${companyId}`);
+    return { averageRating: 0, totalReviews: 0 };
+  }
+  const companyObjectId = new mongoose.Types.ObjectId(companyId);
 
-  // 1) aggregate để tính trung bình và count
+  // 2. Aggregate để tính trung bình và count
   const agg = await CompanyReview.aggregate([
-    { $match: { companyId: require('mongoose').Types.ObjectId(companyId) } },
+    { $match: { companyId: companyObjectId } }, 
     {
       $group: {
         _id: "$companyId",
@@ -22,85 +28,92 @@ const calculateAverageRating = async (companyId) => {
     },
   ]);
 
-  let averageRating = 0;
+  let averageRating = 0.0;
   let totalReviews = 0;
 
   if (agg.length > 0) {
-    averageRating = Number((agg[0].averageRating || 0).toFixed(1)); // 1 decimal like frontend
+    averageRating = Number((agg[0].averageRating || 0).toFixed(1));
     totalReviews = agg[0].totalReviews || 0;
   }
-
-  // 2) update Department document (nếu tồn tại)
+    console.log(`[RATING CHECK] Calculated: Avg=${averageRating}, Total=${totalReviews}`);
   try {
-    await Department.findByIdAndUpdate(
-      companyId,
+    const updatedDepartment = await Department.findByIdAndUpdate(
+      companyId, 
       { averageRating, totalReviews },
       { new: true, runValidators: true }
     );
-  } catch (err) {
-    // không dừng flow nếu không cập nhật được department — log lỗi để debug
-    console.error("Failed to update Department rating:", err.message);
-  }
+    if (!updatedDepartment) {
+        console.error(`[RATING ERROR] Department with ID ${companyId} not found for rating update.`);
+    }
 
+  } catch (err) {
+    console.error("[RATING ERROR] Failed to update Department rating:", err.message);
+  }
   return { averageRating, totalReviews };
 };
 
-// --- existing getReviews, createReview, addComment, updateReview, updateComment, deleteReview ---
-// We'll only show modified create/update/delete to include calculateAverageRating calls
-
-// Lấy danh sách review
 const getReviews = async (req, res) => {
-  try {
-    const { companyId } = req.params;
-    const reviews = companyId
-      ? await CompanyReview.find({ companyId }).sort({ date: -1 })
-      : await CompanyReview.find().sort({ date: -1 });
-    res.json(reviews);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  try {
+    const { companyId } = req.params;
+    let reviews = [];
+    
+    let ratingInfo = { averageRating: '0.0', totalReviews: 0 }; 
+
+    if (companyId) {
+        reviews = await CompanyReview.find({ companyId }).sort({ date: -1 });
+        const department = await Department.findById(companyId).select('averageRating totalReviews');
+        if (department) {
+            ratingInfo.averageRating = (department.averageRating || 0).toFixed(1); 
+            ratingInfo.totalReviews = department.totalReviews || 0;
+        }
+    } else {
+        reviews = await CompanyReview.find().sort({ date: -1 });
+    }
+    res.json({ reviews, ratingInfo }); 
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 const createReview = async (req, res) => {
-  try {
-    const { companyId, rating, title, content, userId, fullname, avatar } =
-      req.body || {};
+  try {
+    const { companyId, rating, title, content, userId, fullname, avatar } =
+      req.body || {};
+    let authorName = "Người dùng ẩn danh"; 
+    if (fullname) authorName = fullname;
+    else if (userId) {
+      try {
+        const response = await axios.get(
+          `${HOSTS.userService}/users/${userId}`
+        );
+        authorName = response.data?.fullname || authorName;
+      } catch (err) {
+        console.error("Lỗi gọi user-service:", err.message);
+      }
+    }
+    
 
-    let authorName = "Người dùng ẩn danh";
+    const newReview = new CompanyReview({
+      companyId,
+      rating,
+      title,
+      content,
+      author: authorName, 
+      avatar: avatar || "/default-avatar.png",
+      userId,
+    });
 
-    if (fullname) authorName = fullname;
-    else if (userId) {
-      try {
-        const response = await axios.get(
-          `${HOSTS.userService}/users/${userId}`
-        );
-        authorName = response.data?.fullname || authorName;
-      } catch (err) {
-        console.error("Lỗi gọi user-service:", err.message);
-      }
-    }
+    await newReview.save();
 
-    const newReview = new CompanyReview({
-      companyId,
-      rating,
-      title,
-      content,
-      author: authorName,
-      avatar: avatar || "/default-avatar.png",
-      userId,
-    });
+    
+    const ratingResult = await calculateAverageRating(companyId);
 
-    await newReview.save();
-
-    // Update department rating after saved
-    const ratingResult = await calculateAverageRating(companyId);
-
-    // Trả về review kèm rating mới (nếu frontend cần)
-    res.status(201).json({ review: newReview, rating: ratingResult });
-  } catch (err) {
-    console.error("Tạo review lỗi:", err);
-    res.status(400).json({ message: err.message });
-  }
+  
+    res.status(201).json({ review: newReview, rating: ratingResult });
+  } catch (err) {
+    console.error("Tạo review lỗi:", err);
+    res.status(400).json({ message: err.message });
+  }
 };
 
 const updateReview = async (req, res) => {
@@ -111,12 +124,12 @@ const updateReview = async (req, res) => {
     const review = await CompanyReview.findById(id);
     if (!review) return res.status(404).json({ message: "Không tìm thấy" });
 
-    // Kiểm tra quyền
+   
     if (review.userId !== currentUserId) {
       return res.status(403).json({ message: "Không có quyền" });
     }
 
-    // Kiểm tra thời gian (48h)
+    
     const hoursDiff = (Date.now() - new Date(review.date)) / (1000 * 60 * 60);
     if (hoursDiff > 48) {
       return res
@@ -124,7 +137,7 @@ const updateReview = async (req, res) => {
         .json({ message: "Đã quá thời gian chỉnh sửa (48 giờ)" });
     }
 
-    // Cập nhật
+    
     if (title !== undefined) review.title = title;
     if (content !== undefined) review.content = content;
     if (rating !== undefined) review.rating = rating;
@@ -132,7 +145,6 @@ const updateReview = async (req, res) => {
 
     await review.save();
 
-    // Recompute rating for company
     const ratingResult = await calculateAverageRating(review.companyId);
 
     res.json({ review, rating: ratingResult });
@@ -144,23 +156,20 @@ const updateReview = async (req, res) => {
 const deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
-    // find review first to get companyId
     const review = await CompanyReview.findById(id);
     if (!review) return res.status(404).json({ message: "Review not found" });
 
     const companyId = review.companyId;
     await CompanyReview.findByIdAndDelete(id);
 
-    // Recompute rating for company
-    await calculateAverageRating(companyId);
+    const ratingResult = await calculateAverageRating(companyId);
 
-    res.json({ message: "Xoá review thành công" });
+    res.json({ message: "Xoá review thành công", ratingInfo: ratingResult });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Add comment / updateComment stay the same - they don't affect rating
 const addComment = async (req, res) => {
   try {
     const { reviewId } = req.params;
@@ -238,5 +247,5 @@ module.exports = {
   updateReview,
   updateComment,
   deleteReview,
-  calculateAverageRating, // export so department router can call it (used by /:id/rating)
+  calculateAverageRating, 
 };

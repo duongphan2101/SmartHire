@@ -18,12 +18,29 @@ export interface CVAIResponse {
   optimizedExperience?: string;
   optimizedEducation?: string;
   optimizedProjects?: string;
+  cv_analysis?: string;
+}
+
+export interface CVAnalysisData {
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  suggested_skills: string[];
+  roadmap: string[];
+  job_match_score: number;
+}
+
+interface cvAnalysisRes {
+  success: boolean;
+  data: CVAnalysisData;
+  message?: string;
 }
 
 export default function useCV() {
   const [loadingCV, setLoading] = useState(false);
   const [errorCV, setError] = useState<string | null>(null);
   const [cvs, setCVs] = useState<CVResponse[]>([]);
+  const [result, setResult] = useState<CVAnalysisData | null>(null);
 
   // ================= CRUD =================
   const getCVs = useCallback(async (userId: string) => {
@@ -164,6 +181,35 @@ export default function useCV() {
     }
   }, []);
 
+  const analyzeCV = useCallback(async (cvId: string) => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      //console.log(`${HOSTS.cvAIService}/analysis-cv`);
+      const res = await axios.post<cvAnalysisRes>(`${HOSTS.cvAIService}/analysis-cv`, {
+        cvId: cvId
+      });
+
+      if (res.data.success) {
+        setResult(res.data.data);
+        return res.data.data;
+      } else {
+        throw new Error(res.data.message || "Phân tích thất bại");
+      }
+
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      const errorMsg = axiosErr.response?.data?.message || axiosErr.message || "Lỗi kết nối đến dịch vụ AI";
+
+      setError(errorMsg);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     cvs,
     loadingCV,
@@ -177,5 +223,7 @@ export default function useCV() {
     optimizeExperience,
     optimizeEducation,
     optimizeProjects,
+    analyzeCV,
+    result
   };
 }

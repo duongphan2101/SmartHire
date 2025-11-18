@@ -4,6 +4,7 @@ const { summary,
     experience,
     projects,
     skills,
+    analysicCV,
     coverLetter } = require("../controllers/cvaiController");
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.post("/experience", experience);
 router.post("/projects", projects);
 router.post("/skills", skills);
 router.post("/coverLetter", coverLetter);
+router.post("/analysis-cv", analysicCV);
 
 module.exports = router;
