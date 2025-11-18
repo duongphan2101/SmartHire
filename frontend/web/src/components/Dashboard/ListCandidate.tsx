@@ -72,6 +72,12 @@ const ListCandidate = ({ dataList, onSelect }: DataTypeProps) => {
         rejected: { bg: '#fff1f0', color: '#f5222d', border: '#ffa39e', label: 'Từ chối' },
     };
 
+    const stripHtmlToText = (html: string) => {
+        if (!html) return "Không có nội dung";
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    };
+
     return (
         <>
             <style>{cssStyles}</style>
@@ -141,9 +147,10 @@ const ListCandidate = ({ dataList, onSelect }: DataTypeProps) => {
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
                                                     maxWidth: '350px',
-                                                    color: '#666'
+                                                    color: '#666',
+                                                    fontSize: '14px'
                                                 }}>
-                                                    {item.coverLetter}
+                                                    {stripHtmlToText(item.coverLetter ?? "")}
                                                 </p>
                                             </div>
                                         }

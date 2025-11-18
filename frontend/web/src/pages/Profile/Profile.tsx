@@ -10,10 +10,11 @@ import useUser from "../../hook/useUser";
 import { uploadToCloudinary } from "../../utils/cloudinary";
 import { Select, Switch } from "antd";
 import { TbWorld } from "react-icons/tb";
-import useCV, { type CVResponse } from "../../hook/useCV";
-import PdfPreview from "../../components/Preview-PDF/PdfPreview";
+import useCV, { type CVAnalysisData, type CVResponse } from "../../hook/useCV";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
+import CVViewer from "../../components/Preview-PDF/PdfPreview";
+import CVAnalysisPanel from "./AnanysisCV";
 
 const Profile: React.FC = () => {
 
@@ -27,9 +28,11 @@ const Profile: React.FC = () => {
 
     const [userId, setUserId] = useState<string>('');
     const [jobStatus, setJobStatus] = useState<string>('');
-    const { getCVs, cvs, loadingCV } = useCV();
+    const { getCVs, cvs, loadingCV, analyzeCV } = useCV();
+    const [, setContent] = useState<CVAnalysisData>();
     const [selectedCV, setSelectedCV] = useState<CVResponse>();
     const [selectedCvObject, setSelectedCvObject] = useState<{ value: string; label: React.ReactNode } | undefined>(undefined);
+
 
     useEffect(() => {
         try {
@@ -208,13 +211,15 @@ const Profile: React.FC = () => {
         }
     }, [cvs]);
 
-    const handleChange = (value: { value: string; label: React.ReactNode }) => {
+    const handleChange = async (value: { value: string; label: React.ReactNode }) => {
         console.log("Đã chọn:", value);
 
         setSelectedCvObject(value);
         const selected = cvs.find(cv => cv._id === value.value);
         setSelectedCV(selected);
 
+        const data = await analyzeCV(selected?._id ?? "");
+        setContent(data ?? undefined);
     };
 
     const cvOptions = cvs.map(cv => ({
@@ -241,6 +246,7 @@ const Profile: React.FC = () => {
     const pdfUrl = getPdfUrl();
     const [openChat, setIsChatOpen] = useState(false);
     const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
     const handleOpenChatRequest = (room?: ChatRoom) => {
         if (room) {
             setCurrentChatRoom(room);
@@ -385,6 +391,7 @@ const Profile: React.FC = () => {
 
                 </div>
 
+                {/* CV */}
                 <div className="profile-details flex flex-wrap xl:flex-nowrap" style={{ paddingBottom: '20px' }}>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 w-full">
@@ -406,9 +413,15 @@ const Profile: React.FC = () => {
                                     />
                                 </div>
 
-                                <div style={{ width: '100%', height: '800px' }}>
+                                <div style={{
+                                    width: '100%',
+                                    height: '950px',
+                                    overflow: 'hidden',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px'
+                                }}>
                                     {pdfUrl ? (
-                                        <PdfPreview pdfUrl={pdfUrl} />
+                                        <CVViewer pdfUrl={pdfUrl} />
                                     ) : (
                                         <div style={{
                                             border: '1px dashed #ccc',
@@ -428,8 +441,8 @@ const Profile: React.FC = () => {
 
                         {/* Phải 60% */}
                         <div className="lg:col-span-3">
-                            <div className="profile-suggestion flex flex-col items-center gap-4 bg-white">
-                                hehe
+                            <div className="profile-suggestion bg-white h-full rounded-lg">
+                                <CVAnalysisPanel cvId={selectedCV?._id} />
                             </div>
                         </div>
                     </div>

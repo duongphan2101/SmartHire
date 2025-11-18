@@ -3,6 +3,18 @@ const axios = require("axios");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+const formatCVtoText = (cv) => `
+${cv.name || ""}
+Giới thiệu: ${cv.introduction || ""}
+Kỹ năng chuyên môn: ${cv.professionalSkills || ""}
+Kỹ năng mềm: ${cv.softSkills || ""}
+Kinh nghiệm: ${cv.experience?.map(e => `${e.jobTitle} tại ${e.company}: ${e.description}`).join("; ") || ""}
+Học vấn: ${cv.education?.map(e => `${e.university} - ${e.major}, GPA: ${e.gpa}`).join("; ") || ""}
+Dự án: ${cv.projects?.map(p => `${p.projectName}: ${p.projectDescription}`).join("; ") || ""}
+Chứng chỉ: ${cv.certifications || ""}
+Hoạt động & Giải thưởng: ${cv.activitiesAwards || ""}
+`.replace(/\s+/g, " ").trim();
+
 // Cấu hình an toàn
 const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -36,9 +48,9 @@ async function callGeminiWithRetry(
   systemPrompt,
   userContent,
   fieldName,
-  maxTokens = 2048,
+  maxTokens = 8192,
   maxRetries = 3,
-  initialDelay = 1000 // 1 giây
+  initialDelay = 2000 // 1 giây
 ) {
   let lastError = null;
 
@@ -116,7 +128,6 @@ async function callGeminiWithRetry(
   throw lastError || new Error(`Unknown error after ${maxRetries} attempts.`);
 }
 
-
 /**
  * Parse JSON một cách an toàn
  */
@@ -130,6 +141,70 @@ function safeParse(content, fieldName) {
   }
 }
 
+// ===== CV Analysis & Suggestion =====
+async function analysicCV(req, res) {
+  try {
+    const { cvId } = req.body;
+
+    if (!cvId) {
+      return res.status(400).json({ success: false, message: "Thiếu cvId" });
+    }
+
+    const cvResponse = await axios.get(`${process.env.CV_SERVICE_URL}/cv/${cvId}`);
+    const cv = cvResponse.data;
+
+    if (!cv) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy CV" });
+    }
+
+    const cvText = formatCVtoText(cv);
+    const systemInstruction = `
+      Bạn là một chuyên gia tư vấn nghề nghiệp (Career Coach) và chuyên gia tuyển dụng (HR Specialist) với 10 năm kinh nghiệm.
+      Nhiệm vụ của bạn là phân tích hồ sơ ứng viên và đưa ra lời khuyên phát triển sự nghiệp.
+      
+      QUY TẮC BẮT BUỘC:
+      1. Chỉ trả về kết quả dưới dạng JSON hợp lệ. Không trả về markdown (\`\`\`json).
+      2. Ngôn ngữ: Tiếng Việt.
+      3. Cấu trúc JSON phải chính xác như sau:
+      {
+        "summary": "Đoạn văn ngắn 2-3 câu tóm tắt hồ sơ và định hướng của ứng viên.",
+        "strengths": ["Điểm mạnh 1", "Điểm mạnh 2", "Điểm mạnh 3 (tối đa 5)"],
+        "weaknesses": ["Điểm yếu hoặc kỹ năng còn thiếu cần cải thiện"],
+        "suggested_skills": ["Tên kỹ năng 1", "Tên kỹ năng 2 (Gợi ý các công nghệ/kỹ năng hot thị trường cần)"],
+        "roadmap": [
+           "Bước 1: Hành động cụ thể...",
+           "Bước 2: Hành động cụ thể...",
+           "Bước 3: ..."
+        ],
+        "job_match_score": 80 (Số nguyên từ 0-100 đánh giá độ hoàn thiện của hồ sơ so với thị trường chung)
+      }
+    `;
+
+    const userPrompt = `Hãy phân tích hồ sơ xin việc sau đây:\n\n${cvText}`;
+
+    const analysisResult = await callGeminiWithRetry(
+      "gemini-2.5-pro",
+      systemInstruction,
+      userPrompt,
+      "cv_analysis"
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: analysisResult
+    });
+
+  } catch (error) {
+    console.error("Error in analysicCV:", error);
+    const status = error.response?.status || 500;
+    const message = error.message || "Lỗi Server khi phân tích CV";
+
+    return res.status(status).json({
+      success: false,
+      message: message
+    });
+  }
+}
 
 // ===== SUMMARY =====
 async function summary(req, res) {
@@ -508,4 +583,4 @@ V     `;
 }
 
 
-module.exports = { summary, skills, experience, education, projects, coverLetter };
+module.exports = { summary, skills, experience, education, projects, coverLetter, analysicCV };

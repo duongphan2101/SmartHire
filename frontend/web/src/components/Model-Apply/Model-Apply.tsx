@@ -20,6 +20,7 @@ import useCV from "../../hook/useCV";
 import useApplication from "../../hook/useApplication";
 import useUser from "../../hook/useUser";
 import { Switch } from "antd";
+import { Editor } from '@tinymce/tinymce-react';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -57,20 +58,32 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   }, [userId, getCVs]);
 
+
+  const cleanHtmlContent = (htmlString: string) => {
+    if (!htmlString) return "";
+    const doc = new DOMParser().parseFromString(htmlString, "text/html");
+    return doc.documentElement.textContent || "";
+
+  };
+
+  const decodeEntitiesKeepTags = (html: string) => {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
   const handleSubmit = async () => {
     try {
-      // 1. Tạo đơn ứng tuyển
+      const cleanCoverLetter = decodeEntitiesKeepTags(coverletter);
       await createApplication({
         jobId: _id,
         userId: idFromUser,
         resumeId: selectedCV,
-        coverLetter: coverletter,
+        coverLetter: cleanCoverLetter,
       });
 
-      // 2. Cập nhật trạng thái 'đã ứng tuyển' cho user
       await applyJob(idFromUser, _id);
 
-      // 3. Thông báo thành công
       Swal.fire({
         icon: "success",
         title: "Ứng tuyển thành công",
@@ -79,7 +92,6 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
         showConfirmButton: false,
       });
 
-      // 4. Đóng modal và reset state
       setTimeout(() => {
         onClose();
         setCoverletter("");
@@ -105,7 +117,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
   };
 
   const handleRefine = async () => {
-    if (!refinementPrompt.trim() || !coverletter) return; 
+    if (!refinementPrompt.trim() || !coverletter) return;
     await generateCoverLetter({
       previousResult: coverletter,
       refinementPrompt: refinementPrompt
@@ -145,10 +157,11 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   }, [cvs, selectedCV]);
 
-  // Đồng bộ state từ hook vào state nội bộ
   useEffect(() => {
+    // console.log("Data tu AI:", coverLetterFromHook); // Kiểm tra log này
     if (coverLetterFromHook) {
-      setCoverletter(coverLetterFromHook);
+      const formattedContent = coverLetterFromHook.replace(/\n/g, '<br/>');
+      setCoverletter(formattedContent);
     }
   }, [coverLetterFromHook]);
 
@@ -198,7 +211,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                 </Select>
               </FormControl>
 
-              <div className="w-full flex gap-2.5 items-center mb-2">
+              <div className="w-full flex gap-2.5 items-center mb-2" style={{ marginBottom: 10 }}>
                 <Switch
                   checked={aiSupport}
                   onChange={handleAiToggle}
@@ -212,7 +225,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                 {loading && <CircularProgress size={20} color="success" sx={{ ml: 1 }} />}
               </div>
 
-              {/* Thư giới thiệu (CHÍNH) */}
+              {/* Thư giới thiệu
               <TextField className="coverletter_form"
                 label="Thư giới thiệu (có thể có hoặc không)"
                 multiline
@@ -225,6 +238,28 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                 onChange={(e) => setCoverletter(e.target.value)}
                 InputProps={{
                   readOnly: loading,
+                }}
+              />
+              */}
+
+              <Editor
+                apiKey='saes9udluksqnlng4b13gp0sqyojl5dg0jlaozmbylbboyxe'
+                value={coverletter}
+                onEditorChange={(newValue) => setCoverletter(newValue)}
+                init={{
+                  height: 300,
+                  menubar: false,
+                  plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount'
+                  ],
+                  toolbar: 'undo redo | formatselect | ' +
+                    'bold italic backcolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | help',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                  entity_encoding: 'raw'
                 }}
               />
 

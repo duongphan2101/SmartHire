@@ -225,7 +225,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
         ...savedJob,
         date: new Date(savedJob.createdAt).toLocaleDateString(),
       });
-    onClose();
+      onClose();
       await MySwal.fire({
         icon: "info",
         title: "Bài đăng đã gửi",
@@ -233,34 +233,35 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
         confirmButtonText: "OK",
       });
       withdraw(1);
+
       const listCandidate = await renderMatchingCvsForOneJob({
         job_id: savedJob._id,
       });
-      // console.log("LIST top 5: ", listCandidate.slice(0, 5));
-      // console.log("LIST FULL: ", listCandidate);
       const renderListCandidate = listCandidate.filter(
-        (item) => item.finalScore >= 65
+        (item) => item.finalScore >= 70
       );
 
-      await sendJobRecommendationEmails(
-        {
-          fullname: user?.fullname || "",
-          email: user?.email || "",
-          companyName: department.name,
-        },
-        {
-          _id: savedJob._id,
-          title: savedJob.jobTitle,
-          description: savedJob.jobDescription,
-          location: savedJob.location,
-          salary: savedJob.salary,
-        },
-        // listCandidate.slice(0, 5)
-        renderListCandidate.slice(0, 5)
-      );
+      if (user?.status === 'active') {
+        await sendJobRecommendationEmails(
+          {
+            fullname: user?.fullname || "",
+            email: user?.email || "",
+            companyName: department.name,
+          },
+          {
+            _id: savedJob._id,
+            title: savedJob.jobTitle,
+            description: savedJob.jobDescription,
+            location: savedJob.location,
+            salary: savedJob.salary,
+          },
+          // listCandidate.slice(0, 5)
+          renderListCandidate.slice(0, 5)
+        );
+      }
 
       toast.success("Tạo bài đăng thành công");
-  
+
     } catch (err) {
       console.error("Error saving job:", err);
     }
@@ -396,9 +397,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                         handleDescriptionChange(index, e.target.value)
                       }
                     />
-                    <label className="add-job-label">{`Mô tả ${
-                      index + 1
-                    }`}</label>
+                    <label className="add-job-label">{`Mô tả ${index + 1
+                      }`}</label>
                     <div className="add-job-underline"></div>
                   </div>
                   {jobDescriptions.length > 1 && (
@@ -433,9 +433,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                         handleRequirementChange(index, e.target.value)
                       }
                     />
-                    <label className="add-job-label">{`Yêu cầu ${
-                      index + 1
-                    }`}</label>
+                    <label className="add-job-label">{`Yêu cầu ${index + 1
+                      }`}</label>
                     <div className="add-job-underline"></div>
                   </div>
                   {requirements.length > 1 && (
@@ -468,9 +467,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                       value={skill}
                       onChange={(e) => handleSkillChange(index, e.target.value)}
                     />
-                    <label className="add-job-label">{`Kĩ năng ${
-                      index + 1
-                    }`}</label>
+                    <label className="add-job-label">{`Kĩ năng ${index + 1
+                      }`}</label>
                     <div className="add-job-underline"></div>
                   </div>
                   {skills.length > 1 && (
@@ -505,9 +503,8 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onSave }) => {
                         handleBenefitChange(index, e.target.value)
                       }
                     />
-                    <label className="add-job-label">{`Phúc lợi ${
-                      index + 1
-                    }`}</label>
+                    <label className="add-job-label">{`Phúc lợi ${index + 1
+                      }`}</label>
                     <div className="add-job-underline"></div>
                   </div>
                   {benefits.length > 1 && (

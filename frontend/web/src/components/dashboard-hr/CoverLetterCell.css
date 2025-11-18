@@ -1,12 +1,30 @@
-.cover-letter {
-  white-space: nowrap;      /* hiển thị 1 dòng */
-  overflow: hidden;         /* ẩn phần dư thừa */
-  text-overflow: ellipsis;  /* ... */
-  transition: max-height 0.3s ease, white-space 0.3s ease; 
-  max-height: 1.2em;        /* chiều cao 1 dòng */
+/* Style cho ô trong bảng */
+.cover-letter-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Chỉ hiện tối đa 2 dòng preview */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
-.cover-letter.expanded {
-  white-space: normal;      /* hiển thị nhiều dòng */
-  max-height: 500px;        /* tuỳ chỉnh đủ cao */
+.cover-letter-preview:hover {
+  text-decoration: underline;
+  color: #1565c0; /* Đổi màu khi hover để biết click được */
+}
+
+/* Style cho nội dung bên trong Modal (Tùy chọn để đẹp hơn) */
+.cover-letter-full-content p {
+  margin-bottom: 12px; /* Tạo khoảng cách giữa các đoạn văn */
+}
+
+.cover-letter-full-content strong {
+  color: #000; /* Làm đậm các phần in đậm */
+}
+
+.cover-letter-full-content ul, 
+.cover-letter-full-content ol {
+  margin-left: 20px; /* Thụt lề danh sách */
+  margin-bottom: 12px;
 }
