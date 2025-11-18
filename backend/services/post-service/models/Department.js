@@ -32,6 +32,14 @@ const DepartmentSchema = new mongoose.Schema({
     enum: ["Pending", "Active", "Suspended"],
     default: "Pending",
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
+  totalReviews: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model(
