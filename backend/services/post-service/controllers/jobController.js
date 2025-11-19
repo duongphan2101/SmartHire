@@ -371,7 +371,14 @@ const rejectJob = async (req, res) => {
     res.status(500).json({ message: "Lỗi server: " + err.message });
   }
 };
-
+const countPending = async (req, res) => {
+  try {
+    const totalPending = await Job.countDocuments({ status: "pending" });
+    res.json({ totalPending });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to count pending jobs" });
+  }
+};
 module.exports = {
   createJob,
   getJobs,
@@ -388,5 +395,6 @@ module.exports = {
   getSalaryStats,
   approveJob,
   rejectJob,
-  getJobsByDepId
+  getJobsByDepId,
+  countPending,
 };

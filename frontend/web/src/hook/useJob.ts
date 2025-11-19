@@ -61,12 +61,21 @@ export default function useJob() {
       setJobs(res.data);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch pending jobs");
+      setError(
+        axiosErr.response?.data?.message || "Failed to fetch pending jobs"
+      );
     } finally {
       setLoading(false);
     }
   }, [host]);
-
+  const getPendingCount = useCallback(async () => {
+    try {
+      const res = await axios.get<Job[]>(`${host}/pending`);
+      return res.data.length;
+    } catch (err) {
+      return 0;
+    }
+  }, [host]);
   const fetchAllJob = useCallback(async () => {
     try {
       setLoading(true);
@@ -75,14 +84,16 @@ export default function useJob() {
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch pending jobs");
+      setError(
+        axiosErr.response?.data?.message || "Failed to fetch pending jobs"
+      );
     } finally {
       setLoading(false);
     }
   }, [host]);
 
   const refetch = useCallback(async () => {
-    if (!department || !department._id){
+    if (!department || !department._id) {
       setJobs([]);
       setError("Bạn chưa thuộc công ty nào");
       return;
@@ -121,31 +132,41 @@ export default function useJob() {
     }
   }, [department, refetch]);
 
-  const getJobByDepartmentId = useCallback(async (id: string) => {
-    if (!id) {
+  const getJobByDepartmentId = useCallback(
+    async (id: string) => {
+      if (!id) {
         console.warn("getJobByDepartmentId called with undefined ID.");
         return [];
-    }
-    try {
-      const res = await axios.get<Job[]>(`${host}/getAll/${id}`);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
-      return [];
-    }
-  }, [host]);
+      }
+      try {
+        const res = await axios.get<Job[]>(`${host}/getAll/${id}`);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(
+          axiosErr.response?.data?.message || "Failed to fetch job by id"
+        );
+        return [];
+      }
+    },
+    [host]
+  );
 
-  const getJobByDepId = useCallback(async (id: string) => {
-    try {
-      const res = await axios.get<Job[]>(`${host}/jobByDepId/${id}`);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
-      return [];
-    }
-  }, [host]);
+  const getJobByDepId = useCallback(
+    async (id: string) => {
+      try {
+        const res = await axios.get<Job[]>(`${host}/jobByDepId/${id}`);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(
+          axiosErr.response?.data?.message || "Failed to fetch job by id"
+        );
+        return [];
+      }
+    },
+    [host]
+  );
 
   // createJob với Swal xử lý lỗi và thông báo thành công
   const createJob = useCallback(
@@ -194,19 +215,22 @@ export default function useJob() {
     [host, department]
   );
 
-  const deleteJob = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      await axios.delete(`${host}/${id}`);
-      setJobs((prev) => prev.filter((j) => j._id !== id));
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to delete job");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [host]);
+  const deleteJob = useCallback(
+    async (id: string) => {
+      try {
+        setLoading(true);
+        await axios.delete(`${host}/${id}`);
+        setJobs((prev) => prev.filter((j) => j._id !== id));
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Failed to delete job");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [host]
+  );
 
   const filterJobs = useCallback(
     async (
@@ -241,52 +265,61 @@ export default function useJob() {
         return res.data;
       } catch (err) {
         const axiosErr = err as AxiosError<{ message?: string }>;
-        setError(axiosErr.response?.data?.message || "Failed to fetch job by id");
+        setError(
+          axiosErr.response?.data?.message || "Failed to fetch job by id"
+        );
         return null;
       }
     },
     [host]
   );
 
-  const categories_sum = useCallback(async (
-    title?: string,
-  ) => {
-    try {
-      setLoading(true);
-      const res = await axios.get<Category>(`${host}/categories`, {
-        params: { title },
-      });
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Failed to filter jobs");
-      return { sum: 0, data: [] };
-    } finally {
-      setLoading(false);
-    }
-  }, [host]);
+  const categories_sum = useCallback(
+    async (title?: string) => {
+      try {
+        setLoading(true);
+        const res = await axios.get<Category>(`${host}/categories`, {
+          params: { title },
+        });
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Failed to filter jobs");
+        return { sum: 0, data: [] };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [host]
+  );
 
-  const approveJob = useCallback(async (id: string) => {
-    try {
-      const res = await axios.put(`${host}/approve/${id}`);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Duyệt bài thất bại");
-      return null;
-    }
-  }, [host]);
+  const approveJob = useCallback(
+    async (id: string) => {
+      try {
+        const res = await axios.put(`${host}/approve/${id}`);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Duyệt bài thất bại");
+        return null;
+      }
+    },
+    [host]
+  );
 
-  const rejectJob = useCallback(async (id: string) => {
-    try {
-      const res = await axios.put(`${host}/reject/${id}`);
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "Từ chối bài thất bại");
-      return null;
-    }
-  }, [host]);
+  const rejectJob = useCallback(
+    async (id: string) => {
+      try {
+        const res = await axios.put(`${host}/reject/${id}`);
+        return res.data;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        setError(axiosErr.response?.data?.message || "Từ chối bài thất bại");
+        return null;
+      }
+    },
+    [host]
+  );
 
   useEffect(() => {
     refetch();
@@ -309,6 +342,7 @@ export default function useJob() {
     rejectJob,
     fetchPendingJobsAdmin,
     fetchAllJob,
-    getJobByDepId
+    getJobByDepId,
+    getPendingCount
   };
 }
