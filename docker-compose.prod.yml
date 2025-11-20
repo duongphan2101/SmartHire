@@ -13,6 +13,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/auth-service:latest
     container_name: auth-service
     env_file: .env
+    environment:
+      - PORT=1111
     restart: always
     networks:
       - smarthire-network
@@ -21,6 +23,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/user-service:latest
     container_name: user-service
     env_file: .env
+    environment:
+      - PORT=2222
     restart: always
     networks:
       - smarthire-network
@@ -29,6 +33,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/post-service:latest
     container_name: post-service
     env_file: .env
+    environment:
+      - PORT=4444
     restart: always
     networks:
       - smarthire-network
@@ -37,6 +43,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/chatbot-service:latest
     container_name: chatbot-service
     env_file: .env
+    environment:
+      - PORT=3333
     restart: always
     networks:
       - smarthire-network
@@ -45,6 +53,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/application-service:latest
     container_name: application-service
     env_file: .env
+    environment:
+      - PORT=5555
     restart: always
     networks:
       - smarthire-network
@@ -53,6 +63,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/communication-service:latest
     container_name: communication-service
     env_file: .env
+    environment:
+      - PORT=1000
     restart: always
     networks:
       - smarthire-network
@@ -61,6 +73,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/cv-ai-service:latest
     container_name: cv-ai-service
     env_file: .env
+    environment:
+      - PORT=8080
     restart: always
     networks:
       - smarthire-network
@@ -69,6 +83,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/email-service:latest
     container_name: email-service
     env_file: .env
+    environment:
+      - PORT=5000
     restart: always
     networks:
       - smarthire-network
@@ -77,6 +93,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/matching-service:latest
     container_name: matching-service
     env_file: .env
+    environment:
+      - PORT=6789
     restart: always
     networks:
       - smarthire-network
@@ -85,6 +103,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/notification-service:latest
     container_name: notification-service
     env_file: .env
+    environment:
+      - PORT=7000
     restart: always
     networks:
       - smarthire-network
@@ -93,6 +113,8 @@ services:
     image: ${CI_REGISTRY_IMAGE}/payment-service:latest
     container_name: payment-service
     env_file: .env
+    environment:
+      - PORT=7777
     restart: always
     networks:
       - smarthire-network
@@ -103,8 +125,6 @@ services:
   web:
     image: ${CI_REGISTRY_IMAGE}/web:latest
     container_name: smarthire-web
-    # Không cần env_file vì Frontend đã được build tĩnh (env được nướng vào lúc build)
-    # Hoặc nếu bạn dùng runtime config thì thêm vào.
     restart: always
     networks:
       - smarthire-network
@@ -115,7 +135,6 @@ services:
   nginx-gateway:
     image: ${CI_REGISTRY_IMAGE}/nginx-gateway:latest
     container_name: smarthire-gateway
-    # Cổng duy nhất mở ra internet
     ports:
       - "80:80"
     depends_on:
