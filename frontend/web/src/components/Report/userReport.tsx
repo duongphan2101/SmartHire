@@ -21,8 +21,7 @@ const UserReport: React.FC<UserReportProps> = ({
   jobId,
   jobTitle,
   department,
-  userId,
-  onSubmit,
+  userId
 }) => {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");

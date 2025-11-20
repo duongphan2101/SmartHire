@@ -22,7 +22,7 @@ interface NavProps {
 }
 
 const Nav = ({ setBreadcrumb, setPage, collapsed, setCollapsed }: NavProps) => {
-  const [isIconMode, setIsIconMode] = useState(false);
+  const [isIconMode, ] = useState(false);
   const [isWorkOpen, setIsWorkOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
 

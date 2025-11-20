@@ -23,7 +23,6 @@ import {
 
 // Import icons
 import BusinessIcon from "@mui/icons-material/Business";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 
@@ -85,7 +84,7 @@ const CompanyList: React.FC = () => {
 
   // Xử lý đổi trang
   const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
+    _event: React.ChangeEvent<unknown>,
     value: number
   ) => {
     setCurrentPage(value);

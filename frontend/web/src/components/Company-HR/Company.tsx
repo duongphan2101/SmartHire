@@ -17,7 +17,7 @@ const Company: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
-  const { department, loading, error, createDepartment, refetch, createInvite, invite } = useDepartment("user");
+  const { department, loading, error, createDepartment, refetch, createInvite } = useDepartment("user");
 
   // const handleDelete = async (id: string) => {
   //   const confirm = await MySwal.fire({
@@ -39,15 +39,25 @@ const Company: React.FC = () => {
   //   }
   // };
 
-  const handleSaveNewDepartment = async (data: Omit<DepartmentData, "_id"> & { employees: string[] }) => {
-    try {
-      await createDepartment(data);
-      MySwal.fire("Thành công!", "Phòng ban đã được tạo.", "success");
-      setIsAddModalOpen(false);
-    } catch {
-      MySwal.fire("Lỗi!", "Không thể tạo phòng ban.", "error");
-    }
+  const handleSaveNewDepartment = (data: {
+    name: string;
+    address: string;
+    description: string;
+    website: string;
+    avatar: string;
+    employees: string[];
+  }) => {
+    (async () => {
+      try {
+        await createDepartment(data);
+        MySwal.fire("Thành công!", "Phòng ban đã được tạo.", "success");
+        setIsAddModalOpen(false);
+      } catch {
+        MySwal.fire("Lỗi!", "Không thể tạo phòng ban.", "error");
+      }
+    })();
   };
+
 
   const handleOpenModal = () => {
     if (department && department._id) {

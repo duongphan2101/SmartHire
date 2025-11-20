@@ -74,7 +74,7 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
 
 
   // trong Detail component, thêm:
-const NOTIF_API_HOST = HOSTS.notificationService;
+// const NOTIF_API_HOST = HOSTS.notificationService;
 
 const handleReportSubmit = async (payload: { title: string; details: string; contact?: string }) => {
   if (!user) {

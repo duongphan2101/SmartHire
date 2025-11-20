@@ -59,12 +59,12 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
   }, [userId, getCVs]);
 
 
-  const cleanHtmlContent = (htmlString: string) => {
-    if (!htmlString) return "";
-    const doc = new DOMParser().parseFromString(htmlString, "text/html");
-    return doc.documentElement.textContent || "";
+  // const cleanHtmlContent = (htmlString: string) => {
+  //   if (!htmlString) return "";
+  //   const doc = new DOMParser().parseFromString(htmlString, "text/html");
+  //   return doc.documentElement.textContent || "";
 
-  };
+  // };
 
   const decodeEntitiesKeepTags = (html: string) => {
     const txt = document.createElement("textarea");

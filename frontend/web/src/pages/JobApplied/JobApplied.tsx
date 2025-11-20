@@ -9,13 +9,13 @@ import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiContrastDrop2Line } from "react-icons/ri";
 import { FaRegEye } from "react-icons/fa6";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import "./JobApplied.css";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
 
 const JobApplied: React.FC = () => {
-  const { user, getUser, applyJob } = useUser(); // Sử dụng applyJob để cập nhật nếu cần
+  const { user, getUser } = useUser(); // Sử dụng applyJob để cập nhật nếu cần
   const { getJobById } = useJob();
   const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,34 +57,34 @@ const JobApplied: React.FC = () => {
   };
 
   // Hủy ứng tuyển (nếu cần chức năng này)
-  const handleUnapply = async (jobId: string) => {
-    if (!user?._id) return;
+  // const handleUnapply = async (jobId: string) => {
+  //   if (!user?._id) return;
 
-    try {
-      // Gọi API để hủy ứng tuyển (cần thêm logic backend)
-      // Ví dụ: await applyJob(user._id, jobId, { unapply: true });
-      const updatedUser = await applyJob(user._id, jobId); // Cập nhật logic backend
-      if (!updatedUser) return;
+  //   try {
+  //     // Gọi API để hủy ứng tuyển (cần thêm logic backend)
+  //     // Ví dụ: await applyJob(user._id, jobId, { unapply: true });
+  //     const updatedUser = await applyJob(user._id, jobId); // Cập nhật logic backend
+  //     if (!updatedUser) return;
 
-      // Xóa job ngay khỏi danh sách FE
-      setAppliedJobs((prev) => prev.filter((job) => job._id !== jobId));
+  //     // Xóa job ngay khỏi danh sách FE
+  //     setAppliedJobs((prev) => prev.filter((job) => job._id !== jobId));
 
-      Swal.fire({
-        icon: "success",
-        title: "Đã hủy ứng tuyển",
-        text: "Công việc đã được hủy ứng tuyển thành công!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      console.error("❌ Unapply job error:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Không thể hủy ứng tuyển, vui lòng thử lại.",
-      });
-    }
-  };
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Đã hủy ứng tuyển",
+  //       text: "Công việc đã được hủy ứng tuyển thành công!",
+  //       timer: 1500,
+  //       showConfirmButton: false,
+  //     });
+  //   } catch (err) {
+  //     console.error("❌ Unapply job error:", err);
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Lỗi",
+  //       text: "Không thể hủy ứng tuyển, vui lòng thử lại.",
+  //     });
+  //   }
+  // };
 
   const [openChat, setIsChatOpen] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);

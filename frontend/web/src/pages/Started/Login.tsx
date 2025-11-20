@@ -14,7 +14,7 @@ function Login() {
   const [isShown, setIsShown] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error, loginWithFacebook, loginWithGoogle } =
+  const { login, loading, error, loginWithGoogle } =
     useAuth();
 
   useEffect(() => {

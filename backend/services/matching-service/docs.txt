@@ -1,0 +1,23 @@
+NLP (Natural Language Processing).
+
+(Modal all-MiniLM-L6-v2), transformer đã pre-train để biến text thành vector embedding (kiểu 384 chiều).
+
+Tầng 1: Tính điểm kỹ thuật (Cosine Similarity Score)
+
+Đây là phần toán học, không dính gì đến AI.
+
+🔹 Mục tiêu
+
+Đánh giá mức độ tương đồng giữa CV và Job Description (JD) dựa trên nội dung (text).
+
+🔹 Cách tính
+
+Lấy nội dung CV và JD → tokenize (tách từ, bỏ stopwords).
+
+Chuyển sang vector embedding (all-MiniLM-L6-v2).
+
+Tính cosine similarity:
+
+
+
+Kết quả ∈ [0, 1] (hoặc -1 đến 1, nhưng bạn normalize về [0,1])
