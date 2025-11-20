@@ -1,7 +1,7 @@
 const axios = require("axios");
 const Job = require("../models/Job");
 const Department = require("../models/Department");
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 
 
 /**

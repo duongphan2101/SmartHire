@@ -1,5 +1,5 @@
 const Application = require("../models/Application");
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 const axios = require("axios");
 const mongoose = require("mongoose");
 

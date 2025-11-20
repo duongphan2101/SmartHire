@@ -14,7 +14,7 @@ RUN npm install --only=production
 COPY --from=build /app/node_modules /app/node_modules
 COPY . .
 
-EXPOSE 1111
+EXPOSE 7777
 
 # Production mode (Chế độ mặc định)
 CMD ["node", "server.js"]

@@ -64,7 +64,7 @@ export default function useInterview() {
     try {
       const res = await axios.get<Interview>(`${host}/${id}`);
       setInterview(res.data);
-      console.log(`DATA ${res.data}`)
+      //console.log(`DATA ${res.data}`)
       return res.data;
     } catch (err) {
       handleError(err, "Interview not found");

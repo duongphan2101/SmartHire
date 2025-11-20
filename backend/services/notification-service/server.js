@@ -11,7 +11,7 @@ const server = http.createServer(app);
 // Cấu hình socket.io
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -20,7 +20,7 @@ const io = new Server(server, {
 // Middleware cors cho express
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost",
     methods: ["GET", "POST", "PATCH"],
     credentials: true,
   })
@@ -57,6 +57,6 @@ io.on("connection", (socket) => {
 
 // Start server
 const PORT = process.env.PORT || 7000;
-server.listen(PORT, () =>
+server.listen(PORT,"0.0.0.0", () =>
   console.log(`🚀 Notification service running on port ${PORT}`)
 );

@@ -23,6 +23,6 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/api/payment", paymentRoutes);
 app.use("/api/wallet", walletRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`Server listening on port ${PORT}`);
 });

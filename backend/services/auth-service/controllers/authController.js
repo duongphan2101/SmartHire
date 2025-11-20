@@ -2,7 +2,7 @@ const Account = require("../models/Account");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 const { OAuth2Client } = require("google-auth-library");
 
 // Tạo token

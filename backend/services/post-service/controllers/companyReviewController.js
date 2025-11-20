@@ -1,7 +1,7 @@
 const CompanyReview = require("../models/CompanyReview");
 const Department = require("../models/Department"); 
 const axios = require("axios");
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 const mongoose = require('mongoose');
 
 // Hàm tính điểm trung bình và tổng số review, cập nhật vào Department
