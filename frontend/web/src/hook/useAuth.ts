@@ -17,6 +17,7 @@ export default function useAuth() {
   const login = async (email: string, password: string): Promise<AuthResponse | void> => {
     try {
       const host = HOSTS.authService;
+      //console.log(`HOST: ${host}/login`)
       setLoading(true);
       setError(null);
 

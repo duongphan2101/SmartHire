@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const Interview = require("../models/Interview");
 const axios = require("axios");
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 
 cron.schedule("0 0 * * *", async () => {
     try {

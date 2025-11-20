@@ -24,4 +24,4 @@ connectDB();
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 
-app.listen(PORT, () => console.log(`🚀 Auth service running on port ${PORT}`));
+app.listen(PORT,"0.0.0.0", () => console.log(`🚀 Auth service running on port ${PORT}`));

@@ -13,6 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/cvai", cvAIRoutes);
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`CV-AI service running on port ${PORT}`);
 });

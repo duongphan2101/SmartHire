@@ -82,7 +82,7 @@ export default function useJob() {
   }, [host]);
 
   const refetch = useCallback(async () => {
-    if (!department || !department._id){
+    if (!department || !department._id) {
       setJobs([]);
       setError("Bạn chưa thuộc công ty nào");
       return;
@@ -103,6 +103,7 @@ export default function useJob() {
   const latest = useCallback(async () => {
     try {
       setLoading(true);
+      //console.log(`HOST JOBLATEST: ${host}/getLatest`);
       const res = await axios.get<Job[]>(`${host}/getLatest`);
       setJobLatest(res.data);
     } catch (err) {
@@ -123,8 +124,8 @@ export default function useJob() {
 
   const getJobByDepartmentId = useCallback(async (id: string) => {
     if (!id) {
-        console.warn("getJobByDepartmentId called with undefined ID.");
-        return [];
+      console.warn("getJobByDepartmentId called with undefined ID.");
+      return [];
     }
     try {
       const res = await axios.get<Job[]>(`${host}/getAll/${id}`);

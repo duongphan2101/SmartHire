@@ -1,0 +1,16 @@
+# Giai đoạn 1: Build Frontend (Build stage)
+FROM node:23-alpine AS build
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Mở cổng mặc định của Nginx
+EXPOSE 80

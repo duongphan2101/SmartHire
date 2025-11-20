@@ -115,6 +115,7 @@ export default function useCV() {
     try {
       setLoading(true);
       setError(null);
+      console.log(`${HOSTS.cvAIService}/summary`);
       const res = await axios.post<CVAIResponse>(`${HOSTS.cvAIService}/summary`, { content });
       return res.data;
     } catch (err) {

@@ -14,6 +14,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { PiReadCvLogo } from "react-icons/pi";
 import { FaRegCheckSquare } from "react-icons/fa";
 import NotificationModal from "../NotificationModal/NotificationModal";
+import { HOSTS } from "../../utils/host";
 
 interface HeaderProps {
   onOpenChat: () => void;
@@ -34,8 +35,10 @@ const Header = ({ onOpenChat }: HeaderProps) => {
   const handleNotificationClick = async (n: Notification) => {
     try {
       if (!n.isRead) {
+        // ✅ SỬA LẠI: Dùng HOSTS.notificationService (Giá trị là "/api/notifications")
+        // Kết quả URL sẽ là: "/api/notifications/<id>/read" -> Đi qua Nginx
         await axios.patch(
-          `http://localhost:7000/api/notifications/${n._id}/read`
+          `${HOSTS.notificationService}/${n._id}/read`
         );
 
         setNotifications((prev) =>
@@ -54,8 +57,10 @@ const Header = ({ onOpenChat }: HeaderProps) => {
 
   useEffect(() => {
     if (user?._id) {
+      // ✅ SỬA LẠI: Dùng HOSTS.notificationService
+      // Kết quả URL sẽ là: "/api/notifications/<user_id>" -> Đi qua Nginx
       axios
-        .get(`http://localhost:7000/api/notifications/${user._id}`)
+        .get(`${HOSTS.notificationService}/${user._id}`)
         .then((res) => setNotifications(res.data))
         .catch((err) => console.error(err));
     }

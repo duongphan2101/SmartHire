@@ -12,6 +12,6 @@ app.use(express.json());
 app.use("/api/chatbot", chatbotRoutes);
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Chatbot service running on port ${PORT}`);
 });

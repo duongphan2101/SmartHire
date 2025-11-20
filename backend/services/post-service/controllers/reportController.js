@@ -1,6 +1,6 @@
 const Report = require("../models/ReportModel");
 const axios = require("axios"); 
-const { HOSTS } = require("../../host");
+const { HOSTS } = require("../host.js");
 
 const createReportNotification = async (report) => {
   try {

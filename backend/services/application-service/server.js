@@ -14,6 +14,6 @@ app.use("/api/applications", require("./routes/applicationRoutes"));
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`✅ Application Service running on port ${PORT}`);
 });

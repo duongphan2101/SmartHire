@@ -1,3 +1,5 @@
+// 
+
 const HOSTS = {
   // --- Services lắng nghe trên cổng 2222 (user-service) ---
   userService: "http://user-service:2222/api/users",
@@ -17,28 +19,20 @@ const HOSTS = {
   application: "http://application-service:5555/api/applications",
 
   // --- Services lắng nghe trên cổng 8080 (cv-ai-service) ---
-  // Lưu ý: Code server.js của CV-AI phải có app.use('/api/cvai', ...)
   cvaiService: "http://cv-ai-service:8080/api/cvai",
 
   // --- Dịch vụ Email (Cổng nội bộ là 5000) ---
-  // SỬA: Đồng nhất cổng 5000
   emailService: "http://email-service:5000/api/email",
-  
-  // SỬA: Cổng 5000 (thay vì 5080).
-  // Kiểm tra kỹ lại xem backend của bạn route là /api/forgot-password hay /api/email/forgot-password
-  forgotPasswordService: "http://email-service:5000/api/forgot-password",
+  forgotPasswordService: "http://email-service:5080/api/forgot-password",
 
-  // --- Services lắng nghe trên cổng 7777 (payment-service) ---
-  // SỬA: Payment Service lắng nghe cổng 7777 (theo nginx.conf mới nhất)
-  paymentService: "http://payment-service:7777/api/payments", // Lưu ý số nhiều 'payments'
-  walletService: "http://payment-service:7777/api/wallet",
-
-  // --- Services lắng nghe trên cổng 7000 (notification-service) ---
+  // --- Services lắng nghe trên cổng 7000 (payment/notification) ---
+  paymentService: "http://payment-service:7000/api/payment",
+  walletService: "http://payment-service:7000/api/wallet",
   notificationService: "http://notification-service:7000/api/notifications",
-  notificationSocket: "http://notification-service:7000",
 
-  // --- Services lắng nghe trên cổng 1000 (communication-service) ---
+  notificationSocket: "http://notification-service:7000",
   chatSocket: "http://communication-service:1000",
+
 };
 
 module.exports = { HOSTS };

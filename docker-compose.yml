@@ -1,74 +1,222 @@
+version: '3.8'
+
+networks:
+  smarthire-network:
+    driver: bridge
+
 services:
   auth-service:
     build:
       context: ./backend/services/auth-service
       dockerfile: Dockerfile
     container_name: auth-service
-    ports:
-      - "1111:1111"
     env_file:
       - ./backend/services/auth-service/.env
     environment:
       - NODE_ENV=development
     volumes:
       - ./backend/services/auth-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
     restart: unless-stopped
+    networks:
+      - smarthire-network
 
   post-service:
     build:
       context: ./backend/services/post-service
       dockerfile: Dockerfile
     container_name: post-service
-    ports:
-      - "4444:4444"
     env_file:
       - ./backend/services/post-service/.env
     environment:
       - NODE_ENV=development
     volumes:
       - ./backend/services/post-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
     restart: unless-stopped
+    networks:
+      - smarthire-network
 
   chatbot-service:
     build:
       context: ./backend/services/chatbot-service
       dockerfile: Dockerfile
     container_name: chatbot-service
-    ports:
-      - "3333:3333"
     env_file:
       - ./backend/services/chatbot-service/.env
     environment:
       - NODE_ENV=development
     volumes:
       - ./backend/services/chatbot-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
     restart: unless-stopped
+    networks:
+      - smarthire-network
 
   user-service:
     build:
       context: ./backend/services/user-service
       dockerfile: Dockerfile
     container_name: user-service
-    ports:
-      - "2222:2222"
     env_file:
       - ./backend/services/user-service/.env
     environment:
       - NODE_ENV=development
     volumes:
       - ./backend/services/user-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
     restart: unless-stopped
+    networks:
+      - smarthire-network
 
+  application-service:
+    build:
+      context: ./backend/services/application-service
+      dockerfile: Dockerfile
+    container_name: application-service
+    env_file:
+      - ./backend/services/application-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/application-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  communication-service:
+    build:
+      context: ./backend/services/communication-service
+      dockerfile: Dockerfile
+    container_name: communication-service
+    env_file:
+      - ./backend/services/communication-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/communication-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  cv-ai-service:
+    build:
+      context: ./backend/services/cv-ai-service
+      dockerfile: Dockerfile
+    container_name: cv-ai-service
+    env_file:
+      - ./backend/services/cv-ai-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/cv-ai-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  email-service:
+    build:
+      context: ./backend/services/email-service
+      dockerfile: Dockerfile
+    container_name: email-service
+    env_file:
+      - ./backend/services/email-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/email-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  matching-service:
+    build:
+      context: ./backend/services/matching-service
+      dockerfile: Dockerfile
+    container_name: matching-service
+    env_file:
+      - ./backend/services/matching-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/matching-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    env_file:
+      - ./backend/services/notification-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/notification-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    env_file:
+      - ./backend/services/payment-service/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/payment-service:/app
+      - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js
+    restart: unless-stopped
+    networks:
+      - smarthire-network
+
+  # Dịch vụ Frontend (Web) - Giữ nguyên
   web:
     build:
       context: ./frontend/web
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend.dev 
     container_name: smarthire-web
-    ports:
-      - "5173:5173"
     volumes:
       - ./frontend/web:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
     restart: unless-stopped
+    networks:
+      - smarthire-network
+    
+  # --- NGINX GATEWAY (SERVICE MỚI) - Giữ nguyên ---
+  nginx-gateway:
+    image: nginx:alpine
+    container_name: smarthire-gateway
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - post-service
+      - chatbot-service
+      - user-service
+      - application-service
+      - communication-service
+      - cv-ai-service
+      - email-service
+      - matching-service
+      - notification-service
+      - payment-service
+      - web
+    restart: always
+    networks:
+      - smarthire-network

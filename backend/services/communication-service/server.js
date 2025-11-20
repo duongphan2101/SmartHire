@@ -30,7 +30,7 @@ app.use("/api/chat", chatRoutes);
 
 const PORT = process.env.PORT || 1000;
 
-server.listen(PORT, () => {
+server.listen(PORT,"0.0.0.0", () => {
   console.log(`✅ Server (API & Socket) running on port ${PORT}`);
 });
 

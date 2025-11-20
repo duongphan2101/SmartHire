@@ -24,6 +24,6 @@ app.use("/api/email", require("./routes/verifyRoutes"));
 app.use("/api/email", require("./routes/applicationNotifyRoutes"));
 app.use("/api/email", require("./routes/notifyJobRoutes"));
 
-app.listen(PORT, () =>
+app.listen(PORT,"0.0.0.0", () =>
   console.log(`🚀 Forgot Password service running on port ${PORT}`)
 );
