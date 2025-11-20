@@ -1,0 +1,136 @@
+version: '3.8'
+
+networks:
+  smarthire-network:
+    driver: bridge
+
+services:
+  # ============================
+  # BACKEND SERVICES
+  # ============================
+  
+  auth-service:
+    image: ${CI_REGISTRY_IMAGE}/auth-service:latest
+    container_name: auth-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  user-service:
+    image: ${CI_REGISTRY_IMAGE}/user-service:latest
+    container_name: user-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  post-service:
+    image: ${CI_REGISTRY_IMAGE}/post-service:latest
+    container_name: post-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  chatbot-service:
+    image: ${CI_REGISTRY_IMAGE}/chatbot-service:latest
+    container_name: chatbot-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  application-service:
+    image: ${CI_REGISTRY_IMAGE}/application-service:latest
+    container_name: application-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  communication-service:
+    image: ${CI_REGISTRY_IMAGE}/communication-service:latest
+    container_name: communication-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  cv-ai-service:
+    image: ${CI_REGISTRY_IMAGE}/cv-ai-service:latest
+    container_name: cv-ai-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  email-service:
+    image: ${CI_REGISTRY_IMAGE}/email-service:latest
+    container_name: email-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  matching-service:
+    image: ${CI_REGISTRY_IMAGE}/matching-service:latest
+    container_name: matching-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  notification-service:
+    image: ${CI_REGISTRY_IMAGE}/notification-service:latest
+    container_name: notification-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  payment-service:
+    image: ${CI_REGISTRY_IMAGE}/payment-service:latest
+    container_name: payment-service
+    env_file: .env
+    restart: always
+    networks:
+      - smarthire-network
+
+  # ============================
+  # FRONTEND SERVICE
+  # ============================
+  web:
+    image: ${CI_REGISTRY_IMAGE}/web:latest
+    container_name: smarthire-web
+    # Không cần env_file vì Frontend đã được build tĩnh (env được nướng vào lúc build)
+    # Hoặc nếu bạn dùng runtime config thì thêm vào.
+    restart: always
+    networks:
+      - smarthire-network
+
+  # ============================
+  # NGINX GATEWAY
+  # ============================
+  nginx-gateway:
+    image: ${CI_REGISTRY_IMAGE}/nginx-gateway:latest
+    container_name: smarthire-gateway
+    # Cổng duy nhất mở ra internet
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - post-service
+      - chatbot-service
+      - user-service
+      - application-service
+      - communication-service
+      - cv-ai-service
+      - email-service
+      - matching-service
+      - notification-service
+      - payment-service
+      - web
+    restart: always
+    networks:
+      - smarthire-network
