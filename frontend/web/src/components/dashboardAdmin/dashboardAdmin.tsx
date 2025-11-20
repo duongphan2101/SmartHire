@@ -23,7 +23,7 @@ const DashboardAdmin = () => {
   useEffect(() => {
     fetchChartData();
   }, []);
-  const { totalJobs, totalCompanies, totalPosts, fetchCounts } =
+  const { totalJobs, totalCompanies, totalPosts } =
     useDashboardAdmin();
 
   const handleRangeChange = (dates: RangeValue, dateStrings: [string, string]) => {

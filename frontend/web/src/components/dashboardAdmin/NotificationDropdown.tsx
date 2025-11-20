@@ -28,7 +28,6 @@ interface Props {
 const NotificationDropdown: React.FC<Props> = ({
   notifications,
   loading,
-  onClose,
   onMarkRead,
   onMarkAll,
   onItemClick,

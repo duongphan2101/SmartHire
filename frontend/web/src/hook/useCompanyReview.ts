@@ -115,7 +115,7 @@ const useCompanyReview = (companyId?: string) => {
   ) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) return;
-
+    console.log(userId);
     const res = await axios.post(
       `${HOSTS.reviewService}/${reviewId}/comments`,
       {

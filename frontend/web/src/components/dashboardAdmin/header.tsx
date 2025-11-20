@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./header.css";
 import logo from "../../assets/images/logo_v1.png";
 import useUser from "../../hook/useUser";
-import useNotification, { type Notification } from "../../hook/useNotification";
+import useNotification from "../../hook/useNotification";
 import NotificationDropdown from "./NotificationDropdown";
 import axios from "axios";
 import { HOSTS } from "../../utils/host";
@@ -125,10 +125,10 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
     }
   };
 
-  const handleItemClick = async (n: Notification) => {
-    if (!n.isRead) await handleMarkRead(n._id);
-    if (n.requestId) console.log("Open related request:", n.requestId);
-  };
+  // const handleItemClick = async (n: Notification) => {
+  //   if (!n.isRead) await handleMarkRead(n._id);
+  //   if (n.requestId) console.log("Open related request:", n.requestId);
+  // };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
