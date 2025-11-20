@@ -1,5 +1,5 @@
 import { Fa42Group } from "react-icons/fa6";
-import "../dashboardAdmin/DashboardAdmin.css";
+import "../dashboardAdmin/dashboardAdmin.css";
 import { FaAccusoft, FaForumbee } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
