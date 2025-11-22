@@ -6,11 +6,24 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+# Lệnh build sẽ tạo ra thư mục 'dist' chứa file tĩnh
 RUN npm run build
 
+# Giai đoạn 2: Serve bằng Nginx (Production stage)
 FROM nginx:alpine
 
+# 1. Copy file build vào thư mục html của nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Mở cổng mặc định của Nginx
+# 2. Xóa config mặc định để tránh xung đột (Optional nhưng nên làm)
+RUN rm /etc/nginx/conf.d/default.conf
+
+# 3. Copy file nginx.conf tùy chỉnh vào container
+# (File này chứa lệnh try_files $uri /index.html để fix lỗi 404)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Mở cổng 80
 EXPOSE 80
+
+# Chạy Nginx
+CMD ["nginx", "-g", "daemon off;"]
