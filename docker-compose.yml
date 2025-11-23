@@ -94,6 +94,8 @@ services:
       - ./backend/services/communication-service/.env
     environment:
       - NODE_ENV=development
+    ports:
+      - "1000:1000"
     volumes:
       - ./backend/services/communication-service:/app
       - ./backend/services/host.js:/app/host.js # FIX: Thêm host.js

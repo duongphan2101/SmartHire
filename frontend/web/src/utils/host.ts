@@ -14,7 +14,7 @@ export const HOSTS = {
   matchingService: "/api/matching",
   emailService: "/api/email",
   walletService: "/api/wallet",
-  paymentService: "/api/payments",
+  paymentService: "/api/payment",
   interviewService: "/api/interviews",
   chatService: "/api/chat",
   notificationService: "/api/notifications",

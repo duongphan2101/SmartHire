@@ -20,14 +20,14 @@ const createPayment = async (req, res) => {
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-
+    const baseUrl = process.env.VNP_RETURN_URL_BASE;
     const vnpayResponse = await vnpay.buildPaymentUrl({
       vnp_Amount: amount * 100,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_TxnRef: orderId,
       vnp_OrderInfo: `${orderId}`,
       vnp_OrderType: ProductCode.Other,
-      vnp_ReturnUrl: `http://localhost:${PORT}/api/payment/vnpay_return?userId=${userId}`,
+      vnp_ReturnUrl: `${baseUrl}/vnpay_return?userId=${userId}`,
       vnp_Locale: VnpLocale.VN,
       vnp_CreateDate: dateFormat(new Date()),
       vnp_ExpireDate: dateFormat(tomorrow)
