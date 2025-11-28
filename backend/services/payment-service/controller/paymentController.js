@@ -7,7 +7,6 @@ const { Types } = require("mongoose");
 const createPayment = async (req, res) => {
   try {
     const { amount, orderId, userId } = req.body;
-    const PORT = process.env.PORT;
 
     const vnpay = new VNPay({
       tmnCode: process.env.VNP_TMN_CODE,
@@ -17,14 +16,15 @@ const createPayment = async (req, res) => {
       hashAlgorithm: "SHA512",
       loggerFn: ignoreLogger,
     });
-
+    const currentTime = new Date();
+    const txnRef = `${orderId}_${currentTime.getTime()}`;
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const baseUrl = process.env.VNP_RETURN_URL_BASE;
     const vnpayResponse = await vnpay.buildPaymentUrl({
       vnp_Amount: amount * 100,
       vnp_IpAddr: req.ip || "127.0.0.1",
-      vnp_TxnRef: orderId,
+      vnp_TxnRef: txnRef,
       vnp_OrderInfo: `${orderId}`,
       vnp_OrderType: ProductCode.Other,
       vnp_ReturnUrl: `${baseUrl}/vnpay_return?userId=${userId}`,
@@ -88,7 +88,7 @@ const vnpayReturn = async (req, res) => {
         await wallet.save();
       }
 
-      return res.redirect(`http://localhost:${PORT}/api/wallet/success?amount=${amount}`);
+      return res.redirect(`/api/wallet/success?amount=${amount}`);
     } else {
       await Transaction.create({
         userId: userObjectId,
@@ -99,7 +99,7 @@ const vnpayReturn = async (req, res) => {
         providerTxnId,
       });
 
-      return res.redirect(`http://localhost:${PORT}/api/wallet/failed?code=${responseCode}`);
+      return res.redirect(`/api/wallet/failed?code=${responseCode}`);
     }
   } catch (err) {
     console.error("vnpay_return error:", err);

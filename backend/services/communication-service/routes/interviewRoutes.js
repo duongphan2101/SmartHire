@@ -7,10 +7,12 @@ const {
   getInterviewById,
   updateInterview,
   deleteInterview,
+  getInterviewByHrId
 } = require("../controllers/interviewControllers.js");
 
 // Định tuyến CRUD
-router.post("/", createInterview); // Create
+router.post("/create", createInterview); // Create
+router.get("/hr/:hrId", getInterviewByHrId); // Read (By HR ID)
 router.get("/", getAllInterviews); // Read (All)
 router.get("/:id", getInterviewById); // Read (One)
 router.put("/:id", updateInterview); // Update

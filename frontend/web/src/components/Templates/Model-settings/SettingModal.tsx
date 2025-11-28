@@ -47,6 +47,7 @@ interface CVData {
     contact: ContactInfo;
     education: Education[];
     projects: Project[];
+    templateType: number;
 }
 
 interface CustomSettings {

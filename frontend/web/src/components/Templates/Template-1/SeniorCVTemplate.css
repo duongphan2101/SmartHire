@@ -1,44 +1,73 @@
 @media print {
+    /* 1. Thiết lập lề cho tờ giấy in (Quan trọng nhất) */
+    @page {
+        size: A4;
+        /* margin: 15mm; */
+        padding: 15mm; /* Chừa lề 15mm ở 4 cạnh cho TẤT CẢ các trang */
+    }
 
+    /* 2. Ẩn các nút bấm, control khi in */
     .cv-editor-control,
     .add-section-ui,
     .drag-handle,
-    .sections-controls_del {
+    .sections-controls_del,
+    .box-ai-recomend,
+    .cv-section-controls {
         display: none !important;
     }
 
+    /* 3. Reset body để không bị đè margin */
+    body {
+        margin: 0;
+        padding: 0;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* 4. Cấu hình container chính khi in */
+    .cv-container {
+        width: 100% !important; /* Để nó tự giãn theo khổ giấy đã trừ lề */
+        max-width: none !important;
+        height: auto !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        
+        /* Bỏ padding của div đi vì đã có margin của @page lo rồi 
+           Nếu giữ padding này + margin @page thì lề sẽ quá to */
+        padding: 0 !important; 
+        
+        box-shadow: none !important;
+        border: none !important;
+        background-color: white !important;
+    }
+
+    /* 5. Xóa border input để nhìn như văn bản thường */
     .input-cv-value,
     .cv-textarea,
     .job-entry,
     .education-entry,
-    .contact-info_item input {
+    .contact-info_item input,
+    .cv-header-inputname,
+    .cv-header input.title {
         border: none !important;
-        border-left: none !important;
+        border-bottom: none !important;
         box-shadow: none !important;
         outline: none !important;
         background-color: transparent !important;
         padding: 0 !important;
+        resize: none !important; /* Ẩn nút kéo giãn textarea */
     }
-
+    
+    /* 6. Fix layout header khi in */
     .contact-info {
-        gap: 0 !important;
-        justify-content: flex-start !important;
-        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        justify-content: center !important; /* Canh giữa đẹp hơn khi in */
+        flex-wrap: wrap !important;
     }
-
+    
     .contact-info_item {
-        min-width: 200px !important;
-        padding: 0 !important;
-        margin-right: 20px !important;
-    }
-
-    .cv-container {
-        width: 210mm !important;
-        height: auto !important;
-        min-height: 297mm !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-        padding: 20px !important;
+        min-width: auto !important; /* Để nó tự co giãn theo nội dung */
+        margin-right: 15px !important;
     }
 }
 
@@ -228,6 +257,7 @@ hr {
 .tag {
     border-radius: 0;
     font-weight: normal;
+    padding: 5px 10px;
 }
 
 .tag:hover .tag-remove {

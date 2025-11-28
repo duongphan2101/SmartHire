@@ -5,7 +5,7 @@ const Job = require("../models/Job");
 const {
   createJob, getJobs, getAllJobs, searchJobs, deleteJob,
   getLatestJobs, updateJob, getJobById, filterJobs, categories,
-  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob, getJobsByDepId
+  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob, getJobsByDepId, countPending
 } = require('../controllers/jobController');
 
 
@@ -61,7 +61,7 @@ router.get("/pending", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+router.get("/count/pending", countPending);
 router.get('/getLatest', getLatestJobs);
 router.get('/filter/search', filterJobs);
 router.get('/:id', getJobById);

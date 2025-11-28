@@ -234,6 +234,77 @@ exports.getApplicationsByJobAndHR = async (req, res) => {
   }
 };
 
+exports.getApplicationsPendingByJobAndHR = async (req, res) => {
+  try {
+    const { hrId, startDate, endDate } = req.body;
+
+    // console.log(`Checking apps for HR: ${hrId}, from ${startDate} to ${endDate}`);
+
+    if (!hrId) {
+      return res.status(400).json({ success: false, message: "Thiếu hrId" });
+    }
+
+    let allJobs = [];
+    try {
+      const jobResponse = await axios.get(`${HOSTS.jobService}/getAll`);
+      allJobs = jobResponse.data.data || jobResponse.data;
+    } catch (apiError) {
+      console.error("Lỗi gọi API Job:", apiError.message);
+      return res.status(404).json({ success: false, message: "Lỗi kết nối đến service Job" });
+    }
+
+    const myJobIds = [];
+
+    if (Array.isArray(allJobs)) {
+      for (let i = 0; i < allJobs.length; i++) {
+        const job = allJobs[i];
+        if (job.createBy && job.createBy._id) {
+          if (job.createBy._id.toString() === hrId.toString()) {
+            myJobIds.push(job._id);
+          }
+        }
+      }
+    }
+
+    if (myJobIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: "HR này chưa đăng job nào hoặc không tìm thấy job phù hợp."
+      });
+    }
+
+    const query = {
+      jobId: { $in: myJobIds },
+      status: "pending" || "reviewed"
+    };
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const applications = await Application.find(query).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: applications,
+      total: applications.length
+    });
+
+  } catch (error) {
+    console.error("Error getting applications:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Get num all application
 exports.getNumApplicationByDepartment = async (req, res) => {
   try {

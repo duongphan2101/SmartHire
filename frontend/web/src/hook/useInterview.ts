@@ -30,7 +30,7 @@ export default function useInterview() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.post<Interview>(`${host}/`, data);
+      const res = await axios.post<Interview>(`${host}/create`, data);
       setInterviews((prev) => [res.data, ...prev]); 
       return res.data;
     } catch (err) {
@@ -41,12 +41,12 @@ export default function useInterview() {
   };
 
    //* READ (All): Lấy tất cả interviews
-  const fetchAllInterviews = async () => {
+  const fetchAllInterviews = async (id: string) => {
     setLoading(true);
     setError(null);
     try {
       // console.log(`${host}/`);
-      const res = await axios.get<Interview[]>(`${host}/`);
+      const res = await axios.get<Interview[]>(`${host}/hr/${id}`);
       setInterviews(res.data);
       // console.log("DATA: ", res.data);
       return res.data;

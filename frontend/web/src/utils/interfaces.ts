@@ -38,6 +38,7 @@ export interface CVData {
   contact: ContactInfo;
   education: Education[];
   projects: Project[];
+  templateType: number;
 }
 
 export interface CustomSettings {

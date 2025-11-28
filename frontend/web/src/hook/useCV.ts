@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
+import type { CVData } from "../utils/interfaces";
 
 export interface CVResponse {
   _id: string;
@@ -10,9 +11,11 @@ export interface CVResponse {
   status: "draft" | "active" | "archived";
   createdAt?: string;
   updatedAt?: string;
+  templateType: number;
 }
 
 export interface CVAIResponse {
+  data(data: any): unknown;
   optimizedSummary?: string;
   optimizedSkills?: string[];
   optimizedExperience?: string;
@@ -79,6 +82,30 @@ export default function useCV() {
     }
   }, []);
 
+ const createCVParse = useCallback(async (userId: string, cvData: CVData, pdfUrl: string) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const payload = {
+                userId,
+                cvData,
+                pdfUrl
+            };
+
+            const res = await axios.post<CVData>(`${HOSTS.cvService}/createCV`, payload);
+            return res.data;
+
+        } catch (err) {
+            const axiosErr = err as AxiosError<{ message?: string }>;
+            const msg = axiosErr.response?.data?.message || "Tạo CV thất bại";
+            setError(msg);
+            throw new Error(msg); // Ném lỗi để component UI có thể bắt được và hiển thị thông báo
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
   const updateCV = useCallback(async (cvId: string, updateData: Partial<CVResponse>) => {
     try {
       setLoading(true);
@@ -105,6 +132,21 @@ export default function useCV() {
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "deleteCV failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ================= Parse CV Text =================
+  const parseCVText = useCallback(async (cvText: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.post(`${HOSTS.cvService}/parse-cv`, { cvText });
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "parseCVText failed");
     } finally {
       setLoading(false);
     }
@@ -217,8 +259,10 @@ export default function useCV() {
     errorCV,
     getCVs,
     createCV,
+    createCVParse,
     updateCV,
     deleteCV,
+    parseCVText,
     optimizeSummary,
     optimizeSkills,
     optimizeExperience,

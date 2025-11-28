@@ -53,6 +53,7 @@ interface CVData {
     contact: ContactInfo;
     education: Education[];
     projects: Project[];
+    templateType: number;
 }
 
 interface CustomSettings {
@@ -75,6 +76,7 @@ const DEFAULT_CV_DATA: CVData = {
         { university: "", major: "", gpa: "", startYear: "", endYear: "" },
     ],
     projects: [{ projectName: "", projectDescription: "" }],
+    templateType: 1,
 };
 
 const BuildCvs: React.FC = () => {
@@ -82,7 +84,7 @@ const BuildCvs: React.FC = () => {
     const { getUser, user } = useUser();
 
     const [cvData, setCvData] = useState<CVData>(DEFAULT_CV_DATA);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(true);
 
     const [customSettings, setCustomSettings] = useState<CustomSettings>({
         color: '#059669',
@@ -102,6 +104,8 @@ const BuildCvs: React.FC = () => {
                     const idToFetch = parsed.user_id ?? parsed._id;
                     getUser(idToFetch);
 
+                    const template = { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[currentTemplate];
+
                     const userData: UserResponse | void = await getUser(idToFetch);
                     if (userData) {
                         setCvData((prev) => ({
@@ -112,6 +116,7 @@ const BuildCvs: React.FC = () => {
                                 phone: userData.phone || "",
                                 email: userData.email || "",
                             },
+                            templateType: template
                         }));
                         // setOriginalData((prev) => ({
                         //     ...prev,
@@ -170,7 +175,8 @@ const BuildCvs: React.FC = () => {
                     ...DEFAULT_CV_DATA.contact,
                     phone: user.phone || "",
                     email: user.email || "",
-                }
+                },
+                templateType: { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[currentTemplate]
             };
 
             setCvData(initialData);
@@ -231,6 +237,7 @@ const BuildCvs: React.FC = () => {
 
     const [openChat, setIsChatOpen] = useState(false);
     const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
     const handleOpenChatRequest = (room?: ChatRoom) => {
         if (room) {
             setCurrentChatRoom(room);

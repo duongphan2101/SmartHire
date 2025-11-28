@@ -212,7 +212,7 @@ const Profile: React.FC = () => {
     }, [cvs]);
 
     const handleChange = async (value: { value: string; label: React.ReactNode }) => {
-        console.log("Đã chọn:", value);
+        //console.log("Đã chọn:", value);
 
         setSelectedCvObject(value);
         const selected = cvs.find(cv => cv._id === value.value);

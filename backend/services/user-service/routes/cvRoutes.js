@@ -8,5 +8,6 @@ router.get("/cv/:Id", cvController.getCVById);
 router.get("/all-cv", cvController.getCVs);
 router.put("/:cvId", cvController.updateCV);
 router.delete("/:cvId", cvController.deleteCV);
+router.post("/parse-cv", cvController.parseCVText);
 
 module.exports = router;

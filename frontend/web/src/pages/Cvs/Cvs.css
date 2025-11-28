@@ -120,7 +120,7 @@
 }
 
 .delete-cv-btn {
-  background-color: #dc2626;
+  background-color: var(--color-red-300);
   color: #fff;
   padding: 10px 20px;
   border-radius: 6px;
@@ -132,6 +132,23 @@
 }
 
 .delete-cv-btn:hover {
-  background-color: #b91c1c;
+  background-color: var(--color-red-400);
+  transform: translateY(-2px);
+}
+
+.edit-cv-btn {
+  background-color: #3b82f6;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.edit-cv-btn:hover {
+  background-color: #2563eb;
   transform: translateY(-2px);
 }

@@ -25,6 +25,7 @@ import useApplication from "../../hook/useApplication";
 import { useNavigate } from "react-router-dom";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
+import DragorClick from "../../components/DragorClick/DragorClick";
 
 const MySwal = withReactContent(Swal);
 
@@ -909,10 +910,6 @@ const Home: React.FC = () => {
                     .
                   </p>
 
-                  {/* <button className="button">
-                                        <p>Bắt đầu ngay</p>
-                                    </button> */}
-
                   <button
                     className="cssbuttons-io-button"
                     onClick={() => {
@@ -935,10 +932,21 @@ const Home: React.FC = () => {
                       </svg>
                     </div>
                   </button>
+
+                  <div className="w-full">
+                    <DragorClick />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* <div className="container-fluid container-fluid_chart">
+            <div className="container-chart flex flex-wrap xl:flex-nowrap">
+
+            </div>
+          </div> */}
+
         </div>
 
         <Footer />

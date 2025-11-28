@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import "./Cvs.css";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
+import { HOSTS } from "../../utils/host";
+import CVViewer from "../../components/Preview-PDF/PdfPreview";
 
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
@@ -31,7 +33,7 @@ const Cvs: React.FC = () => {
 
   const handleDeleteCV = async (cvId: string) => {
     try {
-      const res = await fetch(`http://localhost:2222/api/cvs/${cvId}`, {
+      const res = await fetch(`${HOSTS.cvService}/${cvId}`, {
         method: "DELETE",
       });
 
@@ -67,6 +69,26 @@ const Cvs: React.FC = () => {
   const handleCloseChat = () => {
     setIsChatOpen(false);
   };
+
+  const handleEditCV = async (cvId: string, cvTemplate: number) => {
+    if(cvTemplate === 0) {
+      Swal.fire({
+        title: "Thông báo",
+        text: "Không thể xác định mẫu CV để chỉnh sửa.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Chức năng đang phát triển",
+      text: `Chức năng chỉnh sửa CV sẽ sớm được ra mắt! ID: ${cvId}, Template: ${cvTemplate}`,
+      icon: "info",
+      confirmButtonColor: "#059669",
+    });
+  };
+
   return (
     <div className="App">
       <Header onOpenChat={handleOpenChatRequest} />
@@ -77,7 +99,7 @@ const Cvs: React.FC = () => {
       <ChatWithAI />
 
       <div className="cvs-container">
-        <h2 className="cvs-title">CV đã tạo trên SmartHire</h2>
+        <h2 className="cvs-title">Danh sách CV</h2>
         {cvs.length === 0 ? (
           <div className="empty-state">
             <p className="empty-text">
@@ -90,54 +112,70 @@ const Cvs: React.FC = () => {
           </div>
         ) : (
           <div className="cv-list-grid">
-            {cvs.map((cv) => (
-              <div className="cv-card" key={cv._id}>
-                {cv.fileUrls ? (
-                  <>
-                    {/* Preview bằng Google Docs Viewer */}
-                    <iframe
-                      src={`https://docs.google.com/gview?url=${cv.fileUrls}&embedded=true`}
-                      width="100%"
-                      height="400px"
-                      style={{ border: "none" }}
-                      title={`cv-${cv._id}`}
-                    />
+            {cvs.map((cv) => {
+              const finalPdfUrl = Array.isArray(cv.fileUrls) ? cv.fileUrls[0] : cv.fileUrls;
 
-                    <div className="cv-actions">
-                      <button
-                        className="view-detail-btn"
-                        onClick={() => window.open(cv.fileUrls, "_blank")}
-                      >
-                        Xem chi tiết
-                      </button>
-                      <button
-                        className="delete-cv-btn"
-                        onClick={() => {
-                          Swal.fire({
-                            title: "Bạn có chắc muốn xóa CV này?",
-                            text: "Hành động này không thể hoàn tác!",
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#d33",
-                            cancelButtonColor: "#3085d6",
-                            confirmButtonText: "Xóa",
-                            cancelButtonText: "Hủy",
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              handleDeleteCV(cv._id);
-                            }
-                          });
+              return (
+                <div className="cv-card" key={cv._id}>
+                  {finalPdfUrl ? (
+                    <>
+                      <div
+                        style={{
+                          width: "300px",
+                          height: "500px",
+                          overflow: "hidden",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "8px",
                         }}
                       >
-                        Xóa CV
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="no-file">Không tìm thấy file CV</p>
-                )}
-              </div>
-            ))}
+                        {/* Truyền link đã xử lý vào đây */}
+                        <CVViewer pdfUrl={finalPdfUrl} />
+                      </div>
+
+                      <div className="cv-actions">
+                        <button
+                          className="view-detail-btn"
+                          // Mở đúng link đó trong tab mới
+                          onClick={() => window.open(finalPdfUrl, "_blank")}
+                        >
+                          Xem chi tiết
+                        </button>
+                        <button
+                          className="delete-cv-btn"
+                          onClick={() => {
+                            Swal.fire({
+                              title: "Bạn có chắc muốn xóa CV này?",
+                              text: "Hành động này không thể hoàn tác!",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#d33",
+                              cancelButtonColor: "#3085d6",
+                              confirmButtonText: "Xóa",
+                              cancelButtonText: "Hủy",
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                handleDeleteCV(cv._id);
+                              }
+                            });
+                          }}
+                        >
+                          Xóa CV
+                        </button>
+                        {/* Nút chỉnh sửa của bạn */}
+                        <button
+                          className="edit-cv-btn"
+                          onClick={() => { handleEditCV(cv._id, cv.templateType) }}
+                        >
+                          Chỉnh sửa
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="no-file">Không tìm thấy file CV</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

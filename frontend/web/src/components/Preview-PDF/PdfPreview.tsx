@@ -26,7 +26,6 @@ const CVViewer: React.FC<CVViewerProps> = ({ pdfUrl }) => {
         setContainerWidth(containerRef.current.clientWidth - 30);
       }
     };
-
     updateWidth();
 
     window.addEventListener('resize', updateWidth);

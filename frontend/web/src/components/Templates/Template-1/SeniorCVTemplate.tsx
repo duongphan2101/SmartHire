@@ -805,7 +805,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                                 <span><strong style={{ fontFamily: settings.fontFamily }}>{T.PHRASES.PROFESSIONAL_SKILLS}</strong></span>
                                 <div className='flex gap-2 flex-wrap flex-1 relative'>
                                     {currentProfSkills.map((skill: string) => (
-                                        <span className="tag flex items-center gap-1" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
+                                        <span className="tag flex items-center gap-1 font-bold" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
                                             {skill}{" "}
                                             <span className='tag-remove' onClick={() => handleRemoveProfSkill(skill)}>x</span>
                                         </span>
@@ -841,7 +841,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                                 <span><strong style={{ fontFamily: settings.fontFamily }}>{T.PHRASES.SOFT_SKILLS}</strong></span>
                                 <div className='flex gap-2 flex-wrap flex-1 relative'>
                                     {currentSoftSkills.map((skill: string) => (
-                                        <span className="tag flex items-center gap-1" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
+                                        <span className="tag flex items-center gap-1 font-bold" key={skill} style={{ background: 'none', color: '#000', fontWeight: 'normal', fontFamily: settings.fontFamily }} >
                                             {skill}{" "}
                                             <span className='tag-remove' onClick={() => handleRemoveSoftSkill(skill)}>x</span>
                                         </span>
@@ -911,7 +911,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
             <div className="cv-container" style={cvStyle} ref={ref}>
                 {/* 1. HEADER & CONTACT (GIỮ CỐ ĐỊNH, KHÔNG KÉO THẢ) */}
                 <header className="cv-header">
-                    <input className='cv-header-inputname input-cv-value'
+                    <input className='cv-header-inputname input-cv-value uppercase font-bold'
                         style={h1BorderStyle}
                         value={cvData.name}
                         onChange={(e) => updateCvData('name', e.target.value)}
