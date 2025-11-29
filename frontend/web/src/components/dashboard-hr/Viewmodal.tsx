@@ -1093,48 +1093,66 @@ const ViewModal = ({ job, onClose, onUpdated, update, onOpenChatRequest, admin, 
                         </tr>
                       </thead>
                       <tbody>
-                        {/* SỬA: Duyệt qua currentCandidates thay vì sortedCandidates */}
-                        {currentCandidates.map((app) => (
-                          <tr key={app.userId}>
-                            <td className="flex items-center gap-2">
-                              <img
-                                src={app.user?.avatar || gray}
-                                alt=""
-                                className="candidate-avt"
-                              />
-                              {app.user?.fullname}
-                            </td>
-                            <td className="font-bold text-emerald-500">
-                              {app.score !== null
-                                ? `${app.score.toFixed(2)}%`
-                                : "-"}
-                            </td>
-                            <td>
-                              {app.user?.cv[0].fileUrls ? (
-                                <a
-                                  href={app.user?.cv[0].fileUrls}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-blue-600 font-bold"
+                        {currentCandidates.map((app) => {
+                          // 1. TÌM CV ĐÚNG:
+                          // Giả sử trong 'app' bạn có lưu 'cvId' (là _id của CV đã nộp).
+                          // Nếu trong DB bạn lưu là 'cv' thì thay app.cvId bằng app.cv
+                          const appliedCV = app.user?.cv?.find(c => c._id === app.cvId);
+
+                          // Fallback: Nếu không tìm thấy (hoặc logic khác), có thể để null hoặc xử lý riêng
+                          const cvLink = appliedCV?.fileUrls;
+
+                          return (
+                            <tr key={app.userId}>
+                              {/* Cột Avatar + Tên */}
+                              <td className="flex items-center gap-2">
+                                <img
+                                  src={app.user?.avatar || gray}
+                                  alt=""
+                                  className="candidate-avt"
+                                />
+                                {app.user?.fullname}
+                              </td>
+
+                              {/* Cột Điểm số */}
+                              <td className="font-bold text-emerald-500">
+                                {app.score !== null ? `${app.score.toFixed(2)}%` : "-"}
+                              </td>
+
+                              {/* Cột Xem CV - Đã sửa */}
+                              <td>
+                                {cvLink ? (
+                                  <a
+                                    href={cvLink}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 font-bold"
+                                  >
+                                    Xem
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400">Chưa có CV</span>
+                                )}
+                              </td>
+
+                              {/* Cột Button Message */}
+                              <td>
+                                <button
+                                  className="btn-mess"
+                                  onClick={() => {
+                                    hanldeSendRequest(
+                                      app.userId,
+                                      app.user?.fullname ?? "",
+                                      app.user?.email ?? ""
+                                    );
+                                  }}
                                 >
-                                  Xem
-                                </a>
-                              ) : (
-                                "-"
-                              )}
-                            </td>
-                            <td>
-                              <button
-                                className="btn-mess"
-                                onClick={() => {
-                                  hanldeSendRequest(app.userId, app.user?.fullname ?? "", app.user?.email ?? "");
-                                }}
-                              >
-                                <AiOutlineMessage size={18} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                                  <AiOutlineMessage size={18} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
 

@@ -9,12 +9,16 @@ import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
 import { HOSTS } from "../../utils/host";
 import CVViewer from "../../components/Preview-PDF/PdfPreview";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
   const [cvs, setCvs] = useState<any[]>([]);
   const [openChat, setIsChatOpen] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+  
+  // Khởi tạo navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -70,23 +74,10 @@ const Cvs: React.FC = () => {
     setIsChatOpen(false);
   };
 
-  const handleEditCV = async (cvId: string, cvTemplate: number) => {
-    if(cvTemplate === 0) {
-      Swal.fire({
-        title: "Thông báo",
-        text: "Không thể xác định mẫu CV để chỉnh sửa.",
-        icon: "error",
-        confirmButtonColor: "#d33",
-      });
-      return;
-    }
-
-    Swal.fire({
-      title: "Chức năng đang phát triển",
-      text: `Chức năng chỉnh sửa CV sẽ sớm được ra mắt! ID: ${cvId}, Template: ${cvTemplate}`,
-      icon: "info",
-      confirmButtonColor: "#059669",
-    });
+  // Hàm xử lý chỉnh sửa CV
+  const handleEditCV = (cvId: string) => {
+    // Chuyển hướng sang trang BuildCV với params id
+    navigate(`/buildCV?id=${cvId}`);
   };
 
   return (
@@ -108,7 +99,6 @@ const Cvs: React.FC = () => {
             <a href="/buildCV" className="create-cv-button">
               Tạo CV mới
             </a>
-
           </div>
         ) : (
           <div className="cv-list-grid">
@@ -128,14 +118,12 @@ const Cvs: React.FC = () => {
                           borderRadius: "8px",
                         }}
                       >
-                        {/* Truyền link đã xử lý vào đây */}
                         <CVViewer pdfUrl={finalPdfUrl} />
                       </div>
 
                       <div className="cv-actions">
                         <button
                           className="view-detail-btn"
-                          // Mở đúng link đó trong tab mới
                           onClick={() => window.open(finalPdfUrl, "_blank")}
                         >
                           Xem chi tiết
@@ -161,10 +149,11 @@ const Cvs: React.FC = () => {
                         >
                           Xóa CV
                         </button>
-                        {/* Nút chỉnh sửa của bạn */}
+                        
+                        {/* Nút chỉnh sửa đã cập nhật logic */}
                         <button
                           className="edit-cv-btn"
-                          onClick={() => { handleEditCV(cv._id, cv.templateType) }}
+                          onClick={() => handleEditCV(cv._id)}
                         >
                           Chỉnh sửa
                         </button>

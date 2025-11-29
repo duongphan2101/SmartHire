@@ -82,36 +82,43 @@ export default function useCV() {
     }
   }, []);
 
- const createCVParse = useCallback(async (userId: string, cvData: CVData, pdfUrl: string) => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const payload = {
-                userId,
-                cvData,
-                pdfUrl
-            };
-
-            const res = await axios.post<CVData>(`${HOSTS.cvService}/createCV`, payload);
-            return res.data;
-
-        } catch (err) {
-            const axiosErr = err as AxiosError<{ message?: string }>;
-            const msg = axiosErr.response?.data?.message || "Tạo CV thất bại";
-            setError(msg);
-            throw new Error(msg); // Ném lỗi để component UI có thể bắt được và hiển thị thông báo
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-  const updateCV = useCallback(async (cvId: string, updateData: Partial<CVResponse>) => {
+  const createCVParse = useCallback(async (userId: string, cvData: CVData, pdfUrl: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await axios.put<CVResponse>(`${HOSTS.cvService}/cv/${cvId}`, updateData);
+      const payload = {
+        userId,
+        cvData,
+        pdfUrl
+      };
+
+      const res = await axios.post<CVData>(`${HOSTS.cvService}/createCV`, payload);
+      return res.data;
+
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      const msg = axiosErr.response?.data?.message || "Tạo CV thất bại";
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateCV = useCallback(async (cvId: string, updateData: Partial<CVResponse>, newPdfUrl?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const currentCv = cvs.find((item) => item._id === cvId);
+      const oldUrl = currentCv?.fileUrls?.[0] || null;
+      const payload = {
+        ...updateData,
+        oldUrl: oldUrl,
+        newUrl: newPdfUrl
+      };
+
+      const res = await axios.put<CVResponse>(`${HOSTS.cvService}/${cvId}`, payload);
       setCVs(prev => prev.map(cv => (cv._id === cvId ? res.data : cv)));
       return res.data;
     } catch (err) {
@@ -120,7 +127,7 @@ export default function useCV() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cvs]);
 
   const deleteCV = useCallback(async (cvId: string) => {
     try {

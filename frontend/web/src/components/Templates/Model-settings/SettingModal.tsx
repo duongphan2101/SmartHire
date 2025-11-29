@@ -66,17 +66,25 @@ interface SettingsModalProps {
     onSettingsChange: (settings: Partial<CustomSettings>) => void;
     cvTemplateRef: React.RefObject<HTMLDivElement | null>;
     cvData: CVData;
+    isEditMode?: boolean;
+    cvId?: string | null;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
     isOpen, onClose,
     currentTemplate, onTemplateChange,
     customSettings, onSettingsChange,
-    cvTemplateRef, cvData
+    cvTemplateRef, cvData,
+    isEditMode = false,
+    cvId = null
 }) => {
     // const { cvData } = customSettings;
     const sidebarClasses = `settings-sidebar ${isOpen ? 'is-open' : 'is-open'}`;
-    const { createCV } = useCV();
+    
+    // Giả định hook useCV có thêm hàm updateCV. 
+    // Nếu chưa có, bạn cần thêm nó vào file hook/useCV.ts
+    const { createCV, updateCV } = useCV(); 
+    
     const [userId, setUserId] = useState<string>("");
     const { getUser } = useUser();
 
@@ -94,13 +102,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         }
     }, [getUser]);
 
-    const handleCreateCV = async () => {
+    const handleSaveCV = async () => {
         const element = cvTemplateRef.current;
         if (!element)
             return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF. Vui lòng đảm bảo Template CV có ref={cvTemplateRef}.", "error");
 
+        const actionText = isEditMode ? "Đang lưu thay đổi..." : "Đang tạo CV...";
+
         Swal.fire({
-            title: "Đang tạo CV...",
+            title: actionText,
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
@@ -238,12 +248,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             }
 
             const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}-${Date.now()}.pdf`);
-            await createCV(userId, cvData, pdfUrl);
-
-            Swal.fire("Thành công", "CV đã được tạo!", "success");
+            if (isEditMode && cvId) {
+                if (updateCV) {
+                    await updateCV(cvId, cvData, pdfUrl); 
+                    Swal.fire("Thành công", "CV đã được cập nhật!", "success");
+                }
+            } else {
+                // Logic CREATE
+                await createCV(userId, cvData, pdfUrl);
+                Swal.fire("Thành công", "CV đã được tạo!", "success");
+            }
 
         } catch (error) {
-            console.error("Lỗi khi tạo CV:", error);
+            console.error("Lỗi khi xử lý CV:", error);
             Swal.close();
 
             let errorMessage = "Đã xảy ra lỗi không xác định. Vui lòng xem console để biết chi tiết.";
@@ -258,7 +275,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 errorMessage = "LỖI PARSING CSS! Hãy chuyển sang DOM-TO-IMAGE-MORE hoặc kiểm tra lại file CSS gốc.";
             }
 
-            Swal.fire("Lỗi", `Đã xảy ra lỗi khi tạo CV. Chi tiết: ${errorMessage}`, "error");
+            Swal.fire("Lỗi", `Đã xảy ra lỗi. Chi tiết: ${errorMessage}`, "error");
         }
     };
 
@@ -268,11 +285,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* Header và Nút Đóng */}
             <div className="modal-header">
-                <h5>Tùy Chỉnh CV</h5>
+                <h5>{isEditMode ? "Chỉnh Sửa CV" : "Tạo Mới CV"}</h5>
                 <button className="close-button" onClick={onClose}>&times;</button>
             </div>
 
-            {/* Phần 1: Đổi Template */}
             <div className="setting-group template-switcher">
                 <h3 className='text-left'>1. Chọn Mẫu CV</h3>
                 <div className="button-group">
@@ -300,7 +316,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
             </div>
 
-            {/* Phần 2: Tùy chỉnh Kiểu dáng */}
             <div className="setting-group customization">
                 <h3 className='text-left'>2. Kiểu Dáng</h3>
 
@@ -327,8 +342,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
             </div>
 
-
-            {/* Phần 3: Ngon ngu */}
             <div className="setting-group">
                 <h3 className='text-left'>3. Ngôn ngữ</h3>
 
@@ -344,9 +357,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
             </div>
 
-            {/* Phần 4:*/}
+            {/* Phần 4: Action Button */}
             <div className="flex items-center justify-end">
-                <button className='bg-emerald-600 btn-create-cv' onClick={handleCreateCV}>Tạo CV</button>
+                <button 
+                    className={`btn-create-cv ${isEditMode ? 'bg-emerald-600' : 'bg-emerald-600'}`} 
+                    onClick={handleSaveCV}
+                >
+                    {isEditMode ? "Lưu thay đổi" : "Tạo CV"}
+                </button>
             </div>
 
 

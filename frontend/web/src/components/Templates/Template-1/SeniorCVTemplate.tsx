@@ -1,9 +1,6 @@
 import React, { useState, forwardRef, useRef, useEffect } from 'react';
 import './SeniorCVTemplate.css';
 import Modal_AI_Recomend from '../../Modal-AI-Recomend/Modal-AI-Recomend';
-// import { MdAlternateEmail } from 'react-icons/md';
-// import { FaPhoneAlt } from 'react-icons/fa';
-// import { FaLink } from 'react-icons/fa6';
 
 export interface CvSection {
     id: string;
