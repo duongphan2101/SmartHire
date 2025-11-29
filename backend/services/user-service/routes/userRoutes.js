@@ -13,6 +13,7 @@ const {
   addJobToApplyted,
   banUser,
   unbanUser,
+  getBannedUsersCount,
 } = require("../controllers/userController");
 
 router.post("/", createUser);
@@ -20,6 +21,7 @@ router.get("/", getUsers);
 router.get("/hr/all", getAllHR);
 router.get("/:id", getUserById);
 router.get("/emailfind/:email", getUserByEmail);
+router.get("/banned/count", getBannedUsersCount);
 router.put("/:id", updateUser);
 router.put("/avt/:id", updateUser);
 router.delete("/:id", deleteUser);

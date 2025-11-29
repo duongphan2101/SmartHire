@@ -187,7 +187,22 @@ const unbanUser = useCallback(async (user_id: string) => {
     setLoading(false);
   }
 }, []);
+  const getBannedUsersCount = useCallback(async (): Promise<number | void> => {
+    try {
+      setLoading(true);
+      setError(null);
 
+      const res = await axios.get<{ count: number }>(
+        `${HOSTS.userService}/banned/count` 
+      );
+      return res.data.count;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "getBannedUsersCount failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  return { getUser, user, getAllHR ,updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, loadingUser, errorUser, banUser, unbanUser };
+  return { getUser, user, getAllHR ,updateUser, updateUserAvatar, saveJob, applyJob, unsaveJob, getBannedUsersCount, loadingUser, errorUser, banUser, unbanUser };
 }
