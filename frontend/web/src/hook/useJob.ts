@@ -320,6 +320,18 @@ export default function useJob() {
     },
     [host]
   );
+const banJob = async (id: string) => {
+  try {
+    const res = await axios.put(`${HOSTS.jobService}/${id}`, {
+      status: "banned",
+    });
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 
   useEffect(() => {
     refetch();
@@ -343,6 +355,7 @@ export default function useJob() {
     fetchPendingJobsAdmin,
     fetchAllJob,
     getJobByDepId,
-    getPendingCount
+    getPendingCount,
+    banJob
   };
 }

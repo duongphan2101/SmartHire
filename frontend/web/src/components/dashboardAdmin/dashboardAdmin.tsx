@@ -1,11 +1,11 @@
 import { Fa42Group } from "react-icons/fa6";
 import "../dashboardAdmin/DashboardAdmin.css";
-import { FaAccusoft, FaForumbee } from "react-icons/fa";
+import {  FaForumbee } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
-import SalaryJobChart from "./SalaryJobChart";
-import HotIndustryChart from "./HotIndustryChart";
-import useDashboardAdmin from "../../hook/useDashboardAdmin";
+// import SalaryJobChart from "./SalaryJobChart";
+// import HotIndustryChart from "./HotIndustryChart";
+// import useDashboardAdmin from "../../hook/useDashboardAdmin";
 import useDashboardCharts from "../../hook/useDashboardCharts";
 import PostAdmin from "./Post";
 import { ConfigProvider, DatePicker, Space } from "antd";
@@ -244,10 +244,10 @@ const DashboardContent = ({ page, setPage }: DashboardContentProps) => {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-6 mt-5">
+          {/* <div className="grid grid-cols-2 gap-6 mt-5">
             <SalaryJobChart data={salaryStats} />
             <HotIndustryChart data={industryStats} />
-          </div>
+          </div> */}
         </div>
       ) : (
         <div className="min-h-screen p-4 bg-gray-50">
