@@ -11,7 +11,11 @@ export interface CVResponse {
   status: "draft" | "active" | "archived";
   createdAt?: string;
   updatedAt?: string;
+  color: string;
+  fontFamily: string;
+  languageForCV: string;
   templateType: number;
+  title: string;
 }
 
 export interface CVAIResponse {

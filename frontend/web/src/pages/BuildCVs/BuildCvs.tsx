@@ -21,6 +21,7 @@ interface ContactInfo {
     email: string;
     github: string;
     website: string;
+    address: string;
 }
 
 interface Experience {
@@ -46,6 +47,7 @@ interface Project {
 
 interface CVData {
     name: string;
+    title: string;
     introduction: string;
     experience: Experience[];
     professionalSkills: string;
@@ -56,6 +58,9 @@ interface CVData {
     education: Education[];
     projects: Project[];
     templateType: number;
+    color: string;
+    fontFamily: string;
+    languageForCV: string;
 }
 
 interface CustomSettings {
@@ -66,18 +71,19 @@ interface CustomSettings {
 
 const DEFAULT_CV_DATA: CVData = {
     name: "",
+    title: "",
     introduction: "",
     professionalSkills: "",
     softSkills: "",
     experience: [{ company: "", description: "", endDate: "", jobTitle: "", startDate: "" },],
     certifications: "",
     activitiesAwards: "",
-    contact: { phone: "", email: "", github: "", website: "" },
+    contact: { phone: "", email: "", github: "", website: "", address: "" },
     education: [
         { university: "", major: "", gpa: "", startYear: "", endYear: "" },
     ],
     projects: [{ projectName: "", projectDescription: "" }],
-    templateType: 1,
+    templateType: 1, color: "", fontFamily: "", languageForCV: "",
 };
 
 const BuildCvs: React.FC = () => {
@@ -92,11 +98,11 @@ const BuildCvs: React.FC = () => {
         fontFamily: 'Arial',
         lang: 'vn',
     });
-    
+
     // Lấy ID từ URL
     const [searchParams] = useSearchParams();
     const cvIdToEdit = searchParams.get("id");
-    
+
     const cvTemplateRef = useRef<HTMLDivElement>(null);
 
     // Helper chuyển đổi số type sang tên template
@@ -108,7 +114,6 @@ const BuildCvs: React.FC = () => {
         }
     };
 
-    // UseEffect 1: Load User (chỉ dùng để check login)
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -141,34 +146,37 @@ const BuildCvs: React.FC = () => {
         fetchUserData();
     }, [getUser]);
 
+    // UseEffect 2: Load CV Data & SYNC SETTINGS
     useEffect(() => {
         const initData = async () => {
             if (cvIdToEdit) {
                 try {
                     const response = await fetch(`${HOSTS.cvService}/cv/${cvIdToEdit}`);
-                    
+
                     if (!response.ok) {
                         throw new Error("Không thể tải dữ liệu CV");
                     }
-    
+
                     const data = await response.json();
-    
+
                     const mappedData: CVData = {
                         name: data.name || "",
+                        title: data.title || "",
                         introduction: data.introduction || "",
                         professionalSkills: data.professionalSkills || "",
                         softSkills: data.softSkills || "",
                         certifications: data.certifications || "",
                         activitiesAwards: data.activitiesAwards || "",
-                        
+
                         contact: {
                             phone: data.contact?.phone || "",
                             email: data.contact?.email || "",
                             github: data.contact?.github || "",
                             website: data.contact?.website || "",
+                            address: data.contact?.address || "",
                         },
-    
-                        experience: Array.isArray(data.experience) 
+
+                        experience: Array.isArray(data.experience)
                             ? data.experience.map((exp: any) => ({
                                 jobTitle: exp.jobTitle || "",
                                 company: exp.company || "",
@@ -177,31 +185,39 @@ const BuildCvs: React.FC = () => {
                                 description: exp.description || "",
                             }))
                             : [],
-    
+
                         education: Array.isArray(data.education)
                             ? data.education.map((edu: any) => ({
                                 university: edu.university || "",
                                 major: edu.major || "",
                                 gpa: edu.gpa || "",
-                                // Xử lý map field 'year' của backend vào startYear
-                                startYear: edu.startYear || edu.year || "", 
+                                startYear: edu.startYear || "",
                                 endYear: edu.endYear || "",
                             }))
                             : [],
-    
+
                         projects: Array.isArray(data.projects)
                             ? data.projects.map((proj: any) => ({
                                 projectName: proj.projectName || "",
                                 projectDescription: proj.projectDescription || "",
                             }))
                             : [],
-    
+
                         templateType: data.templateType || 1,
+                        color: data.color || "#059669",
+                        fontFamily: data.fontFamily || "Arial",
+                        languageForCV: data.language || "vn",
                     };
-    
+
                     setCvData(mappedData);
                     setCurrentTemplate(getTemplateKeyFromNumber(data.templateType));
-    
+
+                    setCustomSettings({
+                        color: mappedData.color,
+                        fontFamily: mappedData.fontFamily,
+                        lang: mappedData.languageForCV
+                    });
+
                 } catch (error) {
                     console.error("Error fetching CV:", error);
                     Swal.fire({
@@ -210,8 +226,9 @@ const BuildCvs: React.FC = () => {
                         text: "Không thể tải nội dung CV để chỉnh sửa.",
                     });
                 }
-            } 
+            }
             else if (user && user.fullname) {
+                // Logic tạo mới CV từ thông tin User
                 const initialData: CVData = {
                     ...DEFAULT_CV_DATA,
                     name: user.fullname || "",
@@ -223,11 +240,18 @@ const BuildCvs: React.FC = () => {
                     templateType: { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[currentTemplate]
                 };
                 setCvData(initialData);
+                
+                // (Tùy chọn) Reset settings về mặc định khi tạo mới
+                setCustomSettings({
+                    color: '#059669',
+                    fontFamily: 'Arial',
+                    lang: 'vn',
+                });
             }
         };
 
         initData();
-    }, [cvIdToEdit, user]);
+    }, [cvIdToEdit, user]); // Bỏ currentTemplate ra khỏi dependency để tránh loop khi tạo mới
 
     const handleTemplateChange = (templateType: TemplateKey) => {
         setCurrentTemplate(templateType);

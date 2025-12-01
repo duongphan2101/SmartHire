@@ -69,22 +69,16 @@ exports.getCVById = async (req, res) => {
 exports.updateCV = async (req, res) => {
   try {
     const { cvId } = req.params;
-    const { oldUrl, newUrl, ...updateData } = req.body;
+    const { newUrl, ...updateData } = req.body;
 
     const cv = await CV.findById(cvId);
     if (!cv) {
       return res.status(404).json({ error: "CV không tồn tại" });
     }
-    Object.assign(cv, updateData);
 
+    Object.assign(cv, updateData);
     if (newUrl) {
-      if (!cv.fileUrls) cv.fileUrls = [];
-      if (oldUrl) {
-        cv.fileUrls = cv.fileUrls.filter((url) => url !== oldUrl);
-      }
-      if (!cv.fileUrls.includes(newUrl)) {
-        cv.fileUrls.push(newUrl);
-      }
+      cv.fileUrls = [newUrl]; 
     }
 
     const updatedCV = await cv.save();
@@ -95,6 +89,7 @@ exports.updateCV = async (req, res) => {
     res.status(500).json({ error: "Lỗi Server" });
   }
 };
+
 
 // Delete CV
 exports.deleteCV = async (req, res) => {

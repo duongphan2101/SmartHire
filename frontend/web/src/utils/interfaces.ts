@@ -3,6 +3,7 @@ export interface ContactInfo {
   email: string;
   github: string;
   website: string;
+  address: string;
 }
 
 export interface Education {
@@ -28,6 +29,7 @@ export interface Project {
 
 export interface CVData {
   name: string;
+  title: string;
   jobTitle: string;
   introduction: string;
   professionalSkills: string;
@@ -39,6 +41,9 @@ export interface CVData {
   education: Education[];
   projects: Project[];
   templateType: number;
+  color: string;
+  fontFamily: string;
+  languageForCV: string;
 }
 
 export interface CustomSettings {

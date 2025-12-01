@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './SettingModal.css';
 import useCV from "../../../hook/useCV";
 import Swal from 'sweetalert2';
-// import * as domToImage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 import useUser from '../../../hook/useUser';
 import { uploadPDF } from '../../../utils/uploadPDF';
@@ -13,6 +12,7 @@ interface ContactInfo {
     email: string;
     github: string;
     website: string;
+    address: string;
 }
 
 interface Education {
@@ -38,6 +38,7 @@ interface Project {
 
 interface CVData {
     name: string;
+    title: string;
     introduction: string;
     professionalSkills: string;
     softSkills: string;
@@ -48,6 +49,9 @@ interface CVData {
     education: Education[];
     projects: Project[];
     templateType: number;
+    color: string;
+    fontFamily: string;
+    languageForCV: string;
 }
 
 interface CustomSettings {
@@ -78,13 +82,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     isEditMode = false,
     cvId = null
 }) => {
-    // const { cvData } = customSettings;
     const sidebarClasses = `settings-sidebar ${isOpen ? 'is-open' : 'is-open'}`;
-    
-    // Giả định hook useCV có thêm hàm updateCV. 
-    // Nếu chưa có, bạn cần thêm nó vào file hook/useCV.ts
-    const { createCV, updateCV } = useCV(); 
-    
+    const { createCV, updateCV } = useCV();
+
     const [userId, setUserId] = useState<string>("");
     const { getUser } = useUser();
 
@@ -104,13 +104,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const handleSaveCV = async () => {
         const element = cvTemplateRef.current;
-        if (!element)
-            return Swal.fire("Lỗi", "Không tìm thấy nội dung CV để tạo PDF. Vui lòng đảm bảo Template CV có ref={cvTemplateRef}.", "error");
-
-        const actionText = isEditMode ? "Đang lưu thay đổi..." : "Đang tạo CV...";
+        if (!element) return Swal.fire("Lỗi", "Không tìm thấy nội dung CV.", "error");
 
         Swal.fire({
-            title: actionText,
+            title: isEditMode ? "Đang lưu thay đổi..." : "Đang tạo CV...",
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
@@ -120,162 +117,164 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             const canvas = await html2canvas(element, {
                 scale: 2,
-                logging: true,
-                ignoreElements: (node) => {
-                    return node.classList && (node.classList.contains('cv-editor-control') ||
-                        node.classList.contains('drag-handle') ||
-                        node.classList.contains('add-section-ui'));
-                },
                 useCORS: true,
+                logging: false,
+                scrollY: -window.scrollY,
+                ignoreElements: (node) => {
+                    return node.classList && (
+                        node.classList.contains('cv-editor-control') ||
+                        node.classList.contains('drag-handle') ||
+                        node.classList.contains('add-section-ui')
+                    );
+                },
 
-                width: element.scrollWidth,
-                height: element.scrollHeight,
-                windowWidth: element.scrollWidth,
-                windowHeight: element.scrollHeight,
-                onclone: (document) => {
-                    const clonedDoc = document.documentElement;
+                // --- THUẬT TOÁN DÀN TRANG NÂNG CẤP ---
+                onclone: (clonedDoc) => {
+                    const cvContainer = clonedDoc.querySelector('.cv-container') as HTMLElement;
 
-                    // 1. Replace all INPUTS with SPANS
-                    clonedDoc.querySelectorAll('input[type="text"]').forEach(input => {
-                        const span = document.createElement('span');
-                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
+                    if (cvContainer) {
+                        // 1. Setup cơ bản
+                        cvContainer.style.padding = '30px 40px';
+                        cvContainer.style.boxSizing = 'border-box';
+                        cvContainer.style.backgroundColor = '#ffffff';
+
+                        // 2. Tính toán chiều cao trang A4 theo Pixel
+                        const contentWidth = cvContainer.clientWidth;
+                        const pageHeight = (contentWidth * 297) / 210; // A4 ratio
+
+                        // Hàm helper: Lấy vị trí Y thực tế của element so với đỉnh CV
+                        const getAbsoluteTop = (el: HTMLElement) => {
+                            let top = 0;
+                            let current = el;
+                            while (current && current !== cvContainer) {
+                                top += current.offsetTop || 0;
+                                current = current.offsetParent as HTMLElement;
+                            }
+                            return top;
+                        };
+
+                        // Hàm helper: Xử lý đẩy element xuống trang sau
+                        const pushToNextPage = (el: HTMLElement, currentTop: number) => {
+                            const startPage = Math.floor(currentTop / pageHeight);
+                            const nextPageStart = (startPage + 1) * pageHeight;
+                            const spaceNeeded = nextPageStart - currentTop;
+
+                            // Thêm margin-top, cộng thêm 30px đệm cho đẹp
+                            const currentMargin = parseInt(window.getComputedStyle(el).marginTop || '0');
+                            el.style.marginTop = `${currentMargin + spaceNeeded + 30}px`;
+                        };
+
+                        // 3. DUYỆT CÁC SECTION LỚN
+                        const sections = cvContainer.querySelectorAll('.cv-section-draggable-wrapper');
+
+                        sections.forEach((section) => {
+                            const secEl = section as HTMLElement;
+                            const secTop = getAbsoluteTop(secEl);
+                            const secHeight = secEl.offsetHeight;
+                            const secBottom = secTop + secHeight;
+
+                            const startPage = Math.floor(secTop / pageHeight);
+                            const endPage = Math.floor(secBottom / pageHeight);
+
+                            // Nếu Section nằm gọn trong 1 trang -> OK, bỏ qua
+                            if (startPage === endPage) return;
+
+                            // NẾU BỊ CẮT NGANG: Kiểm tra xem có đẩy cả Section được không
+                            // (Nếu section nhỏ < 1/2 trang thì đẩy cả section, ngược lại thì xử lý con)
+                            if (secHeight < pageHeight * 0.5) {
+                                pushToNextPage(secEl, secTop);
+                            } else {
+                                // 4. XỬ LÝ CẤP 2: DUYỆT CÁC MỤC CON (Job, Project, Education Entry)
+                                const children = secEl.querySelectorAll('.job-entry, .education-entry, .project-entry');
+
+                                if (children.length > 0) {
+                                    children.forEach((child) => {
+                                        const childEl = child as HTMLElement;
+                                        // Phải tính lại Top vì margin của các phần tử trước có thể đã thay đổi
+                                        const childTop = getAbsoluteTop(childEl);
+                                        const childHeight = childEl.offsetHeight;
+                                        const childBottom = childTop + childHeight;
+
+                                        const cStartPage = Math.floor(childTop / pageHeight);
+                                        const cEndPage = Math.floor(childBottom / pageHeight);
+
+                                        // Nếu mục con này bị cắt ngang -> Đẩy nó xuống
+                                        if (cStartPage !== cEndPage) {
+                                            pushToNextPage(childEl, childTop);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    // --- CÁC PHẦN XỬ LÝ INPUT/TEXTAREA GIỮ NGUYÊN ---
+                    const processInput = (input: HTMLInputElement) => {
+                        const span = clonedDoc.createElement('span');
+                        const value = input.value || input.placeholder || '';
                         span.textContent = value;
-                        span.className = input.className; // Copy classes
-                        span.setAttribute('style', input.getAttribute('style') || '');
-
-                        const computedStyle = window.getComputedStyle(input);
-
-                        span.style.display = 'inline-block';
-                        span.style.width = computedStyle.width;
-
-                        // Copy other important styles
-                        span.style.fontSize = computedStyle.fontSize;
-                        span.style.fontWeight = computedStyle.fontWeight;
-                        span.style.fontStyle = computedStyle.fontStyle;
-                        span.style.color = computedStyle.color;
-                        span.style.textAlign = computedStyle.textAlign;
-                        span.style.width = computedStyle.width;
-
+                        span.className = input.className;
+                        const style = window.getComputedStyle(input);
+                        span.style.cssText = `display: inline-block; width: ${style.width}; font-size: ${style.fontSize}; font-family: ${style.fontFamily}; font-weight: ${style.fontWeight}; color: ${style.color}; text-align: ${style.textAlign}; padding: 0; margin: 0; border: none; background: transparent;`;
                         input.parentNode?.replaceChild(span, input);
-                    });
+                    };
+                    clonedDoc.querySelectorAll('input').forEach((input) => processInput(input as HTMLInputElement));
 
-                    clonedDoc.querySelectorAll('input[type="month"]').forEach(input => {
-                        const span = document.createElement('span');
-                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
-                        span.textContent = value;
-                        span.className = input.className; // Copy classes
-                        span.setAttribute('style', input.getAttribute('style') || '');
-
-                        const computedStyle = window.getComputedStyle(input);
-
-                        span.style.display = 'inline-block';
-                        span.style.width = computedStyle.width;
-
-                        // Copy other important styles
-                        span.style.fontSize = computedStyle.fontSize;
-                        span.style.fontWeight = computedStyle.fontWeight;
-                        span.style.fontStyle = computedStyle.fontStyle;
-                        span.style.color = computedStyle.color;
-                        span.style.textAlign = computedStyle.textAlign;
-
-                        input.parentNode?.replaceChild(span, input);
-                    });
-
-                    clonedDoc.querySelectorAll('input[type="number"]').forEach(input => {
-                        const span = document.createElement('span');
-                        const value = (input as HTMLInputElement).value || (input as HTMLInputElement).placeholder;
-                        span.textContent = value;
-                        span.className = input.className; // Copy classes
-                        span.setAttribute('style', input.getAttribute('style') || '');
-
-                        const computedStyle = window.getComputedStyle(input);
-
-                        span.style.display = 'inline-block';
-                        span.style.width = computedStyle.width;
-
-                        // Copy other important styles
-                        span.style.fontSize = computedStyle.fontSize;
-                        span.style.fontWeight = computedStyle.fontWeight;
-                        span.style.fontStyle = computedStyle.fontStyle;
-                        span.style.color = computedStyle.color;
-                        span.style.textAlign = computedStyle.textAlign;
-
-                        input.parentNode?.replaceChild(span, input);
-                    });
-
-                    // 2. Replace all TEXTAREAS with DIVS (this logic remains the same)
-                    clonedDoc.querySelectorAll('textarea').forEach(textarea => {
-                        const div = document.createElement('div');
-                        const value = (textarea as HTMLTextAreaElement).value || (textarea as HTMLTextAreaElement).placeholder;
+                    clonedDoc.querySelectorAll('textarea').forEach((textarea) => {
+                        const div = clonedDoc.createElement('div');
+                        const value = textarea.value || textarea.placeholder || '';
                         div.innerHTML = value.replace(/\n/g, '<br/>');
                         div.className = textarea.className;
-                        div.setAttribute('style', textarea.getAttribute('style') || '');
-
-                        const computedStyle = window.getComputedStyle(textarea);
-                        div.style.fontSize = computedStyle.fontSize;
-                        div.style.lineHeight = computedStyle.lineHeight;
-                        div.style.color = computedStyle.color;
-
+                        const style = window.getComputedStyle(textarea);
+                        div.style.cssText = `width: ${style.width}; font-size: ${style.fontSize}; font-family: ${style.fontFamily}; line-height: ${style.lineHeight}; color: ${style.color}; text-align: ${style.textAlign || 'justify'}; white-space: pre-wrap; border: none;`;
                         textarea.parentNode?.replaceChild(div, textarea);
                     });
-
                 },
             });
 
+            // --- PHẦN TẠO PDF (GIỮ NGUYÊN) ---
             const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("p", "mm", "a4");
-            const imgProps = pdf.getImageProperties(imgData);
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            let heightLeft = pdfHeight;
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            let heightLeft = imgHeight;
             let position = 0;
+            const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
+            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfPageHeight;
 
-            while (heightLeft >= 0) {
-                position = heightLeft - pdfHeight;
+            while (heightLeft > 1) {
+                position = position - pdfPageHeight;
                 pdf.addPage();
-                pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pdf.internal.pageSize.getHeight();
+                pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfPageHeight;
             }
 
             const pdfBlob = pdf.output("blob");
 
+            // ... (Logic Upload & Save) ...
             if (!userId) {
                 Swal.close();
-                return Swal.fire("Lỗi", "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.", "error");
+                return Swal.fire("Lỗi", "Không tìm thấy ID người dùng.", "error");
             }
-
             const pdfUrl = await uploadPDF(pdfBlob, `cv-${userId}-${Date.now()}.pdf`);
             if (isEditMode && cvId) {
                 if (updateCV) {
-                    await updateCV(cvId, cvData, pdfUrl); 
+                    await updateCV(cvId, cvData, pdfUrl);
                     Swal.fire("Thành công", "CV đã được cập nhật!", "success");
                 }
             } else {
-                // Logic CREATE
                 await createCV(userId, cvData, pdfUrl);
                 Swal.fire("Thành công", "CV đã được tạo!", "success");
             }
 
         } catch (error) {
-            console.error("Lỗi khi xử lý CV:", error);
+            console.error(error);
             Swal.close();
-
-            let errorMessage = "Đã xảy ra lỗi không xác định. Vui lòng xem console để biết chi tiết.";
-
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            } else if (typeof error === 'string') {
-                errorMessage = error;
-            }
-
-            if (errorMessage.includes("oklch") || errorMessage.includes("parse color")) {
-                errorMessage = "LỖI PARSING CSS! Hãy chuyển sang DOM-TO-IMAGE-MORE hoặc kiểm tra lại file CSS gốc.";
-            }
-
-            Swal.fire("Lỗi", `Đã xảy ra lỗi. Chi tiết: ${errorMessage}`, "error");
+            Swal.fire("Lỗi", "Có lỗi xảy ra", "error");
         }
     };
 
@@ -334,10 +333,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         value={customSettings.fontFamily}
                         onChange={(e) => onSettingsChange({ fontFamily: e.target.value })}
                     >
-                        <option value="Arial">Arial (Sạch)</option>
-                        <option value="Verdana">Verdana (Hiện đại)</option>
-                        <option value="'Times New Roman', Times, serif">Times New Roman (Cổ điển)</option>
-                        <option value="Roboto, sans-serif">Roboto (Google)</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="Roboto, sans-serif">Roboto</option>
                     </select>
                 </div>
             </div>
@@ -351,16 +350,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         value={customSettings.lang}
                         onChange={(e) => onSettingsChange({ lang: e.target.value })}
                     >
-                        <option value="vn">Tiếng Việt 🇻🇳</option>
-                        <option value="en">English 🇺🇲</option>
+                        <option value="vn">Tiếng Việt</option>
+                        <option value="en">English</option>
                     </select>
                 </div>
             </div>
 
             {/* Phần 4: Action Button */}
             <div className="flex items-center justify-end">
-                <button 
-                    className={`btn-create-cv ${isEditMode ? 'bg-emerald-600' : 'bg-emerald-600'}`} 
+                <button
+                    className={`btn-create-cv ${isEditMode ? 'bg-emerald-600' : 'bg-emerald-600'}`}
                     onClick={handleSaveCV}
                 >
                     {isEditMode ? "Lưu thay đổi" : "Tạo CV"}

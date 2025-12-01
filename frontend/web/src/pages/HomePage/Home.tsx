@@ -787,7 +787,7 @@ const Home: React.FC = () => {
                                 >
                                   <IoLocationOutline color="#059669" /> {item.job.location}
                                 </li>
-                                {/* <li
+                                <li
                                   className="bottom-li flex gap-3 items-center"
                                   style={{ fontSize: 13 }}
                                 >
@@ -799,7 +799,7 @@ const Home: React.FC = () => {
                                 >
                                   <AiOutlineClockCircle color="#059669" />
                                   {item.job.jobType}
-                                </li> */}
+                                </li>
                                 <li
                                   className="bottom-li flex gap-3 items-center"
                                   style={{ fontSize: 13 }}
@@ -811,7 +811,7 @@ const Home: React.FC = () => {
 
                               <div className="flex items-center gap-3">
 
-                                <div className="relative group">
+                                {/* <div className="relative group">
 
                                   <div className="flex items-center gap-1 cursor-help rounded-md text-gray-400 text-sm">
                                     Độ phù hợp:
@@ -823,7 +823,6 @@ const Home: React.FC = () => {
                                     </svg>
                                   </div>
 
-                                  {/* Tooltip nội dung lý do phù hợp */}
                                   <div className="absolute z-10 bottom-full left-2/2 -translate-x-1/2 w-72 
                                     p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg
                                     opacity-0 group-hover:opacity-100 transition-all duration-300
@@ -834,13 +833,13 @@ const Home: React.FC = () => {
                                     <p className="font-bold mb-1 border-b border-b-gray-600 pb-1">Lý do phù hợp:</p>
                                     <p className="text-gray-200 text-justify">{item.reason}</p>
 
-                                    {/* Mũi tên của Tooltip */}
                                     <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0
                                       border-l-8 border-l-transparent
                                       border-r-8 border-r-transparent
                                       border-t-8 border-t-gray-900"></div>
                                   </div>
-                                </div>
+                                  
+                                </div> */}
 
                                 <div
                                   className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 ${item.animateSave ? "scale-125" : "scale-100"

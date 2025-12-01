@@ -120,7 +120,7 @@ const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId }) => {
                 <div className="animate-fade-in space-y-4 flex flex-col gap-3.5">
 
                     {/* 1. Điểm số & Tóm tắt */}
-                    <Card sx={{ bgcolor: '#f3e5f5', border: 'none', boxShadow: 'none' }}>
+                    {/* <Card sx={{ bgcolor: '#f3e5f5', border: 'none', boxShadow: 'none' }}>
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <Typography variant="subtitle2" color="text.secondary" textTransform="uppercase" letterSpacing={1}>
                                 Mức độ phù hợp thị trường
@@ -132,7 +132,7 @@ const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId }) => {
                                 "{result.summary}"
                             </Typography>
                         </CardContent>
-                    </Card>
+                    </Card> */}
 
                     {/* 2. Điểm mạnh */}
                     <Card sx={{ border: 'none', boxShadow: 'none' }}>
