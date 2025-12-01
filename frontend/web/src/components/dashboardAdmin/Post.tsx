@@ -16,7 +16,7 @@ const STATUS_TABS = [
 
 const PostAdmin: React.FC = () => {
   // Lấy đúng hàm fetchAllJob từ hook
-  const { approveJob, rejectJob, fetchAllJob } = useJob();
+  const { approveJob, rejectJob, fetchAllJob, banJob } = useJob();
   const { createNotification } = useNotification();
   const { sendPostApprovalNotification } = useEmailService();
 
@@ -50,12 +50,54 @@ const PostAdmin: React.FC = () => {
     setSearchQuery(e.target.value.toLowerCase());
   };
 
+  const handleBan = async (job: any) => {
+    const confirm = await Swal.fire({
+      title: "Chuyển bài đăng sang trạng thái bị từ chối?",
+      text: "Bài đăng sẽ bị ẩn khỏi hệ thống.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await banJob(job._id); // gọi API đổi trạng thái sang banned
+
+    if (res) {
+      Swal.fire({
+        icon: "success",
+        title: "Đã chuyển sang bị từ chối!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      await createNotification({
+        receiverId: job.createBy._id,
+        type: "INFO",
+        title: "Bài đăng của bạn đã bị từ chối",
+        message: `Bài đăng "${job.jobTitle}" đã chuyển sang trạng thái bị từ chối bởi quản trị viên.`,
+        requestId: job._id,
+      });
+
+      await sendPostApprovalNotification({
+        hr: { fullname: job.createBy.fullname, email: job.createBy.email },
+        job: { _id: job._id, title: job.jobTitle },
+        status: "banned",
+        reason: "Quản trị viên đã chuyển bài đăng sang trạng thái bị từ chối.",
+      });
+
+      fetchData(); // refresh danh sách
+    }
+  };
   // Dùng useMemo để lọc danh sách hiệu quả, chỉ tính toán lại khi dependency thay đổi
   const filtered = useMemo(() => {
     return jobList
       .filter((job) => job.status === activeStatus) // 1. Lọc theo tab
-      .filter((job) => // 2. Lọc theo search
-        job.jobTitle.toLowerCase().includes(searchQuery)
+      .filter(
+        (
+          job // 2. Lọc theo search
+        ) => job.jobTitle.toLowerCase().includes(searchQuery)
       );
   }, [jobList, activeStatus, searchQuery]);
 
@@ -76,7 +118,7 @@ const PostAdmin: React.FC = () => {
         type: "INFO",
         title: "Bài đăng tuyển dụng đã được duyệt!",
         message: `Bài đăng tuyển dụng ${job.jobTitle} của bạn đăng đã được quản trị viên duyệt...`,
-        requestId: job._id
+        requestId: job._id,
       });
 
       // Gửi email
@@ -84,7 +126,7 @@ const PostAdmin: React.FC = () => {
         hr: { fullname: job.createBy.fullname, email: job.createBy.email },
         job: { _id: job._id, title: job.jobTitle },
         status: "active",
-        reason: ""
+        reason: "",
       });
 
       fetchData(); // Gọi lại API để refresh danh sách
@@ -108,7 +150,7 @@ const PostAdmin: React.FC = () => {
         type: "INFO",
         title: "Bài đăng tuyển dụng đã bị từ chối",
         message: `Bài đăng tuyển dụng ${job.jobTitle} của bạn đăng đã được quản trị viên từ chối!`,
-        requestId: job._id
+        requestId: job._id,
       });
 
       // Gửi email
@@ -116,7 +158,8 @@ const PostAdmin: React.FC = () => {
         hr: { fullname: job.createBy.fullname, email: job.createBy.email },
         job: { _id: job._id, title: job.jobTitle },
         status: "banned",
-        reason: "Bài đăng chứa nội dung không phù hợp hoặc vi phạm quy tắc của nền tảng"
+        reason:
+          "Bài đăng chứa nội dung không phù hợp hoặc vi phạm quy tắc của nền tảng",
       });
 
       fetchData(); // Gọi lại API để refresh danh sách
@@ -125,13 +168,14 @@ const PostAdmin: React.FC = () => {
 
   return (
     <div className="post-list-container">
-
       {/* Thanh Tabbar */}
       <div className="post-tab-bar">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
-            className={`post-tab-btn ${activeStatus === tab.key ? "active" : ""}`}
+            className={`post-tab-btn ${
+              activeStatus === tab.key ? "active" : ""
+            }`}
             onClick={() => setActiveStatus(tab.key)}
           >
             {tab.label}
@@ -155,9 +199,9 @@ const PostAdmin: React.FC = () => {
         <ViewModal
           job={viewJob}
           onClose={() => setViewJob(null)}
-          onUpdated={() => { }}
+          onUpdated={() => {}}
           update={false}
-          onOpenChatRequest={() => { }}
+          onOpenChatRequest={() => {}}
           admin={true}
           activeUser=""
         />
@@ -178,14 +222,17 @@ const PostAdmin: React.FC = () => {
                 <p>
                   Trạng thái:{" "}
                   <span className={`post-status ${job.status}`}>
-                    {job.status === "pending" ? "Chờ duyệt" :
-                      job.status === "active" ? "Hoạt động" :
-                        job.status === "banned" ? "Bị từ chối" : job.status}
+                    {job.status === "pending"
+                      ? "Chờ duyệt"
+                      : job.status === "active"
+                      ? "Hoạt động"
+                      : job.status === "banned"
+                      ? "Bị từ chối"
+                      : job.status}
                   </span>
                 </p>
               </div>
               <div className="post-actions">
-
                 {/* Chỉ hiện nút Duyệt/Từ chối ở tab "pending" */}
                 {activeStatus === "pending" && (
                   <>
@@ -205,9 +252,20 @@ const PostAdmin: React.FC = () => {
                 )}
 
                 {/* Nút Xem luôn hiển thị */}
-                <button className="post-btn view" onClick={() => setViewJob(job)}>
+                <button
+                  className="post-btn view"
+                  onClick={() => setViewJob(job)}
+                >
                   <FaRegEye /> Xem
                 </button>
+                {activeStatus === "active" && (
+                  <button
+                    className="post-btn reject"
+                    onClick={() => handleBan(job)}
+                  >
+                    <FaTimes /> Từ chối
+                  </button>
+                )}
               </div>
             </div>
           ))}
