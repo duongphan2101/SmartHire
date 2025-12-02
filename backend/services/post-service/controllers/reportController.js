@@ -34,7 +34,31 @@ exports.createReport = async (req, res) => {
   }
 };
 
+exports.getAllReports = async (req, res) => {
+  try {
+    const reports = await Report.find().sort({ createdAt: -1 }).lean();
 
+    const reportsWithUser = await Promise.all(
+      reports.map(async (report) => {
+        let userInfo = { fullname: "Ẩn danh", email: "", avatar: "" };
+        if (report.userId) {
+          try {
+            const { data: user } = await axios.get(`${HOSTS.userService}/${report.userId}`);
+            if (user) userInfo = user;
+          } catch (err) {
+            console.warn("Không lấy được user:", report.userId);
+          }
+        }
+        return { ...report, userId: userInfo };
+      })
+    );
+
+    res.status(200).json(reportsWithUser);
+  } catch (err) {
+    console.error("Lỗi lấy danh sách báo cáo:", err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
 exports.getReport = async (req, res) => {
   try {
     const report = await Report.findById(req.params.id);

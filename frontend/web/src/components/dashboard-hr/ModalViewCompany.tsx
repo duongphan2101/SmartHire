@@ -12,12 +12,14 @@ interface ModalViewCompanyProps {
   selectedDepartment: DepartmentData | null;
   setSelectedDepartment: React.Dispatch<React.SetStateAction<DepartmentData | null>>;
   onUpdated: () => void;
+  admin?: boolean;
 }
 
 const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
   selectedDepartment,
   setSelectedDepartment,
   onUpdated,
+  admin = false,
 }) => {
   const [localDept, setLocalDept] = useState<DepartmentData | null>(
     selectedDepartment
@@ -32,8 +34,10 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
   }, [selectedDepartment]);
 
   if (!localDept) return null;
+  const isReadOnly = admin;
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isReadOnly) return;
     const file = e.target.files?.[0];
     if (file) {
       setAvatarFile(file);
@@ -143,9 +147,11 @@ const ModalViewCompany: React.FC<ModalViewCompanyProps> = ({
           >
             Đóng
           </button>
-          <button className="save-btn" onClick={handleSave}>
-            Lưu
-          </button>
+        {!isReadOnly && (
+            <button className="save-btn" onClick={handleSave}>
+              Lưu
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ const Home: React.FC = () => {
   const [location, setLocation] = useState("");
   
   // Gộp useJob lại thành 1 lần gọi để state được đồng bộ
-  const { filterJobs, joblatest, categories_sum, latest } = useJob();
+  const { filterJobs, joblatest, categories_sum } = useJob();
   
   const { saveJob, unsaveJob, user, getUser } = useUser();
   const navigate = useNavigate();
@@ -105,7 +105,7 @@ const Home: React.FC = () => {
     fetchProvinces_V2().then(setProvinces);
     
     // Gọi hàm latest() để lấy dữ liệu việc làm mới nhất khi trang load
-    latest();
+    // latest();
 
     let index = 0;
     const interval = setInterval(() => {
@@ -129,7 +129,7 @@ const Home: React.FC = () => {
     }
 
     return () => clearInterval(interval);
-  }, [getUser, latest]); // Thêm latest vào dependency
+  }, [getUser]); // Thêm latest vào dependency
 
   useEffect(() => {
     const fetchData = async () => {

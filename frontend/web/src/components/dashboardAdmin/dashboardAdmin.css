@@ -29,6 +29,11 @@
     height: auto;
     padding: 10px 10px;
 }
+/* .admin-dashboard-body_main_report{
+    height: auto;
+    padding: 10px 10px;
+    margin-left: 50%;
+} */
 .admin-dashboard-body_main h3{
     font-size: 19px;
 }
