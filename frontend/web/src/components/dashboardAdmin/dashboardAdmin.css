@@ -82,17 +82,17 @@
 .admin-dashboard-body_main h3 {
   margin: 0;
   padding: 20px 28px;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
-  color: white;
+  /* background: linear-gradient(90deg, #6366f1, #8b5cf6); */
+  color: black;
   font-size: 18px;
   font-weight: 600;
   border-bottom: none;
   letter-spacing: 0.5px;
 }
 
-.list_candidate_title_admin {
+/* .list_candidate_title_admin {
   background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
-}
+} */
 
 /* Table đẹp hơn */
 .admin-dashboard-body_main .ant-table {
