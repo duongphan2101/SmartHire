@@ -1,6 +1,7 @@
 import React, { useState, forwardRef, useRef, useEffect } from 'react';
 import './SeniorCVTemplate.css';
 import Modal_AI_Recomend from '../../Modal-AI-Recomend/Modal-AI-Recomend';
+import { BsFillGeoFill, BsFillTelephoneFill, BsLink45Deg, BsThreads } from "react-icons/bs";
 
 export interface CvSection {
     id: string;
@@ -67,6 +68,7 @@ interface FreshInternCVTemplateProps {
     settings: CustomSettings;
     cvData: CVData;
     updateCvData: (field: keyof CVData, value: any) => void;
+    onLayoutChange?: (order: string[]) => void;
 }
 
 // --- TỪ ĐIỂN ĐA NGÔN NGỮ ---
@@ -212,7 +214,8 @@ const AutosizeTextArea: React.FC<AutosizeTextAreaProps> = ({ value, onChange, pl
     );
 };
 
-const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplateProps>(({ settings, cvData, updateCvData }, ref) => {
+// [MỚI] Destructure onLayoutChange từ props
+const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplateProps>(({ settings, cvData, updateCvData, onLayoutChange }, ref) => {
 
     const rawLang = settings.lang || cvData.languageForCV || 'vi';
     const lang = rawLang === 'en' ? 'en' : 'vi';
@@ -238,19 +241,34 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
     const headerStyle = { color: safeColor, fontFamily: rawFont, fontWeight: 'bold' };
     const h1BorderStyle = { color: safeColor, fontFamily: rawFont };
 
-    // 3. STATE
-    const [showEmail, setShowEmail] = useState(true);
-    const [showPhone, setShowPhone] = useState(false);
-    const [showLinkedln, setShowLinkedln] = useState(false);
-    const [showGithub, setShowGithub] = useState(false);
-    const [showAddress, setShowAddress] = useState(false);
-    
-    // STATE CHO SOFT SKILLS (Mặc định hiện nếu có data, hoặc true)
-    const [showSoftSkills, setShowSoftSkills] = useState(true);
+    const hasValue = (val: string | undefined | null) => {
+        return !!(val && val.trim().length > 0);
+    };
+
+    // SỬA: Bỏ dấu "!" ở đầu để nếu có value -> trả về true
+    const [showEmail, setShowEmail] = useState(hasValue(cvData?.contact?.email));
+    const [showPhone, setShowPhone] = useState(hasValue(cvData?.contact?.phone));
+    const [showLinkedln, setShowLinkedln] = useState(hasValue(cvData?.contact?.website));
+    const [showGithub, setShowGithub] = useState(hasValue(cvData?.contact?.github));
+    const [showAddress, setShowAddress] = useState(hasValue(cvData?.contact?.address));
+
+    // Soft skills
+    const [showSoftSkills, setShowSoftSkills] = useState(hasValue(cvData?.softSkills));
 
     const [openModalSummary, setOpenModalSummary] = useState<boolean>(false);
     const [openModalEx, setOpenModalEx] = useState<boolean>(false);
     const [openModalDesProject, setOpenModalDesProject] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (cvData) {
+            setShowEmail(hasValue(cvData.contact?.email));
+            setShowPhone(hasValue(cvData.contact?.phone));
+            setShowLinkedln(hasValue(cvData.contact?.website));
+            setShowGithub(hasValue(cvData.contact?.github));
+            setShowAddress(hasValue(cvData.contact?.address));
+            setShowSoftSkills(hasValue(cvData.softSkills));
+        }
+    }, [cvData]);
 
     const closeCVAIModalSummary = () => {
         setOpenModalSummary(false);
@@ -307,6 +325,16 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         "Analytical Thinking", "Presentation Skills", "Negotiation", "Attention to Detail", "Flexibility", "Motivation",
         "Work Ethic", "Active Listening", "Networking", "Persuasion", "Stress Management", "Self-Discipline",
     ];
+
+    const getInputStyle = (value: string, placeholder: string, font: string) => {
+        const length = value && value.length > 0 ? value.length : (placeholder ? placeholder.length : 10);
+        return {
+            fontFamily: font,
+            width: `${length + 1}ch`,
+            minWidth: '50px',
+            maxWidth: '100%'
+        };
+    };
 
     const currentProfSkills = skillsArray(cvData.professionalSkills);
     const currentSoftSkills = skillsArray(cvData.softSkills);
@@ -384,8 +412,21 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         setShowSoftSuggestion(false);
     };
 
+    // --- LOGIC KÉO THẢ & SẮP XẾP ---
     const [cvSections, setCvSections] = useState<CvSection[]>(defaultCvSections);
     const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
+
+    // [MỚI] UseEffect này sẽ chạy mỗi khi thứ tự hoặc trạng thái ẩn/hiện thay đổi
+    // Nó báo cho component CHA (BuildCvs) biết thứ tự hiện tại là gì
+    useEffect(() => {
+        const currentOrder = cvSections
+            .filter(s => s.isVisible) // Lấy các section đang hiện
+            .map(s => s.componentKey); // Lấy Key (SUMMARY, EXPERIENCE...)
+
+        if (onLayoutChange) {
+            onLayoutChange(currentOrder);
+        }
+    }, [cvSections, onLayoutChange]);
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
         setDraggedItemId(id);
@@ -484,13 +525,12 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
         updateCvData(arrayName, (cvData[arrayName] as any[] || []).filter((_, i) => i !== index));
     };
 
-    // --- RENDER HELPERS (ĐÃ SỬA: Dùng rawFont) ---
     const renderProjectEntry = (project: Project, index: number) => {
         return (
             <div key={index} className="job-entry border-l-4 relative group">
                 <input type="text"
-                    style={{ fontFamily: rawFont }}
-                    className="project-title input-cv-value font-bold"
+                    style={{ fontFamily: rawFont, textAlign: 'left' }}
+                    className="project-title input-cv-value font-bold text-left"
                     value={project.projectName || ''}
                     onChange={(e) => updateProjectField(index, 'projectName', e.target.value)}
                     placeholder={T.PHRASES.PROJECT_NAME_PLACEHOLDER} />
@@ -555,9 +595,6 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                             min="1950"
                             max={new Date().getFullYear()}
                             style={{
-                                width: education.startYear
-                                    ? `${(education.startYear.length || 1)}ch`
-                                    : `${T.PHRASES.START_YEAR_PLACEHOLDER.length}ch`,
                                 fontFamily: rawFont,
                             }}
                         />
@@ -571,9 +608,6 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                             min={education.startYear || 1950}
                             max={new Date().getFullYear() + 5}
                             style={{
-                                width: education.endYear
-                                    ? `${(education.endYear.length || 1)}ch`
-                                    : `${T.PHRASES.END_YEAR_PLACEHOLDER.length}ch`,
                                 fontFamily: rawFont,
                             }}
                         />
@@ -618,9 +652,6 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
 
                     <input type="text"
                         style={{
-                            width: exp.company
-                                ? `${(exp.company.length || 1)}ch`
-                                : `${T.PHRASES.COMPANY_PLACEHOLDER.length}ch`,
                             fontFamily: rawFont,
                         }}
                         value={exp.company || ''}
@@ -797,8 +828,8 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                                     )}
                                 </div>
                             </div>
-                            
-                            {/* Kỹ năng mềm (ĐÃ SỬA: CÓ THỂ BẬT TẮT) */}
+
+                            {/* Kỹ năng mềm */}
                             {showSoftSkills ? (
                                 <div className='flex items-baseline gap-1 skill-line'>
                                     <span><strong style={{ fontFamily: rawFont }}>{T.PHRASES.SOFT_SKILLS}</strong></span>
@@ -885,7 +916,7 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
             <div className="cv-container" style={cvStyle} ref={ref}>
                 {/* 1. HEADER & CONTACT (GIỮ CỐ ĐỊNH, KHÔNG KÉO THẢ) */}
                 <header className="cv-header">
-                    <input className='cv-header-inputname input-cv-value uppercase font-bold'
+                    <input className='cv-header-inputname uppercase font-bold'
                         style={h1BorderStyle}
                         value={cvData.name}
                         onChange={(e) => updateCvData('name', e.target.value)}
@@ -895,8 +926,8 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     <hr style={{
                         border: 'none',
                         height: '2px',
-                        backgroundColor: safeColor, // Đã sửa để dùng safeColor phụ thuộc settings
-                        marginTop: '4px',
+                        backgroundColor: safeColor,
+                        marginTop: '10px',
                         marginBottom: '8px',
                     }} />
 
@@ -912,8 +943,9 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* EMAIL */}
                     {showEmail &&
                         (<div className='flex items-center gap-1 contact-info_item'>
+                            <BsThreads color={safeColor} />
                             <input className='input-cv-value input-email'
-                                style={{ fontFamily: rawFont, width: 'fit-content', minWidth: '170px' }}
+                                style={getInputStyle(cvData.contact.email, "email@example.com", rawFont)}
                                 type="text" value={cvData.contact.email}
                                 onChange={(e) => updateContactField('email', e.target.value)}
                                 placeholder="email@example.com"
@@ -926,8 +958,9 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* SỐ ĐIỆN THOẠI */}
                     {showPhone &&
                         (<div className='flex items-center gap-1 contact-info_item'>
-                            <input className='input-cv-value input-phone'
-                                style={{ fontFamily: rawFont }}
+                            <BsFillTelephoneFill color={safeColor} />
+                            <input className='input-cv-value'
+                                style={getInputStyle(cvData.contact.phone, T.PHRASES.PHONE_PLACEHOLDER, rawFont)}
                                 type="text" value={cvData.contact.phone}
                                 onChange={(e) => updateContactField('phone', e.target.value)}
                                 placeholder={T.PHRASES.PHONE_PLACEHOLDER} />
@@ -939,8 +972,9 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* Address */}
                     {showAddress &&
                         (<div className='flex items-center gap-1 contact-info_item'>
+                            <BsFillGeoFill color={safeColor} />
                             <input className='input-cv-value'
-                                style={{ fontFamily: rawFont, width: 'fit-content' }}
+                                style={getInputStyle(cvData.contact.address, T.PHRASES.ADDRESS_PLACEHOLDER, rawFont)}
                                 type="text" value={cvData.contact.address}
                                 onChange={(e) => updateContactField('address', e.target.value)}
                                 placeholder={T.PHRASES.ADDRESS_PLACEHOLDER}
@@ -953,10 +987,11 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* LINKEDIN */}
                     {showLinkedln &&
                         (<div className='flex items-center gap-1 contact-info_item'>
+                            <BsLink45Deg color={safeColor} />
                             <input className='input-cv-value'
                                 type="text"
                                 value={cvData.contact.website}
-                                style={{ fontFamily: rawFont, width: 'fit-content', minWidth: '150px' }}
+                                style={getInputStyle(cvData.contact.website, T.PHRASES.LINKEDIN_PLACEHOLDER, rawFont)}
                                 onChange={(e) => updateContactField('website', e.target.value)} placeholder={T.PHRASES.LINKEDIN_PLACEHOLDER} />
                             <button className='cv-editor-control cv-del-control' onClick={() => setShowLinkedln(false)}>{T.PHRASES.HIDE}</button>
                         </div>
@@ -966,10 +1001,11 @@ const FreshInternCVTemplate = forwardRef<HTMLDivElement, FreshInternCVTemplatePr
                     {/* GITHUB/PORTFOLIO */}
                     {showGithub &&
                         (<div className='flex items-center gap-0.5 contact-info_item'>
+                            <BsLink45Deg color={safeColor} />
                             <input className='input-cv-value'
                                 type="text"
                                 value={cvData.contact.github}
-                                style={{ fontFamily: rawFont, width: 'fit-content', minWidth: '150px' }}
+                                style={getInputStyle(cvData.contact.github, T.PHRASES.GITHUB_PLACEHOLDER, rawFont)}
                                 onChange={(e) => updateContactField('github', e.target.value)} placeholder={T.PHRASES.GITHUB_PLACEHOLDER} />
                             <button className='cv-editor-control cv-del-control' onClick={() => setShowGithub(false)}>{T.PHRASES.HIDE}</button>
                         </div>

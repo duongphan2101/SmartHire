@@ -36,6 +36,11 @@ export interface CVAnalysisData {
   roadmap: string[];
   job_match_score: number;
 }
+interface CustomSettings {
+  color: string;
+  fontFamily: string;
+  lang: string;
+}
 
 interface cvAnalysisRes {
   success: boolean;
@@ -49,7 +54,6 @@ export default function useCV() {
   const [cvs, setCVs] = useState<CVResponse[]>([]);
   const [result, setResult] = useState<CVAnalysisData | null>(null);
 
-  // ================= CRUD =================
   const getCVs = useCallback(async (userId: string) => {
     try {
       setLoading(true);
@@ -65,26 +69,67 @@ export default function useCV() {
     }
   }, []);
 
-  const createCV = useCallback(async (userId: string, cvData: Partial<CVResponse>, pdfUrl: string) => {
+  const createCV = useCallback(async (
+    userId: string, 
+    cvData: Partial<CVResponse>, 
+    settings: CustomSettings, 
+    layout: string[]
+  ) => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await axios.post<CVResponse>(`${HOSTS.cvService}/createCV`, {
+      const payload = {
         userId,
         cvData,
-        pdfUrl,
-      });
+        settings,
+        layout
+      };
+
+      const res = await axios.post<CVResponse>(`${HOSTS.cvService}/createCV`, payload);
 
       setCVs(prev => [...prev, res.data]);
-      return res.data;
+      
+      return res.data; 
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "createCV failed");
+      throw err; 
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const updateCV = useCallback(async (
+    cvId: string, 
+    updateData: Partial<CVResponse>, 
+    settings: CustomSettings, 
+    layout: string[]
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const payload = {
+        ...updateData, 
+        settings,      
+        layout,        
+        regeneratePDF: true 
+      };
+
+      const res = await axios.put<CVResponse>(`${HOSTS.cvService}/${cvId}`, payload);
+
+      setCVs(prev => prev.map(cv => (cv._id === cvId ? res.data : cv)));
+      
+      return res.data;
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "updateCV failed");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [cvs]);
 
   const createCVParse = useCallback(async (userId: string, cvData: CVData, pdfUrl: string) => {
     try {
@@ -110,28 +155,6 @@ export default function useCV() {
     }
   }, []);
 
-  const updateCV = useCallback(async (cvId: string, updateData: Partial<CVResponse>, newPdfUrl?: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const currentCv = cvs.find((item) => item._id === cvId);
-      const oldUrl = currentCv?.fileUrls?.[0] || null;
-      const payload = {
-        ...updateData,
-        oldUrl: oldUrl,
-        newUrl: newPdfUrl
-      };
-
-      const res = await axios.put<CVResponse>(`${HOSTS.cvService}/${cvId}`, payload);
-      setCVs(prev => prev.map(cv => (cv._id === cvId ? res.data : cv)));
-      return res.data;
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      setError(axiosErr.response?.data?.message || "updateCV failed");
-    } finally {
-      setLoading(false);
-    }
-  }, [cvs]);
 
   const deleteCV = useCallback(async (cvId: string) => {
     try {
@@ -148,7 +171,6 @@ export default function useCV() {
     }
   }, []);
 
-  // ================= Parse CV Text =================
   const parseCVText = useCallback(async (cvText: string) => {
     try {
       setLoading(true);
@@ -163,7 +185,6 @@ export default function useCV() {
     }
   }, []);
 
-  // ================= AI Optimize =================
   const optimizeSummary = useCallback(async (content: string) => {
     try {
       setLoading(true);
@@ -241,7 +262,6 @@ export default function useCV() {
     setResult(null);
 
     try {
-      //console.log(`${HOSTS.cvAIService}/analysis-cv`);
       const res = await axios.post<cvAnalysisRes>(`${HOSTS.cvAIService}/analysis-cv`, {
         cvId: cvId
       });

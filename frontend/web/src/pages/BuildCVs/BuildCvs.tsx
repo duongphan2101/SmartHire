@@ -16,6 +16,7 @@ import { HOSTS } from "../../utils/host";
 
 type TemplateKey = 'twocolumns' | 'fresher' | 'modern';
 
+// --- Interfaces (Giữ nguyên) ---
 interface ContactInfo {
     phone: string;
     email: string;
@@ -86,6 +87,9 @@ const DEFAULT_CV_DATA: CVData = {
     templateType: 1, color: "", fontFamily: "", languageForCV: "",
 };
 
+// Thứ tự mặc định ban đầu (Khớp với defaultCvSections trong Template)
+const DEFAULT_LAYOUT = ['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'EDUCATION', 'SKILLS', 'ACTIVITIES'];
+
 const BuildCvs: React.FC = () => {
     const [currentTemplate, setCurrentTemplate] = useState<TemplateKey>('fresher');
     const { getUser, user } = useUser();
@@ -98,6 +102,9 @@ const BuildCvs: React.FC = () => {
         fontFamily: 'Arial',
         lang: 'vn',
     });
+
+    // [MỚI] State lưu thứ tự sắp xếp layout
+    const [layoutOrder, setLayoutOrder] = useState<string[]>(DEFAULT_LAYOUT);
 
     // Lấy ID từ URL
     const [searchParams] = useSearchParams();
@@ -112,6 +119,11 @@ const BuildCvs: React.FC = () => {
             case 3: return 'modern';
             default: return 'fresher';
         }
+    };
+
+    // [MỚI] Hàm callback để Component con (Template) gọi khi người dùng kéo thả
+    const handleLayoutChange = (newOrder: string[]) => {
+        setLayoutOrder(newOrder);
     };
 
     useEffect(() => {
@@ -146,7 +158,6 @@ const BuildCvs: React.FC = () => {
         fetchUserData();
     }, [getUser]);
 
-    // UseEffect 2: Load CV Data & SYNC SETTINGS
     useEffect(() => {
         const initData = async () => {
             if (cvIdToEdit) {
@@ -204,9 +215,9 @@ const BuildCvs: React.FC = () => {
                             : [],
 
                         templateType: data.templateType || 1,
-                        color: data.color || "#059669",
-                        fontFamily: data.fontFamily || "Arial",
-                        languageForCV: data.language || "vn",
+                        color: data.color || "",
+                        fontFamily: data.fontFamily || "",
+                        languageForCV: data.languageForCV || "",
                     };
 
                     setCvData(mappedData);
@@ -240,8 +251,7 @@ const BuildCvs: React.FC = () => {
                     templateType: { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[currentTemplate]
                 };
                 setCvData(initialData);
-                
-                // (Tùy chọn) Reset settings về mặc định khi tạo mới
+
                 setCustomSettings({
                     color: '#059669',
                     fontFamily: 'Arial',
@@ -251,7 +261,7 @@ const BuildCvs: React.FC = () => {
         };
 
         initData();
-    }, [cvIdToEdit, user]); // Bỏ currentTemplate ra khỏi dependency để tránh loop khi tạo mới
+    }, [cvIdToEdit, user]);
 
     const handleTemplateChange = (templateType: TemplateKey) => {
         setCurrentTemplate(templateType);
@@ -279,6 +289,7 @@ const BuildCvs: React.FC = () => {
             settings: customSettings,
             cvData: cvData,
             updateCvData: updateCvData,
+            onLayoutChange: handleLayoutChange, // <-- Mới thêm
         };
 
         switch (currentTemplate) {
@@ -338,6 +349,7 @@ const BuildCvs: React.FC = () => {
                         cvData={cvData}
                         isEditMode={!!cvIdToEdit}
                         cvId={cvIdToEdit}
+                        layoutOrder={layoutOrder}
                     />
                 </div>
 

@@ -101,9 +101,9 @@
     margin: auto;
 }
 
-.input-cv-value {
+/* .input-cv-value {
     width: fit-content;
-}
+} */
 
 .input-phone {
     width: 100px;
@@ -274,24 +274,44 @@ hr {
 }
 
 .contact-info_item {
-    width: auto;
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.contact-info_item:focus-within .cv-del-control {
-    display: block;
+.input-cv-value {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    text-align: justify; 
+    color: inherit;
 }
 
 .cv-del-control {
-    height: 13px;
-    width: 13px;
-    background-color: #b91c1c;
+    background-color: #ff4d4f;
+    color: white;
     border-radius: 50%;
-    color: #fff;
-    display: none;
-    margin-top: -10px;
-    margin-left: 5px;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    line-height: 18px;
+    text-align: center;
+    padding: 0;
+    border: none;
+    cursor: pointer;
 }
+
+@media print {
+    .cv-editor-control {
+        display: none !important;
+    }
+    .input-cv-value {
+        width: auto !important; /* Khi in thì để auto cho đẹp */
+    }
+}
+
 
 .cv-section-draggable-wrapper {
     position: relative;
