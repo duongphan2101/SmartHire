@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 
 import useDashboardCharts from "../../hook/useDashboardCharts";
 import PostAdmin from "./Post";
-import useJob, {type Job } from "../../hook/useJob";
+import useJob, { type Job } from "../../hook/useJob";
 import useDepartment from "../../hook/useDepartment";
 import useUser from "../../hook/useUser";
 
@@ -18,14 +18,14 @@ type RangeValue = [Dayjs | null, Dayjs | null] | null;
 
 interface DashboardContentProps {
   page:
-    | "dashboard"
-    | "post"
-    | "company"
-    | "manageUsers"
-    | "manageHR"
-    | "userTerms"
-    | "hrTerms"
-    | "about";
+  | "dashboard"
+  | "post"
+  | "company"
+  | "manageUsers"
+  | "manageHR"
+  | "userTerms"
+  | "hrTerms"
+  | "about";
   setPage: React.Dispatch<any>;
 }
 
@@ -97,11 +97,16 @@ const PendingJobWidget: React.FC<{ startDate: Dayjs | null; endDate: Dayjs | nul
 
   return (
     <div className="admin-dashboard-body_main bg-white shadow-2xl rounded-xl">
-      <h3 className="text-left text-xl font-bold py-4 px-6 border-b list_candidate_title_admin">
-        Danh sách bài đăng đang chờ duyệt từ ngày{" "}
-        {startDate?.format("YYYY-MM-DD") ?? "-"} đến ngày{" "}
-        {endDate?.format("YYYY-MM-DD") ?? "-"}
-      </h3>
+      <div className="flex justify-between gap-2.5 items-center">
+        <h3 className="font-bold text-left list_candidate_title_admin">
+          Bài đăng chờ duyệt từ ngày{" "}
+          {startDate?.format("YYYY-MM-DD") ?? "-"} đến {" "}
+          {endDate?.format("YYYY-MM-DD") ?? "-"}
+        </h3>
+        <span className="bg-emerald-600 text-white rounded-2xl text-sm"
+          style={{ padding: '4px 8px' }}
+        >{filteredJobs.length}</span>
+      </div>
 
       {isLoadingWidget || loading ? (
         <div className="p-10 text-center">
@@ -193,11 +198,16 @@ const PendingCompanyWidget: React.FC<{ startDate: Dayjs | null; endDate: Dayjs |
 
   return (
     <div className="admin-dashboard-body_main bg-white shadow-2xl rounded-xl">
-      <h3 className="text-left text-xl font-bold py-4 px-6 border-b list_candidate_title">
-        Danh sách công ty đang chờ duyệt từ ngày{" "}
-        {startDate?.format("YYYY-MM-DD") ?? "-"} đến ngày{" "}
-        {endDate?.format("YYYY-MM-DD") ?? "-"}
-      </h3>
+      <div className="flex justify-between gap-2.5 items-center">
+        <h3 className="text-left text-xl font-bold list_candidate_title">
+          Công ty chờ duyệt từ ngày{" "}
+          {startDate?.format("YYYY-MM-DD") ?? "-"} đến ngày{" "}
+          {endDate?.format("YYYY-MM-DD") ?? "-"}
+        </h3>
+        <span className="bg-emerald-600 text-white rounded-2xl text-sm"
+          style={{ padding: '4px 8px' }}
+        >{departments.length}</span>
+      </div>
 
       {isLoadingWidget || loading ? (
         <div className="p-10 text-center">
@@ -230,7 +240,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
   const { fetchChartData } = useDashboardCharts();
-  const { pendingJobsAdmin } = useJob();                
+  const { pendingJobsAdmin } = useJob();
   const { departments } = useDepartment("all");
   const { getBannedUsersCount } = useUser();
   const [bannedUsers, setBannedUsers] = useState(0);
@@ -238,10 +248,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
   useEffect(() => {
     fetchChartData();
     getBannedUsersCount().then((count) => {
-    if (count !== undefined && count !== null) {
-      setBannedUsers(count);
-    }
-  });
+      if (count !== undefined && count !== null) {
+        setBannedUsers(count);
+      }
+    });
   }, [fetchChartData, getBannedUsersCount]);
 
   useEffect(() => {
@@ -297,9 +307,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
             <div className="admin-dashboard-body_head grid grid-cols-1 md:grid-cols-3 gap-6">
               {/*  Bài đăng chờ duyệt */}
               <div
-                className={`relative group cursor-pointer transition-all ${
-                  activeCard === "pendingPosts" ? "ring-4 ring-indigo-500" : ""
-                }`}
+                className={`relative group cursor-pointer transition-all ${activeCard === "pendingPosts" ? "ring-4 ring-indigo-500" : ""
+                  }`}
                 onClick={() => handleCardClick("pendingPosts")}
               >
                 <div className="admin-body-head_card bg-purple-200 shadow-xl flex p-6 rounded-xl hover:shadow-2xl transition-shadow">
@@ -317,9 +326,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
 
               {/* Tổng công ty */}
               <div
-                className={`relative group cursor-pointer transition-all ${
-                  activeCard === "departments" ? "ring-4 ring-green-500" : ""
-                }`}
+                className={`relative group cursor-pointer transition-all ${activeCard === "departments" ? "ring-4 ring-green-500" : ""
+                  }`}
                 onClick={() => handleCardClick("departments")}
               >
                 <div className="admin-body-head_card bg-green-200 shadow-xl flex p-6 rounded-xl hover:shadow-2xl transition-shadow">
@@ -337,9 +345,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
 
               {/* Người dùng bị cấm */}
               <div
-                className={`relative group cursor-pointer transition-all ${
-                  activeCard === "bannedUsers" ? "ring-4 ring-red-500" : ""
-                }`}
+                className={`relative group cursor-pointer transition-all ${activeCard === "bannedUsers" ? "ring-4 ring-red-500" : ""
+                  }`}
                 onClick={() => handleCardClick("bannedUsers")}
               >
                 <div className="admin-body-head_card bg-red-200 shadow-xl flex p-6 rounded-xl hover:shadow-2xl transition-shadow">
@@ -354,7 +361,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ page, setPage }) =>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <PendingJobWidget startDate={startDate} endDate={endDate} />
               <PendingCompanyWidget startDate={startDate} endDate={endDate} />
             </div>

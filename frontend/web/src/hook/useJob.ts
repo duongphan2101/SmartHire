@@ -55,13 +55,11 @@ export default function useJob() {
   const { department } = useDepartment("user");
   const host = HOSTS.jobService;
 
-  // FETCH PENDING JOBS CHO ADMIN – CHỈ SET pendingJobsAdmin, KHÔNG ĐỘNG VÀO jobs
   const fetchPendingJobsAdmin = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get<Job[]>(`${host}/pending`);
-      setPendingJobsAdmin(res.data); // CHỈ SET VÀO pendingJobsAdmin
-      // Tuyệt đối KHÔNG setJobs(res.data) → đây là nguyên nhân bug!
+      setPendingJobsAdmin(res.data);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "Không tải được bài chờ duyệt");
