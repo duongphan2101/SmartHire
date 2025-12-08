@@ -69,7 +69,7 @@ const getInterviewByHrId = async (req, res) => {
       // .populate("jobId", "title");
 
     if (!interviews || interviews.length === 0) {
-      return res.status(404).json({ message: "No interviews found for this HR" });
+      return res.status(200).json({ message: "No interviews found for this HR" });
     }
 
     res.status(200).json(interviews);

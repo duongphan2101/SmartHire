@@ -22,6 +22,7 @@ import useNotification from "../../hook/useNotification";
 import useEmailService from "../../hook/useEmail";
 import useUser from "../../hook/useUser";
 
+
 interface ViewModalProps {
   job: Job;
   onClose: () => void;
