@@ -105,7 +105,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     const handleSaveCV = async () => {
         // 1. Validate dữ liệu cơ bản
         if (!cvData.name) return Swal.fire("Lỗi", "Vui lòng nhập tên của bạn.", "warning");
-
+        console.log("Saving CV with data:", cvData, "and settings:", customSettings);
         // 2. Loading UI
         Swal.fire({
             title: isEditMode ? "Đang cập nhật..." : "Đang tạo CV...",
@@ -180,7 +180,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     >
                         Fresher/Intern
                     </button>
-                    <button
+                    {/* <button
                         onClick={() => onTemplateChange('twocolumns')}
                         className={`p-2 border rounded ${currentTemplate === 'twocolumns' ? 'bg-emerald-100 border-emerald-500 text-emerald-700' : 'bg-white'}`}
                     >
@@ -191,7 +191,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         className={`p-2 border rounded ${currentTemplate === 'modern' ? 'bg-emerald-100 border-emerald-500 text-emerald-700' : 'bg-white'}`}
                     >
                         Modern
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
@@ -239,7 +239,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end mt-6 border-t pt-4">
+            <div className="flex items-center justify-end">
                 <button
                     className="btn-create-cv px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors w-full font-bold"
                     onClick={handleSaveCV}

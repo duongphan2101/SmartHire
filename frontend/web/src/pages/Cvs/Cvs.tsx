@@ -9,14 +9,15 @@ import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
 import { HOSTS } from "../../utils/host";
 import CVViewer from "../../components/Preview-PDF/PdfPreview";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import { AiOutlineCloudDownload, AiOutlineDelete, AiOutlineEye, AiOutlineForm } from "react-icons/ai";
 
 const Cvs: React.FC = () => {
   const { getUser, user, loadingUser } = useUser();
   const [cvs, setCvs] = useState<any[]>([]);
   const [openChat, setIsChatOpen] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
-  
+
   // Khởi tạo navigate
   const navigate = useNavigate();
 
@@ -80,6 +81,37 @@ const Cvs: React.FC = () => {
     navigate(`/buildCV?id=${cvId}`);
   };
 
+  // Hàm xử lý download CV
+  const handleDownloadCv = async (url: string, fileName: string) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Network response was not ok");
+
+      const blob = await res.blob();
+      const link = document.createElement("a");
+
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+
+      Swal.fire({
+        title: "Thành công!",
+        text: "Đang tải xuống CV...",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+    } catch (error) {
+      console.error("Download error:", error);
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <div className="App">
       <Header onOpenChat={handleOpenChatRequest} />
@@ -112,7 +144,7 @@ const Cvs: React.FC = () => {
                       <div
                         style={{
                           width: "300px",
-                          height: "500px",
+                          height: "470px",
                           overflow: "hidden",
                           border: "1px solid #e0e0e0",
                           borderRadius: "8px",
@@ -123,13 +155,14 @@ const Cvs: React.FC = () => {
 
                       <div className="cv-actions">
                         <button
-                          className="view-detail-btn"
+                          className="view-detail-btn cvs_btn"
                           onClick={() => window.open(finalPdfUrl, "_blank")}
                         >
-                          Xem chi tiết
+                          <AiOutlineEye />
                         </button>
+
                         <button
-                          className="delete-cv-btn"
+                          className="delete-cv-btn cvs_btn"
                           onClick={() => {
                             Swal.fire({
                               title: "Bạn có chắc muốn xóa CV này?",
@@ -147,16 +180,22 @@ const Cvs: React.FC = () => {
                             });
                           }}
                         >
-                          Xóa CV
+                          <AiOutlineDelete />
                         </button>
-                        
-                        {/* Nút chỉnh sửa đã cập nhật logic */}
+
                         <button
-                          className="edit-cv-btn"
+                          className="edit-cv-btn cvs_btn"
                           onClick={() => handleEditCV(cv._id)}
                         >
-                          Chỉnh sửa
+                          <AiOutlineForm />
                         </button>
+
+                        <button className="download-cv-btn cvs_btn"
+                          onClick={() => handleDownloadCv(finalPdfUrl, `CV_${cv.title || 'MyCV'}.pdf`)}
+                        >
+                          <AiOutlineCloudDownload />
+                        </button>
+
                       </div>
                     </>
                   ) : (

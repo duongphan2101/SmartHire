@@ -175,8 +175,7 @@ async function analysicCV(req, res) {
            "Bước 1: Hành động cụ thể...",
            "Bước 2: Hành động cụ thể...",
            "Bước 3: ..."
-        ],
-        "job_match_score": 80 (Số nguyên từ 0-100 đánh giá độ hoàn thiện của hồ sơ so với thị trường chung)
+        ]
       }
     `;
 

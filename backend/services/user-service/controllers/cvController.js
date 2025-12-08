@@ -17,223 +17,238 @@ const s3 = new AWS.S3({
 });
 
 handlebars.registerHelper('eq', function (a, b) {
-    return a === b;
+  return a === b;
 });
 
 const DICTIONARY = {
-    vi: {
-        SUMMARY: 'Mục tiêu nghề nghiệp',
-        EXPERIENCE: 'Kinh nghiệm làm việc',
-        PROJECTS: 'Dự án',
-        EDUCATION: 'Học vấn',
-        SKILLS: 'Kỹ năng',
-        PROF_SKILLS: 'Chuyên môn:',
-        SOFT_SKILLS: 'Kỹ năng mềm:',
-        ACTIVITIES: 'Hoạt động khác',
-        AT: 'tại',
-        UNIVERSITY: 'Trường:',
-        MAJOR: 'Chuyên ngành:',
-        TIME: 'Thời gian:',
-        GPA: 'GPA:'
-    },
-    en: {
-        SUMMARY: 'Summary',
-        EXPERIENCE: 'Work Experience',
-        PROJECTS: 'Projects',
-        EDUCATION: 'Education',
-        SKILLS: 'Skills',
-        PROF_SKILLS: 'Professional:',
-        SOFT_SKILLS: 'Soft Skills:',
-        ACTIVITIES: 'Activities',
-        AT: 'at',
-        UNIVERSITY: 'University:',
-        MAJOR: 'Major:',
-        TIME: 'Time:',
-        GPA: 'GPA:'
-    }
+  vi: {
+    SUMMARY: 'Mục tiêu nghề nghiệp',
+    EXPERIENCE: 'Kinh nghiệm làm việc',
+    PROJECTS: 'Dự án',
+    EDUCATION: 'Học vấn',
+    SKILLS: 'Kỹ năng',
+    PROF_SKILLS: 'Chuyên môn:',
+    SOFT_SKILLS: 'Kỹ năng mềm:',
+    ACTIVITIES: 'Hoạt động khác',
+    AT: 'tại',
+    UNIVERSITY: 'Trường:',
+    MAJOR: 'Chuyên ngành:',
+    TIME: 'Thời gian:',
+    GPA: 'GPA:'
+  },
+  en: {
+    SUMMARY: 'Summary',
+    EXPERIENCE: 'Work Experience',
+    PROJECTS: 'Projects',
+    EDUCATION: 'Education',
+    SKILLS: 'Skills',
+    PROF_SKILLS: 'Professional:',
+    SOFT_SKILLS: 'Soft Skills:',
+    ACTIVITIES: 'Activities',
+    AT: 'at',
+    UNIVERSITY: 'University:',
+    MAJOR: 'Major:',
+    TIME: 'Time:',
+    GPA: 'GPA:'
+  }
 };
 
-const compileTemplate = (data) => {
-    const filePath = path.join(__dirname, '../templates/cv_template.hbs');
-    const html = fs.readFileSync(filePath, 'utf-8');
-    return handlebars.compile(html)(data);
+const getTemplateName = (type) => {
+  switch (type) {
+    case 2: return 'twocolumns'; // Tương ứng file templates/twocolumns.hbs
+    case 3: return 'modern';     // Tương ứng file templates/modern.hbs
+    default: return 'fresher';   // Tương ứng file templates/fresher.hbs (Mặc định)
+  }
+};
+
+const compileTemplate = (templateName, data) => {
+  const filePath = path.join(__dirname, `../templates/${templateName}.hbs`);
+  // Kiểm tra file có tồn tại không để tránh crash
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Template file not found: ${templateName}.hbs`);
+  }
+  const html = fs.readFileSync(filePath, 'utf-8');
+  return handlebars.compile(html)(data);
 };
 
 const splitSkills = (skillsStr) => {
-    if (!skillsStr) return [];
-    try {
-        const parsed = JSON.parse(skillsStr);
-        if (Array.isArray(parsed)) return parsed;
-    } catch (e) { }
-    return skillsStr.toString().split(',').map(s => s.trim()).filter(s => s);
+  if (!skillsStr) return [];
+  try {
+    const parsed = JSON.parse(skillsStr);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (e) { }
+  return skillsStr.toString().split(',').map(s => s.trim()).filter(s => s);
 };
 
 const createPDF = async (cvData, settings, layoutOrder) => {
-    let browser;
-    try {
-        const langCode = settings?.lang === 'en' ? 'en' : 'vi';
-        const i18n = DICTIONARY[langCode];
+  let browser;
+  try {
+    const langCode = settings?.lang === 'en' ? 'en' : 'vi';
+    const i18n = DICTIONARY[langCode];
 
-        const finalSettings = {
-            color: settings?.color || cvData.color || '#059669',
-            fontFamily: settings?.fontFamily || cvData.fontFamily || 'Arial',
-            lang: langCode
-        };
+    const finalSettings = {
+      color: settings?.color || cvData.color || '#059669',
+      fontFamily: settings?.fontFamily || cvData.fontFamily || 'Arial',
+      lang: langCode
+    };
 
-        const profSkillsArray = splitSkills(cvData.professionalSkills);
-        const softSkillsArray = splitSkills(cvData.softSkills);
+    const templateType = cvData.templateType || 1;
+    const templateFileName = getTemplateName(templateType);
 
-        const defaultOrder = ['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'EDUCATION', 'SKILLS', 'ACTIVITIES'];
-        const order = layoutOrder && layoutOrder.length > 0 ? layoutOrder : defaultOrder;
+    const profSkillsArray = splitSkills(cvData.professionalSkills);
+    const softSkillsArray = splitSkills(cvData.softSkills);
 
-        const orderedSections = order.map(sectionKey => {
-            switch (sectionKey) {
-                case 'SUMMARY':
-                    return {
-                        type: 'SUMMARY',
-                        title: i18n.SUMMARY,
-                        content: cvData.introduction,
-                        hasData: !!cvData.introduction
-                    };
-                case 'EXPERIENCE':
-                    return {
-                        type: 'EXPERIENCE',
-                        title: i18n.EXPERIENCE,
-                        items: cvData.experience,
-                        hasData: cvData.experience?.length > 0
-                    };
-                case 'PROJECTS':
-                    return {
-                        type: 'PROJECTS',
-                        title: i18n.PROJECTS,
-                        items: cvData.projects,
-                        hasData: cvData.projects?.length > 0
-                    };
-                case 'EDUCATION':
-                    return {
-                        type: 'EDUCATION',
-                        title: i18n.EDUCATION,
-                        items: cvData.education,
-                        hasData: cvData.education?.length > 0
-                    };
-                case 'SKILLS':
-                    return {
-                        type: 'SKILLS',
-                        title: i18n.SKILLS,
-                        profSkillsArray: profSkillsArray,
-                        softSkillsArray: softSkillsArray,
-                        hasData: profSkillsArray.length > 0 || softSkillsArray.length > 0
-                    };
-                case 'ACTIVITIES':
-                    return {
-                        type: 'ACTIVITIES',
-                        title: i18n.ACTIVITIES,
-                        content: cvData.activitiesAwards,
-                        hasData: !!cvData.activitiesAwards
-                    };
-                default:
-                    return null;
-            }
-        }).filter(section => section && section.hasData);
+    const defaultOrder = ['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'EDUCATION', 'SKILLS', 'ACTIVITIES'];
+    const order = layoutOrder && layoutOrder.length > 0 ? layoutOrder : defaultOrder;
 
-        const content = compileTemplate({
-            ...cvData,
-            settings: finalSettings,
-            orderedSections,
-            i18n
-        });
+    const orderedSections = order.map(sectionKey => {
+      switch (sectionKey) {
+        case 'SUMMARY':
+          return {
+            type: 'SUMMARY',
+            title: i18n.SUMMARY,
+            content: cvData.introduction,
+            hasData: !!cvData.introduction
+          };
+        case 'EXPERIENCE':
+          return {
+            type: 'EXPERIENCE',
+            title: i18n.EXPERIENCE,
+            items: cvData.experience,
+            hasData: cvData.experience?.length > 0
+          };
+        case 'PROJECTS':
+          return {
+            type: 'PROJECTS',
+            title: i18n.PROJECTS,
+            items: cvData.projects,
+            hasData: cvData.projects?.length > 0
+          };
+        case 'EDUCATION':
+          return {
+            type: 'EDUCATION',
+            title: i18n.EDUCATION,
+            items: cvData.education,
+            hasData: cvData.education?.length > 0
+          };
+        case 'SKILLS':
+          return {
+            type: 'SKILLS',
+            title: i18n.SKILLS,
+            profSkillsArray: profSkillsArray,
+            softSkillsArray: softSkillsArray,
+            hasData: profSkillsArray.length > 0 || softSkillsArray.length > 0
+          };
+        case 'ACTIVITIES':
+          return {
+            type: 'ACTIVITIES',
+            title: i18n.ACTIVITIES,
+            content: cvData.activitiesAwards,
+            hasData: !!cvData.activitiesAwards
+          };
+        default:
+          return null;
+      }
+    }).filter(section => section && section.hasData);
 
-        browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
+    const content = compileTemplate(templateFileName, {
+      ...cvData,
+      settings: finalSettings,
+      orderedSections,
+      i18n
+    });
 
-        await page.setContent(content, { waitUntil: 'networkidle0' });
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
 
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
-        });
+    await page.setContent(content, { waitUntil: 'networkidle0' });
 
-        const fileName = `cv-${cvData.user_id || 'guest'}-${Date.now()}.pdf`;
-        const uploadParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: fileName,
-            Body: pdfBuffer,
-            ContentType: 'application/pdf',
-            ACL: 'public-read'
-        };
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
+    });
 
-        const s3Response = await s3.upload(uploadParams).promise();
-        return s3Response.Location;
+    const fileName = `cv-${cvData.user_id || 'guest'}-${Date.now()}.pdf`;
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: pdfBuffer,
+      ContentType: 'application/pdf',
+      ACL: 'public-read'
+    };
 
-    } catch (error) {
-        console.error("Puppeteer/S3 Error:", error);
-        throw error;
-    } finally {
-        if (browser) await browser.close();
-    }
+    const s3Response = await s3.upload(uploadParams).promise();
+    return s3Response.Location;
+
+  } catch (error) {
+    console.error("Puppeteer/S3 Error:", error);
+    throw error;
+  } finally {
+    if (browser) await browser.close();
+  }
 };
 
 exports.createCV = async (req, res) => {
-    try {
-        const { userId, cvData, settings, layout } = req.body;
+  try {
+    const { userId, cvData, settings, layout } = req.body;
 
-        if (!userId || !cvData) return res.status(400).json({ error: "Missing data" });
+    if (!userId || !cvData) return res.status(400).json({ error: "Missing data" });
 
-        const pdfUrl = await createPDF({ ...cvData, user_id: userId }, settings, layout);
+    const pdfUrl = await createPDF({ ...cvData, user_id: userId }, settings, layout);
 
-        const cv = await CV.create({
-            ...cvData,
-            fileUrls: [pdfUrl],
-            user_id: userId,
-            status: "active",
-            templateType: cvData.templateType || 1,
-            color: settings?.color || cvData.color,
-            fontFamily: settings?.fontFamily || cvData.fontFamily,
-            languageForCV: settings?.lang || cvData.languageForCV
-        });
+    const cv = await CV.create({
+      ...cvData,
+      fileUrls: [pdfUrl],
+      user_id: userId,
+      status: "active",
+      templateType: cvData.templateType || 1,
+      color: settings?.color || cvData.color,
+      fontFamily: settings?.fontFamily || cvData.fontFamily,
+      languageForCV: settings?.lang || cvData.languageForCV
+    });
 
-        await User.findByIdAndUpdate(userId, { $push: { cv: cv._id } });
+    await User.findByIdAndUpdate(userId, { $push: { cv: cv._id } });
 
-        res.json({ success: true, cvId: cv._id, pdfUrl });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error: " + err.message });
-    }
+    res.json({ success: true, cvId: cv._id, pdfUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error: " + err.message });
+  }
 };
 
 exports.updateCV = async (req, res) => {
-    try {
-        const { cvId } = req.params;
-        const { newUrl, settings, layout, regeneratePDF, ...updateData } = req.body;
+  try {
+    const { cvId } = req.params;
+    const { newUrl, settings, layout, regeneratePDF, ...updateData } = req.body;
 
-        const cv = await CV.findById(cvId);
-        if (!cv) return res.status(404).json({ error: "CV không tồn tại" });
+    const cv = await CV.findById(cvId);
+    if (!cv) return res.status(404).json({ error: "CV không tồn tại" });
 
-        Object.assign(cv, updateData);
-        
-        if (settings) {
-            cv.color = settings.color;
-            cv.fontFamily = settings.fontFamily;
-            cv.languageForCV = settings.lang;
-        }
+    Object.assign(cv, updateData);
 
-        if (regeneratePDF || !newUrl) {
-            const pdfUrl = await createPDF({ ...cv.toObject(), ...updateData }, settings, layout);
-            cv.fileUrls = [pdfUrl];
-        } else if (newUrl) {
-            cv.fileUrls = [newUrl];
-        }
-
-        const updatedCV = await cv.save();
-        res.status(200).json({ success: true, ...updatedCV.toObject(), pdfUrl: cv.fileUrls[0] });
-    } catch (err) {
-        console.error("Lỗi update CV:", err);
-        res.status(500).json({ error: "Lỗi Server" });
+    if (settings) {
+      cv.color = settings.color;
+      cv.fontFamily = settings.fontFamily;
+      cv.languageForCV = settings.lang;
     }
+
+    if (regeneratePDF || !newUrl) {
+      const pdfUrl = await createPDF({ ...cv.toObject(), ...updateData }, settings, layout);
+      cv.fileUrls = [pdfUrl];
+    } else if (newUrl) {
+      cv.fileUrls = [newUrl];
+    }
+
+    const updatedCV = await cv.save();
+    res.status(200).json({ success: true, ...updatedCV.toObject(), pdfUrl: cv.fileUrls[0] });
+  } catch (err) {
+    console.error("Lỗi update CV:", err);
+    res.status(500).json({ error: "Lỗi Server" });
+  }
 };
 
 // Get all CVs of a user
