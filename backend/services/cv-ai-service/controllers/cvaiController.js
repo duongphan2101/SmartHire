@@ -3,17 +3,76 @@ const axios = require("axios");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const formatCVtoText = (cv) => `
-${cv.name || ""}
-Giới thiệu: ${cv.introduction || ""}
-Kỹ năng chuyên môn: ${cv.professionalSkills || ""}
-Kỹ năng mềm: ${cv.softSkills || ""}
-Kinh nghiệm: ${cv.experience?.map(e => `${e.jobTitle} tại ${e.company}: ${e.description}`).join("; ") || ""}
-Học vấn: ${cv.education?.map(e => `${e.university} - ${e.major}, GPA: ${e.gpa}`).join("; ") || ""}
-Dự án: ${cv.projects?.map(p => `${p.projectName}: ${p.projectDescription}`).join("; ") || ""}
-Chứng chỉ: ${cv.certifications || ""}
-Hoạt động & Giải thưởng: ${cv.activitiesAwards || ""}
-`.replace(/\s+/g, " ").trim();
+const formatCVtoText = (cv) => {
+  let text = "";
+
+  // SUMMARY — lấy từ introduction của CV
+  text += `Tóm tắt (Summary): ${cv.introduction || ""}\n\n`;
+
+  // BASIC INFO
+  text += `Họ và tên: ${cv.name || ""}\n`;
+  text += `Chức danh: ${cv.title || ""}\n\n`;
+
+  // SKILLS
+  text += `Kỹ năng chuyên môn:\n${cv.professionalSkills || ""}\n\n`;
+  text += `Kỹ năng mềm:\n${cv.softSkills || ""}\n\n`;
+
+  // EXPERIENCE
+  if (cv.experience?.length > 0) {
+    text += "Kinh nghiệm làm việc:\n";
+    text += cv.experience
+      .map(
+        (e) =>
+          `- ${e.jobTitle || ""} tại ${e.company || ""} (${e.startDate || ""} - ${
+            e.endDate || ""
+          }): ${e.description || ""}`
+      )
+      .join("\n");
+    text += "\n\n";
+  }
+
+  // EDUCATION
+  if (cv.education?.length > 0) {
+    text += "Học vấn:\n";
+    text += cv.education
+      .map(
+        (e) =>
+          `- ${e.university || ""}, chuyên ngành ${e.major || ""}, GPA: ${
+            e.gpa || ""
+          } (${e.startYear || ""} - ${e.endYear || ""})`
+      )
+      .join("\n");
+    text += "\n\n";
+  }
+
+  // PROJECTS
+  if (cv.projects?.length > 0) {
+    text += "Dự án:\n";
+    text += cv.projects
+      .map(
+        (p) => `- ${p.projectName || ""}: ${p.projectDescription || ""}`
+      )
+      .join("\n");
+    text += "\n\n";
+  }
+
+  // CERTIFICATIONS + AWARDS
+  text += `Chứng chỉ:\n${cv.certifications || ""}\n\n`;
+  text += `Hoạt động & Giải thưởng:\n${cv.activitiesAwards || ""}\n\n`;
+
+  // CONTACT
+  text += "Thông tin liên hệ:\n";
+  if (cv.contact) {
+    text += `- Email: ${cv.contact.email || ""}\n`;
+    text += `- Số điện thoại: ${cv.contact.phone || ""}\n`;
+    text += `- Địa chỉ: ${cv.contact.address || ""}\n`;
+    text += `- Github: ${cv.contact.github || ""}\n`;
+    text += `- Website: ${cv.contact.website || ""}\n`;
+  }
+
+  return text.replace(/\n\s*\n/g, "\n\n").trim();
+};
+
 
 // Cấu hình an toàn
 const safetySettings = [
@@ -142,6 +201,69 @@ function safeParse(content, fieldName) {
 }
 
 // ===== CV Analysis & Suggestion =====
+// async function analysicCV(req, res) {
+//   try {
+//     const { cvId } = req.body;
+
+//     if (!cvId) {
+//       return res.status(400).json({ success: false, message: "Thiếu cvId" });
+//     }
+
+//     const cvResponse = await axios.get(`${process.env.CV_SERVICE_URL}/cv/${cvId}`);
+//     const cv = cvResponse.data;
+
+//     if (!cv) {
+//       return res.status(404).json({ success: false, message: "Không tìm thấy CV" });
+//     }
+
+//     const cvText = formatCVtoText(cv);
+//     const systemInstruction = `
+//       Bạn là một chuyên gia tư vấn nghề nghiệp (Career Coach) và chuyên gia tuyển dụng (HR Specialist) với 10 năm kinh nghiệm.
+//       Nhiệm vụ của bạn là phân tích hồ sơ ứng viên và đưa ra lời khuyên phát triển sự nghiệp.
+
+//       QUY TẮC BẮT BUỘC:
+//       1. Chỉ trả về kết quả dưới dạng JSON hợp lệ. Không trả về markdown (\`\`\`json).
+//       2. Ngôn ngữ: Tiếng Việt.
+//       3. Cấu trúc JSON phải chính xác như sau:
+//       {
+//         "summary": "Đoạn văn ngắn 2-3 câu tóm tắt hồ sơ và định hướng của ứng viên.",
+//         "strengths": ["Điểm mạnh 1", "Điểm mạnh 2", "Điểm mạnh 3 (tối đa 5)"],
+//         "weaknesses": ["Điểm yếu hoặc kỹ năng còn thiếu cần cải thiện"],
+//         "suggested_skills": ["Tên kỹ năng 1", "Tên kỹ năng 2 (Gợi ý các công nghệ/kỹ năng hot thị trường cần)"],
+//         "roadmap": [
+//            "Bước 1: Hành động cụ thể...",
+//            "Bước 2: Hành động cụ thể...",
+//            "Bước 3: ..."
+//         ]
+//       }
+//     `;
+
+//     const userPrompt = `Hãy phân tích hồ sơ xin việc sau đây:\n\n${cvText}`;
+
+//     const analysisResult = await callGeminiWithRetry(
+//       "gemini-2.5-pro",
+//       systemInstruction,
+//       userPrompt,
+//       "cv_analysis"
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       data: analysisResult
+//     });
+
+//   } catch (error) {
+//     console.error("Error in analysicCV:", error);
+//     const status = error.response?.status || 500;
+//     const message = error.message || "Lỗi Server khi phân tích CV";
+
+//     return res.status(status).json({
+//       success: false,
+//       message: message
+//     });
+//   }
+// }
+
 async function analysicCV(req, res) {
   try {
     const { cvId } = req.body;
@@ -158,28 +280,77 @@ async function analysicCV(req, res) {
     }
 
     const cvText = formatCVtoText(cv);
+
     const systemInstruction = `
-      Bạn là một chuyên gia tư vấn nghề nghiệp (Career Coach) và chuyên gia tuyển dụng (HR Specialist) với 10 năm kinh nghiệm.
-      Nhiệm vụ của bạn là phân tích hồ sơ ứng viên và đưa ra lời khuyên phát triển sự nghiệp.
-      
+      Bạn là chuyên gia tuyển dụng và Career Coach với hơn 10 năm kinh nghiệm.
+
       QUY TẮC BẮT BUỘC:
-      1. Chỉ trả về kết quả dưới dạng JSON hợp lệ. Không trả về markdown (\`\`\`json).
+      1. Chỉ trả về JSON hợp lệ (không markdown).
       2. Ngôn ngữ: Tiếng Việt.
-      3. Cấu trúc JSON phải chính xác như sau:
+      3. Không dùng %, không tính điểm, không scoring.
+      4. Không tự bịa thông tin không có trong CV.
+      5. Luôn trả về cấu trúc JSON chính xác.
+      6. Luôn trả về đầy đủ các mục yêu cầu, không bỏ sót.
+      7. Luôn ưu tiên phân tích dựa trên nội dung CV đã cho.
+      
+      - summary: (Viết đoạn tóm tắt 2–3 câu về hồ sơ, dựa trên toàn bộ nội dung CV.
+        - Không được thêm thông tin không tồn tại trong CV.
+        - Không copy nguyên văn.
+        - Chỉ được phép diễn giải, tổng hợp, rút gọn lại những gì CV thể hiện.)
+
+      - strengths
+      - weaknesses
+      - suggested_skills
+      - roadmap
+
+      —— CASE 1: Strength Extraction ——
+      Trích xuất điểm mạnh thật sự từ CV.
+
+      —— CASE 2: Missing Sections ——
+      Liệt kê CV đang thiếu phần nào:
+      - Kinh nghiệm làm việc
+      - Học vấn
+      - Kỹ năng
+      - Dự án
+      - Mục tiêu nghề nghiệp
+      - Liên hệ
+      (Chỉ liệt kê khi thực sự thiếu)
+
+      —— CASE 3: Suggested Skills ——
+      Gợi ý kỹ năng mới phù hợp thị trường (không tính điểm).
+
+      —— CASE 4: Format & Layout Improvements ——
+      Đưa ra các cải thiện bố cục CV:
+      - cách sắp xếp mục
+      - độ dài
+      - mô tả kinh nghiệm
+      - tính dễ đọc
+      (Không đánh giá thiết kế UI vì không thấy ảnh)
+
+      —— CASE 7: ATS Friendly Check ——
+      Kiểm tra CV có thân thiện với ATS không:
+      - từ khóa có đầy đủ không
+      - có dùng icon gây lỗi parsing không
+      - có thiếu cấu trúc ATS quan trọng không
+      - gợi ý tăng khả năng ATS đọc được
+
       {
-        "summary": "Đoạn văn ngắn 2-3 câu tóm tắt hồ sơ và định hướng của ứng viên.",
-        "strengths": ["Điểm mạnh 1", "Điểm mạnh 2", "Điểm mạnh 3 (tối đa 5)"],
-        "weaknesses": ["Điểm yếu hoặc kỹ năng còn thiếu cần cải thiện"],
-        "suggested_skills": ["Tên kỹ năng 1", "Tên kỹ năng 2 (Gợi ý các công nghệ/kỹ năng hot thị trường cần)"],
-        "roadmap": [
-           "Bước 1: Hành động cụ thể...",
-           "Bước 2: Hành động cụ thể...",
-           "Bước 3: ..."
-        ]
+        "summary": "",
+        "strengths": [],
+        "weaknesses": [],
+        "suggested_skills": [],
+        "roadmap": [],
+
+        "missing_sections": [],
+        "format_tips": [],
+        "ats_check": {
+          "issues": [],
+          "improvements": []
+        }
       }
     `;
 
-    const userPrompt = `Hãy phân tích hồ sơ xin việc sau đây:\n\n${cvText}`;
+    const userPrompt = `Hãy phân tích nội dung CV sau đây:\n\n${cvText}`;
 
     const analysisResult = await callGeminiWithRetry(
       "gemini-2.5-pro",
@@ -195,12 +366,9 @@ async function analysicCV(req, res) {
 
   } catch (error) {
     console.error("Error in analysicCV:", error);
-    const status = error.response?.status || 500;
-    const message = error.message || "Lỗi Server khi phân tích CV";
-
-    return res.status(status).json({
+    return res.status(500).json({
       success: false,
-      message: message
+      message: "Lỗi server khi phân tích CV"
     });
   }
 }

@@ -34,10 +34,10 @@ const Home: React.FC = () => {
   const [animate, setAnimate] = useState(true);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [location, setLocation] = useState("");
-  
+
   // Gộp useJob lại thành 1 lần gọi để state được đồng bộ
   const { filterJobs, joblatest, categories_sum, latest } = useJob();
-  
+
   const { saveJob, unsaveJob, user, getUser } = useUser();
   const navigate = useNavigate();
 
@@ -103,7 +103,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     document.title = "S m a r t H i r e - Trang chủ";
     fetchProvinces_V2().then(setProvinces);
-    
+
     // Gọi hàm latest() để lấy dữ liệu việc làm mới nhất khi trang load
     latest();
 
@@ -504,6 +504,65 @@ const Home: React.FC = () => {
             </div>
           </div>
 
+          <div className="container-fluid container-fluid_cvbuilder">
+            <div className="container-cvbuilder flex flex-wrap xl:flex-nowrap">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 w-full">
+                <div className="container-cvbuilder_banner">
+                  <div className="container-cvbuilder_shape"></div>
+                  <img className="cvBuilder-banner" src={cv_banner} />
+                </div>
+
+                <div className="container-cvbuilder_content flex flex-col items-center justify-center gap-6">
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    Tạo CV ấn tượng – Chạm gần hơn đến công việc mơ ước
+                  </h3>
+
+                  <p className="text-slate-600 leading-relaxed">
+                    Theo khảo sát,{" "}
+                    <span className="font-semibold text-emerald-600">
+                      {" "}
+                      65% nhà tuyển dụng{" "}
+                    </span>
+                    cho biết họ chỉ dành{" "}
+                    <span className="font-semibold">30 giây</span> để xem một
+                    CV. Một CV rõ ràng và chuyên nghiệp có thể giúp ứng viên{" "}
+                    <span className="font-semibold text-emerald-600">
+                      tăng gấp 2 lần cơ hội được gọi phỏng vấn
+                    </span>
+                    .
+                  </p>
+
+                  <button
+                    className="cssbuttons-io-button"
+                    onClick={() => {
+                      window.location.href = "/buildcv";
+                    }}
+                  >
+                    Bắt đầu ngay
+                    <div className="icon">
+                      <svg
+                        height="24"
+                        width="24"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M0 0h24v24H0z" fill="none"></path>
+                        <path
+                          d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                          fill="currentColor"
+                        ></path>
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div className="w-full">
+                    <DragorClick />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="container-fluid container-fluid_categories">
             <div className="container-categories flex flex-wrap xl:flex-nowrap">
               <div
@@ -859,64 +918,7 @@ const Home: React.FC = () => {
             </div>
           </div>
 
-          <div className="container-fluid container-fluid_cvbuilder">
-            <div className="container-cvbuilder flex flex-wrap xl:flex-nowrap">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 w-full">
-                <div className="container-cvbuilder_banner">
-                  <div className="container-cvbuilder_shape"></div>
-                  <img className="cvBuilder-banner" src={cv_banner} />
-                </div>
 
-                <div className="container-cvbuilder_content flex flex-col items-center justify-center gap-6">
-                  <h3 className="text-2xl font-bold text-slate-900">
-                    Tạo CV ấn tượng – Chạm gần hơn đến công việc mơ ước
-                  </h3>
-
-                  <p className="text-slate-600 leading-relaxed">
-                    Theo khảo sát,{" "}
-                    <span className="font-semibold text-emerald-600">
-                      {" "}
-                      65% nhà tuyển dụng{" "}
-                    </span>
-                    cho biết họ chỉ dành{" "}
-                    <span className="font-semibold">30 giây</span> để xem một
-                    CV. Một CV rõ ràng và chuyên nghiệp có thể giúp ứng viên{" "}
-                    <span className="font-semibold text-emerald-600">
-                      tăng gấp 2 lần cơ hội được gọi phỏng vấn
-                    </span>
-                    .
-                  </p>
-
-                  <button
-                    className="cssbuttons-io-button"
-                    onClick={() => {
-                      window.location.href = "/buildcv";
-                    }}
-                  >
-                    Bắt đầu ngay
-                    <div className="icon">
-                      <svg
-                        height="24"
-                        width="24"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M0 0h24v24H0z" fill="none"></path>
-                        <path
-                          d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                          fill="currentColor"
-                        ></path>
-                      </svg>
-                    </div>
-                  </button>
-
-                  <div className="w-full">
-                    <DragorClick />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* <div className="container-fluid container-fluid_chart">
             <div className="container-chart flex flex-wrap xl:flex-nowrap">

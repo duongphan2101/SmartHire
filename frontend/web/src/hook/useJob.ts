@@ -48,7 +48,8 @@ export interface Category {
 export default function useJob() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [pendingJobsAdmin, setPendingJobsAdmin] = useState<Job[]>([]);
-  const [totalJobsCount, setTotalJobsCount] = useState<number>(0);    
+  const [exandfillJobsAdmin, setExAndFillJobsAdmin] = useState<Job[]>([]);
+  const [totalJobsCount, setTotalJobsCount] = useState<number>(0);
   const [joblatest, setJobLatest] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,12 +84,26 @@ export default function useJob() {
     }
   }, [host]);
 
+  const fetchExperiedAndFilledJobsAdmin = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get<Job[]>(`${host}/expired-and-filled`);
+      setExAndFillJobsAdmin(res.data);
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Không tải được bài chờ duyệt");
+    } finally {
+      setLoading(false);
+    }
+  }, [host]);
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.pathname.includes("/admin")) {
       fetchPendingJobsAdmin();
-      fetchTotalJobsCount();   
+      fetchTotalJobsCount();
+      fetchExperiedAndFilledJobsAdmin();
     }
-  }, [fetchPendingJobsAdmin, fetchTotalJobsCount]);
+  }, [fetchPendingJobsAdmin, fetchTotalJobsCount, fetchExperiedAndFilledJobsAdmin]);
 
   useEffect(() => {
     if (department?._id) {
@@ -141,7 +156,7 @@ export default function useJob() {
     try {
       const res = await axios.put(`${host}/approve/${id}`);
       setPendingJobsAdmin(prev => prev.filter(j => j._id !== id));
-      fetchTotalJobsCount(); 
+      fetchTotalJobsCount();
       return res.data;
     } catch {
       setError("Duyệt thất bại");
@@ -167,7 +182,7 @@ export default function useJob() {
       await axios.delete(`${host}/${id}`);
       setJobs(prev => prev.filter(j => j._id !== id));
       setPendingJobsAdmin(prev => prev.filter(j => j._id !== id));
-      fetchTotalJobsCount(); 
+      fetchTotalJobsCount();
     } catch (err: any) {
       setError(err.response?.data?.message || "Xóa thất bại");
       throw err;
@@ -276,7 +291,7 @@ export default function useJob() {
     jobs,
     pendingJobsAdmin,
     joblatest,
-    totalJobsCount,          
+    totalJobsCount,
     loading,
     error,
     refetch,
@@ -290,7 +305,9 @@ export default function useJob() {
     approveJob,
     rejectJob,
     fetchPendingJobsAdmin,
-    fetchTotalJobsCount,    
+    fetchTotalJobsCount,
+    fetchExperiedAndFilledJobsAdmin,
+    exandfillJobsAdmin,
     fetchAllJob,
     getPendingCount,
     banJob,

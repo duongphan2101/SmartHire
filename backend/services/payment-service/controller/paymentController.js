@@ -44,7 +44,7 @@ const vnpayReturn = async (req, res) => {
   try {
     const vnp_Params = { ...req.query };
     const secureHash = vnp_Params["vnp_SecureHash"] || "";
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT;
 
     // Verify chữ ký
     const { valid, signData, signature } = verifyVNPay(

@@ -136,23 +136,23 @@
   color: white;
 }
 
-.edit-cv-btn {
+.download-cv-btn {
   border: 1px solid #3b82f6;
   color: #3b82f6;
 }
 
-.edit-cv-btn:hover {
+.download-cv-btn:hover {
   background-color: #2563eb;
   transform: translateY(-2px);
   color: white;
 }
 
-.download-cv-btn {
+.edit-cv-btn {
   border: 1px solid var(--color-orange-400);
   color: var(--color-orange-400);
 }
 
-.download-cv-btn:hover {
+.edit-cv-btn:hover {
   background-color: var(--color-orange-400);
   color: white;
   transform: translateY(-2px);

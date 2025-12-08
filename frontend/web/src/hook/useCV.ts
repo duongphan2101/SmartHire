@@ -34,8 +34,15 @@ export interface CVAnalysisData {
   weaknesses: string[];
   suggested_skills: string[];
   roadmap: string[];
-  job_match_score: number;
+  missing_sections: string[];
+  format_tips: string[];
+  ats_check: {
+    issues: string[];
+    improvements: string[];
+  };
 }
+
+
 interface CustomSettings {
   color: string;
   fontFamily: string;
@@ -70,9 +77,9 @@ export default function useCV() {
   }, []);
 
   const createCV = useCallback(async (
-    userId: string, 
-    cvData: Partial<CVResponse>, 
-    settings: CustomSettings, 
+    userId: string,
+    cvData: Partial<CVResponse>,
+    settings: CustomSettings,
     layout: string[]
   ) => {
     try {
@@ -89,21 +96,21 @@ export default function useCV() {
       const res = await axios.post<CVResponse>(`${HOSTS.cvService}/createCV`, payload);
 
       setCVs(prev => [...prev, res.data]);
-      
-      return res.data; 
+
+      return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setError(axiosErr.response?.data?.message || "createCV failed");
-      throw err; 
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
   const updateCV = useCallback(async (
-    cvId: string, 
-    updateData: Partial<CVResponse>, 
-    settings: CustomSettings, 
+    cvId: string,
+    updateData: Partial<CVResponse>,
+    settings: CustomSettings,
     layout: string[]
   ) => {
     try {
@@ -111,16 +118,16 @@ export default function useCV() {
       setError(null);
 
       const payload = {
-        ...updateData, 
-        settings,      
-        layout,        
-        regeneratePDF: true 
+        ...updateData,
+        settings,
+        layout,
+        regeneratePDF: true
       };
 
       const res = await axios.put<CVResponse>(`${HOSTS.cvService}/${cvId}`, payload);
 
       setCVs(prev => prev.map(cv => (cv._id === cvId ? res.data : cv)));
-      
+
       return res.data;
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -154,7 +161,6 @@ export default function useCV() {
       setLoading(false);
     }
   }, []);
-
 
   const deleteCV = useCallback(async (cvId: string) => {
     try {

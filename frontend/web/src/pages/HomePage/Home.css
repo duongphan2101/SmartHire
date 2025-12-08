@@ -20,16 +20,19 @@
 }
 
 .container-fluid_categories {
-  background-image: url('../../assets/images/origin1.webp');
+
+  /* background-image: url('../../assets/images/origin.webp'); */
   /* background-color: #f1f7f4; */
+  background-color: #fff;
 }
 
 .container-fluid_latest {
   background-color: #fff;
+  background-image: url('../../assets/images/origin.webp');
 }
 
 .container-fluid_cvbuilder {
-  background-image: url('../../assets/images/origin.webp');
+  background-image: url('../../assets/images/origin1.webp');
 }
 
 /* .container-fluid_chart {
