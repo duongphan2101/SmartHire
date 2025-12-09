@@ -36,18 +36,21 @@ interface ApplyModalProps {
   open: boolean;
   onClose: () => void;
   userId: any;
+
+  onOpenTailor: (isOpen: boolean) => void;
+  setPreviewUrlFromParent: (url: string) => void;
 }
 
-const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open, onClose, userId }) => {
+const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open, onClose, userId, onOpenTailor, setPreviewUrlFromParent }) => {
   const [aiSupport, setAiSupport] = useState<boolean>(false);
   const [cvTailor, setCvTailor] = useState<boolean>(false);
   const { loadingCV, errorCV, getCVs, cvs } = useCV();
   const { createApplication, error: appError, loading, generateCoverLetter, coverLetter: coverLetterFromHook } = useApplication();
   const { applyJob } = useUser();
   const [selectedCV, setSelectedCV] = useState<string>("");
-  const [coverletter, setCoverletter] = useState<string>(""); // State nội bộ cho TextField
+  const [selectedCVID, setSelectedCVID] = useState<string>("");
+  const [coverletter, setCoverletter] = useState<string>("");
   const [idFromUser, setIdFromUser] = useState<string>("");
-
   // State cho trường chỉnh sửa AI
   const [refinementPrompt, setRefinementPrompt] = useState<string>("");
 
@@ -55,17 +58,9 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     if (userId && (userId._id || userId.user_id)) {
       const id = userId._id || userId.user_id;
       setIdFromUser(id);
-      getCVs(id); // Tải CV của user
+      getCVs(id);
     }
   }, [userId, getCVs]);
-
-
-  // const cleanHtmlContent = (htmlString: string) => {
-  //   if (!htmlString) return "";
-  //   const doc = new DOMParser().parseFromString(htmlString, "text/html");
-  //   return doc.documentElement.textContent || "";
-
-  // };
 
   const decodeEntitiesKeepTags = (html: string) => {
     const txt = document.createElement("textarea");
@@ -117,9 +112,14 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   };
 
-  const handleCvTailor = (checked: boolean) => {
+
+  const handleCvTailor = async (checked: boolean) => {
     setCvTailor(checked);
-    alert("Tính năng đang phát triển!!");
+    onOpenTailor(checked); // Báo cha mở/đóng Drawer
+
+    if (checked && selectedCV) {
+      setPreviewUrlFromParent(selectedCVID);
+    }
   };
 
   const handleRefine = async () => {
@@ -155,11 +155,18 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
     }
   }, [errorCV]);
 
+  useEffect(() => {
+    if (cvTailor && selectedCV) {
+      setPreviewUrlFromParent(selectedCV);
+    }
+  }, [selectedCV, cvTailor, cvs]);
+
   // Tự động chọn CV đầu tiên
   useEffect(() => {
-    if (cvs.length > 0 && !selectedCV) { // Chỉ đặt nếu chưa chọn
+    if (cvs.length > 0 && !selectedCV) {
       const firstCV = cvs[0]._id;
       setSelectedCV(firstCV);
+      setSelectedCVID(firstCV);
     }
   }, [cvs, selectedCV]);
 
@@ -206,9 +213,9 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                   color="success"
                 >
                   {cvs.length > 0 ? (
-                    cvs.map((cv) => (
+                    cvs.reverse().map((cv) => (
                       <MenuItem key={cv._id} value={cv._id}>
-                        {cv.name}
+                        {cv.name} - {cv._id}
                       </MenuItem>
                     ))
                   ) : (

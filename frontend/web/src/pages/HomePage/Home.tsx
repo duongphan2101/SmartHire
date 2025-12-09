@@ -55,6 +55,7 @@ const Home: React.FC = () => {
   const { renderMatchingJob } = useApplication();
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
   const [openChat, setIsChatOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
   const [fitJobNotify, setFitJobNotify] = useState<string>("Chưa có công việc nào phù hợp với bạn.");
 
@@ -67,7 +68,6 @@ const Home: React.FC = () => {
   ];
   const [slogan, setSlogan] = useState(slogans[0]);
 
-  // --- FIX LỖI Ở ĐÂY ---
   const handleSearch = async () => {
     // Truyền vào 1 object thay vì 2 tham số rời rạc
     const results = await filterJobs({ title: jobTitle, location: location });
@@ -103,8 +103,6 @@ const Home: React.FC = () => {
   useEffect(() => {
     document.title = "S m a r t H i r e - Trang chủ";
     fetchProvinces_V2().then(setProvinces);
-
-    // Gọi hàm latest() để lấy dữ liệu việc làm mới nhất khi trang load
     latest();
 
     let index = 0;
@@ -121,11 +119,13 @@ const Home: React.FC = () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
+        setIsLogin(true);
         const idToFetch = parsed.user_id ?? parsed._id;
         getUser(idToFetch);
       }
     } catch (e) {
       console.error("Invalid user data in localStorage", e);
+      setIsLogin(false);
     }
 
     return () => clearInterval(interval);
@@ -556,7 +556,9 @@ const Home: React.FC = () => {
                   </button>
 
                   <div className="w-full">
-                    <DragorClick />
+                    {isLogin && (
+                      <DragorClick />
+                    )}
                   </div>
                 </div>
               </div>

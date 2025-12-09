@@ -42,7 +42,6 @@ export interface CVAnalysisData {
   };
 }
 
-
 interface CustomSettings {
   color: string;
   fontFamily: string;
@@ -149,7 +148,7 @@ export default function useCV() {
         pdfUrl
       };
 
-      const res = await axios.post<CVData>(`${HOSTS.cvService}/createCV`, payload);
+      const res = await axios.post<CVData>(`${HOSTS.cvService}/createCVParse`, payload);
       return res.data;
 
     } catch (err) {
@@ -161,6 +160,59 @@ export default function useCV() {
       setLoading(false);
     }
   }, []);
+
+  const generateCV = useCallback(async (cvId: string, jobId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const payload = {
+        cvId, jobId
+      };
+
+      const res = await axios.post(`${HOSTS.cvService}/generate-cv`, payload);
+
+      // console.log("DATA: ", res.data.tailoredCV);
+      return res.data.tailoredCV;
+
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      const msg = axiosErr.response?.data?.message || "Tạo CV thất bại";
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const refineCV = useCallback(
+    async (currentCV: CVData, feedback: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const payload = {
+          currentCV,
+          feedback
+        };
+
+        const res = await axios.post(
+          `${HOSTS.cvService}/generate-cv`,
+          payload
+        );
+
+        return res.data.refinedCV;
+      } catch (err) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        const msg = axiosErr.response?.data?.message || "Refine CV thất bại";
+        setError(msg);
+        throw new Error(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const deleteCV = useCallback(async (cvId: string) => {
     try {
@@ -306,6 +358,8 @@ export default function useCV() {
     optimizeEducation,
     optimizeProjects,
     analyzeCV,
-    result
+    result,
+    generateCV,
+    refineCV
   };
 }

@@ -20,7 +20,8 @@ import Swal from "sweetalert2";
 import type { Job } from "../../hook/useJob";
 
 import axios from "axios";
-import { HOSTS } from "../../utils/host"; 
+import { HOSTS } from "../../utils/host";
+import Drawer_Preview from "../Drawer/Drawer_Preview";
 
 // interface Department {
 //     _id: string;
@@ -72,58 +73,61 @@ const Detail: React.FC<DetailProps> = ({ item, saveJob, unsaveJob }) => {
   const { getUser: fetchUser, user: currentUser } = useUser();
   const [applyted, setApplyted] = useState<boolean>(false);
 
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [openTailorDrawer, setOpenTailorDrawer] = useState(false);
+  const [idUser, setIdUser] = useState<string>("");
+
 
   // trong Detail component, thêm:
-// const NOTIF_API_HOST = HOSTS.notificationService;
+  // const NOTIF_API_HOST = HOSTS.notificationService;
 
-const handleReportSubmit = async (payload: { title: string; details: string; contact?: string }) => {
-  if (!user) {
-    Swal.fire({
-      icon: "warning",
-      title: "Bạn chưa đăng nhập",
-      text: "Vui lòng đăng nhập để gửi báo cáo!",
-    });
-    return;
-  }
+  const handleReportSubmit = async (payload: { title: string; details: string; contact?: string }) => {
+    if (!user) {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để gửi báo cáo!",
+      });
+      return;
+    }
 
-  // Build đầy đủ payload gửi lên API
-  const reportPayload: ReportPayload = {
-    jobId: item._id,
-    jobTitle: item.jobTitle,
-    department: item.department?.name,
-    userId: user._id || user.user_id,
-    title: payload.title,
-    details: payload.details,
-    contact: payload.contact,
+    // Build đầy đủ payload gửi lên API
+    const reportPayload: ReportPayload = {
+      jobId: item._id,
+      jobTitle: item.jobTitle,
+      department: item.department?.name,
+      userId: user._id || user.user_id,
+      title: payload.title,
+      details: payload.details,
+      contact: payload.contact,
+    };
+
+    try {
+      await axios.post(`${HOSTS.reportService}/`, reportPayload);
+      Swal.fire({
+        icon: "success",
+        title: "Đã gửi báo cáo",
+        text: "Báo cáo đã được gửi tới Admin.",
+        timer: 1600,
+        showConfirmButton: false,
+      });
+      setOpenReport(false);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Gửi thất bại",
+        text: "Không thể gửi báo cáo. Vui lòng thử lại sau.",
+      });
+    }
   };
-
-  try {
-    await axios.post(`${HOSTS.reportService}/`, reportPayload);
-    Swal.fire({
-      icon: "success",
-      title: "Đã gửi báo cáo",
-      text: "Báo cáo đã được gửi tới Admin.",
-      timer: 1600,
-      showConfirmButton: false,
-    });
-    setOpenReport(false);
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "Gửi thất bại",
-      text: "Không thể gửi báo cáo. Vui lòng thử lại sau.",
-    });
-  }
-};
-
-
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       const idToFetch = parsedUser.user_id ?? parsedUser._id;
+      setIdUser(idToFetch);
       setUser(parsedUser);
       // if (parsedUser.liked?.includes(item._id)) {
       //     setSaved(true);
@@ -300,6 +304,18 @@ const handleReportSubmit = async (payload: { title: string; details: string; con
         open={openModel}
         onClose={() => setOpenModel(false)}
         userId={user}
+        onOpenTailor={(isOpen) => setOpenTailorDrawer(isOpen)}
+        setPreviewUrlFromParent={setPreviewUrl}
+      />
+
+      <Drawer_Preview
+        open={openTailorDrawer}
+        onClose={() => {
+          setOpenTailorDrawer(false);
+        }}
+        jobId={item._id}
+        cvId={previewUrl}
+        userId={idUser}
       />
 
       <div className="page-title w-full flex flex-col gap-3">
@@ -462,6 +478,7 @@ const handleReportSubmit = async (payload: { title: string; details: string; con
           </div>
         </div>
       </div>
+
       <UserReport
         open={openReport}
         onClose={() => setOpenReport(false)}

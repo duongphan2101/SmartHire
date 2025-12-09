@@ -6,7 +6,7 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
-
+const axios = require("axios");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Cấu hình S3
@@ -220,6 +220,39 @@ exports.createCV = async (req, res) => {
   }
 };
 
+exports.createCVParse = async (req, res) => {
+  try {
+    const { userId, cvData, pdfUrl } = req.body;
+
+    if (!userId || !cvData) {
+      return res.status(400).json({ error: "Thiếu dữ liệu bắt buộc (userId hoặc cvData)" });
+    }
+    const cv = await CV.create({
+      ...cvData,
+      user_id: userId,
+      fileUrls: [pdfUrl],
+      status: "active",
+      templateType: 0,
+
+      color: cvData.color || '#059669',
+      fontFamily: cvData.fontFamily || 'Arial',
+      languageForCV: cvData.languageForCV || 'vi'
+    });
+
+    await User.findByIdAndUpdate(userId, { $push: { cv: cv._id } });
+
+    return res.status(200).json({ 
+      success: true, 
+      cvId: cv._id, 
+      pdfUrl: pdfUrl 
+    });
+
+  } catch (err) {
+    console.error("Error in createCVParse:", err);
+    return res.status(500).json({ error: "Server error: " + err.message });
+  }
+};
+
 exports.updateCV = async (req, res) => {
   try {
     const { cvId } = req.params;
@@ -368,7 +401,7 @@ exports.parseCVText = async (req, res) => {
           "status": "String (Giá trị mặc định là 'active')",
           "certifications": "String (Nếu có)",
           "activitiesAwards": "String (Nếu có)",
-          "templateType": "Number (Mặc định là 0)",
+          "templateType": 0,
         }
 
         QUY TẮC:
@@ -403,6 +436,8 @@ exports.parseCVText = async (req, res) => {
       throw new Error(`Không thể phân tích CV sau ${maxRetries} lần thử. Lỗi cuối cùng: ${lastError?.message}`);
     }
 
+    console.log("PARSE DATA: ", parsedData.templateType);
+
     return res.status(200).json({
       success: true,
       data: parsedData
@@ -413,3 +448,165 @@ exports.parseCVText = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.generateCV = async (req, res) => {
+  try {
+    const { cvId, jobId, feedback, currentCV } = req.body;
+
+    // CASE 1: REFINING
+    if (feedback && currentCV) {
+      const refinedCV = await callAIRefine(currentCV, feedback);
+      return res.status(200).json({
+        success: true,
+        mode: "refine",
+        refinedCV
+      });
+    }
+
+    // CASE 2: FIRST TIME TAILORING
+    if (!cvId || !jobId) {
+      return res.status(400).json({ error: "cvId và jobId là bắt buộc khi tailor lần đầu." });
+    }
+
+    const baseCV = await CV.findById(cvId).lean();
+    if (!baseCV) return res.status(404).json({ error: "Không tìm thấy CV." });
+
+    const jobServiceUrl = `${process.env.JOB_SERVICE_URL}/${jobId}`;
+    const jobRes = await axios.get(jobServiceUrl);
+    const jobData = jobRes.data?.data || jobRes.data;
+
+    if (!jobData) return res.status(404).json({ error: "Không tìm thấy job." });
+
+    const tailoredCV = await callAITailor(baseCV, jobData);
+
+    return res.status(200).json({
+      success: true,
+      mode: "tailor",
+      originalCV: baseCV,
+      tailoredCV,
+      job: jobData
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error: " + err.message });
+  }
+};
+
+async function callAITailor(baseCV, jobData) {
+  const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE }
+  ];
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    safetySettings,
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+    systemInstruction: `
+      Bạn là chuyên gia tối ưu CV theo JD.
+
+      Nhiệm vụ:
+      - Nhận baseCV và jobData.
+      - Tái cấu trúc nội dung CV sao cho phù hợp nhất với job:
+        + Nhấn mạnh kỹ năng trùng khớp.
+        + Điều chỉnh introduction (summary) ngắn gọn, đánh trúng JD.
+        + Reword lại kinh nghiệm để phù hợp job (nhưng không bịa đặt).
+        + Highlight project nào liên quan trực tiếp đến job.
+        + Sắp xếp thứ tự ưu tiên: skills liên quan → experience mạnh → project phù hợp.
+
+      QUY TẮC:
+      1. Chỉ trả về JSON đúng schema CV của hệ thống:
+      {
+        "name": "String",
+        "title": "String" (Vị trí mà trong jd tuyển),
+        "introduction": "String",
+        "professionalSkills": "String",
+        "softSkills": "String",
+        "contact": {
+          "phone": "String",
+          "email": "String",
+          "github": "String",
+          "website": "String"
+        },
+        "education": [...],
+        "experience": [...],
+        "projects": [...],
+        "status": "active",
+        "certifications": "String",
+        "activitiesAwards": "String",
+        "templateType": 1,
+        "color": "String",
+        "fontFamily":"String",
+        "languageForCV":"String"
+      }
+      2. Không bịa kinh nghiệm.
+      3. Không đổi dữ liệu contact, education trừ khi cần format lại.
+      4. Những phần không liên quan thì tinh gọn, không xoá.
+    `,
+  });
+
+  const maxRetries = 3;
+  let lastError = null;
+
+  const prompt = `
+      Base CV:
+      ${JSON.stringify(baseCV)}
+
+      Job Detail:
+      ${JSON.stringify(jobData)}
+
+      Hãy tailor CV này sao cho phù hợp nhất với job.
+  `;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      const jsonText = result.response.text();
+      return JSON.parse(jsonText);
+    } catch (err) {
+      console.warn(`Tailor attempt ${attempt} failed:`, err.message);
+      lastError = err;
+
+      if (attempt < maxRetries) {
+        await new Promise(res => setTimeout(res, 1000 * attempt));
+      }
+    }
+  }
+
+  throw new Error(`AI Tailor failed after ${maxRetries} attempts: ${lastError?.message}`);
+}
+
+async function callAIRefine(currentCV, feedback) {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+    systemInstruction: `
+      Bạn là chuyên gia chỉnh sửa CV.
+
+      - Giữ nguyên toàn bộ dữ liệu gốc.
+      - Chỉ sửa những phần liên quan đến feedback người dùng.
+      - Không sáng tạo kinh nghiệm mới.
+      - Trả về JSON full schema CV.
+    `
+  });
+
+  const prompt = `
+    Current CV:
+    ${JSON.stringify(currentCV)}
+
+    Feedback:
+    "${feedback}"
+
+    Hãy refinine CV theo đúng yêu cầu người dùng.
+  `;
+
+  const result = await model.generateContent(prompt);
+  return JSON.parse(result.response.text());
+}
+
+

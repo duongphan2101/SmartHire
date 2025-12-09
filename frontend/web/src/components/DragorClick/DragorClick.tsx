@@ -30,7 +30,7 @@ const CVUploader: React.FC = () => {
             }
             const parsedData = aiResponse.data;
             setDataCVResult(parsedData); 
-            console.log("Dữ liệu đã phân tích:", parsedData);
+            //console.log("Dữ liệu đã phân tích:", parsedData);
 
             api.success({
                 message: 'Phân tích thành công',
@@ -46,7 +46,7 @@ const CVUploader: React.FC = () => {
             const uniqueFileName = `cv_${userId}_${Date.now()}.pdf`;
 
             const s3Url = await uploadPDF(file, uniqueFileName);
-            console.log("File uploaded to S3:", s3Url);
+            //console.log("File uploaded to S3:", s3Url);
 
             setLoadingText("Đang lưu hồ sơ...");
 

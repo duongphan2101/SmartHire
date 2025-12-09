@@ -53,7 +53,7 @@ interface CVData {
     languageForCV: string;
 }
 
-interface CustomSettings {
+export interface CustomSettings {
     color: string;
     fontFamily: string;
     lang: string;

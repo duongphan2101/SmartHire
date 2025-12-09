@@ -99,14 +99,14 @@ const JobDetails: React.FC = () => {
   const handleSearch = async (auto = false) => {
     setLoadingRelated(true);
     try {
-      const results = await filterJobs(
+      const results = await filterJobs({
         jobTitle,
         location,
         district,
         jobType,
         jobLevel,
         experience
-      );
+      });
 
       if (results && results.length > 0) {
         setRelatedJobs(results);
