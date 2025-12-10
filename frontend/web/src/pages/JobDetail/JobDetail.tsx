@@ -25,7 +25,7 @@ interface Province {
 }
 
 // Hằng số cho phân trang
-const JOBS_PER_PAGE = 6;
+const JOBS_PER_PAGE = 5;
 
 const JobDetails: React.FC = () => {
   const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);

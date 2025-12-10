@@ -159,10 +159,12 @@ const getJobById = async (req, res) => {
 
 const filterJobs = async (req, res) => {
   try {
-    const { title, location, district, jobType, jobLevel, experience } =
-      req.query;
+    const { title, location, district, jobType, jobLevel, experience } = req.query;
 
-    const filter = {};
+    const filter = {
+      status: "active", // 🟢 thêm filter bắt buộc
+    };
+
     if (title) {
       filter.jobTitle = { $regex: title, $options: "i" };
     }
@@ -188,6 +190,7 @@ const filterJobs = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 const searchJobs = async (req, res) => {
   try {
@@ -358,7 +361,7 @@ const rejectJob = async (req, res) => {
 
     const updatedJob = await Job.findByIdAndUpdate(
       id,
-      { 
+      {
         status: "banned",
       },
       { new: true }
