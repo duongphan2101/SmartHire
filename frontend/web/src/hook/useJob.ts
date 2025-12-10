@@ -245,7 +245,16 @@ export default function useJob() {
   const filterJobs = useCallback(async (params: any) => {
     try {
       setLoading(true);
-      const res = await axios.get<Job[]>(`${host}/filter/search`, { params });
+      const res = await axios.get<Job[]>(`${host}/filter/search`, {
+        params: {
+          title: params.jobTitle,
+          location: params.location,
+          district: params.district,
+          jobType: params.jobType,
+          jobLevel: params.jobLevel,
+          experience: params.experience,
+        }
+      });
       return res.data;
     } catch {
       setError("Lọc thất bại");

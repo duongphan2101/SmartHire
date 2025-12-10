@@ -78,7 +78,7 @@ export default function Drawer_Preview({
         };
 
         fetchData();
-        console.log("IDUSER: ", userId);
+        //console.log("IDUSER: ", userId);
     }, [open, cvId, jobId]);
 
     useEffect(() => {

@@ -98,6 +98,7 @@ const JobDetails: React.FC = () => {
   // --- Hàm tìm kiếm ---
   const handleSearch = async (auto = false) => {
     setLoadingRelated(true);
+
     try {
       const results = await filterJobs({
         jobTitle,
@@ -108,19 +109,9 @@ const JobDetails: React.FC = () => {
         experience
       });
 
-      if (results && results.length > 0) {
-        setRelatedJobs(results);
-        setCurrentPage(1); // Reset trang về 1 khi tìm kiếm mới
-
-        // Chỉ chuyển trang nếu người dùng bấm nút Tìm kiếm
-        if (!auto) {
-          navigate(
-            `/jobdetail/${results[0]._id}?title=${jobTitle}&location=${location}&district=${district}&jobType=${jobType}&jobLevel=${jobLevel}&experience=${experience}`,
-            { replace: true }
-          );
-        }
-      } else {
+      if (!results || results.length === 0) {
         setRelatedJobs([]);
+
         if (!auto) {
           Swal.fire({
             icon: "info",
@@ -129,10 +120,42 @@ const JobDetails: React.FC = () => {
             confirmButtonText: "Đóng",
           });
         }
+
+        return;
       }
+
+      // Lưu kết quả
+      setRelatedJobs(results);
+      setCurrentPage(1);
+
+      // Nếu auto = true thì không navigate
+      if (auto) return;
+
+      // Sort ưu tiên jobTitle match mạnh
+      const sorted = [...results].sort((a, b) => {
+        const aScore = a.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+        const bScore = b.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+        return bScore - aScore;
+      });
+
+      // Lấy item cuối theo yêu cầu
+      const target = sorted[sorted.length - 1];
+
+      navigate(
+        `/jobdetail/${target._id}` +
+        `?title=${encodeURIComponent(jobTitle)}` +
+        `&location=${encodeURIComponent(location)}` +
+        `&district=${encodeURIComponent(district)}` +
+        `&jobType=${encodeURIComponent(jobType)}` +
+        `&jobLevel=${encodeURIComponent(jobLevel)}` +
+        `&experience=${encodeURIComponent(experience)}`,
+        { replace: true }
+      );
+
     } catch (error) {
       console.error("Error in handleSearch:", error);
       setRelatedJobs([]);
+
       if (!auto) {
         Swal.fire({
           icon: "error",
@@ -205,7 +228,7 @@ const JobDetails: React.FC = () => {
             <select
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
-              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
             >
               <option value="">Chọn vị trí tuyển dụng</option>
               <option value="frontend">Frontend Developer</option>
@@ -214,15 +237,16 @@ const JobDetails: React.FC = () => {
               <option value="manager">Project Manager</option>
               <option value="dataAnalyst">Data Analyst</option>
               <option value="sysAdmin">System Administrator</option>
-              <option value="QA">QA Engineer</option>
-              <option value="Legal Specialist">Legal Specialistr</option>
-              <option value="Admin Intern">Admin Intern</option>
+              <option value="qa">QA Engineer</option>
+              <option value="devops">DevOps Engineer</option>
+              {/* <option value="Legal Specialist">Legal Specialistr</option> */}
+              <option value="system">System Admintrator</option>
             </select>
 
             <select
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
             >
               <option value="">Chọn địa điểm</option>
               {provinces.map((p) => (
@@ -235,7 +259,7 @@ const JobDetails: React.FC = () => {
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
             >
               <option value="">Chọn quận/huyện</option>
               {districts.map((d) => (
@@ -256,7 +280,7 @@ const JobDetails: React.FC = () => {
           {/* HÀNG 2: jobType + jobLevel + experience */}
           <div className="bg-white w-full flex gap-5 flex-col xl:flex-row content-main-header">
             <select
-              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
               value={jobType}
               onChange={(e) => setJobType(e.target.value)}
             >
@@ -268,7 +292,7 @@ const JobDetails: React.FC = () => {
             </select>
 
             <select
-              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
               value={jobLevel}
               onChange={(e) => setJobLevel(e.target.value)}
             >
@@ -282,7 +306,7 @@ const JobDetails: React.FC = () => {
             </select>
 
             <select
-              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md"
+              className="w-full xl:w-2/6 h-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 p-2 rounded-md font-bold"
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
             >

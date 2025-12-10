@@ -69,21 +69,29 @@ const Home: React.FC = () => {
   const [slogan, setSlogan] = useState(slogans[0]);
 
   const handleSearch = async () => {
-    // Truyền vào 1 object thay vì 2 tham số rời rạc
-    const results = await filterJobs({ title: jobTitle, location: location });
+    const results = await filterJobs({ title: jobTitle, location });
 
-    if (results && results.length > 0) {
-      navigate(
-        `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
-      );
-    } else {
-      Swal.fire({
+    if (!results || results.length === 0) {
+      return Swal.fire({
         icon: "info",
         title: "Thông báo",
         text: "Không có công việc phù hợp",
       });
     }
+
+    const sorted = results.reverse().sort((a, b) => {
+      const aScore = a.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+      const bScore = b.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+      return bScore - aScore;
+    });
+
+    const target = sorted[0];
+
+    navigate(
+      `/jobdetail/${target._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+    );
   };
+
 
   const handleItem = async (title: string) => {
     const results = await categories_sum(title);
@@ -464,9 +472,9 @@ const Home: React.FC = () => {
                     <option value="dataAnalyst">Data Analyst</option>
                     <option value="sysAdmin">System Administrator</option>
                     <option value="QA">QA Engineer</option>
-                    <option value="DevEng">DevOps Engineer</option>
-                    <option value="Legal Specialist">Legal Specialistr</option>
-                    <option value="Admin Intern">Admin Intern</option>
+                    <option value="DevOps">DevOps Engineer</option>
+                    {/* <option value="Legal Specialist">Legal Specialistr</option> */}
+                    <option value="System">System Admintrator</option>
                   </select>
 
                   {/* Combobox Địa điểm */}
@@ -594,7 +602,7 @@ const Home: React.FC = () => {
                         }}
                       >
                         <div className="item-bottom">
-                          <span className="item-title">{item.name}</span>
+                          <span className="item-title_1 text-2xl">{item.name}</span>
                           <p className="text-gray-500 text-sm text-left" style={{ marginTop: 10 }}>{item.description}</p>
                           <span className="item-posted">
                             Bài đăng:
