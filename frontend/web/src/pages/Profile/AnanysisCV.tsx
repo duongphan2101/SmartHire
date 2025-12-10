@@ -1,36 +1,43 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
     Box, Card, CardContent, Typography, Chip,
-    List, ListItem, ListItemIcon, ListItemText,
-    Alert, Button
+    List, ListItem, Alert, Button
 } from '@mui/material';
+
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import SchoolIcon from '@mui/icons-material/School';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+
 import useCV from '../../hook/useCV';
 
 interface CVAnalysisPanelProps {
     cvId?: string;
+    onStartAnalysis?: () => void;
 }
 
-const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId }) => {
+const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId, onStartAnalysis }) => {
     const { analyzeCV, loadingCV, errorCV, result } = useCV();
 
-    useEffect(() => {
+    const handleAnalyzeClick = () => {
         if (cvId) {
+            onStartAnalysis?.();
             analyzeCV(cvId);
         }
-    }, [cvId, analyzeCV]);
-
-    const handleAnalyzeClick = () => {
-        if (cvId) analyzeCV(cvId);
     };
 
     if (!cvId) {
         return (
-            <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', border: '1px dashed #ddd', borderRadius: 2 }}>
-                <Typography>Vui lòng chọn CV bên trái để phân tích</Typography>
+            <Box sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#888',
+                p: 2,
+                bgcolor: '#fafafa'
+            }}>
+                <Typography variant="body1">👈 Chọn một CV để bắt đầu phân tích</Typography>
             </Box>
         );
     }
@@ -38,26 +45,33 @@ const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId }) => {
     return (
         <Box sx={{ width: '100%', height: '100%', overflowY: 'auto', p: 2 }}>
 
-            {/* Màn hình chờ hoặc nút bấm ban đầu */}
             {!result && !loadingCV && (
                 <Box sx={{ textAlign: 'center', mt: 8 }}>
-                    <AutoAwesomeIcon sx={{ fontSize: 60, color: '#059669', mb: 2 }} />
-                    <Typography variant="h6" gutterBottom>AI Phân Tích Hồ Sơ</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                        Nhận đánh giá chi tiết về điểm mạnh, điểm yếu và lộ trình phát triển sự nghiệp từ AI.
+                    <AutoAwesomeIcon sx={{ fontSize: 80, color: '#059669', mb: 2 }} />
+                    <Typography variant="h5" fontWeight="bold">
+                        AI Phân Tích CV Toàn Diện
                     </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+                        Hệ thống phân tích nội dung CV, chỉ ra điểm mạnh – điểm yếu, phần thiếu và mức độ thân thiện ATS.
+                    </Typography>
+
                     <Button
                         variant="contained"
+                        size="large"
                         onClick={handleAnalyzeClick}
-                        startIcon={<AutoAwesomeIcon />}
-                        sx={{ bgcolor: '#9c27b0', '&:hover': { bgcolor: '#059669' } }}
+                        sx={{
+                            bgcolor: '#059669',
+                            borderRadius: '50px',
+                            px: 4,
+                            py: 1.5,
+                            '&:hover': { bgcolor: '#059669' }
+                        }}
                     >
                         Phân tích ngay
                     </Button>
                 </Box>
             )}
 
-            {/* Loading Bar */}
             {loadingCV && (
                 <Box sx={{
                     width: '100%',
@@ -83,123 +97,168 @@ const CVAnalysisPanel: React.FC<CVAnalysisPanelProps> = ({ cvId }) => {
                         sx={{
                             mt: 1,
                             fontStyle: 'italic',
-                            color: '#059669',
-                            animation: 'pulse 1.4s ease-in-out infinite'
+                            color: '#059669'
                         }}
                     >
-                        AI đang đọc CV của bạn...
+                        Đang phân tích dữ liệu...
                     </Typography>
 
                     <style>
                         {`
-                @keyframes spin {
-                    0% { transform: rotate(0); }
-                    100% { transform: rotate(360deg); }
-                }
-                @keyframes pulse {
-                    0% { opacity: 0.5; }
-                    50% { opacity: 1; }
-                    100% { opacity: 0.5; }
-                }
-            `}
+                        @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+                        `}
                     </style>
                 </Box>
             )}
 
-
-            {/* Error Message */}
             {errorCV && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                     {errorCV}
-                    <Button size="small" onClick={handleAnalyzeClick} sx={{ ml: 2 }}>Thử lại</Button>
+                    <Button size="small" onClick={handleAnalyzeClick} sx={{ ml: 2 }}>
+                        Thử lại
+                    </Button>
                 </Alert>
             )}
 
-            {/* KẾT QUẢ PHÂN TÍCH */}
-            {result && (
+            {/* ==== RESULT ==== */}
+            {result && !loadingCV && (
                 <div className="animate-fade-in space-y-4 flex flex-col gap-3.5">
 
-                    {/* 1. Điểm số & Tóm tắt */}
-                    <Card sx={{ bgcolor: '#f3e5f5', border: 'none', boxShadow: 'none' }}>
-                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <Typography variant="subtitle2" color="text.secondary" textTransform="uppercase" letterSpacing={1}>
-                                Mức độ phù hợp thị trường
+                    {/* SUMMARY */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                                Tổng quan
                             </Typography>
-                            <Typography variant="h2" sx={{ color: '#7b1fa2', fontWeight: 'bold', my: 1 }}>
-                                {result.job_match_score}<span style={{ fontSize: '20px' }}>/100</span>
-                            </Typography>
-                            <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic' }}>
-                                "{result.summary}"
+                            <Typography variant="body2">
+                                {result.summary}
                             </Typography>
                         </CardContent>
                     </Card>
 
-                    {/* 2. Điểm mạnh */}
-                    <Card sx={{ border: 'none', boxShadow: 'none' }}>
+                    {/* STRENGTHS */}
+                    <Card>
                         <CardContent>
-                            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: '#2e7d32' }}>
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#2e7d32' }}>
                                 <CheckCircleIcon /> Điểm mạnh
                             </Typography>
+
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {result.strengths.map((str, index) => (
-                                    <Chip key={index} label={str} sx={{
-                                        bgcolor: '#e8f5e9', color: '#1b5e20', fontWeight: 500, whiteSpace: 'normal',
-                                        height: 'auto',
-                                        wordBreak: 'break-word'
-                                    }} />
+                                {result.strengths?.map((s, i) => (
+                                    <Chip key={i} label={s} sx={{ bgcolor: '#e8f5e9', color: '#1b5e20' }} />
                                 ))}
                             </Box>
                         </CardContent>
                     </Card>
 
-                    {/* 3. Cần cải thiện */}
-                    <Card sx={{ border: 'none', boxShadow: 'none' }}>
+                    {/* WEAKNESSES */}
+                    <Card>
                         <CardContent>
-                            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: '#ed6c02' }}>
-                                <TrendingUpIcon /> Kỹ năng nên học
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#4aa8f0' }}>
+                                <TrendingUpIcon /> Điểm cần cải thiện
                             </Typography>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {result.suggested_skills.map((skill, index) => (
-                                    <Chip key={index} label={skill} sx={{
-                                        bgcolor: '#fff3e0', color: '#e65100', fontWeight: 500, whiteSpace: 'normal',
-                                        height: 'auto',
-                                        wordBreak: 'break-word'
-                                    }} />
-                                ))}
-                            </Box>
 
-                            <Typography variant="subtitle2" sx={{ mt: 2, mb: 1, fontWeight: 'bold' }}>Điểm yếu cần khắc phục:</Typography>
-                            <ul style={{ paddingLeft: '20px', margin: 0, color: '#666' }}>
-                                {result.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
-                            </ul>
-                        </CardContent>
-                    </Card>
-
-                    {/* 4. Lộ trình */}
-                    <Card sx={{ border: 'none', boxShadow: 'none' }}>
-                        <CardContent>
-                            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#1976d2' }}>
-                                <SchoolIcon /> Lộ trình gợi ý
-                            </Typography>
                             <List dense>
-                                {result.roadmap.map((step, index) => (
-                                    <ListItem key={index} alignItems="flex-start" disableGutters>
-                                        <ListItemIcon sx={{ minWidth: 35, mt: 0.5 }}>
-                                            <Box sx={{
-                                                width: 24, height: 24, borderRadius: '50%',
-                                                bgcolor: '#e3f2fd', color: '#1976d2',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                fontWeight: 'bold', fontSize: '12px'
-                                            }}>
-                                                {index + 1}
-                                            </Box>
-                                        </ListItemIcon>
-                                        <ListItemText primary={step} primaryTypographyProps={{ fontSize: '0.95rem' }} />
-                                    </ListItem>
+                                {result.weaknesses?.map((w, i) => (
+                                    <ListItem key={i}>• {w}</ListItem>
                                 ))}
                             </List>
                         </CardContent>
                     </Card>
+
+                    {/* SUGGESTED SKILLS */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#ed6c02' }}>
+                                <AutoAwesomeIcon /> Kỹ năng nên bổ sung
+                            </Typography>
+
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {result.suggested_skills?.map((s, i) => (
+                                    <Chip key={i} label={s} sx={{ bgcolor: '#fff3e0', color: '#e65100' }} />
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+
+                    {/* MISSING SECTIONS */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#b91c1c' }}>
+                                <AssignmentLateIcon /> Phần còn thiếu
+                            </Typography>
+
+                            <List dense>
+                                {result.missing_sections?.map((m, i) => (
+                                    <ListItem key={i}>• {m}</ListItem>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+
+                    {/* FORMAT TIPS */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2, textAlign: 'left' }}>
+                                Gợi ý format CV
+                            </Typography>
+
+                            <List dense>
+                                {result.format_tips?.map((m, i) => (
+                                    <ListItem key={i}>• {m}</ListItem>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+
+                    {/* ATS CHECK */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#2563eb' }}>
+                                Đánh giá ATS
+                            </Typography>
+
+                            <Typography variant="subtitle1" sx={{ mb: 1, textAlign: 'left' }}>Vấn đề ATS:</Typography>
+                            <List dense>
+                                {result.ats_check?.issues?.map((i, idx) => (
+                                    <ListItem sx={{ py: .5 }} key={idx}>• {i}</ListItem>
+                                ))}
+                            </List>
+
+                            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, textAlign: 'left' }}>Gợi ý cải thiện ATS:</Typography>
+                            <List dense>
+                                {result.ats_check?.improvements?.map((i, idx) => (
+                                    <ListItem sx={{ py: .5 }} key={idx}>• {i}</ListItem>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+
+                    {/* ROADMAP */}
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle1" fontWeight={600}
+                                sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: '#2563eb' }}>
+                                Lộ trình phát triển CV
+                            </Typography>
+                            <List dense>
+                                {result.roadmap?.map((i, idx) => (
+                                    <ListItem sx={{ py: .5 }} key={idx}>• {i}</ListItem>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+
+                    <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Button size="small" onClick={handleAnalyzeClick}>
+                            Phân tích lại
+                        </Button>
+                    </Box>
                 </div>
             )}
         </Box>

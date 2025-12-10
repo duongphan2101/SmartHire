@@ -4,21 +4,25 @@ import "./BuildCvs.css";
 import SettingsModal from "../../components/Templates/Model-settings/SettingModal";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
-import useUser, { type UserResponse } from "../../hook/useUser";
+import useUser from "../../hook/useUser";
 import Swal from "sweetalert2";
 import FreshInternCVTemplate from "../../components/Templates/Template-1/SeniorCVTemplate";
 import TwoColumnCVTemplate from "../../components/Templates/Template-2/TwoColumnCVTemplate";
 import ModernCenteredCVTemplate from "../../components/Templates/Template-3/ModernCenteredCVTemplate";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
+import { useSearchParams } from "react-router-dom";
+import { HOSTS } from "../../utils/host";
 
 type TemplateKey = 'twocolumns' | 'fresher' | 'modern';
 
+// --- Interfaces (Giữ nguyên) ---
 interface ContactInfo {
     phone: string;
     email: string;
     github: string;
     website: string;
+    address: string;
 }
 
 interface Experience {
@@ -44,6 +48,7 @@ interface Project {
 
 interface CVData {
     name: string;
+    title: string;
     introduction: string;
     experience: Experience[];
     professionalSkills: string;
@@ -53,45 +58,73 @@ interface CVData {
     contact: ContactInfo;
     education: Education[];
     projects: Project[];
+    templateType: number;
+    color: string;
+    fontFamily: string;
+    languageForCV: string;
 }
 
 interface CustomSettings {
     color: string;
     fontFamily: string;
     lang: string;
-    // cvData: CVData;
 }
 
 const DEFAULT_CV_DATA: CVData = {
     name: "",
+    title: "",
     introduction: "",
     professionalSkills: "",
     softSkills: "",
     experience: [{ company: "", description: "", endDate: "", jobTitle: "", startDate: "" },],
     certifications: "",
     activitiesAwards: "",
-    contact: { phone: "", email: "", github: "", website: "" },
+    contact: { phone: "", email: "", github: "", website: "", address: "" },
     education: [
         { university: "", major: "", gpa: "", startYear: "", endYear: "" },
     ],
     projects: [{ projectName: "", projectDescription: "" }],
+    templateType: 1, color: "", fontFamily: "", languageForCV: "",
 };
+
+// Thứ tự mặc định ban đầu (Khớp với defaultCvSections trong Template)
+const DEFAULT_LAYOUT = ['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'EDUCATION', 'SKILLS', 'ACTIVITIES'];
 
 const BuildCvs: React.FC = () => {
     const [currentTemplate, setCurrentTemplate] = useState<TemplateKey>('fresher');
     const { getUser, user } = useUser();
 
     const [cvData, setCvData] = useState<CVData>(DEFAULT_CV_DATA);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(true);
 
     const [customSettings, setCustomSettings] = useState<CustomSettings>({
         color: '#059669',
         fontFamily: 'Arial',
         lang: 'vn',
-        // cvData: cvData
     });
-    // const [, setOriginalData] = useState<CVData>({ ...cvData });
+
+    // [MỚI] State lưu thứ tự sắp xếp layout
+    const [layoutOrder, setLayoutOrder] = useState<string[]>(DEFAULT_LAYOUT);
+
+    // Lấy ID từ URL
+    const [searchParams] = useSearchParams();
+    const cvIdToEdit = searchParams.get("id");
+
     const cvTemplateRef = useRef<HTMLDivElement>(null);
+
+    // Helper chuyển đổi số type sang tên template
+    const getTemplateKeyFromNumber = (type: number): TemplateKey => {
+        switch (type) {
+            case 2: return 'twocolumns';
+            case 3: return 'modern';
+            default: return 'fresher';
+        }
+    };
+
+    // [MỚI] Hàm callback để Component con (Template) gọi khi người dùng kéo thả
+    const handleLayoutChange = (newOrder: string[]) => {
+        setLayoutOrder(newOrder);
+    };
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -101,28 +134,6 @@ const BuildCvs: React.FC = () => {
                     const parsed = JSON.parse(storedUser);
                     const idToFetch = parsed.user_id ?? parsed._id;
                     getUser(idToFetch);
-
-                    const userData: UserResponse | void = await getUser(idToFetch);
-                    if (userData) {
-                        setCvData((prev) => ({
-                            ...prev,
-                            name: userData.fullname || "",
-                            contact: {
-                                ...prev.contact,
-                                phone: userData.phone || "",
-                                email: userData.email || "",
-                            },
-                        }));
-                        // setOriginalData((prev) => ({
-                        //     ...prev,
-                        //     name: userData.fullname || "",
-                        //     contact: {
-                        //         ...prev.contact,
-                        //         phone: userData.phone || "",
-                        //         email: userData.email || "",
-                        //     },
-                        // }));
-                    }
                 } else {
                     Swal.fire({
                         icon: "warning",
@@ -141,20 +152,6 @@ const BuildCvs: React.FC = () => {
                 }
             } catch (e) {
                 console.error("Invalid user data in localStorage", e);
-                Swal.fire({
-                    icon: "error",
-                    title: "Lỗi dữ liệu",
-                    text: "Thông tin đăng nhập không hợp lệ. Vui lòng đăng nhập lại!",
-                    showCancelButton: true,
-                    confirmButtonText: "Đăng nhập",
-                    cancelButtonText: "Hủy",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "/login";
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        window.location.href = "/home";
-                    }
-                });
             }
         };
 
@@ -162,27 +159,114 @@ const BuildCvs: React.FC = () => {
     }, [getUser]);
 
     useEffect(() => {
-        if (user && user.fullname !== undefined) {
-            const initialData: CVData = {
-                ...DEFAULT_CV_DATA,
-                name: user.fullname || "",
-                contact: {
-                    ...DEFAULT_CV_DATA.contact,
-                    phone: user.phone || "",
-                    email: user.email || "",
-                }
-            };
+        const initData = async () => {
+            if (cvIdToEdit) {
+                try {
+                    const response = await fetch(`${HOSTS.cvService}/cv/${cvIdToEdit}`);
 
-            setCvData(initialData);
-            // setCustomSettings(prevSettings => ({
-            //     ...prevSettings,
-            //     cvData: initialData
-            // }));
-        }
-    }, [user]);
+                    if (!response.ok) {
+                        throw new Error("Không thể tải dữ liệu CV");
+                    }
+
+                    const data = await response.json();
+
+                    const mappedData: CVData = {
+                        name: data.name || "",
+                        title: data.title || "",
+                        introduction: data.introduction || "",
+                        professionalSkills: data.professionalSkills || "",
+                        softSkills: data.softSkills || "",
+                        certifications: data.certifications || "",
+                        activitiesAwards: data.activitiesAwards || "",
+
+                        contact: {
+                            phone: data.contact?.phone || "",
+                            email: data.contact?.email || "",
+                            github: data.contact?.github || "",
+                            website: data.contact?.website || "",
+                            address: data.contact?.address || "",
+                        },
+
+                        experience: Array.isArray(data.experience)
+                            ? data.experience.map((exp: any) => ({
+                                jobTitle: exp.jobTitle || "",
+                                company: exp.company || "",
+                                startDate: exp.startDate || "",
+                                endDate: exp.endDate || "",
+                                description: exp.description || "",
+                            }))
+                            : [],
+
+                        education: Array.isArray(data.education)
+                            ? data.education.map((edu: any) => ({
+                                university: edu.university || "",
+                                major: edu.major || "",
+                                gpa: edu.gpa || "",
+                                startYear: edu.startYear || "",
+                                endYear: edu.endYear || "",
+                            }))
+                            : [],
+
+                        projects: Array.isArray(data.projects)
+                            ? data.projects.map((proj: any) => ({
+                                projectName: proj.projectName || "",
+                                projectDescription: proj.projectDescription || "",
+                            }))
+                            : [],
+
+                        templateType: data.templateType || 1,
+                        color: data.color || "",
+                        fontFamily: data.fontFamily || "",
+                        languageForCV: data.languageForCV || "",
+                    };
+
+                    setCvData(mappedData);
+                    setCurrentTemplate(getTemplateKeyFromNumber(data.templateType));
+
+                    setCustomSettings({
+                        color: mappedData.color,
+                        fontFamily: mappedData.fontFamily,
+                        lang: mappedData.languageForCV
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching CV:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Lỗi",
+                        text: "Không thể tải nội dung CV để chỉnh sửa.",
+                    });
+                }
+            }
+            else if (user && user.fullname) {
+                // Logic tạo mới CV từ thông tin User
+                const initialData: CVData = {
+                    ...DEFAULT_CV_DATA,
+                    name: user.fullname || "",
+                    contact: {
+                        ...DEFAULT_CV_DATA.contact,
+                        phone: user.phone || "",
+                        email: user.email || "",
+                    },
+                    templateType: { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[currentTemplate]
+                };
+                setCvData(initialData);
+
+                setCustomSettings({
+                    color: '#059669',
+                    fontFamily: 'Arial',
+                    lang: 'vn',
+                });
+            }
+        };
+
+        initData();
+    }, [cvIdToEdit, user]);
 
     const handleTemplateChange = (templateType: TemplateKey) => {
         setCurrentTemplate(templateType);
+        const typeNum = { 'twocolumns': 2, 'fresher': 1, 'modern': 3 }[templateType];
+        setCvData(prev => ({ ...prev, templateType: typeNum }));
     };
 
     const handleSettingsChange = (newSettings: Partial<CustomSettings>) => {
@@ -193,18 +277,10 @@ const BuildCvs: React.FC = () => {
     };
 
     const updateCvData = (field: keyof CVData, value: any) => {
-        const updatedData = {
-            ...cvData,
+        setCvData(prev => ({
+            ...prev,
             [field]: value
-        };
-
-        setCvData(updatedData);
-
-        // Đảm bảo customSettings luôn đồng bộ
-        // setCustomSettings(prevSettings => ({
-        //     ...prevSettings,
-        //     cvData: updatedData
-        // }));
+        }));
     };
 
     const renderTemplateComponent = () => {
@@ -213,6 +289,7 @@ const BuildCvs: React.FC = () => {
             settings: customSettings,
             cvData: cvData,
             updateCvData: updateCvData,
+            onLayoutChange: handleLayoutChange, // <-- Mới thêm
         };
 
         switch (currentTemplate) {
@@ -231,6 +308,7 @@ const BuildCvs: React.FC = () => {
 
     const [openChat, setIsChatOpen] = useState(false);
     const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
     const handleOpenChatRequest = (room?: ChatRoom) => {
         if (room) {
             setCurrentChatRoom(room);
@@ -241,6 +319,7 @@ const BuildCvs: React.FC = () => {
     const handleCloseChat = () => {
         setIsChatOpen(false);
     };
+
     return (
         <div className="buildcv-app">
             <Header onOpenChat={handleOpenChatRequest} />
@@ -268,6 +347,9 @@ const BuildCvs: React.FC = () => {
                         onSettingsChange={handleSettingsChange}
                         cvTemplateRef={cvTemplateRef}
                         cvData={cvData}
+                        isEditMode={!!cvIdToEdit}
+                        cvId={cvIdToEdit}
+                        layoutOrder={layoutOrder}
                     />
                 </div>
 

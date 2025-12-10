@@ -63,7 +63,7 @@ export default function useNotification(userId?: string) {
 
     const newSocket = io(SOCKET_HOST, {
       withCredentials: true,
-      transports: ["websocket", "polling"],
+      transports: ["websocket"],
     });
 
     setSocket(newSocket);
@@ -88,7 +88,7 @@ export default function useNotification(userId?: string) {
   const createNotification = async (data: CreateNotificationPayload) => {
     try {
       const res = await axios.post<Notification>(
-        `${NOTIFICATION_API_HOST}/`,
+        `${NOTIFICATION_API_HOST}/create`,
         data
       );
 

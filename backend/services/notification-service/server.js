@@ -20,7 +20,7 @@ const io = new Server(server, {
 // Middleware cors cho express
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost",
+    origin: [process.env.CLIENT_URL || "http://localhost", 'http://localhost'],
     methods: ["GET", "POST", "PATCH"],
     credentials: true,
   })

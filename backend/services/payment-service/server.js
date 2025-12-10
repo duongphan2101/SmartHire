@@ -15,7 +15,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connect
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI_PAYMENT)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB error:", err));
 

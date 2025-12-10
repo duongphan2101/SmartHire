@@ -5,9 +5,7 @@ import { FaAccusoft, FaForumbee, FaLinux } from 'react-icons/fa';
 import AreaBaseline from "./AreaBaseLine";
 import PieChart from "./PieChart";
 import { useEffect, useState } from "react";
-
 import useDashboard from "../../hook/useDashboard";
-
 import { Badge, ConfigProvider, DatePicker, Space } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from "dayjs";
@@ -16,7 +14,8 @@ import useApplication, { type ApplicationResponse } from "../../hook/useApplicat
 import ViewModal from "../dashboard-hr/Viewmodal";
 import type { ChatRoom } from "../../utils/interfaces";
 import useJob from "../../hook/useJob";
-import Calendar_Das from "./Calendar";
+// import Calendar_Das from "./Calendar";
+import Calendar_FC from "./Timeline_Calendar";
 
 const { RangePicker } = DatePicker;
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
@@ -395,12 +394,13 @@ const Dashboard = ({ onOpenChatRequest, setPage, setBreadcrumb }: DashboardProps
                     </div>
 
                     <div className="body-main-bottom bg-white shadow-2xl">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                             <h4 className="text-xl font-bold"
-                                style={{paddingLeft: 20, marginBottom: 10, marginTop: 10}}
-                            >Các cuộc phỏng vấn đã sắp xếp</h4>
+                                style={{ paddingLeft: 10, marginBottom: 10, marginTop: 10 }}
+                            >Các cuộc phỏng vấn đã sắp xếp
+                            </h4>
 
-                            <div className="flex flex-wrap gap-4 text-sm">
+                            <div className="flex flex-wrap gap-4 text-sm" style={{ paddingRight: '10px' }}>
                                 <Badge status="processing" text="Đã xác nhận" /> {/* Confirmed - Xanh dương */}
                                 <Badge status="warning" text="Chờ xử lý" />      {/* Pending - Vàng */}
                                 <Badge status="success" text="Hoàn thành" />     {/* Completed - Xanh lá */}
@@ -408,8 +408,10 @@ const Dashboard = ({ onOpenChatRequest, setPage, setBreadcrumb }: DashboardProps
                                 <Badge status="default" text="Hết hạn" />
                             </div>
                         </div>
-                        <Calendar_Das />
-
+                        {/* <Calendar_Das /> */}
+                        <div style={{ padding: '10px' }}>
+                            <Calendar_FC />
+                        </div>
                     </div>
 
                 </div>

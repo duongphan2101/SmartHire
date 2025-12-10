@@ -7,6 +7,8 @@ exports.sendVerifyEmail = async (req, res) => {
     // Thêm fullname để email trông thân thiện hơn
     const { email, user_id, fullname } = req.body;
 
+    console.log("Request Body:", req.body);
+
     // --- Validation ---
     if (!email || !user_id) {
       return res
@@ -21,6 +23,7 @@ exports.sendVerifyEmail = async (req, res) => {
       { expiresIn: "1d" }
     );
     const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+    console.log("Verify Link:", verifyLink);
 
     // --- 1. Template HTML mới (Theo phong cách notifyApplication) ---
     const subject = `SmartHire - Vui lòng xác nhận email của bạn`;

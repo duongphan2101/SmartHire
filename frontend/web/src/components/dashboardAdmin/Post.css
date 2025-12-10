@@ -84,6 +84,13 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.post-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
 .post-info h3 {
   margin-top: 0;
   margin-bottom: 8px;

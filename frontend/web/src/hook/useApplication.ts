@@ -99,7 +99,7 @@ export default function useApplication() {
         setLoading(true);
         setError(null);
         const res = await axios.post<ApplicationResponse>(
-          `${HOSTS.applicationService}`,
+          `${HOSTS.applicationService}/apply`,
           data
         );
         return res.data;
@@ -275,7 +275,7 @@ export default function useApplication() {
         }
         //console.log(`${HOSTS.applicationService}/hr-candidatelist`);
         const res = await axios.post(
-          `${HOSTS.applicationService}/hr-candidatelist`, data
+          `${HOSTS.applicationService}/hr-candidatependinglist`, data
         );
         // console.log("APPDATA: ", res.data);
         return res.data.data;

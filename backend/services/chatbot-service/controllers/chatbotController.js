@@ -6,37 +6,86 @@ const ai = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 const JOB_SERVICE_URL = process.env.JOB_SERVICE_URL;
 
 function extractJobQuery(text) {
-  const lower = text.toLowerCase().normalize("NFC");
-  if (!/(tìm|việc|job|intern|thực tập)/.test(lower)) return null;
+  // 1. Chuẩn hóa chuỗi: chuyển thường, bỏ dấu câu thừa
+  const lower = text.toLowerCase().normalize("NFC").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+  if (!/(tìm|việc|job|intern|thực tập|tuyển|work|career|vacancy)/.test(lower)) return null;
 
   const query = {};
-  if (/(thực tập|intern)/.test(lower)) query.title = "intern";
-  else if (/(frontend|fe|react|angular|vue)/.test(lower)) query.title = "frontend";
-  else if (/(backend|be|node|spring|java|\.net|express)/.test(lower)) query.title = "backend";
-  else if (/(fullstack|mern|mean|full stack)/.test(lower)) query.title = "fullstack";
-  else if (/(ai|machine learning|ml|deep learning)/.test(lower)) query.title = "ai";
-  else if (/(data|analyst|database)/.test(lower)) query.title = "data";
-  else if (/(devops|infrastructure|aws|docker|kubernetes)/.test(lower)) query.title = "devops";
-  else if (/(mobile|react native|flutter|android|ios)/.test(lower)) query.title = "mobile";
-  else if (/(test|qa|quality assurance)/.test(lower)) query.title = "qa";
-  else if (/(ui|ux|designer|thiết kế)/.test(lower)) query.title = "designer";
-  else if (/(project manager|pm|quản lý dự án)/.test(lower)) query.title = "project manager";
 
-  if (/(hồ chí minh|hcm|tp\.hcm|sài gòn|sg)/.test(lower))
+  // --- 2. XỬ LÝ JOB TITLE (Mảng kỹ thuật/ngành nghề) ---
+  if (/(frontend|front-end|fe\b|react|angular|vue|nextjs|typescript|javascript|html|css)/.test(lower)) {
+    query.title = "Frontend";
+  }
+  else if (/(backend|back-end|be\b|node|express|nest|java\b|spring|python|django|golang|php|\.net|c#)/.test(lower)) {
+    query.title = "Backend";
+  }
+  else if (/(fullstack|full-stack|mern|mean|lập trình viên)/.test(lower)) {
+    query.title = "Fullstack";
+  }
+  else if (/(mobile|android|ios|flutter|react native|swift|kotlin)/.test(lower)) {
+    query.title = "Mobile";
+  }
+  else if (/(ai\b|machine learning|ml\b|deep learning|nlp|computer vision|python)/.test(lower)) {
+    query.title = "AI";
+  }
+  else if (/(data|analyst|engineer|sql|etl|spark|bi\b|database)/.test(lower)) {
+    query.title = "Data";
+  }
+  else if (/(devops|sysadmin|aws|cloud|docker|kubernetes|ci\/cd|linux)/.test(lower)) {
+    query.title = "DevOps";
+  }
+  else if (/(test|qa|qc|tester|automation|manual|quality)/.test(lower)) {
+    query.title = "QA";
+  }
+  else if (/(ui|ux|design|thiết kế|figma|photoshop|adobe)/.test(lower)) {
+    query.title = "Designer";
+  }
+  else if (/(ba\b|business analyst|nghiệp vụ)/.test(lower)) {
+    query.title = "Business Analyst";
+  }
+  else if (/(pm\b|project manager|quản lý dự án|product owner)/.test(lower)) {
+    query.title = "Project Manager";
+  }
+
+  // --- 3. XỬ LÝ LOCATION (Địa điểm) ---
+  if (/(hồ chí minh|hcm|tp\.hcm|tphcm|sài gòn|sg|sai gon)/.test(lower)) {
     query.location = "Thành phố Hồ Chí Minh";
-  else if (/(hà nội|hn)/.test(lower)) query.location = "Hà Nội";
-  else if (/(đà nẵng|danang|dn)/.test(lower)) query.location = "Đà Nẵng";
+  }
+  else if (/(hà nội|hn|hanoi|ha noi)/.test(lower)) {
+    query.location = "Hà Nội";
+  }
+  else if (/(đà nẵng|danang|dn|da nang)/.test(lower)) {
+    query.location = "Đà Nẵng";
+  }
 
-  if (/(part[- ]?time|bán thời gian)/.test(lower)) query.jobType = "Part-time";
-  else if (/(full[- ]?time|toàn thời gian)/.test(lower)) query.jobType = "Full-time";
-  else if (/(remote|làm từ xa|online)/.test(lower)) query.jobType = "Remote";
+  // --- 4. XỬ LÝ JOB TYPE (Loại hình) ---
+  if (/(part[- ]?time|bán thời gian)/.test(lower)) {
+    query.jobType = "Part-time";
+  }
+  else if (/(full[- ]?time|toàn thời gian)/.test(lower)) {
+    query.jobType = "Full-time";
+  }
+  else if (/(remote|làm từ xa|online|tại nhà|wfh)/.test(lower)) {
+    query.jobType = "Remote";
+  }
 
-  if (/(intern|thực tập)/.test(lower)) query.jobLevel = "Intern";
-  else if (/(junior|mới ra trường|fresher|sinh viên)/.test(lower)) query.jobLevel = "Junior";
-  else if (/(mid|middle|trung cấp)/.test(lower)) query.jobLevel = "Mid-level";
-  else if (/(senior|cao cấp|chuyên viên)/.test(lower)) query.jobLevel = "Senior";
-  else if (/(lead|trưởng nhóm|team lead|leader)/.test(lower)) query.jobLevel = "Lead";
-
+  // --- 5. XỬ LÝ JOB LEVEL (Cấp bậc) ---
+  if (/(intern|thực tập|tuyển sinh)/.test(lower)) {
+    query.jobLevel = "Intern";
+    if (!query.title) query.title = "Intern";
+  }
+  else if (/(fresher|mới ra trường|sinh viên|junior|nhập môn)/.test(lower)) {
+    query.jobLevel = "Junior";
+  }
+  else if (/(mid|middle|trung cấp|1-3 năm)/.test(lower)) {
+    query.jobLevel = "Mid-level";
+  }
+  else if (/(senior|cao cấp|chuyên gia|trên 3 năm)/.test(lower)) {
+    query.jobLevel = "Senior";
+  }
+  else if (/(lead|trưởng nhóm|quản lý|tech lead)/.test(lower)) {
+    query.jobLevel = "Lead";
+  }
   return Object.keys(query).length > 0 ? query : null;
 }
 

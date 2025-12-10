@@ -10,6 +10,8 @@ import usePayment from "../../hook/usePayment";
 import { AiOutlineMessage } from "react-icons/ai";
 import Chat from "../Chat/Chat";
 import { useChat } from "../../hook/useChat";
+import { HOSTS } from "../../utils/host";
+
 interface HRheaderProps {
   breadcrumb: string;
   setPage: (
@@ -34,7 +36,7 @@ const HRheader = ({ breadcrumb, setPage, companyName, onOpenChat }: HRheaderProp
   useEffect(() => {
     if (user?._id) {
       axios
-        .get(`http://localhost:7000/api/notifications/${user._id}`)
+        .get(`${HOSTS.notificationService}/${user._id}`)
         .then((res) => setNotifications(res.data))
         .catch((err) => console.error(err));
     }
@@ -48,7 +50,7 @@ const HRheader = ({ breadcrumb, setPage, companyName, onOpenChat }: HRheaderProp
     try {
       if (!n.isRead) {
         await axios.patch(
-          `http://localhost:7000/api/notifications/${n._id}/read`
+          `${HOSTS.notificationService}/${n._id}/read`
         );
         setNotifications((prev) =>
           prev.map((item) =>

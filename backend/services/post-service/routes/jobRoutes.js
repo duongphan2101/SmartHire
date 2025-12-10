@@ -5,7 +5,7 @@ const Job = require("../models/Job");
 const {
   createJob, getJobs, getAllJobs, searchJobs, deleteJob,
   getLatestJobs, updateJob, getJobById, filterJobs, categories,
-  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob, getJobsByDepId
+  getNumJobsByDepartment, getNumJobsByUser, approveJob, rejectJob, getJobsByDepId, countPending, banJob
 } = require('../controllers/jobController');
 
 
@@ -62,6 +62,18 @@ router.get("/pending", async (req, res) => {
   }
 });
 
+router.get("/expired-and-filled", async (req, res) => {
+  try {
+    const jobs = await Job.find({
+      status: { $in: ["expired", "filled"] }
+    });
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get("/count/pending", countPending);
 router.get('/getLatest', getLatestJobs);
 router.get('/filter/search', filterJobs);
 router.get('/:id', getJobById);
@@ -70,4 +82,22 @@ router.put('/:id', updateJob);
 router.put('/approve/:id', approveJob);
 router.put('/reject/:id', rejectJob);
 
+// PUT /job/:id - cập nhật trạng thái
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const validStatus = ["pending", "active", "banned"];
+
+  if (!validStatus.includes(status)) {
+    return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+  }
+
+  try {
+    const job = await Job.findByIdAndUpdate(id, { status }, { new: true });
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.json({ message: "Cập nhật trạng thái thành công!", job });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = router;

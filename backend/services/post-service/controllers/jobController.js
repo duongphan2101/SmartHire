@@ -372,6 +372,27 @@ const rejectJob = async (req, res) => {
   }
 };
 
+const countPending = async (req, res) => {
+  try {
+    const totalPending = await Job.countDocuments({ status: "pending" });
+    res.json({ totalPending });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to count pending jobs" });
+  }
+};
+
+const banJob = async (id) => {
+  try {
+    const res = await axios.put(`${HOSTS.jobService}/job/${id}/status`, {
+      status: "banned",
+    });
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 module.exports = {
   createJob,
   getJobs,
@@ -388,5 +409,7 @@ module.exports = {
   getSalaryStats,
   approveJob,
   rejectJob,
-  getJobsByDepId
+  getJobsByDepId,
+  countPending,
+  banJob
 };

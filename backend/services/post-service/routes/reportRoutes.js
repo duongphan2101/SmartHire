@@ -5,7 +5,7 @@ const reportController = require("../controllers/reportController");
 // Tạo báo cáo
 router.post("/", reportController.createReport);
 
-// Lấy báo cáo theo id
+router.get("/admin/reports", reportController.getAllReports);
 router.get("/:id", reportController.getReport);
 
 module.exports = router;

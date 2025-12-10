@@ -7,7 +7,7 @@ router.get("/failed", paymentFailed);
 router.get("/:userId", getWallet);
 router.get("/x/:userId", getWalletx);
 router.get("/:userId/transactions", getTransactions);
-router.post("/", createWallet);  
+router.post("/create", createWallet);  
 router.post("/deposit", depositCoins);  
 router.post("/withdraw", withdrawCoins);
 

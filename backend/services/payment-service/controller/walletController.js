@@ -160,7 +160,7 @@ const paymentSuccess = async (req, res) => {
         <p style="font-size: 20px; margin: 20px 0;">
           Bạn đã nạp thành công <strong style="color: #1890ff;">${amount}</strong> coin vào ví 🎉
         </p>
-        <a href="http://localhost:5173/dashboard" 
+        <a href="http://localhost/dashboard" 
            style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #1890ff; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
            Quay lại trang chủ
         </a>
@@ -182,7 +182,7 @@ const paymentFailed = async (req, res) => {
         <p style="font-size: 20px; margin: 20px 0;">
           Mã lỗi: <strong style="color: #cf1322;">${code}</strong>
         </p>
-        <a href="http://localhost:5173/dashboard" 
+        <a href="http://localhost/dashboard" 
            style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #f5222d; color: white; text-decoration: none; border-radius: 6px; font-size: 16px;">
            Quay lại trang chủ
         </a>

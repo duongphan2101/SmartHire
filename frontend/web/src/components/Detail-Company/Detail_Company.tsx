@@ -28,13 +28,15 @@ const Detail_Company: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [openChat, setIsChatOpen] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
+
   useEffect(() => {
     const fetchCompanyAndJobs = async () => {
       if (!id) return;
 
       try {
         const js = await getJobByDepartmentId(id);
-        setJobs(js || []);
+        const pendingJobs = (js || []).filter(job => job.status === "active");
+        setJobs(pendingJobs);
         getDepartmentById(id);
       } catch (err) {
         console.error("Error fetching company and jobs:", err);
@@ -56,6 +58,7 @@ const Detail_Company: React.FC = () => {
   const indexOfLastJob = currentPage * JOBS_PER_PAGE;
   const indexOfFirstJob = indexOfLastJob - JOBS_PER_PAGE;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+
   if (!department) {
     return (
       <div className="page-container">
@@ -65,6 +68,7 @@ const Detail_Company: React.FC = () => {
   }
   const displayRating = (department.averageRating || 0).toFixed(1);
   const displayTotalReviews = department.totalReviews || 0;
+  
   if (loading && currentPage === 1) {
     return (
       <div className="page-container">

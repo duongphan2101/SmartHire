@@ -5,13 +5,15 @@ const contactSchema = new mongoose.Schema({
   email: { type: String },
   github: { type: String },
   website: { type: String },
+  address: { type: String },
 });
 
 const educationSchema = new mongoose.Schema({
   university: { type: String },
   major: { type: String },
   gpa: { type: String },
-  year: { type: String },
+  startYear: { type: String },
+  endYear: { type: String },
 });
 
 const experienceSchma = new mongoose.Schema({
@@ -31,7 +33,8 @@ const cvSchema = new mongoose.Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
-    name: { type: String, required: true },
+    name: { type: String },
+    title: { type: String },
     introduction: { type: String },
     professionalSkills: { type: String },
     softSkills: { type: String },
@@ -45,6 +48,10 @@ const cvSchema = new mongoose.Schema(
 
     fileUrls: [{ type: String }],
     status: { type: String, enum: ["draft", "active", "archived"], default: "active" },
+    templateType: { type: Number, default: 1 },
+    color: { type: String },
+    fontFamily: { type: String },
+    languageForCV: { type: String },
   },
   { timestamps: true }
 );

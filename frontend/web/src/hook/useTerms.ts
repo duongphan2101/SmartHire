@@ -1,6 +1,7 @@
+import { HOSTS } from './../utils/host';
 import { useState, useCallback, useRef } from "react";
 
-const TERMS_API_URL = "http://localhost:2222/api/terms";
+const TERMS_API_URL = HOSTS.termService;
 
 export function useTerms() {
   const [termsText, setTermsText] = useState<string>("");

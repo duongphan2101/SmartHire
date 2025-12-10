@@ -190,6 +190,14 @@ const updateDepartmentStatus = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+const getTotalDepartments = async (req, res) => {
+  try {
+    const total = await Department.countDocuments();
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 module.exports = {
   getDepartments,
@@ -202,4 +210,5 @@ module.exports = {
   updateDepartmentStatus,
   joinDepartment,
   createDepartmentInvite,
+  getTotalDepartments,
 };

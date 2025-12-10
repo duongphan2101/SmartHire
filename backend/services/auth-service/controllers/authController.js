@@ -59,7 +59,7 @@ exports.register = async (req, res) => {
 
     const user_id = userResp.data._id;
 
-    await axios.post(`${host_wallet}`, {
+    await axios.post(`${host_wallet}/create`, {
       userId: user_id
     });
 
@@ -73,7 +73,7 @@ exports.register = async (req, res) => {
     });
 
     // 4. Gửi email xác nhận
-    const emailUrl = `${HOSTS.emailService}/api/email/send-verify`; // Cập nhật endpoint
+    const emailUrl = `${HOSTS.emailService}/send-verify`; // Cập nhật endpoint
     //console.log("Gửi yêu cầu đến email service:", { url: emailUrl, data: { email, user_id } });
     await axios.post(emailUrl, {
       email,

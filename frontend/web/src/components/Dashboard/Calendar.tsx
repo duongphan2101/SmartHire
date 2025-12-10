@@ -54,7 +54,11 @@ const Calendar_Das: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await fetchAllInterviews();
+                const storedUser = localStorage.getItem("user");
+                const parsed = JSON.parse(storedUser ?? "");
+                const idToFetch = parsed.user_id ?? parsed._id;
+
+                const data = await fetchAllInterviews(idToFetch);
                 const rawInterviews = data ?? [];
 
                 const enrichedData = await Promise.all(rawInterviews.map(async (item) => {

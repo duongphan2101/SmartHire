@@ -22,7 +22,7 @@ const getStatusColor = (status: string) => {
         case 'active': return 'var(--color-blue-500)';
         case 'pending': return 'var(--color-yellow-500)';
         case 'filled': return 'var(--color-emerald-600)';
-        case 'expired': return 'var(--color-gray-200)';
+        case 'expired': return 'var(--color-gray-400)';
         case 'banned': return 'var(--color-red-400)';
         default: return '#0288d1';
     }
@@ -62,12 +62,13 @@ export default function PieActiveArc({ hrId }: pieChartProps) {
     }, [dep, getJobByDepId]);
 
 
-    // Xử lý đếm số lượng theo status
-    const statusCounts = jobs.reduce((acc: Record<string, number>, job: any) => {
-        const status = job.status || 'unknown';
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-    }, {});
+    const safeJobs = Array.isArray(jobs) ? jobs : [];
+
+    const statusCounts = safeJobs.reduce((acc, job) => {
+    const status = job.status || 'unknown';
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+    }, {} as Record<string, number>);
 
     // Map dữ liệu cho biểu đồ
     const chartData = Object.keys(statusCounts).map((status, index) => ({

@@ -25,6 +25,7 @@ import useApplication from "../../hook/useApplication";
 import { useNavigate } from "react-router-dom";
 import type { ChatRoom } from "../../utils/interfaces";
 import ChatModal from "../../components/Chat/Chat";
+import DragorClick from "../../components/DragorClick/DragorClick";
 
 const MySwal = withReactContent(Swal);
 
@@ -33,8 +34,10 @@ const Home: React.FC = () => {
   const [animate, setAnimate] = useState(true);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [location, setLocation] = useState("");
-  const { filterJobs } = useJob();
-  const { joblatest, categories_sum } = useJob();
+
+  // Gộp useJob lại thành 1 lần gọi để state được đồng bộ
+  const { filterJobs, joblatest, categories_sum, latest } = useJob();
+
   const { saveJob, unsaveJob, user, getUser } = useUser();
   const navigate = useNavigate();
 
@@ -52,6 +55,7 @@ const Home: React.FC = () => {
   const { renderMatchingJob } = useApplication();
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
   const [openChat, setIsChatOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const [currentChatRoom, setCurrentChatRoom] = useState<ChatRoom | null>(null);
   const [fitJobNotify, setFitJobNotify] = useState<string>("Chưa có công việc nào phù hợp với bạn.");
 
@@ -65,19 +69,29 @@ const Home: React.FC = () => {
   const [slogan, setSlogan] = useState(slogans[0]);
 
   const handleSearch = async () => {
-    const results = await filterJobs(jobTitle, location);
-    if (results.length > 0) {
-      navigate(
-        `/jobdetail/${results[0]._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
-      );
-    } else {
-      Swal.fire({
+    const results = await filterJobs({ title: jobTitle, location });
+
+    if (!results || results.length === 0) {
+      return Swal.fire({
         icon: "info",
         title: "Thông báo",
         text: "Không có công việc phù hợp",
       });
     }
+
+    const sorted = results.reverse().sort((a, b) => {
+      const aScore = a.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+      const bScore = b.jobTitle.toLowerCase().startsWith(jobTitle.toLowerCase()) ? 1 : 0;
+      return bScore - aScore;
+    });
+
+    const target = sorted[0];
+
+    navigate(
+      `/jobdetail/${target._id}?title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+    );
   };
+
 
   const handleItem = async (title: string) => {
     const results = await categories_sum(title);
@@ -97,6 +111,8 @@ const Home: React.FC = () => {
   useEffect(() => {
     document.title = "S m a r t H i r e - Trang chủ";
     fetchProvinces_V2().then(setProvinces);
+    latest();
+
     let index = 0;
     const interval = setInterval(() => {
       setAnimate(false);
@@ -111,15 +127,17 @@ const Home: React.FC = () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
+        setIsLogin(true);
         const idToFetch = parsed.user_id ?? parsed._id;
         getUser(idToFetch);
       }
     } catch (e) {
       console.error("Invalid user data in localStorage", e);
+      setIsLogin(false);
     }
 
     return () => clearInterval(interval);
-  }, [getUser]);
+  }, [getUser, latest]); // Thêm latest vào dependency
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,7 +159,7 @@ const Home: React.FC = () => {
       setFullstack(full_stack.sum);
     };
     fetchData();
-  }, []);
+  }, []); // categories_sum là stable từ hook nên có thể để [] hoặc [categories_sum]
 
   const [lastestJobs, setLastestJobs] = useState<any[]>([]);
 
@@ -454,9 +472,9 @@ const Home: React.FC = () => {
                     <option value="dataAnalyst">Data Analyst</option>
                     <option value="sysAdmin">System Administrator</option>
                     <option value="QA">QA Engineer</option>
-                    <option value="DevEng">DevOps Engineer</option>
-                    <option value="Legal Specialist">Legal Specialistr</option>
-                    <option value="Admin Intern">Admin Intern</option>
+                    <option value="DevOps">DevOps Engineer</option>
+                    {/* <option value="Legal Specialist">Legal Specialistr</option> */}
+                    <option value="System">System Admintrator</option>
                   </select>
 
                   {/* Combobox Địa điểm */}
@@ -494,6 +512,67 @@ const Home: React.FC = () => {
             </div>
           </div>
 
+          <div className="container-fluid container-fluid_cvbuilder">
+            <div className="container-cvbuilder flex flex-wrap xl:flex-nowrap">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 w-full">
+                <div className="container-cvbuilder_banner">
+                  <div className="container-cvbuilder_shape"></div>
+                  <img className="cvBuilder-banner" src={cv_banner} />
+                </div>
+
+                <div className="container-cvbuilder_content flex flex-col items-center justify-center gap-6">
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    Tạo CV ấn tượng – Chạm gần hơn đến công việc mơ ước
+                  </h3>
+
+                  <p className="text-slate-600 leading-relaxed">
+                    Theo khảo sát,{" "}
+                    <span className="font-semibold text-emerald-600">
+                      {" "}
+                      65% nhà tuyển dụng{" "}
+                    </span>
+                    cho biết họ chỉ dành{" "}
+                    <span className="font-semibold">30 giây</span> để xem một
+                    CV. Một CV rõ ràng và chuyên nghiệp có thể giúp ứng viên{" "}
+                    <span className="font-semibold text-emerald-600">
+                      tăng gấp 2 lần cơ hội được gọi phỏng vấn
+                    </span>
+                    .
+                  </p>
+
+                  <button
+                    className="cssbuttons-io-button"
+                    onClick={() => {
+                      window.location.href = "/buildcv";
+                    }}
+                  >
+                    Bắt đầu ngay
+                    <div className="icon">
+                      <svg
+                        height="24"
+                        width="24"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M0 0h24v24H0z" fill="none"></path>
+                        <path
+                          d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                          fill="currentColor"
+                        ></path>
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div className="w-full">
+                    {isLogin && (
+                      <DragorClick />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="container-fluid container-fluid_categories">
             <div className="container-categories flex flex-wrap xl:flex-nowrap">
               <div
@@ -523,7 +602,7 @@ const Home: React.FC = () => {
                         }}
                       >
                         <div className="item-bottom">
-                          <span className="item-title">{item.name}</span>
+                          <span className="item-title_1 text-2xl">{item.name}</span>
                           <p className="text-gray-500 text-sm text-left" style={{ marginTop: 10 }}>{item.description}</p>
                           <span className="item-posted">
                             Bài đăng:
@@ -786,7 +865,7 @@ const Home: React.FC = () => {
                                 >
                                   <IoLocationOutline color="#059669" /> {item.job.location}
                                 </li>
-                                {/* <li
+                                <li
                                   className="bottom-li flex gap-3 items-center"
                                   style={{ fontSize: 13 }}
                                 >
@@ -798,7 +877,7 @@ const Home: React.FC = () => {
                                 >
                                   <AiOutlineClockCircle color="#059669" />
                                   {item.job.jobType}
-                                </li> */}
+                                </li>
                                 <li
                                   className="bottom-li flex gap-3 items-center"
                                   style={{ fontSize: 13 }}
@@ -809,38 +888,6 @@ const Home: React.FC = () => {
                               </ul>
 
                               <div className="flex items-center gap-3">
-
-                                <div className="relative group">
-
-                                  <div className="flex items-center gap-1 cursor-help rounded-md text-gray-400 text-sm">
-                                    Độ phù hợp:
-                                    <span className="font-bold text-emerald-600 text-lg leading-none">
-                                      {item.finalScore}%
-                                    </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-600">
-                                      <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
-                                    </svg>
-                                  </div>
-
-                                  {/* Tooltip nội dung lý do phù hợp */}
-                                  <div className="absolute z-10 bottom-full left-2/2 -translate-x-1/2 w-72 
-                                    p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg
-                                    opacity-0 group-hover:opacity-100 transition-all duration-300
-                                    pointer-events-none group-hover:pointer-events-auto
-                                    transform scale-95 group-hover:scale-100"
-                                    style={{ padding: 10 }}
-                                  >
-                                    <p className="font-bold mb-1 border-b border-b-gray-600 pb-1">Lý do phù hợp:</p>
-                                    <p className="text-gray-200 text-justify">{item.reason}</p>
-
-                                    {/* Mũi tên của Tooltip */}
-                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0
-                                      border-l-8 border-l-transparent
-                                      border-r-8 border-r-transparent
-                                      border-t-8 border-t-gray-900"></div>
-                                  </div>
-                                </div>
-
                                 <div
                                   className={`cursor-pointer flex items-center gap-2 text-xl transition-transform duration-300 ${item.animateSave ? "scale-125" : "scale-100"
                                     } ${item.job.isSaved
@@ -881,64 +928,14 @@ const Home: React.FC = () => {
             </div>
           </div>
 
-          <div className="container-fluid container-fluid_cvbuilder">
-            <div className="container-cvbuilder flex flex-wrap xl:flex-nowrap">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 w-full">
-                <div className="container-cvbuilder_banner">
-                  <div className="container-cvbuilder_shape"></div>
-                  <img className="cvBuilder-banner" src={cv_banner} />
-                </div>
 
-                <div className="container-cvbuilder_content flex flex-col items-center justify-center gap-6">
-                  <h3 className="text-2xl font-bold text-slate-900">
-                    Tạo CV ấn tượng – Chạm gần hơn đến công việc mơ ước
-                  </h3>
 
-                  <p className="text-slate-600 leading-relaxed">
-                    Theo khảo sát,{" "}
-                    <span className="font-semibold text-emerald-600">
-                      {" "}
-                      65% nhà tuyển dụng{" "}
-                    </span>
-                    cho biết họ chỉ dành{" "}
-                    <span className="font-semibold">30 giây</span> để xem một
-                    CV. Một CV rõ ràng và chuyên nghiệp có thể giúp ứng viên{" "}
-                    <span className="font-semibold text-emerald-600">
-                      tăng gấp 2 lần cơ hội được gọi phỏng vấn
-                    </span>
-                    .
-                  </p>
+          {/* <div className="container-fluid container-fluid_chart">
+            <div className="container-chart flex flex-wrap xl:flex-nowrap">
 
-                  {/* <button className="button">
-                                        <p>Bắt đầu ngay</p>
-                                    </button> */}
-
-                  <button
-                    className="cssbuttons-io-button"
-                    onClick={() => {
-                      window.location.href = "/buildcv";
-                    }}
-                  >
-                    Bắt đầu ngay
-                    <div className="icon">
-                      <svg
-                        height="24"
-                        width="24"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M0 0h24v24H0z" fill="none"></path>
-                        <path
-                          d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                          fill="currentColor"
-                        ></path>
-                      </svg>
-                    </div>
-                  </button>
-                </div>
-              </div>
             </div>
-          </div>
+          </div> */}
+
         </div>
 
         <Footer />

@@ -4,9 +4,16 @@ let io;
 
 const initSocket = (socketIoInstance) => {
   io = socketIoInstance;
+  if (!io) {
+    console.error("❌ Socket.io instance is undefined!");
+    return;
+  }
 
+  console.log("✅ Socket Listener Initialized");
   io.on("connection", (socket) => {
-    console.log("🔌 Connected:", socket.id);
+    console.log(`🔌 NEW CONNECTION DETECTED: ${socket.id}`);
+    console.log(`   -> Handshake query:`, socket.handshake.query);
+    console.log(`   -> Handshake auth:`, socket.handshake.auth);
 
     socket.on("joinRoom", (chatRoomId) => {
       socket.join(chatRoomId);

@@ -1,7 +1,7 @@
 .App {
   text-align: center;
   width: 100vw;
-  height: 100vh; 
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -21,7 +21,7 @@
   margin-bottom: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   padding-top: 100px;
- 
+
 }
 
 .empty-state {
@@ -53,7 +53,7 @@
 
 .cv-list-grid {
   display: flex;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   justify-content: center;
   gap: 24px;
   padding: 0 16px;
@@ -70,7 +70,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  
+
 }
 
 /* .cv-card:hover {
@@ -97,22 +97,28 @@
   margin-top: 0;
 }
 
-.view-detail-btn {
-  background-color: #059669;
-  color: #fff;
+.cvs_btn {
   padding: 10px 20px;
   border-radius: 6px;
-  border: none;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
   transition: background-color 0.2s ease, transform 0.2s ease;
+  font-size: large;
+}
+
+.view-detail-btn {
+  border: 1px solid #059669;
+  color: #059669;
+  /* background-color: #059669; */
 }
 
 .view-detail-btn:hover {
-  background-color: #047857;
+  background-color: #059669;
+  color: white;
   transform: translateY(-2px);
 }
+
 .cv-actions {
   display: flex;
   gap: 12px;
@@ -120,18 +126,34 @@
 }
 
 .delete-cv-btn {
-  background-color: #dc2626;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  border: 1px solid var(--color-red-400);
+  color: var(--color-red-400);
 }
 
 .delete-cv-btn:hover {
-  background-color: #b91c1c;
+  background-color: var(--color-red-400);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.download-cv-btn {
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+}
+
+.download-cv-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  color: white;
+}
+
+.edit-cv-btn {
+  border: 1px solid var(--color-orange-400);
+  color: var(--color-orange-400);
+}
+
+.edit-cv-btn:hover {
+  background-color: var(--color-orange-400);
+  color: white;
   transform: translateY(-2px);
 }

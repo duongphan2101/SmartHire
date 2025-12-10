@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   HiOutlineFolder,
   HiOutlineChevronDown,
@@ -8,15 +8,23 @@ import {
   HiOutlineDocumentText,
   HiOutlineNewspaper,
   HiMenu,
-  HiOutlineChartSquareBar
+  HiOutlineChartSquareBar,
 } from "react-icons/hi";
 import "./nav.css";
 
 interface AdminNavProps {
   setBreadcrumb: (breadcrumb: string) => void;
   setPage: (
-    page: "dashboard" | "manageUsers" | "manageHR" | "company" | "userTerms" | "hrTerms" | "post"
+    page:
+      | "dashboard"
+      | "manageUsers"
+      | "manageHR"
+      | "company"
+      | "userTerms"
+      | "hrTerms"
+      | "post"
   ) => void;
+  currentPage: string;
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
 }
@@ -24,12 +32,38 @@ interface AdminNavProps {
 const AdminNav: React.FC<AdminNavProps> = ({
   setBreadcrumb,
   setPage,
+  currentPage,
   collapsed,
   setCollapsed,
 }) => {
   const [isIconMode, setIsIconMode] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Bảng điều khiển");
+
+  useEffect(() => {
+    switch (currentPage) {
+      case "dashboard":
+        setActiveItem("Bảng điều khiển");
+        break;
+      case "post":
+        setActiveItem("Bài đăng");
+        break;
+      case "manageUsers":
+        setActiveItem("HR");
+        break;
+      case "company":
+        setActiveItem("Công ty");
+        break;
+      case "userTerms":
+        setActiveItem("Điều khoản người dùng");
+        break;
+      case "hrTerms":
+        setActiveItem("Điều khoản HR");
+        break;
+      default:
+        setActiveItem("");
+    }
+  }, [currentPage]);
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -74,16 +108,19 @@ const AdminNav: React.FC<AdminNavProps> = ({
           <div className="admin-project-name-wrapper">
             <HiOutlineFolder className="admin-project-icon" />
             <span>Quản trị viên</span>
-            <HiMenu className="admin-dropdown-arrow" onClick={handleMenuClick} />
+            <HiMenu
+              className="admin-dropdown-arrow"
+              onClick={handleMenuClick}
+            />
           </div>
         )}
       </div>
 
-      
-
       <ul className="admin-nav-menu">
         <li
-          className={`admin-nav-item ${activeItem === "Bảng điều khiển" ? "active" : ""}`}
+          className={`admin-nav-item ${
+            currentPage === "dashboard" ? "active" : ""
+          }`}
           onClick={() => handleItemClick("Bảng điều khiển", false)}
         >
           <div className="admin-nav-item-content">
@@ -95,7 +132,7 @@ const AdminNav: React.FC<AdminNavProps> = ({
         </li>
 
         <li
-          className={`admin-nav-item ${activeItem === "post" ? "active" : ""}`}
+          className={`admin-nav-item ${currentPage === "post" ? "active" : ""}`}
           onClick={() => handleItemClick("Bài đăng", false)}
         >
           <div className="admin-nav-item-content">
@@ -106,7 +143,9 @@ const AdminNav: React.FC<AdminNavProps> = ({
           </div>
         </li>
         <li
-          className={`admin-nav-item ${activeItem === "HR" ? "active" : ""}`}
+          className={`admin-nav-item ${
+            currentPage === "manageUsers" ? "active" : ""
+          }`}
           onClick={() => handleItemClick("HR", false)}
         >
           <div className="admin-nav-item-content">
@@ -118,7 +157,9 @@ const AdminNav: React.FC<AdminNavProps> = ({
         </li>
 
         <li
-          className={`admin-nav-item ${activeItem === "Công ty" ? "active" : ""}`}
+          className={`admin-nav-item ${
+            currentPage === "company" ? "active" : ""
+          }`}
           onClick={() => handleItemClick("Công ty", false)}
         >
           <div className="admin-nav-item-content">
@@ -176,7 +217,9 @@ const AdminNav: React.FC<AdminNavProps> = ({
         </li>
 
         <li
-          className={`admin-nav-item ${activeItem === "Tin tức mới" ? "active" : ""}`}
+          className={`admin-nav-item ${
+            activeItem === "Tin tức mới" ? "active" : ""
+          }`}
           onClick={() => handleItemClick("Tin tức mới", false)}
         >
           <div className="admin-nav-item-content">
