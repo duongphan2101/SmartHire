@@ -16,7 +16,7 @@ export interface DepartmentData {
     employees: string[];
     averageRating?: number; 
     totalReviews?: number; 
-    createdAt: string; // Thêm createdAt cho việc hiển thị ngày
+    createdAt?: string; // Thêm createdAt cho việc hiển thị ngày
 }
 
 interface UseDepartmentReturn {
