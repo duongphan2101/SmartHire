@@ -22,7 +22,7 @@ exports.sendVerifyEmail = async (req, res) => {
       process.env.EMAIL_VERIFY_SECRET,
       { expiresIn: "1d" }
     );
-    const verifyLink = `${process.env.CLIENT_URL}/verify?token=${token}`;
+    const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
     //console.log("Verify Link:", verifyLink);
 
     // --- 1. Template HTML mới (Theo phong cách notifyApplication) ---
@@ -44,11 +44,6 @@ exports.sendVerifyEmail = async (req, res) => {
               Xác nhận Email
             </a>
           </div>
-          
-          <p>Nếu bạn không thể nhấp vào nút trên, vui lòng sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
-          <p style="word-break: break-all; font-size: 14px;">
-            <a href="${verifyLink}" style="color: #2563eb;">${verifyLink}</a>
-          </p>
 
           <p style="margin-top: 25px;">
             Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email này.

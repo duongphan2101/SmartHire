@@ -82,14 +82,18 @@ const splitSkills = (skillsStr) => {
 
 const createPDF = async (cvData, settings, layoutOrder) => {
   let browser;
+
   try {
-    const langCode = settings?.lang === 'en' ? 'en' : 'vi';
+    // ------------------------------
+    // 1. I18n + settings
+    // ------------------------------
+    const langCode = settings?.lang === "en" ? "en" : "vi";
     const i18n = DICTIONARY[langCode];
 
     const finalSettings = {
-      color: settings?.color || cvData.color || '#059669',
-      fontFamily: settings?.fontFamily || cvData.fontFamily || 'Arial',
-      lang: langCode
+      color: settings?.color || cvData.color || "#059669",
+      fontFamily: settings?.fontFamily || cvData.fontFamily || "Arial",
+      lang: langCode,
     };
 
     const templateType = cvData.templateType || 1;
@@ -98,99 +102,142 @@ const createPDF = async (cvData, settings, layoutOrder) => {
     const profSkillsArray = splitSkills(cvData.professionalSkills);
     const softSkillsArray = splitSkills(cvData.softSkills);
 
-    const defaultOrder = ['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'EDUCATION', 'SKILLS', 'ACTIVITIES'];
-    const order = layoutOrder && layoutOrder.length > 0 ? layoutOrder : defaultOrder;
+    // ------------------------------
+    // 2. Sắp xếp layout section
+    // ------------------------------
+    const defaultOrder = [
+      "SUMMARY",
+      "EXPERIENCE",
+      "PROJECTS",
+      "EDUCATION",
+      "SKILLS",
+      "ACTIVITIES",
+    ];
 
-    const orderedSections = order.map(sectionKey => {
-      switch (sectionKey) {
-        case 'SUMMARY':
-          return {
-            type: 'SUMMARY',
-            title: i18n.SUMMARY,
-            content: cvData.introduction,
-            hasData: !!cvData.introduction
-          };
-        case 'EXPERIENCE':
-          return {
-            type: 'EXPERIENCE',
-            title: i18n.EXPERIENCE,
-            items: cvData.experience,
-            hasData: cvData.experience?.length > 0
-          };
-        case 'PROJECTS':
-          return {
-            type: 'PROJECTS',
-            title: i18n.PROJECTS,
-            items: cvData.projects,
-            hasData: cvData.projects?.length > 0
-          };
-        case 'EDUCATION':
-          return {
-            type: 'EDUCATION',
-            title: i18n.EDUCATION,
-            items: cvData.education,
-            hasData: cvData.education?.length > 0
-          };
-        case 'SKILLS':
-          return {
-            type: 'SKILLS',
-            title: i18n.SKILLS,
-            profSkillsArray: profSkillsArray,
-            softSkillsArray: softSkillsArray,
-            hasData: profSkillsArray.length > 0 || softSkillsArray.length > 0
-          };
-        case 'ACTIVITIES':
-          return {
-            type: 'ACTIVITIES',
-            title: i18n.ACTIVITIES,
-            content: cvData.activitiesAwards,
-            hasData: !!cvData.activitiesAwards
-          };
-        default:
-          return null;
-      }
-    }).filter(section => section && section.hasData);
+    const order = layoutOrder?.length > 0 ? layoutOrder : defaultOrder;
 
+    const orderedSections = order
+      .map((key) => {
+        switch (key) {
+          case "SUMMARY":
+            return {
+              type: "SUMMARY",
+              title: i18n.SUMMARY,
+              content: cvData.introduction,
+              hasData: !!cvData.introduction,
+            };
+
+          case "EXPERIENCE":
+            return {
+              type: "EXPERIENCE",
+              title: i18n.EXPERIENCE,
+              items: cvData.experience,
+              hasData: cvData.experience?.length > 0,
+            };
+
+          case "PROJECTS":
+            return {
+              type: "PROJECTS",
+              title: i18n.PROJECTS,
+              items: cvData.projects,
+              hasData: cvData.projects?.length > 0,
+            };
+
+          case "EDUCATION":
+            return {
+              type: "EDUCATION",
+              title: i18n.EDUCATION,
+              items: cvData.education,
+              hasData: cvData.education?.length > 0,
+            };
+
+          case "SKILLS":
+            return {
+              type: "SKILLS",
+              title: i18n.SKILLS,
+              profSkillsArray,
+              softSkillsArray,
+              hasData:
+                profSkillsArray.length > 0 || softSkillsArray.length > 0,
+            };
+
+          case "ACTIVITIES":
+            return {
+              type: "ACTIVITIES",
+              title: i18n.ACTIVITIES,
+              content: cvData.activitiesAwards,
+              hasData: !!cvData.activitiesAwards,
+            };
+
+          default:
+            return null;
+        }
+      })
+      .filter((sec) => sec?.hasData);
+
+    // ------------------------------
+    // 3. Generate HTML từ template
+    // ------------------------------
     const content = compileTemplate(templateFileName, {
       ...cvData,
       settings: finalSettings,
       orderedSections,
-      i18n
+      i18n,
     });
 
+    // ------------------------------
+    // 4. Puppeteer chạy Chromium trong Docker
+    // ------------------------------
     browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH, // ★ BẮT BUỘC
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--single-process",
+        "--no-zygote",
+      ],
     });
+
     const page = await browser.newPage();
+    await page.setContent(content, { waitUntil: "networkidle0" });
 
-    await page.setContent(content, { waitUntil: 'networkidle0' });
-
+    // ------------------------------
+    // 5. Xuất PDF
+    // ------------------------------
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
-      margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
+      margin: { top: "0px", bottom: "0px", left: "0px", right: "0px" },
     });
 
-    const fileName = `cv-${cvData.user_id || 'guest'}-${Date.now()}.pdf`;
-    const uploadParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileName,
-      Body: pdfBuffer,
-      ContentType: 'application/pdf',
-      ACL: 'public-read'
-    };
+    // ------------------------------
+    // 6. Upload S3 → trả URL
+    // ------------------------------
+    const fileName = `cv-${cvData.user_id || "guest"}-${Date.now()}.pdf`;
 
-    const s3Response = await s3.upload(uploadParams).promise();
+    const s3Response = await s3
+      .upload({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: pdfBuffer,
+        ContentType: "application/pdf",
+        ACL: "public-read",
+      })
+      .promise();
+
     return s3Response.Location;
 
   } catch (error) {
     console.error("Puppeteer/S3 Error:", error);
     throw error;
+
   } finally {
     if (browser) await browser.close();
   }
 };
+
 
 exports.createCV = async (req, res) => {
   try {
