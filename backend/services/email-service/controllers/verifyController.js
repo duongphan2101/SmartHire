@@ -22,8 +22,8 @@ exports.sendVerifyEmail = async (req, res) => {
       process.env.EMAIL_VERIFY_SECRET,
       { expiresIn: "1d" }
     );
-    const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
-    console.log("Verify Link:", verifyLink);
+    const verifyLink = `${process.env.CLIENT_URL}/verify?token=${token}`;
+    //console.log("Verify Link:", verifyLink);
 
     // --- 1. Template HTML mới (Theo phong cách notifyApplication) ---
     const subject = `SmartHire - Vui lòng xác nhận email của bạn`;
