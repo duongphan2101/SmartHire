@@ -21,8 +21,9 @@ export const HOSTS = {
   termService: "/api/terms",
   // socket: "http://47.129.8.162:7000",
   // chat_socket: "http://47.129.8.162:1000",
-  socket: "http://52.76.22.144:7000",
-  chat_socket: "http://52.76.22.144:1000",
+  socket: "http://52.76.22.144/socket.io",
+  chat_socket: "http://52.76.22.144/chat.io",
+
 };
 
 // export const HOSTS = {

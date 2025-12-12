@@ -19,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = new Server(server, {
+  path: "/chat.io",
   cors: { origin: "*" },
 });
 initSocket(io);

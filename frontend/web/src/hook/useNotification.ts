@@ -25,7 +25,7 @@ type ApiError = {
 
 const NOTIFICATION_API_HOST =
   HOSTS.notificationService || "http://localhost:7000/api/notifications";
-const SOCKET_HOST = HOSTS.socket || "http://localhost:7000";
+// const SOCKET_HOST = HOSTS.socket || "http://localhost:7000";
 
 export default function useNotification(userId?: string) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -61,7 +61,8 @@ export default function useNotification(userId?: string) {
 
     fetchNotifications(userId);
 
-    const newSocket = io(SOCKET_HOST, {
+    const newSocket = io("http://52.76.22.144", {
+      path: "/socket.io",
       withCredentials: true,
       transports: ["websocket"],
     });

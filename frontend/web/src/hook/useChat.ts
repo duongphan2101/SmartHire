@@ -4,7 +4,7 @@ import axios from "axios";
 import type { ChatMessage, ChatRequest, ChatRoom } from "../utils/interfaces";
 import { HOSTS } from "../utils/host";
 
-const SOCKET_URL = HOSTS.chat_socket;
+// const SOCKET_URL = HOSTS.chat_socket;
 const API_URL = HOSTS.chatService;
 
 export const useChat = () => {
@@ -31,8 +31,8 @@ export const useChat = () => {
 
     useEffect(() => {
         if (!userId) return;
-
-        const s: Socket = io(SOCKET_URL, {
+        const s: Socket = io("http://52.76.22.144", {
+            path: "/chat.io",
             query: { userId }
         });
         setSocket(s);

@@ -11,6 +11,7 @@ const server = http.createServer(app);
 // Cấu hình socket.io
 const io = new Server(server, {
   cors: {
+    path: "/socket.io",
     origin: process.env.CLIENT_URL || "http://localhost",
     methods: ["GET", "POST"],
     credentials: true,
