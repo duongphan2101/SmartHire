@@ -527,7 +527,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                   <div className="text-left flex flex-col gap-3 w-4/5">
                     <FaForumbee size={32} className="text-purple-700" />
                     <span className="font-medium">
-                      Tổng số bài đăng đang chờ duyệt
+                      Tổng số bài đăng
                     </span>
                   </div>
                   <div className="flex items-end justify-end">
