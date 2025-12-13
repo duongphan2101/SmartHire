@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { HOSTS } from "../utils/host";
-import type { InviteData } from "../utils/interfaces";
+// import type { InviteData } from "../utils/interfaces";
 
 export type DepartmentStatus = "Pending" | "Active" | "Suspended";
 
