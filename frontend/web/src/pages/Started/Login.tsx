@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Login.css";
 // import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -14,7 +14,7 @@ function Login() {
   const [isShown, setIsShown] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error, loginWithGoogle } =
+  const { login, loading, error } =
     useAuth();
 
   useEffect(() => {
@@ -120,17 +120,17 @@ function Login() {
             <hr />
           </div>
 
-          <div className="social-buttons">
-            {/* <button className="social-btn facebook" onClick={loginWithFacebook}>
+          {/* <div className="social-buttons">
+            <button className="social-btn facebook" onClick={loginWithFacebook}>
             <FaFacebook size={20} color="#197ce6" />
             Đăng nhập với Facebook
-          </button> */}
+          </button>
 
             <button className="social-btn google" onClick={loginWithGoogle}>
               <FcGoogle size={20} />
               Đăng nhập với Google
             </button>
-          </div>
+          </div> */}
 
         </form>
 

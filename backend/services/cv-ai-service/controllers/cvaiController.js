@@ -334,6 +334,8 @@ async function analysicCV(req, res) {
       - có thiếu cấu trúc ATS quan trọng không
       - gợi ý tăng khả năng ATS đọc được
 
+      Trả về JSON theo đúng schema dưới đây, không thêm, không bớt:
+
       {
         "summary": "",
         "strengths": [],

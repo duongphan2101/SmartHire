@@ -9,7 +9,6 @@ const createDepartmentInvite = async (req, res) => {
 
     const invite = new DepartmentInvite({ code, departmentId, createdBy });
     await invite.save();
-
     res.status(201).json({
       message: "Tạo mã mời thành công",
       code,

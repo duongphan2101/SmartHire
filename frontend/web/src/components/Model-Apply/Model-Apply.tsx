@@ -20,7 +20,7 @@ import useCV from "../../hook/useCV";
 import useApplication from "../../hook/useApplication";
 import useUser from "../../hook/useUser";
 import { Switch } from "antd";
-import { Editor } from '@tinymce/tinymce-react';
+// import { Editor } from '@tinymce/tinymce-react';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -271,7 +271,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                 {loading && <CircularProgress size={20} color="success" sx={{ ml: 1 }} />}
               </div>
 
-              {/* Thư giới thiệu
+              {/* Thư giới thiệu              */}
               <TextField className="coverletter_form"
                 label="Thư giới thiệu (có thể có hoặc không)"
                 multiline
@@ -286,9 +286,9 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                   readOnly: loading,
                 }}
               />
-              */}
 
-              <Editor
+
+              {/* <Editor
                 apiKey='saes9udluksqnlng4b13gp0sqyojl5dg0jlaozmbylbboyxe'
                 value={coverletter}
                 onEditorChange={(newValue) => setCoverletter(newValue)}
@@ -307,7 +307,7 @@ const ApplyModal: React.FC<ApplyModalProps> = ({ _id, jobTitle, department, open
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                   entity_encoding: 'raw'
                 }}
-              />
+              /> */}
 
               {/* Khung chỉnh sửa AI */}
               {aiSupport && (

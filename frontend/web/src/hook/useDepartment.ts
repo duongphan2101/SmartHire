@@ -14,8 +14,8 @@ export interface DepartmentData {
     website: string;
     status: DepartmentStatus;
     employees: string[];
-    averageRating?: number; 
-    totalReviews?: number; 
+    averageRating?: number;
+    totalReviews?: number;
     createdAt?: string; // Thêm createdAt cho việc hiển thị ngày
 }
 
@@ -23,7 +23,7 @@ interface UseDepartmentReturn {
     // data
     department: DepartmentData | null;
     departments: DepartmentData[];
-    invite: InviteData | null;
+    invite: InviteResponse | null;
     joinResponse: { success: boolean; message: string } | null;
 
     // state
@@ -36,18 +36,24 @@ interface UseDepartmentReturn {
     deleteDepartment: (id: string) => Promise<void>;
     updateDepartmentStatus: (id: string, newStatus: DepartmentStatus) => Promise<void>;
     getDepartmentById: (id: string) => Promise<void>;
-    createInvite: (departmentId: string, createdBy: string) => Promise<InviteData>;
+    createInvite: (departmentId: string, createdBy: string) => Promise<InviteResponse>;
     joinDepartment: (code: string, userId: string) => Promise<void>;
     getDepartmentByUserId: (id: string) => Promise<DepartmentData | undefined>;
-    
+
     // NEW ADMIN ACTION
     fetchPendingDepartmentsAdmin: () => Promise<DepartmentData[]>;
 }
 
+type InviteResponse = {
+    code: string;
+    expiresAt: string;
+    message: string;
+};
+
 export default function useDepartment(mode: "user" | "all" = "user"): UseDepartmentReturn {
     const [department, setDepartment] = useState<DepartmentData | null>(null);
     const [departments, setDepartments] = useState<DepartmentData[]>([]);
-    const [invite, setInvite] = useState<InviteData | null>(null);
+    const [invite, setInvite] = useState<InviteResponse | null>(null);
     const [joinResponse, setJoinResponse] = useState<{ success: boolean; message: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -71,7 +77,6 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
             setLoading(false);
         }
     }, [host]);
-
 
     const fetchData = useCallback(async () => {
         try {
@@ -168,7 +173,10 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
     const createInvite = useCallback(async (departmentId: string, createdBy: string) => {
         try {
             setLoading(true);
-            const res = await axios.post<InviteData>(`${host}/create-invite`, { departmentId, createdBy });
+            const res = await axios.post<InviteResponse>(`${host}/create-invite`, { departmentId, createdBy });
+            if (!res.data?.code) {
+                throw new Error("Response không hợp lệ");
+            }
             setInvite(res.data);
             return res.data;
         } catch (err) {
