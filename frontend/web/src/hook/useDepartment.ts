@@ -45,9 +45,9 @@ interface UseDepartmentReturn {
 }
 
 type InviteResponse = {
+    message: string;
     code: string;
     expiresAt: string;
-    message: string;
 };
 
 export default function useDepartment(mode: "user" | "all" = "user"): UseDepartmentReturn {
