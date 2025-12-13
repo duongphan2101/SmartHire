@@ -82,18 +82,23 @@ const Company: React.FC = () => {
     const departmentId = department._id;
     const createdBy = user._id || user.user_id;
 
-    try {
-      const result = await createInvite(departmentId, createdBy);
-      if (result?.code) {
+    const result = await createInvite(departmentId, createdBy);
+
+    if (result?.code) {
+      try {
         await navigator.clipboard.writeText(result.code);
         MySwal.fire(
           "Tạo mã thành công!",
           `CODE: ${result.code}\n\n(Đã sao chép vào clipboard)`,
           "success"
         );
+      } catch {
+        MySwal.fire(
+          "Tạo mã thành công!",
+          `CODE: ${result.code}\n\n(Không thể tự copy, vui lòng copy thủ công)`,
+          "success"
+        );
       }
-    } catch (err) {
-      MySwal.fire("Lỗi!", "Không thể tạo mã mời. Vui lòng thử lại.", "error");
     }
   };
 
