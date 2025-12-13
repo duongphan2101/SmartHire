@@ -174,7 +174,7 @@ export default function useDepartment(mode: "user" | "all" = "user"): UseDepartm
         try {
             setLoading(true);
             const res = await axios.post<InviteResponse>(`${host}/create-invite`, { departmentId, createdBy });
-            console.log("CODE: ", res.data);
+            //console.log("CODE: ", res.data);
             if (!res.data?.code) {
                 throw new Error("Response không hợp lệ");
             }

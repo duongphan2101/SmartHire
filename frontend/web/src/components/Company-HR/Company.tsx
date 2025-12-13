@@ -95,7 +95,7 @@ const Company: React.FC = () => {
       } catch {
         MySwal.fire(
           "Tạo mã thành công!",
-          `CODE: ${result.code}\n\n(Không thể tự copy, vui lòng copy thủ công)`,
+          `CODE: ${result.code}`,
           "success"
         );
       }
