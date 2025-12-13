@@ -2,7 +2,7 @@ import { Fa42Group } from "react-icons/fa6";
 import "./Dashboard.css";
 
 import { FaAccusoft, FaForumbee, FaLinux } from 'react-icons/fa';
-import AreaBaseline from "./AreaBaseLine";
+// import AreaBaseline from "./AreaBaseLine";
 import PieChart from "./PieChart";
 import { useEffect, useState } from "react";
 import useDashboard from "../../hook/useDashboard";
@@ -386,9 +386,9 @@ const Dashboard = ({ onOpenChatRequest, setPage, setBreadcrumb }: DashboardProps
                             <div className="shadow-xl rounded-xl">
                                 <PieChart hrId={userIdFind} />
                             </div>
-                            <div className="shadow-xl rounded-xl">
+                            {/* <div className="shadow-xl rounded-xl">
                                 <AreaBaseline />
-                            </div>
+                            </div> */}
                         </div>
 
                     </div>

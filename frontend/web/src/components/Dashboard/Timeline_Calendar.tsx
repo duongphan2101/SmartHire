@@ -128,7 +128,7 @@ const Calendar_FC: React.FC = () => {
                     headerToolbar={{
                         left: "prev,next today",
                         center: "title",
-                        right: "dayGridMonth,dayGridWeek,dayGridDay,dayGridYear",
+                        right: ",dayGridDay,dayGridWeek,dayGridMonth,dayGridYear",
 
                     }}
                 />
